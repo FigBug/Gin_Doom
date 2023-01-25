@@ -6,6 +6,7 @@ class DoomComponent : public juce::Component,
 {
 public:
     DoomComponent();
+    ~DoomComponent() override;
 
     void startGame (juce::File wadFile);
 

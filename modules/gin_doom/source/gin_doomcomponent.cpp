@@ -1,14 +1,15 @@
 
 extern "C"
 {
-#include "../../../doomgeneric/m_argv.h"
-#include "../../../doomgeneric/doomkeys.h"
+#include "doomgeneric/m_argv.h"
+#include "doomgeneric/doomkeys.h"
 
 void D_DoomMain (void);
 void M_FindResponseFile(void);
 void dg_Create();
 
 extern uint32_t* DG_ScreenBuffer;
+extern uint32_t runloop;
 }
 
 static DoomComponent* dc = nullptr;
@@ -97,9 +98,9 @@ void updateFrame (juce::Image img)
 {
     juce::ScopedLock sl (dc->lock);
     dc->screen = img;
-    juce::MessageManager::callAsync ([]
+    juce::MessageManager::callAsync ([s = juce::Component::SafePointer<juce::Component> (dc)]
     {
-        if (dc)
+        if (s && dc)
             dc->repaint();
     });
 }
@@ -192,6 +193,12 @@ DoomComponent::DoomComponent()
     startTimerHz (60);
 }
 
+DoomComponent::~DoomComponent()
+{
+    runloop = 0;
+    stopThread (100);
+}
+
 void DoomComponent::startGame (juce::File wadFile_)
 {
     wadFile = wadFile_;
@@ -221,6 +228,15 @@ void DoomComponent::run()
 
     D_DoomMain ();
 
+    juce::MessageManager::callAsync ([s = juce::Component::SafePointer<DoomComponent> (dc)]
+    {
+        if (s)
+        {
+            juce::ScopedLock sl (s->lock);
+            s->screen = {};
+            s->repaint();
+        }
+    });
     dc = nullptr;
 }
 
@@ -337,9 +353,6 @@ int DoomComponent::mapKey (int key)
     if (key == juce::KeyPress::numberPadDecimalPoint) return KEYP_PERIOD;
     if (key == juce::KeyPress::numberPadEquals) return KEYP_EQUALS;
     //if (key == juce::KeyPress::) return KEYP_ENTER;
-
-    if (isalpha (key))
-        return toupper (key);
 
     return key;
 }

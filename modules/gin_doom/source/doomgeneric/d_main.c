@@ -94,10 +94,11 @@ char *          savegamedir;
 char *          iwadfile;
 
 
-boolean		devparm;	// started game with -devparm
+boolean		    devparm;	// started game with -devparm
 boolean         nomonsters;	// checkparm of -nomonsters
 boolean         respawnparm;	// checkparm of -respawn
 boolean         fastparm;	// checkparm of -fast
+uint32_t        runloop;    // run the event loop
 
 //extern int soundVolume;
 //extern  int	sfxVolume;
@@ -439,7 +440,8 @@ void D_DoomLoop (void)
         wipegamestate = gamestate;
     }
 
-    while (1)
+    runloop = 1;
+    while (runloop)
     {
 		// frame syncronous IO operations
 		I_StartFrame ();
@@ -1080,7 +1082,7 @@ static void D_Endoom(void)
 
     I_Endoom(endoom);
 
-	exit(0);
+    runloop = 0;
 }
 
 #if ORIGCODE
