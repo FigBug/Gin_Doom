@@ -188,6 +188,13 @@ DoomComponent::DoomComponent()
 {
     setOpaque (true);
     setWantsKeyboardFocus (true);
+
+    startTimerHz (60);
+}
+
+void DoomComponent::startGame (juce::File wadFile_)
+{
+    wadFile = wadFile_;
     startThread();
 }
 
@@ -195,10 +202,12 @@ void DoomComponent::run()
 {
     dc = this;
 
+    auto path = wadFile.getFullPathName();
+
     const char* params[3];
     params[0] = "doom";
     params[1] = "-iwad";
-    params[2] = "/Users/rrabien/Downloads/DOOM1.WAD";
+    params[2] = path.toRawUTF8();
 
     myargc = 3;
     myargv = (char**)params;
@@ -224,6 +233,11 @@ void DoomComponent::paint (juce::Graphics& g)
         g.drawImage (screen, getLocalBounds().toFloat());
 }
 
+void DoomComponent::timerCallback()
+{
+    keyStateChanged (false);
+}
+
 bool DoomComponent::keyStateChanged (bool)
 {
     std::set<int> currentKeys;
@@ -235,6 +249,7 @@ bool DoomComponent::keyStateChanged (bool)
     auto& mods = juce::ModifierKeys::currentModifiers;
     if (mods.isShiftDown())     currentKeys.insert (shift);
     if (mods.isCommandDown())   currentKeys.insert (ctrl);
+    if (mods.isCtrlDown())      currentKeys.insert (ctrl);
     if (mods.isAltDown())       currentKeys.insert (alt);
 
     //

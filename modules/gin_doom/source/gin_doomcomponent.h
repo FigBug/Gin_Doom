@@ -1,10 +1,13 @@
 #pragma once
 
 class DoomComponent : public juce::Component,
-                      private juce::Thread
+                      private juce::Thread,
+                      private juce::Timer
 {
 public:
     DoomComponent();
+
+    void startGame (juce::File wadFile);
 
 private:
     friend void updateFrame (juce::Image img);
@@ -13,6 +16,7 @@ private:
     void run() override;
     void paint (juce::Graphics& g) override;
     bool keyStateChanged (bool isKeyDown) override;
+    void timerCallback() override;
 
     void addEvent (int key, bool press);
     int mapKey (int key);
@@ -22,4 +26,6 @@ private:
 
     std::set<int> pressedKeys;
     std::vector<std::pair<int, bool>> keyEvents;
+
+    juce::File wadFile;
 };
