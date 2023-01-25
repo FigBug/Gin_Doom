@@ -19,7 +19,7 @@
 #include <stdlib.h>
 
 #ifdef FEATURE_SOUND
-#include "SDL2/SDL_mixer.h"
+//#include "SDL2/SDL_mixer.h"
 #endif
 
 #include "config.h"
@@ -199,7 +199,7 @@ void I_InitSound(boolean use_sfx_prefix)
          && (snd_musicdevice == SNDDEVICE_GENMIDI
           || snd_musicdevice == SNDDEVICE_GUS))
         {
-            I_InitTimidityConfig();
+            //I_InitTimidityConfig();
         }
 
         if (!nosfx)
@@ -412,8 +412,8 @@ boolean I_MusicIsPlaying(void)
 
 void I_BindSoundVariables(void)
 {
-    extern int use_libsamplerate;
-    extern float libsamplerate_scale;
+    //extern int use_libsamplerate;
+    //extern float libsamplerate_scale;
 
     M_BindVariable("snd_musicdevice",   &snd_musicdevice);
     M_BindVariable("snd_sfxdevice",     &snd_sfxdevice);
@@ -427,8 +427,8 @@ void I_BindSoundVariables(void)
     M_BindVariable("snd_cachesize",     &snd_cachesize);
 
 #ifdef FEATURE_SOUND
-    M_BindVariable("use_libsamplerate",   &use_libsamplerate);
-    M_BindVariable("libsamplerate_scale", &libsamplerate_scale);
+    //M_BindVariable("use_libsamplerate",   &use_libsamplerate);
+    //M_BindVariable("libsamplerate_scale", &libsamplerate_scale);
 #endif
 
     // Before SDL_mixer version 1.2.11, MIDI music caused the game

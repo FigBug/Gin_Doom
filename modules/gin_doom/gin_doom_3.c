@@ -23,5 +23,9 @@
 #pragma clang diagnostic ignored "-Wabsolute-value"
 #pragma clang diagnostic ignored "-Wcast-align"
 
+#define FEATURE_SOUND
+
 #include "source/doomgeneric/wi_stuff.c"
 #include "source/doomgeneric/i_video.c"
+#include "source/doomgeneric/i_sdlsound.c"
+#include "source/doomgeneric/i_sdlmusic.c"

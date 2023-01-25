@@ -23,6 +23,8 @@
 #pragma clang diagnostic ignored "-Wabsolute-value"
 #pragma clang diagnostic ignored "-Wcast-align"
 
+#define FEATURE_SOUND
+
 #include "source/doomgeneric/p_enemy.c"
 #include "source/doomgeneric/p_floor.c"
 #include "source/doomgeneric/p_inter.c"

@@ -22,7 +22,7 @@
 
 #ifdef FEATURE_SOUND
 
-#include <SDL2/SDL_endian.h>
+//#include <SDL2/SDL_endian.h>
 
 // Endianess handling.
 // WAD files are stored little endian.
@@ -31,6 +31,9 @@
 
 // These are deliberately cast to signed values; this is the behaviour
 // of the macros in the original source and some code relies on it.
+
+#define SDL_SwapLE16(x) (x)
+#define SDL_SwapLE32(x) (x)
 
 #define SHORT(x)  ((signed short) SDL_SwapLE16(x))
 #define LONG(x)   ((signed int) SDL_SwapLE32(x))

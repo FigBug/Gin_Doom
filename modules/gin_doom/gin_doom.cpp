@@ -13,6 +13,8 @@
 
 #pragma clang diagnostic ignored "-Wmissing-prototypes"
 
+#define FEATURE_SOUND
+
 namespace gin
 {
 #include "source/gin_doomcomponent.cpp"

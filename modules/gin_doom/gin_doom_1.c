@@ -23,6 +23,8 @@
 #pragma clang diagnostic ignored "-Wabsolute-value"
 #pragma clang diagnostic ignored "-Wcast-align"
 
+#define FEATURE_SOUND
+
 #include "source/doomgeneric/am_map.c"
 #include "source/doomgeneric/d_event.c"
 #include "source/doomgeneric/d_items.c"
