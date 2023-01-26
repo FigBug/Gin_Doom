@@ -24,7 +24,7 @@
   license:              GPL2
   minimumCppStandard:   17
 
-  dependencies:         juce_core juce_data_structures juce_gui_basics
+  dependencies:         juce_core juce_data_structures juce_gui_basics juce_audio_basics
   OSXFrameworks:        Security
 
  END_JUCE_MODULE_DECLARATION
@@ -55,10 +55,12 @@
 
 //==============================================================================
 #include <juce_core/juce_core.h>
+#include <juce_audio_basics/juce_audio_basics.h>
 #include <juce_gui_basics/juce_gui_basics.h>
 #include <juce_data_structures/juce_data_structures.h>
 
 namespace gin
 {
+#include "source/gin_doomaudioengine.h"
 #include "source/gin_doomcomponent.h"
 }

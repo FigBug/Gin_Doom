@@ -29,4 +29,6 @@ private:
     std::vector<std::pair<int, bool>> keyEvents;
 
     juce::File wadFile;
+
+    DoomAudioEngine audio;
 };

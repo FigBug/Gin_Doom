@@ -1,9 +1,6 @@
 
 extern "C"
 {
-#include "doomgeneric/m_argv.h"
-#include "doomgeneric/doomkeys.h"
-
 void D_DoomMain (void);
 void M_FindResponseFile(void);
 void dg_Create();
