@@ -1,6 +1,31 @@
 
 DoomAudioEngine* e = nullptr;
 
+void DoomAudioEngine::Channel::processBlock (juce::AudioBuffer<float>& bufferOut, int sampleRateOut)
+{
+    fifo.setResamplingRatio (samplerate, sampleRateOut);
+
+    while (fifo.samplesReady() < buffer.getNumSamples())
+    {
+        int todo = std::min (16, buffer.getNumSamples() - pos);
+        if (todo == 0)
+        {
+            gin::ScratchBuffer silence (2, 128);
+            silence.clear();
+            fifo.pushAudioBuffer (silence);
+            playing = false;
+        }
+        else
+        {
+            auto slice = gin::sliceBuffer (buffer, pos, todo);
+            fifo.pushAudioBuffer (slice);
+            pos += todo;
+        }
+    }
+
+    fifo.popAudioBufferAdding (bufferOut);
+}
+
 DoomAudioEngine::DoomAudioEngine()
 {
     e = this;
@@ -9,6 +34,15 @@ DoomAudioEngine::DoomAudioEngine()
 DoomAudioEngine::~DoomAudioEngine()
 {
     e = nullptr;
+}
+
+void DoomAudioEngine::processBlock (juce::AudioBuffer<float>& buffer, int sampleRate)
+{
+    juce::ScopedLock sl (lock);
+
+    for (auto& ch : channels)
+        if (ch.playing)
+            ch.processBlock (buffer, sampleRate);
 }
 
 void DoomAudioEngine::precacheSounds (void* sounds, int num_sounds)
@@ -59,6 +93,8 @@ void DoomAudioEngine::updateSoundParams (int handle, int vol, int sep)
 
 int DoomAudioEngine::startSound (void* sfxinfo_, int channel, int vol, int sep)
 {
+    juce::ScopedLock sl (lock);
+
     if (channel < 0 || channel >= int (std::size (channels)))
         return 0;
 
@@ -83,15 +119,16 @@ int DoomAudioEngine::startSound (void* sfxinfo_, int channel, int vol, int sep)
     ch.playing = true;
     ch.pos = 0;
     ch.samplerate = samplerate;
-    ch.buffer.setSize(2, length, false, false, true);
+    ch.buffer.setSize (2, length, false, false, true);
+    ch.fifo.reset();
 
     auto l = ch.buffer.getWritePointer (0);
     auto r = ch.buffer.getWritePointer (1);
 
     for (int i = 0; i < length; i++)
     {
-        l[i] = data[i] / 127.5f - 1;
-        r[i] = data[i] / 127.5f - 1;
+        l[i] = (data[i] / 127.5f - 1.0f) * 0.65f;
+        r[i] = (data[i] / 127.5f - 1.0f) * 0.65f;
     }
 
     W_ReleaseLumpNum (sfxinfo->lumpnum);
@@ -103,6 +140,8 @@ int DoomAudioEngine::startSound (void* sfxinfo_, int channel, int vol, int sep)
 
 void DoomAudioEngine::stopSound (int handle)
 {
+    juce::ScopedLock sl (lock);
+
     if (handle < 0 || handle >= int (std::size (channels)))
         return;
 
@@ -111,6 +150,8 @@ void DoomAudioEngine::stopSound (int handle)
 
 bool DoomAudioEngine::soundIsPlaying (int handle)
 {
+    juce::ScopedLock sl (lock);
+    
     if (handle < 0 || handle >= int (std::size (channels)))
         return false;
 
@@ -146,20 +187,7 @@ static void I_JUCE_UpdateSoundParams(int handle, int vol, int sep)
     e->updateSoundParams(handle, vol, sep);
 }
 
-//
-// Starting a sound means adding it
-//  to the current list of active sounds
-//  in the internal channels.
-// As the SFX info struct contains
-//  e.g. a pointer to the raw data,
-//  it is ignored.
-// As our sound handling does not handle
-//  priority, it is ignored.
-// Pitching (that is, increased speed of playback)
-//  is set, but currently not used by mixing.
-//
-
-static int I_JUCE_StartSound(sfxinfo_t *sfxinfo, int channel, int vol, int sep)
+static int I_JUCE_StartSound(sfxinfo_t* sfxinfo, int channel, int vol, int sep)
 {
     return e->startSound (sfxinfo, channel, vol, sep);
 }

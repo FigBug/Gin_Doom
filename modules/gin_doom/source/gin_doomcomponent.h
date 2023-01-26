@@ -10,6 +10,8 @@ public:
 
     void startGame (juce::File wadFile);
 
+    DoomAudioEngine& getAudioEngine()   { return audio; }
+
 private:
     friend void updateFrame (juce::Image img);
     friend std::optional<std::pair<int, bool>> getKeyEvent();

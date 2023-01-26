@@ -6,6 +6,8 @@ public:
     DoomAudioEngine();
     ~DoomAudioEngine();
 
+    void processBlock (juce::AudioBuffer<float>& buffer, int sampleRate);
+
     void precacheSounds (void* sounds, int num_sounds);
     int getSfxLumpNum (void* sfx);
     void updateSoundParams (int handle, int vol, int sep);
@@ -17,6 +19,8 @@ public:
     bool initSound (bool _use_sfx_prefix);
 
 private:
+    juce::CriticalSection lock;
+    
     struct Channel
     {
         bool playing = false;
@@ -26,6 +30,9 @@ private:
         float gainR = 1.0f;
 
         juce::AudioSampleBuffer buffer {1, 1};
+        gin::ResamplingFifo fifo { 16 };
+
+        void processBlock (juce::AudioBuffer<float>& buffer, int sampleRate);
     };
 
     bool useSFXprefix = false;
