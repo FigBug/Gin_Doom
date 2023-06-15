@@ -652,7 +652,7 @@ void G_DoLoadLevel (data_t* data)
 	memset (players[i].frags,0,sizeof(players[i].frags)); 
     } 
 		 
-    P_SetupLevel (gameepisode, gamemap, 0, gameskill);    
+    P_SetupLevel (data, gameepisode, gamemap, 0, gameskill);    
     displayplayer = consoleplayer;		// view the guy you are playing    
     gameaction = ga_nothing; 
     Z_CheckHeap ();
