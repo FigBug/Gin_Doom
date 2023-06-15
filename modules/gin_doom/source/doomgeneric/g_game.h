@@ -60,14 +60,14 @@ boolean G_CheckDemoStatus (data_t* data);
 void G_ExitLevel (void);
 void G_SecretExitLevel (void);
 
-void G_WorldDone (void);
+void G_WorldDone (data_t* data);
 
 // Read current data from inputs and build a player movement command.
 
 void G_BuildTiccmd (data_t* data, ticcmd_t *cmd, int maketic);
 
 void G_Ticker (data_t* data);
-boolean G_Responder (event_t*	ev);
+boolean G_Responder (data_t* data, event_t*	ev);
 
 void G_ScreenShot (void);
 

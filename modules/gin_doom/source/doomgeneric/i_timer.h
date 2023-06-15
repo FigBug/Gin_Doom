@@ -20,10 +20,6 @@
 #ifndef __I_TIMER__
 #define __I_TIMER__
 
-#include "data.h"
-
-#define TICRATE 35
-
 // Called by D_DoomLoop,
 // returns current time in tics.
 int I_GetTime (data_t* data);

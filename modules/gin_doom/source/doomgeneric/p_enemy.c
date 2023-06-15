@@ -21,6 +21,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "data.h"
+
 #include "m_random.h"
 #include "i_system.h"
 

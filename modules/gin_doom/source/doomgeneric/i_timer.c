@@ -17,6 +17,7 @@
 //
 
 #include "i_timer.h"
+#include "data.h"
 #include "doomtype.h"
 
 #include "doomgeneric.h"

@@ -29,21 +29,18 @@
 
 
 // Called by main loop.
-boolean AM_Responder (event_t* ev);
+boolean AM_Responder (data_t* data, event_t* ev);
 
 // Called by main loop.
-void AM_Ticker (void);
+void AM_Ticker (data_t* data);
 
 // Called by main loop,
 // called instead of view drawer if automap active.
-void AM_Drawer (void);
+void AM_Drawer (data_t* data);
 
 // Called to force the automap to quit
 // if the level is completed while it is up.
-void AM_Stop (void);
-
-
-extern cheatseq_t cheat_amap;
+void AM_Stop (data_t* data);
 
 
 #endif

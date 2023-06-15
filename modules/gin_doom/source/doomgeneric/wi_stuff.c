@@ -750,7 +750,7 @@ void WI_initNoState(void)
     cnt = 10;
 }
 
-void WI_updateNoState(void) {
+void WI_updateNoState(data_t* data) {
 
     WI_updateAnimatedBack();
 
@@ -761,7 +761,7 @@ void WI_updateNoState(void) {
         // run until that happens.  If we do that after WI_End
         // (which unloads all the graphics), we're in trouble.
 	//WI_End();
-	G_WorldDone();
+	G_WorldDone(data);
     }
 
 }
@@ -1511,7 +1511,7 @@ void WI_checkForAccelerate(void)
 
 
 // Updates stuff each tick
-void WI_Ticker(void)
+void WI_Ticker(data_t* data)
 {
     // counter for general background animation
     bcnt++;  
@@ -1540,7 +1540,7 @@ void WI_Ticker(void)
 	break;
 	
       case NoState:
-	WI_updateNoState();
+	WI_updateNoState(data);
 	break;
     }
 

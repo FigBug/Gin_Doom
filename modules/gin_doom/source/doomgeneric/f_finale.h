@@ -37,7 +37,7 @@ void F_Ticker (void);
 void F_Drawer (void);
 
 
-void F_StartFinale (void);
+void F_StartFinale (data_t* data);
 
 
 

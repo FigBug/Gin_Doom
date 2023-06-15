@@ -730,7 +730,7 @@ static void SetMouseButtons(unsigned int buttons_mask)
 // G_Responder  
 // Get info needed to make ticcmd_ts for the players.
 // 
-boolean G_Responder (event_t* ev) 
+boolean G_Responder (data_t* data, event_t* ev)
 { 
     // allow spy mode changes even during the demo
     if (gamestate == GS_LEVEL && ev->type == ev_keydown 
@@ -774,7 +774,7 @@ boolean G_Responder (event_t* ev)
 	    return true;	// chat ate the event 
 	if (ST_Responder (ev)) 
 	    return true;	// status window ate it 
-	if (AM_Responder (ev)) 
+	if (AM_Responder (data, ev))
 	    return true;	// automap ate it 
     } 
 	 
@@ -886,7 +886,7 @@ void G_Ticker (data_t* data)
 	    G_DoCompleted (data);
 	    break; 
 	  case ga_victory: 
-	    F_StartFinale (); 
+	    F_StartFinale (data);
 	    break; 
 	  case ga_worlddone: 
 	    G_DoWorldDone (data);
@@ -1007,12 +1007,12 @@ void G_Ticker (data_t* data)
       case GS_LEVEL: 
 	P_Ticker (data);
 	ST_Ticker (); 
-	AM_Ticker (); 
+	AM_Ticker (data);
 	HU_Ticker ();            
 	break; 
 	 
       case GS_INTERMISSION: 
-	WI_Ticker (); 
+	WI_Ticker (data);
 	break; 
 			 
       case GS_FINALE: 
@@ -1354,8 +1354,8 @@ void G_DoCompleted (data_t* data)
 	if (playeringame[i]) 
 	    G_PlayerFinishLevel (i);        // take away cards and stuff 
 	 
-    if (automapactive) 
-	AM_Stop (); 
+    if (data->am_map.automapactive)
+		AM_Stop (data);
 	
     if (gamemode != commercial)
     {
@@ -1481,7 +1481,7 @@ void G_DoCompleted (data_t* data)
  
     gamestate = GS_INTERMISSION; 
     viewactive = false; 
-    automapactive = false; 
+	data->am_map.automapactive = false;
 
     StatCopy(data, &wminfo);
  
@@ -1492,7 +1492,7 @@ void G_DoCompleted (data_t* data)
 //
 // G_WorldDone 
 //
-void G_WorldDone (void) 
+void G_WorldDone (data_t* data)
 { 
     gameaction = ga_worlddone; 
 
@@ -1511,7 +1511,7 @@ void G_WorldDone (void)
 	  case 11:
 	  case 20:
 	  case 30:
-	    F_StartFinale ();
+	    F_StartFinale (data);
 	    break;
 	}
     }
@@ -1836,7 +1836,7 @@ G_InitNew
     usergame = true;                // will be set false if a demo
     paused = false;
     demoplayback = false;
-    automapactive = false;
+	data->am_map.automapactive = false;
     viewactive = true;
     gameepisode = episode;
     gamemap = map;

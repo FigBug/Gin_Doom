@@ -708,11 +708,11 @@ P_KillMobj
 	P_DropWeapon (data, target->player);
 
 	if (target->player == &players[consoleplayer]
-	    && automapactive)
+	    && data->am_map.automapactive)
 	{
 	    // don't die in auto map,
 	    // switch view prior to dying
-	    AM_Stop ();
+	    AM_Stop (data);
 	}
 	
     }

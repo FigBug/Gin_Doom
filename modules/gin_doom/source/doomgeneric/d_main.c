@@ -108,7 +108,7 @@ void D_ProcessEvents (data_t* data)
     {
 		if (M_Responder (data, ev))
 			continue;               // menu ate the event
-		G_Responder (ev);
+		G_Responder (data, ev);
     }
 }
 
@@ -165,7 +165,7 @@ void D_Display (data_t* data)
     	wipe = false;
 
     if (gamestate == GS_LEVEL && gametic)
-    	HU_Erase();
+    	HU_Erase(data);
     
     // do buffered drawing
     switch (gamestate)
@@ -173,13 +173,13 @@ void D_Display (data_t* data)
       case GS_LEVEL:
 		if (!gametic)
 			break;
-		if (automapactive)
-			AM_Drawer ();
+		if (data->am_map.automapactive)
+			AM_Drawer (data);
 		if (wipe || (viewheight != 200 && fullscreen) )
 			redrawsbar = true;
 		if (inhelpscreensstate && !inhelpscreens)
 			redrawsbar = true;              // just put away the help screen
-		ST_Drawer (viewheight == 200, redrawsbar );
+		ST_Drawer (data, viewheight == 200, redrawsbar );
 		fullscreen = viewheight == 200;
 		break;
 
@@ -200,11 +200,11 @@ void D_Display (data_t* data)
     I_UpdateNoBlit ();
     
     // draw the view directly
-    if (gamestate == GS_LEVEL && !automapactive && gametic)
+    if (gamestate == GS_LEVEL && !data->am_map.automapactive && gametic)
     	R_RenderPlayerView (data, &players[displayplayer]);
 
     if (gamestate == GS_LEVEL && gametic)
-    	HU_Drawer ();
+    	HU_Drawer (data);
     
     // clean up border stuff
     if (gamestate != oldgamestate && gamestate != GS_LEVEL)
@@ -218,7 +218,7 @@ void D_Display (data_t* data)
     }
 
     // see if the border needs to be updated to the screen
-    if (gamestate == GS_LEVEL && !automapactive && scaledviewwidth != 320)
+    if (gamestate == GS_LEVEL && !data->am_map.automapactive && scaledviewwidth != 320)
     {
 		if (menuactive || menuactivestate || !viewactivestate)
 			borderdrawcount = 3;
@@ -244,7 +244,7 @@ void D_Display (data_t* data)
     // draw pause pic
     if (paused)
     {
-		if (automapactive)
+		if (data->am_map.automapactive)
 			y = 4;
 		else
 			y = viewwindowy+4;
