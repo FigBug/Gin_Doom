@@ -64,5 +64,6 @@
 namespace gin
 {
 #include "source/gin_doomaudioengine.h"
+#include "source/gin_doom.h"
 #include "source/gin_doomcomponent.h"
 }

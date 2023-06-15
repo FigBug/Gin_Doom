@@ -28,6 +28,7 @@ extern "C"
 
 namespace gin
 {
+#include "source/gin_doom.cpp"
 #include "source/gin_doomcomponent.cpp"
 #include "source/gin_doomaudioengine.cpp"
 }
