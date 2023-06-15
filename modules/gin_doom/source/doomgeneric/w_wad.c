@@ -93,7 +93,7 @@ static void ExtendLumpInfo(int newnumlumps)
 
     if (newlumpinfo == NULL)
     {
-	I_Error ("Couldn't realloc lumpinfo");
+	I_Error (NULL, "Couldn't realloc lumpinfo");
     }
 
     // Copy over lumpinfo_t structures from the old array. If any of
@@ -189,7 +189,7 @@ wad_file_t *W_AddFile (char *filename)
 			// Homebrew levels?
 			if (strncmp(header.identification,"PWAD",4))
 			{
-			I_Error ("Wad file %s doesn't have IWAD "
+			I_Error (NULL, "Wad file %s doesn't have IWAD "
 				 "or PWAD id\n", filename);
 			}
 
@@ -311,7 +311,7 @@ int W_GetNumForName (char* name)
 
     if (i < 0)
     {
-        I_Error ("W_GetNumForName: %s not found!", name);
+        I_Error (NULL, "W_GetNumForName: %s not found!", name);
     }
  
     return i;
@@ -326,7 +326,7 @@ int W_LumpLength (unsigned int lump)
 {
     if (lump >= numlumps)
     {
-	I_Error ("W_LumpLength: %i >= numlumps", lump);
+	I_Error (NULL, "W_LumpLength: %i >= numlumps", lump);
     }
 
     return lumpinfo[lump].size;
@@ -346,7 +346,7 @@ void W_ReadLump(unsigned int lump, void *dest)
 	
     if (lump >= numlumps)
     {
-	I_Error ("W_ReadLump: %i >= numlumps", lump);
+	I_Error (NULL, "W_ReadLump: %i >= numlumps", lump);
     }
 
     l = lumpinfo+lump;
@@ -357,7 +357,7 @@ void W_ReadLump(unsigned int lump, void *dest)
 
     if (c < l->size)
     {
-	I_Error ("W_ReadLump: only read %i of %i on lump %i",
+	I_Error (NULL, "W_ReadLump: only read %i of %i on lump %i",
 		 c, l->size, lump);	
     }
 
@@ -386,7 +386,7 @@ void *W_CacheLumpNum(int lumpnum, int tag)
 
     if ((unsigned)lumpnum >= numlumps)
     {
-	I_Error ("W_CacheLumpNum: %i >= numlumps", lumpnum);
+	I_Error (NULL, "W_CacheLumpNum: %i >= numlumps", lumpnum);
     }
 
     lump = &lumpinfo[lumpnum];
@@ -447,7 +447,7 @@ void W_ReleaseLumpNum(int lumpnum)
 
     if ((unsigned)lumpnum >= numlumps)
     {
-	I_Error ("W_ReleaseLumpNum: %i >= numlumps", lumpnum);
+	I_Error (NULL, "W_ReleaseLumpNum: %i >= numlumps", lumpnum);
     }
 
     lump = &lumpinfo[lumpnum];
@@ -596,7 +596,7 @@ void W_CheckCorrectIWAD(GameMission_t mission)
 
             if (lumpnum >= 0)
             {
-                I_Error("\nYou are trying to use a %s IWAD file with "
+                I_Error (NULL, "\nYou are trying to use a %s IWAD file with "
                         "the %s%s binary.\nThis isn't going to work.\n"
                         "You probably want to use the %s%s binary.",
                         D_SuggestGameName(unique_lumps[i].mission,

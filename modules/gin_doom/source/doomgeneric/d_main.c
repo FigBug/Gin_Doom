@@ -367,7 +367,7 @@ boolean D_GrabMouseCallback(data_t* data)
 //
 void D_DoomLoop (data_t* data)
 {
-    if (bfgedition &&
+    if (data->bfgedition &&
         (demorecording || (gameaction == ga_playdemo) || netgame))
     {
         printf(" WARNING: You are playing using one of the Doom Classic\n"
@@ -538,7 +538,7 @@ void D_DoAdvanceDemo (data_t* data)
 
     // The Doom 3: BFG Edition version of doom2.wad does not have a
     // TITLETPIC lump. Use INTERPIC instead as a workaround.
-    if (bfgedition && !strcasecmp(pagename, "TITLEPIC")
+    if (data->bfgedition && !strcasecmp(pagename, "TITLEPIC")
         && W_CheckNumForName("titlepic") < 0)
     {
         pagename = DEH_String("INTERPIC");
@@ -940,7 +940,7 @@ static void InitGameVersion(void)
                         gameversions[i].description);
             }
             
-            I_Error("Unknown game version '%s'", myargv[p+1]);
+            I_Error (NULL, "Unknown game version '%s'", myargv[p+1]);
         }
     }
     else
@@ -1062,7 +1062,7 @@ static void LoadIwadDeh(void)
     {
         if (!DEH_LoadLumpByName("DEHACKED", true, false))
         {
-            I_Error("DEHACKED lump not found.  Please check that this is the "
+            I_Error (NULL, "DEHACKED lump not found.  Please check that this is the "
                     "Hacx v1.2 IWAD.");
         }
     }
@@ -1101,7 +1101,7 @@ static void LoadIwadDeh(void)
         // Still not found?
         if (chex_deh == NULL)
         {
-            I_Error("Unable to find Chex Quest dehacked file (chex.deh).\n"
+            I_Error (NULL, "Unable to find Chex Quest dehacked file (chex.deh).\n"
                     "The dehacked file is required in order to emulate\n"
                     "chex.exe correctly.  It can be found in your nearest\n"
                     "/idgames repository mirror at:\n\n"
@@ -1110,7 +1110,7 @@ static void LoadIwadDeh(void)
 
         if (!DEH_LoadFile(chex_deh))
         {
-            I_Error("Failed to load chex.deh needed for emulating chex.exe.");
+            I_Error (NULL, "Failed to load chex.deh needed for emulating chex.exe.");
         }
     }
 }
@@ -1373,7 +1373,7 @@ void D_DoomMain (data_t* data)
     if (W_CheckNumForName("dmenupic") >= 0)
     {
         printf("BFG Edition: Using workarounds as needed.\n");
-        bfgedition = true;
+        data->bfgedition = true;
 
         // BFG Edition changes the names of the secret levels to
         // censor the Wolfenstein references. It also has an extra
@@ -1514,7 +1514,7 @@ void D_DoomMain (data_t* data)
     else
 #endif
     {
-        savegamedir = M_GetSaveGameDir(D_SaveGameIWADName(gamemission));
+		data->savegamedir = M_GetSaveGameDir(D_SaveGameIWADName(gamemission));
     }
 
     // Check for -file in shareware
@@ -1582,10 +1582,10 @@ void D_DoomMain (data_t* data)
     D_ConnectNetGame(data);
 
     // get skill / episode / map from parms
-    startskill = sk_medium;
-    startepisode = 1;
-    startmap = 1;
-    autostart = false;
+    data->startskill = sk_medium;
+	data->startepisode = 1;
+	data->startmap = 1;
+    data->autostart = false;
 
     //!
     // @arg <skill>
@@ -1599,8 +1599,8 @@ void D_DoomMain (data_t* data)
 
     if (p)
     {
-	startskill = myargv[p+1][0]-'1';
-	autostart = true;
+		data->startskill = myargv[p+1][0]-'1';
+		data->autostart = true;
     }
 
     //!
@@ -1614,9 +1614,9 @@ void D_DoomMain (data_t* data)
 
     if (p)
     {
-	startepisode = myargv[p+1][0]-'0';
-	startmap = 1;
-	autostart = true;
+		data->startepisode = myargv[p+1][0]-'0';
+		data->startmap = 1;
+		data->autostart = true;
     }
 	
     timelimit = 0;
@@ -1663,21 +1663,23 @@ void D_DoomMain (data_t* data)
     if (p)
     {
         if (gamemode == commercial)
-            startmap = atoi (myargv[p+1]);
+		{
+			data->startmap = atoi (myargv[p+1]);
+		}
         else
         {
-            startepisode = myargv[p+1][0]-'0';
+			data->startepisode = myargv[p+1][0]-'0';
 
             if (p + 2 < myargc)
             {
-                startmap = myargv[p+2][0]-'0';
+				data->startmap = myargv[p+2][0]-'0';
             }
             else
             {
-                startmap = 1;
+				data->startmap = 1;
             }
         }
-        autostart = true;
+		data->autostart = true;
     }
 
     // Undocumented:
@@ -1687,9 +1689,9 @@ void D_DoomMain (data_t* data)
 
     if (p > 0)
     {
-        startepisode = 1;
-        startmap = 1;
-        autostart = true;
+		data->startepisode = 1;
+		data->startmap = 1;
+		data->autostart = true;
         testcontrols = true;
     }
 
@@ -1720,7 +1722,7 @@ void D_DoomMain (data_t* data)
     M_Init ();
 
     DEH_printf("R_Init: Init DOOM refresh daemon - ");
-    R_Init ();
+    R_Init (data);
 
     DEH_printf("\nP_Init: Init Playloop state.\n");
     P_Init (data);
@@ -1765,7 +1767,7 @@ void D_DoomMain (data_t* data)
     if (p)
     {
 		G_RecordDemo (myargv[p+1]);
-		autostart = true;
+		data->autostart = true;
     }
 
     p = M_CheckParmWithArgs("-playdemo", 1);
@@ -1785,14 +1787,14 @@ void D_DoomMain (data_t* data)
 
     if (data->startloadgame >= 0)
     {
-        M_StringCopy(file, P_SaveGameFile(data->startloadgame), sizeof(file));
+        M_StringCopy(file, P_SaveGameFile(data, data->startloadgame), sizeof(file));
         G_LoadGame(file);
     }
 
     if (gameaction != ga_loadgame )
     {
-		if (autostart || netgame)
-			G_InitNew (data, startskill, startepisode, startmap);
+		if (data->autostart || netgame)
+			G_InitNew (data, data->startskill, data->startepisode, data->startmap);
 		else
 			D_StartTitle (data);                // start up intro loop
     }

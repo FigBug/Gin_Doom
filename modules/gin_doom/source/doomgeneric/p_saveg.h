@@ -28,11 +28,11 @@
 
 // temporary filename to use while saving.
 
-char *P_TempSaveGameFile(void);
+char *P_TempSaveGameFile(data_t* data);
 
 // filename to use for a savegame slot
 
-char *P_SaveGameFile(int slot);
+char *P_SaveGameFile(data_t* data, int slot);
 
 // Savegame file header read/write functions
 

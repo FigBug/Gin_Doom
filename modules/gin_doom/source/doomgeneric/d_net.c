@@ -70,7 +70,6 @@ static void PlayerQuitGame(data_t* data, player_t *player)
 
 static void RunTic(data_t* data, ticcmd_t *cmds, boolean *ingame)
 {
-    extern boolean advancedemo;
     unsigned int i;
 
     // Check for player quits.
@@ -88,7 +87,7 @@ static void RunTic(data_t* data, ticcmd_t *cmds, boolean *ingame)
     // check that there are players in the game.  if not, we cannot
     // run a tic.
 
-    if (advancedemo)
+    if (data->advancedemo)
         D_DoAdvanceDemo (data);
 
     G_Ticker (data);
@@ -110,9 +109,9 @@ static void LoadGameSettings(data_t* data, net_gamesettings_t *settings)
     unsigned int i;
 
     deathmatch = settings->deathmatch;
-    startepisode = settings->episode;
-    startmap = settings->map;
-    startskill = settings->skill;
+    data->startepisode = settings->episode;
+	data->startmap = settings->map;
+    data->startskill = settings->skill;
     data->startloadgame = settings->loadgame;
     lowres_turn = settings->lowres_turn;
 	data->nomonsters = settings->nomonsters;
@@ -142,9 +141,9 @@ static void SaveGameSettings(data_t* data, net_gamesettings_t *settings)
     // for the new game
 
     settings->deathmatch = deathmatch;
-    settings->episode = startepisode;
-    settings->map = startmap;
-    settings->skill = startskill;
+    settings->episode = data->startepisode;
+    settings->map = data->startmap;
+    settings->skill = data->startskill;
     settings->loadgame = data->startloadgame;
     settings->gameversion = gameversion;
     settings->nomonsters = data->nomonsters;
@@ -243,7 +242,7 @@ void D_CheckNetGame (data_t* data)
 
     if (netgame)
     {
-        autostart = true;
+		data->autostart = true;
     }
 
     D_RegisterLoopCallbacks(&doom_loop_interface);
@@ -253,7 +252,7 @@ void D_CheckNetGame (data_t* data)
     LoadGameSettings(data, &settings);
 
     DEH_printf("startskill %i  deathmatch: %i  startmap: %i  startepisode: %i\n",
-               startskill, deathmatch, startmap, startepisode);
+			   data->startskill, deathmatch, data->startmap, data->startepisode);
 
     DEH_printf("player %i of %i (%i nodes)\n",
                consoleplayer+1, settings.num_players, settings.num_players);

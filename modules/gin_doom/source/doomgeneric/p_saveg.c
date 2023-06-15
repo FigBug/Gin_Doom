@@ -44,13 +44,13 @@ boolean savegame_error;
 // the file has been successfully saved, it will be renamed to the 
 // real file.
 
-char *P_TempSaveGameFile(void)
+char *P_TempSaveGameFile(data_t* data)
 {
     static char *filename = NULL;
 
     if (filename == NULL)
     {
-        filename = M_StringJoin(savegamedir, "temp.dsg", NULL);
+        filename = M_StringJoin(data->savegamedir, "temp.dsg", NULL);
     }
 
     return filename;
@@ -58,7 +58,7 @@ char *P_TempSaveGameFile(void)
 
 // Get the filename of the save game file to use for the specified slot.
 
-char *P_SaveGameFile(int slot)
+char *P_SaveGameFile(data_t* data, int slot)
 {
     static char *filename = NULL;
     static size_t filename_size = 0;
@@ -66,12 +66,12 @@ char *P_SaveGameFile(int slot)
 
     if (filename == NULL)
     {
-        filename_size = strlen(savegamedir) + 32;
+        filename_size = strlen(data->savegamedir) + 32;
         filename = malloc(filename_size);
     }
 
     DEH_snprintf(basename, 32, SAVEGAMENAME "%d.dsg", slot);
-    M_snprintf(filename, filename_size, "%s%s", savegamedir, basename);
+    M_snprintf(filename, filename_size, "%s%s", data->savegamedir, basename);
 
     return filename;
 }
@@ -1605,7 +1605,7 @@ void P_ArchiveThinkers (data_t* data)
 	    continue;
 	}
 		
-	// I_Error ("P_ArchiveThinkers: Unknown thinker function");
+	// I_Error (NULL, "P_ArchiveThinkers: Unknown thinker function");
     }
 
     // add a terminating marker
@@ -1881,7 +1881,7 @@ void P_UnArchiveSpecials (data_t* data)
 	    break;
 				
 	  default:
-	    I_Error ("P_UnarchiveSpecials:Unknown tclass %i "
+	    I_Error (NULL, "P_UnarchiveSpecials:Unknown tclass %i "
 		     "in savegame",tclass);
 	}
 	

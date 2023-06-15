@@ -495,7 +495,7 @@ void R_Subsector (data_t* data, int num)
 	
 #ifdef RANGECHECK
     if (num>=numsubsectors)
-	I_Error ("R_Subsector: ss %i with numss = %i",
+	I_Error (NULL, "R_Subsector: ss %i with numss = %i",
 		 num,
 		 numsubsectors);
 #endif
@@ -563,7 +563,7 @@ void R_RenderBSPNode (data_t* data, int bspnum)
     side = R_PointOnSide (viewx, viewy, bsp);
 
     // Recursively divide front space.
-    R_RenderBSPNode (data, bsp->children[side]); 
+    R_RenderBSPNode (data, bsp->children[side]);
 
     // Possibly divide back space.
     if (R_CheckBBox (bsp->bbox[side^1]))	

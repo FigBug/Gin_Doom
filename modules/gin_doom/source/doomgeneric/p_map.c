@@ -648,7 +648,7 @@ void P_HitSlideLine (line_t* ld)
 
     if (deltaangle > ANG180)
 	deltaangle += ANG180;
-    //	I_Error ("SlideLine: ang>ANG180");
+    //	I_Error (NULL, "SlideLine: ang>ANG180");
 
     lineangle >>= ANGLETOFINESHIFT;
     deltaangle >>= ANGLETOFINESHIFT;

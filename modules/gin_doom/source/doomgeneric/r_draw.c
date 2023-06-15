@@ -116,7 +116,7 @@ void R_DrawColumn (void)
     if ((unsigned)dc_x >= SCREENWIDTH
 	|| dc_yl < 0
 	|| dc_yh >= SCREENHEIGHT) 
-	I_Error ("R_DrawColumn: %i to %i at %i", dc_yl, dc_yh, dc_x); 
+	I_Error (NULL, "R_DrawColumn: %i to %i at %i", dc_yl, dc_yh, dc_x); 
 #endif 
 
     // Framebuffer destination address.
@@ -226,7 +226,7 @@ void R_DrawColumnLow (void)
 	|| dc_yh >= SCREENHEIGHT)
     {
 	
-	I_Error ("R_DrawColumn: %i to %i at %i", dc_yl, dc_yh, dc_x);
+	I_Error (NULL, "R_DrawColumn: %i to %i at %i", dc_yl, dc_yh, dc_x);
     }
     //	dccount++; 
 #endif 
@@ -305,7 +305,7 @@ void R_DrawFuzzColumn (void)
     if ((unsigned)dc_x >= SCREENWIDTH
 	|| dc_yl < 0 || dc_yh >= SCREENHEIGHT)
     {
-	I_Error ("R_DrawFuzzColumn: %i to %i at %i",
+	I_Error (NULL, "R_DrawFuzzColumn: %i to %i at %i",
 		 dc_yl, dc_yh, dc_x);
     }
 #endif
@@ -370,7 +370,7 @@ void R_DrawFuzzColumnLow (void)
     if ((unsigned)x >= SCREENWIDTH
 	|| dc_yl < 0 || dc_yh >= SCREENHEIGHT)
     {
-	I_Error ("R_DrawFuzzColumn: %i to %i at %i",
+	I_Error (NULL, "R_DrawFuzzColumn: %i to %i at %i",
 		 dc_yl, dc_yh, dc_x);
     }
 #endif

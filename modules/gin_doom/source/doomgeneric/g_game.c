@@ -948,7 +948,7 @@ void G_Ticker (data_t* data)
 		if (gametic > BACKUPTICS 
 		    && consistancy[i][buf] != cmd->consistancy) 
 		{ 
-		    I_Error ("consistency failure (%i should be %i)",
+		    I_Error (NULL, "consistency failure (%i should be %i)",
 			     cmd->consistancy, consistancy[i][buf]); 
 		} 
 		if (players[i].mo) 
@@ -1615,8 +1615,8 @@ void G_DoSaveGame (data_t* data)
     char *recovery_savegame_file;
 
     recovery_savegame_file = NULL;
-    temp_savegame_file = P_TempSaveGameFile();
-    savegame_file = P_SaveGameFile(savegameslot);
+    temp_savegame_file = P_TempSaveGameFile(data);
+    savegame_file = P_SaveGameFile(data, savegameslot);
 
     // Open the savegame file for writing.  We write to a temporary file
     // and then rename it at the end if it was successfully written.
@@ -2265,7 +2265,7 @@ boolean G_CheckDemoStatus (data_t* data)
         timingdemo = false;
         demoplayback = false;
 
-	I_Error ("timed %i gametics in %i realtics (%f fps)",
+	I_Error (NULL, "timed %i gametics in %i realtics (%f fps)",
                  gametic, realtics, fps);
     } 
 	 
@@ -2296,7 +2296,7 @@ boolean G_CheckDemoStatus (data_t* data)
 	M_WriteFile (demoname, demobuffer, demo_p - demobuffer); 
 	Z_Free (demobuffer); 
 	demorecording = false; 
-	I_Error ("Demo %s recorded",demoname); 
+	I_Error (NULL, "Demo %s recorded",demoname); 
     } 
 	 
     return false; 

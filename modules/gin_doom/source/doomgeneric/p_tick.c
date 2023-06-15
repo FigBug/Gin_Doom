@@ -140,10 +140,10 @@ void P_Ticker (data_t* data)
 		
     for (i=0 ; i<MAXPLAYERS ; i++)
 	if (playeringame[i])
-	    P_PlayerThink (&players[i]);
+	    P_PlayerThink (data, &players[i]);
 			
     P_RunThinkers (data);
-    P_UpdateSpecials ();
+    P_UpdateSpecials (data);
     P_RespawnSpecials (data);
 
     // for par times

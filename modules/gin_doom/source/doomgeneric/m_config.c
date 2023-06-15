@@ -1951,7 +1951,7 @@ static default_t *GetDefaultForName(char *name)
 
     if (result == NULL)
     {
-        I_Error("Unknown configuration variable: '%s'", name);
+        I_Error (NULL, "Unknown configuration variable: '%s'", name);
     }
 
     return result;

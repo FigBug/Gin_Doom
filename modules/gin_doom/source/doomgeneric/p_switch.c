@@ -128,7 +128,7 @@ void P_InitSwitchList(void)
 			
 	    if (R_CheckTextureNumForName(alphSwitchList[i].name1) < 0)
 	    {
-		I_Error("Can't find switch texture '%s'!",
+		I_Error (NULL, "Can't find switch texture '%s'!",
 			alphSwitchList[i].name1);
 		continue;
 	    }
@@ -403,7 +403,7 @@ P_UseSpecialLine
 	
       case 41:
 	// Lower Ceiling to Floor
-	if (EV_DoCeiling(line,lowerToFloor))
+	if (EV_DoCeiling(data, line,lowerToFloor))
 		P_ChangeSwitchTexture(data, line,0);
 	break;
 	
@@ -415,7 +415,7 @@ P_UseSpecialLine
 	
       case 49:
 	// Ceiling Crush And Raise
-	if (EV_DoCeiling(line,crushAndRaise))
+	if (EV_DoCeiling(data, line,crushAndRaise))
 		P_ChangeSwitchTexture(data, line,0);
 	break;
 	
@@ -516,7 +516,7 @@ P_UseSpecialLine
 	
       case 43:
 	// Lower Ceiling to Floor
-	if (EV_DoCeiling(line,lowerToFloor))
+	if (EV_DoCeiling(data, line,lowerToFloor))
 		P_ChangeSwitchTexture(data, line,1);
 	break;
 	

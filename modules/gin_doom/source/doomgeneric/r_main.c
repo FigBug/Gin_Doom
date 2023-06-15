@@ -764,9 +764,9 @@ void R_ExecuteSetViewSize (void)
 
 
 
-void R_Init (void)
+void R_Init (data_t* data)
 {
-    R_InitData ();
+    R_InitData (data);
     printf (".");
     R_InitPointToAngle ();
     printf (".");

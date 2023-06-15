@@ -765,7 +765,7 @@ EV_SlidingDoor
 	door->whichDoorIndex = P_FindSlidingDoorType(line);
 
 	if (door->whichDoorIndex < 0)
-	    I_Error("EV_SlidingDoor: Can't use texture for sliding door!");
+	    I_Error (NULL, "EV_SlidingDoor: Can't use texture for sliding door!");
 			
 	door->frontsector = sec;
 	door->backsector = line->backsector;

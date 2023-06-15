@@ -48,7 +48,6 @@ extern GameVersion_t    gameversion;
 extern char            *gamedescription;
 
 // If true, we're using one of the mangled BFG edition IWADs.
-extern boolean bfgedition;
 
 // Convenience macro.
 // 'gamemission' can be equal to pack_chex or pack_hacx, but these are
@@ -68,15 +67,10 @@ extern  boolean	modifiedgame;
 //
 
 // Defaults for menu, methinks.
-extern  skill_t		startskill;
-extern  int             startepisode;
-extern	int		startmap;
 
 // Savegame slot to load on startup.  This is the value provided to
 // the -loadgame option.  If this has not been provided, this is -1.
 
-
-extern  boolean		autostart;
 
 // Selected by user. 
 extern  skill_t         gameskill;
@@ -234,7 +228,6 @@ extern  wbstartstruct_t		wminfo;
 //
 
 // File handling stuff.
-extern  char *          savegamedir;
 extern	char		basedefault[1024];
 
 // if true, load all graphics at level load

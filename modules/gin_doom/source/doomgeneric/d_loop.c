@@ -322,13 +322,13 @@ static void BlockUntilStart(net_gamesettings_t *settings,
 
         if (!net_client_connected)
         {
-            I_Error("Lost connection to server");
+            I_Error (NULL, "Lost connection to server");
         }
 
         if (callback != NULL && !callback(net_client_wait_data.ready_players,
                                           net_client_wait_data.num_players))
         {
-            I_Error("Netgame startup aborted.");
+            I_Error (NULL, "Netgame startup aborted.");
         }
 
         I_Sleep(data, 100);
@@ -499,7 +499,7 @@ boolean D_InitNetGame(net_connect_data_t *connect_data)
 
             if (addr == NULL)
             {
-                I_Error("No server found on local LAN");
+                I_Error (NULL, "No server found on local LAN");
             }
         }
 
@@ -520,7 +520,7 @@ boolean D_InitNetGame(net_connect_data_t *connect_data)
 
             if (addr == NULL)
             {
-                I_Error("Unable to resolve '%s'\n", myargv[i+1]);
+                I_Error (NULL, "Unable to resolve '%s'\n", myargv[i+1]);
             }
         }
     }
@@ -534,7 +534,7 @@ boolean D_InitNetGame(net_connect_data_t *connect_data)
 
         if (!NET_CL_Connect(addr, connect_data))
         {
-            I_Error("D_InitNetGame: Failed to connect to %s\n",
+            I_Error (NULL, "D_InitNetGame: Failed to connect to %s\n",
                     NET_AddrToString(addr));
         }
 

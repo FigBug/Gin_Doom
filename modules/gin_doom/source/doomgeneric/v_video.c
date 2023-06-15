@@ -99,7 +99,7 @@ void V_CopyRect(int srcx, int srcy, byte *source,
      || desty < 0
      || desty + height > SCREENHEIGHT)
     {
-        I_Error ("Bad V_CopyRect");
+        I_Error (NULL, "Bad V_CopyRect");
     }
 #endif 
 
@@ -162,7 +162,7 @@ void V_DrawPatch(int x, int y, patch_t *patch)
      || y < 0
      || y + SHORT(patch->height) > SCREENHEIGHT)
     {
-        I_Error("Bad V_DrawPatch x=%i y=%i patch.width=%i patch.height=%i topoffset=%i leftoffset=%i", x, y, patch->width, patch->height, patch->topoffset, patch->leftoffset);
+        I_Error (NULL, "Bad V_DrawPatch x=%i y=%i patch.width=%i patch.height=%i topoffset=%i leftoffset=%i", x, y, patch->width, patch->height, patch->topoffset, patch->leftoffset);
     }
 #endif
 
@@ -226,7 +226,7 @@ void V_DrawPatchFlipped(int x, int y, patch_t *patch)
      || y < 0
      || y + SHORT(patch->height) > SCREENHEIGHT)
     {
-        I_Error("Bad V_DrawPatchFlipped");
+        I_Error(NULL, "Bad V_DrawPatchFlipped");
     }
 #endif
 
@@ -291,7 +291,7 @@ void V_DrawTLPatch(int x, int y, patch_t * patch)
      || y < 0
      || y + SHORT(patch->height) > SCREENHEIGHT)
     {
-        I_Error("Bad V_DrawTLPatch");
+        I_Error(NULL, "Bad V_DrawTLPatch");
     }
 
     col = 0;
@@ -390,7 +390,7 @@ void V_DrawAltTLPatch(int x, int y, patch_t * patch)
      || y < 0
      || y + SHORT(patch->height) > SCREENHEIGHT)
     {
-        I_Error("Bad V_DrawAltTLPatch");
+        I_Error(NULL, "Bad V_DrawAltTLPatch");
     }
 
     col = 0;
@@ -441,7 +441,7 @@ void V_DrawShadowedPatch(int x, int y, patch_t *patch)
      || y < 0
      || y + SHORT(patch->height) > SCREENHEIGHT)
     {
-        I_Error("Bad V_DrawShadowedPatch");
+        I_Error(NULL, "Bad V_DrawShadowedPatch");
     }
 
     col = 0;
@@ -510,7 +510,7 @@ void V_DrawBlock(int x, int y, int width, int height, byte *src)
      || y < 0
      || y + height > SCREENHEIGHT)
     {
-	I_Error ("Bad V_DrawBlock");
+	I_Error (NULL, "Bad V_DrawBlock");
     }
 #endif 
  
@@ -820,7 +820,7 @@ void V_ScreenShot(char *format)
 
     if (i == 100)
     {
-        I_Error ("V_ScreenShot: Couldn't create a PCX");
+        I_Error (NULL, "V_ScreenShot: Couldn't create a PCX");
     }
 
 #ifdef HAVE_LIBPNG

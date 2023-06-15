@@ -127,7 +127,7 @@ R_MapPlane
      || x2 >= viewwidth
      || y > viewheight)
     {
-	I_Error ("R_MapPlane: %i, %i at %i",x1,x2,y);
+	I_Error (NULL, "R_MapPlane: %i, %i at %i",x1,x2,y);
     }
 #endif
 
@@ -369,15 +369,15 @@ void R_DrawPlanes (void)
 				
 #ifdef RANGECHECK
     if (ds_p - drawsegs > MAXDRAWSEGS)
-	I_Error ("R_DrawPlanes: drawsegs overflow (%i)",
+	I_Error (NULL, "R_DrawPlanes: drawsegs overflow (%i)",
 		 ds_p - drawsegs);
     
     if (lastvisplane - visplanes > MAXVISPLANES)
-	I_Error ("R_DrawPlanes: visplane overflow (%i)",
+	I_Error (NULL, "R_DrawPlanes: visplane overflow (%i)",
 		 lastvisplane - visplanes);
     
     if (lastopening - openings > MAXOPENINGS)
-	I_Error ("R_DrawPlanes: opening overflow (%i)",
+	I_Error (NULL, "R_DrawPlanes: opening overflow (%i)",
 		 lastopening - openings);
 #endif
 

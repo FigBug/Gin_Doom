@@ -138,7 +138,7 @@ void P_CalcHeight (player_t* player)
 //
 // P_MovePlayer
 //
-void P_MovePlayer (player_t* player)
+void P_MovePlayer (data_t* data, player_t* player)
 {
     ticcmd_t*		cmd;
 	
@@ -159,7 +159,7 @@ void P_MovePlayer (player_t* player)
     if ( (cmd->forwardmove || cmd->sidemove) 
 	 && player->mo->state == &states[S_PLAY] )
     {
-	P_SetMobjState (player->mo, S_PLAY_RUN1);
+	P_SetMobjState (data, player->mo, S_PLAY_RUN1);
     }
 }	
 
@@ -177,7 +177,7 @@ void P_DeathThink (data_t* data, player_t* player)
     angle_t		angle;
     angle_t		delta;
 
-    P_MovePsprites (player);
+    P_MovePsprites (data, player);
 	
     // fall to the ground
     if (player->viewheight > 6*FRACUNIT)
@@ -250,7 +250,7 @@ void P_PlayerThink (data_t* data, player_t* player)
 	
     if (player->playerstate == PST_DEAD)
     {
-	P_DeathThink (player);
+	P_DeathThink (data, player);
 	return;
     }
     
@@ -260,7 +260,7 @@ void P_PlayerThink (data_t* data, player_t* player)
     if (player->mo->reactiontime)
 	player->mo->reactiontime--;
     else
-	P_MovePlayer (player);
+	P_MovePlayer (data, player);
     
     P_CalcHeight (player);
 
@@ -316,7 +316,7 @@ void P_PlayerThink (data_t* data, player_t* player)
     {
 	if (!player->usedown)
 	{
-	    P_UseLines (player);
+	    P_UseLines (data, player);
 	    player->usedown = true;
 	}
     }

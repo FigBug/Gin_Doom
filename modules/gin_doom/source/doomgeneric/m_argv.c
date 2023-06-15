@@ -116,7 +116,7 @@ static void LoadResponseFile(int argv_index)
 
         if (k < 0)
         {
-            I_Error("Failed to read full contents of '%s'", response_filename);
+            I_Error (NULL, "Failed to read full contents of '%s'", response_filename);
         }
 
         i += k;
@@ -175,7 +175,7 @@ static void LoadResponseFile(int argv_index)
 
             if (k >= size || infile[k] == '\n')
             {
-                I_Error("Quotes unclosed in response file '%s'",
+                I_Error (NULL, "Quotes unclosed in response file '%s'",
                         response_filename);
             }
 

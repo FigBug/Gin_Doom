@@ -83,7 +83,7 @@ void P_DropWeapon (data_t* data, player_t* player);
 //
 // P_USER
 //
-void	P_PlayerThink (player_t* player);
+void	P_PlayerThink (data_t* data, player_t* player);
 
 
 //

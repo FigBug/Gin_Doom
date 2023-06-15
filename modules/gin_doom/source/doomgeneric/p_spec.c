@@ -176,7 +176,7 @@ void P_InitPicAnims (data_t* data)
 	lastanim->numpics = lastanim->picnum - lastanim->basepic + 1;
 
 	if (lastanim->numpics < 2)
-	    I_Error ("P_InitPicAnims: bad cycle from %s to %s",
+	    I_Error (NULL, "P_InitPicAnims: bad cycle from %s to %s",
 		     startname, endname);
 	
 	lastanim->speed = animdefs[i].speed;

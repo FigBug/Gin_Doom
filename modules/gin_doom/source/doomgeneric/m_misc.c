@@ -141,7 +141,7 @@ int M_ReadFile(char *name, byte **buffer)
 	
     handle = fopen(name, "rb");
     if (handle == NULL)
-	I_Error ("Couldn't read file %s", name);
+	I_Error (NULL, "Couldn't read file %s", name);
 
     // find the size of the file by seeking to the end and
     // reading the current position
@@ -153,7 +153,7 @@ int M_ReadFile(char *name, byte **buffer)
     fclose (handle);
 	
     if (count < length)
-	I_Error ("Couldn't read file %s", name);
+	I_Error (NULL, "Couldn't read file %s", name);
 		
     *buffer = buf;
     return length;
@@ -297,7 +297,7 @@ char *M_StringDuplicate(const char *orig)
 
     if (result == NULL)
     {
-        I_Error("Failed to duplicate string (length %i)\n",
+        I_Error (NULL, "Failed to duplicate string (length %i)\n",
                 strlen(orig));
     }
 

@@ -352,7 +352,7 @@ void R_GenerateLookup (int texnum)
 		    texture->name);
 	    return;
 	}
-	// I_Error ("R_GenerateLookup: column without a patch");
+	// I_Error (NULL, "R_GenerateLookup: column without a patch");
 	
 	if (patchcount[x] > 1)
 	{
@@ -362,7 +362,7 @@ void R_GenerateLookup (int texnum)
 	    
 	    if (texturecompositesize[texnum] > 0x10000-texture->height)
 	    {
-		I_Error ("R_GenerateLookup: texture %i is >64k",
+		I_Error (NULL, "R_GenerateLookup: texture %i is >64k",
 			 texnum);
 	    }
 	    
@@ -448,7 +448,7 @@ static void GenerateTextureHashTable(void)
 // Initializes the texture list
 //  with the textures from the world map.
 //
-void R_InitTextures (void)
+void R_InitTextures (data_t* data)
 {
     maptexture_t*	mtexture;
     texture_t*		texture;
@@ -700,9 +700,9 @@ void R_InitColormaps (void)
 //  that will be used by all views
 // Must be called after W_Init.
 //
-void R_InitData (void)
+void R_InitData (data_t* data)
 {
-    R_InitTextures ();
+    R_InitTextures (data);
     printf (".");
     R_InitFlats ();
     printf (".");
@@ -728,7 +728,7 @@ int R_FlatNumForName (char* name)
     {
 	namet[8] = 0;
 	memcpy (namet, name,8);
-	I_Error ("R_FlatNumForName: %s not found",namet);
+	I_Error (NULL, "R_FlatNumForName: %s not found",namet);
     }
     return i - firstflat;
 }
@@ -780,7 +780,7 @@ int	R_TextureNumForName (char* name)
 
     if (i==-1)
     {
-	I_Error ("R_TextureNumForName: %s not found",
+	I_Error (NULL, "R_TextureNumForName: %s not found",
 		 name);
     }
     return i;

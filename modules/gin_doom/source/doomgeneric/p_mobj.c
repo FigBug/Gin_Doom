@@ -793,7 +793,7 @@ void P_SpawnMapThing (data_t* data, mapthing_t* mthing)
 	    break;
 	
     if (i==NUMMOBJTYPES)
-	I_Error ("P_SpawnMapThing: Unknown type %i at (%i, %i)",
+	I_Error (NULL, "P_SpawnMapThing: Unknown type %i at (%i, %i)",
 		 mthing->type,
 		 mthing->x, mthing->y);
 		
