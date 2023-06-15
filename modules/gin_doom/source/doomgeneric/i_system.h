@@ -20,11 +20,12 @@
 #ifndef __I_SYSTEM__
 #define __I_SYSTEM__
 
+#include "data.h"
 #include "d_ticcmd.h"
 #include "d_event.h"
 
 
-typedef void (*atexit_func_t)(void);
+typedef void (*atexit_func_t)(data_t*);
 
 // Called by DoomMain.
 void I_Init (void);
@@ -50,9 +51,9 @@ ticcmd_t* I_BaseTiccmd (void);
 
 // Called by M_Responder when quit is selected.
 // Clean exit, displays sell blurb.
-void I_Quit (void);
+void I_Quit (data_t* data);
 
-void I_Error (char *error, ...);
+void I_Error (data_t* data, const char *error, ...);
 
 void I_Tactile (int on, int off, int total);
 

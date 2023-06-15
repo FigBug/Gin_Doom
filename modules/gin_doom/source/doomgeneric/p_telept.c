@@ -40,7 +40,8 @@
 //
 int
 EV_Teleport
-( line_t*	line,
+(  data_t* data,
+ line_t*	line,
   int		side,
   mobj_t*	thing )
 {

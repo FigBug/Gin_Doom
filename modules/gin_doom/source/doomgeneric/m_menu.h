@@ -37,11 +37,11 @@ boolean M_Responder (data_t* data, event_t *ev);
 
 // Called by main loop,
 // only used for menu (skull cursor) animation.
-void M_Ticker (void);
+void M_Ticker (data_t* data);
 
 // Called by main loop,
 // draws the menus directly into the screen buffer.
-void M_Drawer (void);
+void M_Drawer (data_t* data);
 
 // Called by D_DoomMain,
 // loads the config file.

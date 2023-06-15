@@ -1843,7 +1843,7 @@ void M_SetConfigFilenames(char *main_config, char *extra_config)
 // M_SaveDefaults
 //
 
-void M_SaveDefaults (void)
+void M_SaveDefaults (data_t* data)
 {
     SaveDefaultCollection(&doom_defaults);
     SaveDefaultCollection(&extra_defaults);
@@ -1853,7 +1853,7 @@ void M_SaveDefaults (void)
 // Save defaults to alternate filenames
 //
 
-void M_SaveDefaultsAlternate(char *main, char *extra)
+void M_SaveDefaultsAlternate(data_t* data, char *main, char *extra)
 {
     char *orig_main;
     char *orig_extra;
@@ -1866,7 +1866,7 @@ void M_SaveDefaultsAlternate(char *main, char *extra)
     doom_defaults.filename = main;
     extra_defaults.filename = extra;
 
-    M_SaveDefaults();
+    M_SaveDefaults(data);
 
     // Restore normal filenames
 
@@ -1878,7 +1878,7 @@ void M_SaveDefaultsAlternate(char *main, char *extra)
 // M_LoadDefaults
 //
 
-void M_LoadDefaults (void)
+void M_LoadDefaults (data_t* data)
 {
     int i;
  

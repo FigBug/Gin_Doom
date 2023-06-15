@@ -267,7 +267,7 @@ void I_FinishUpdate (data_t* data)
 
     /* DRAW SCREEN */
     line_in  = (unsigned char *) I_VideoBuffer;
-    line_out = (unsigned char *) DG_ScreenBuffer;
+    line_out = (unsigned char *) data->DG_ScreenBuffer;
 
     y = SCREENHEIGHT;
 

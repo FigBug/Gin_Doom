@@ -7,9 +7,6 @@ extern "C"
 	void D_DoomMain (data_t* data);
 	void M_FindResponseFile (data_t* data);
 	void dg_Create (data_t* data);
-
-	extern uint32_t* DG_ScreenBuffer;
-	extern uint32_t runloop;
 }
 
 int keyCodes[] = {
@@ -136,7 +133,7 @@ extern "C" void DG_DrawFrame (data_t* data)
 
         for (int x = 0; x < 640; x++)
         {
-            uint32_t px = DG_ScreenBuffer[y * 640 + x];
+            uint32_t px = data->DG_ScreenBuffer[y * 640 + x];
 
             uint8_t b = (px & 0xff000000) >> 24;
             uint8_t r = (px & 0x00ff0000) >> 16;
@@ -193,7 +190,9 @@ Doom::Doom()
 
 Doom::~Doom()
 {
-    runloop = 0;
+	auto data = (data_t*)user_data;
+
+    data->runloop = 0;
     stopThread (100);
 }
 

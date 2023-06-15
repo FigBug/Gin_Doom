@@ -140,7 +140,7 @@ extern  line_t*	linespeciallist[MAXLINEANIMS];
 
 
 
-void P_InitPicAnims (void)
+void P_InitPicAnims (data_t* data)
 {
     int		i;
 
@@ -328,7 +328,8 @@ fixed_t	P_FindHighestFloorSurrounding(sector_t *sec)
 
 fixed_t
 P_FindNextHighestFloor
-( sector_t* sec,
+( data_t* data,
+  sector_t* sec,
   int       currentheight )
 {
     int         i;
@@ -357,7 +358,7 @@ P_FindNextHighestFloor
             else if (h == MAX_ADJOINING_SECTORS + 2)
             {
                 // Fatal overflow: game crashes at 22 textures
-                I_Error("Sector with more than 22 adjoining sectors. "
+                I_Error(data, "Sector with more than 22 adjoining sectors. "
                         "Vanilla will crash here");
             }
 
@@ -500,7 +501,8 @@ P_FindMinSurroundingLight
 //
 void
 P_CrossSpecialLine
-( int		linenum,
+( data_t* data,
+  int		linenum,
   int		side,
   mobj_t*	thing )
 {
@@ -570,13 +572,13 @@ P_CrossSpecialLine
 	
       case 5:
 	// Raise Floor
-	EV_DoFloor(line,raiseFloor);
+			EV_DoFloor(data, line,raiseFloor);
 	line->special = 0;
 	break;
 	
       case 6:
 	// Fast Ceiling Crush & Raise
-	EV_DoCeiling(line,fastCrushAndRaise);
+			EV_DoCeiling(data, line,fastCrushAndRaise);
 	line->special = 0;
 	break;
 	
@@ -588,7 +590,7 @@ P_CrossSpecialLine
 	
       case 10:
 	// PlatDownWaitUp
-	EV_DoPlat(line,downWaitUpStay,0);
+	EV_DoPlat(data, line,downWaitUpStay,0);
 	line->special = 0;
 	break;
 	
@@ -618,26 +620,26 @@ P_CrossSpecialLine
 	
       case 19:
 	// Lower Floor
-	EV_DoFloor(line,lowerFloor);
+			EV_DoFloor(data, line,lowerFloor);
 	line->special = 0;
 	break;
 	
       case 22:
 	// Raise floor to nearest height and change texture
-	EV_DoPlat(line,raiseToNearestAndChange,0);
+	EV_DoPlat(data, line,raiseToNearestAndChange,0);
 	line->special = 0;
 	break;
 	
       case 25:
 	// Ceiling Crush and Raise
-	EV_DoCeiling(line,crushAndRaise);
+	EV_DoCeiling(data, line,crushAndRaise);
 	line->special = 0;
 	break;
 	
       case 30:
 	// Raise floor to shortest texture height
 	//  on either side of lines.
-	EV_DoFloor(line,raiseToTexture);
+			EV_DoFloor(data, line,raiseToTexture);
 	line->special = 0;
 	break;
 	
@@ -649,38 +651,38 @@ P_CrossSpecialLine
 	
       case 36:
 	// Lower Floor (TURBO)
-	EV_DoFloor(line,turboLower);
+			EV_DoFloor(data, line,turboLower);
 	line->special = 0;
 	break;
 	
       case 37:
 	// LowerAndChange
-	EV_DoFloor(line,lowerAndChange);
+			EV_DoFloor(data, line,lowerAndChange);
 	line->special = 0;
 	break;
 	
       case 38:
 	// Lower Floor To Lowest
-	EV_DoFloor( line, lowerFloorToLowest );
+			EV_DoFloor(data,  line, lowerFloorToLowest );
 	line->special = 0;
 	break;
 	
       case 39:
 	// TELEPORT!
-	EV_Teleport( line, side, thing );
+	EV_Teleport( data, line, side, thing );
 	line->special = 0;
 	break;
 
       case 40:
 	// RaiseCeilingLowerFloor
-	EV_DoCeiling( line, raiseToHighest );
-	EV_DoFloor( line, lowerFloorToLowest );
+	EV_DoCeiling(data, line, raiseToHighest );
+			EV_DoFloor(data,  line, lowerFloorToLowest );
 	line->special = 0;
 	break;
 	
       case 44:
 	// Ceiling Crush
-	EV_DoCeiling( line, lowerAndCrush );
+			EV_DoCeiling(data, line, lowerAndCrush );
 	line->special = 0;
 	break;
 	
@@ -691,7 +693,7 @@ P_CrossSpecialLine
 	
       case 53:
 	// Perpetual Platform Raise
-	EV_DoPlat(line,perpetualRaise,0);
+	EV_DoPlat(data, line,perpetualRaise,0);
 	line->special = 0;
 	break;
 	
@@ -703,25 +705,25 @@ P_CrossSpecialLine
 
       case 56:
 	// Raise Floor Crush
-	EV_DoFloor(line,raiseFloorCrush);
+			EV_DoFloor(data, line,raiseFloorCrush);
 	line->special = 0;
 	break;
 
       case 57:
 	// Ceiling Crush Stop
-	EV_CeilingCrushStop(line);
+	EV_CeilingCrushStop(data, line);
 	line->special = 0;
 	break;
 	
       case 58:
 	// Raise Floor 24
-	EV_DoFloor(line,raiseFloor24);
+			EV_DoFloor(data, line,raiseFloor24);
 	line->special = 0;
 	break;
 
       case 59:
 	// Raise Floor 24 And Change
-	EV_DoFloor(line,raiseFloor24AndChange);
+			EV_DoFloor(data, line,raiseFloor24AndChange);
 	line->special = 0;
 	break;
 	
@@ -757,13 +759,13 @@ P_CrossSpecialLine
 
       case 119:
 	// Raise floor to nearest surr. floor
-	EV_DoFloor(line,raiseFloorToNearest);
+			EV_DoFloor(data, line,raiseFloorToNearest);
 	line->special = 0;
 	break;
 	
       case 121:
 	// Blazing PlatDownWaitUpStay
-	EV_DoPlat(line,blazeDWUS,0);
+	EV_DoPlat(data, line,blazeDWUS,0);
 	line->special = 0;
 	break;
 	
@@ -776,37 +778,37 @@ P_CrossSpecialLine
 	// TELEPORT MonsterONLY
 	if (!thing->player)
 	{
-	    EV_Teleport( line, side, thing );
+	    EV_Teleport( data, line, side, thing );
 	    line->special = 0;
 	}
 	break;
 	
       case 130:
 	// Raise Floor Turbo
-	EV_DoFloor(line,raiseFloorTurbo);
+			EV_DoFloor(data, line,raiseFloorTurbo);
 	line->special = 0;
 	break;
 	
       case 141:
 	// Silent Ceiling Crush & Raise
-	EV_DoCeiling(line,silentCrushAndRaise);
+			EV_DoCeiling(data,line,silentCrushAndRaise);
 	line->special = 0;
 	break;
 	
 	// RETRIGGERS.  All from here till end.
       case 72:
 	// Ceiling Crush
-	EV_DoCeiling( line, lowerAndCrush );
+			EV_DoCeiling(data, line, lowerAndCrush );
 	break;
 
       case 73:
 	// Ceiling Crush and Raise
-	EV_DoCeiling(line,crushAndRaise);
+			EV_DoCeiling(data,line,crushAndRaise);
 	break;
 
       case 74:
 	// Ceiling Crush Stop
-	EV_CeilingCrushStop(line);
+	EV_CeilingCrushStop(data, line);
 	break;
 	
       case 75:
@@ -821,7 +823,7 @@ P_CrossSpecialLine
 	
       case 77:
 	// Fast Ceiling Crush & Raise
-	EV_DoCeiling(line,fastCrushAndRaise);
+			EV_DoCeiling(data,line,fastCrushAndRaise);
 	break;
 	
       case 79:
@@ -841,17 +843,17 @@ P_CrossSpecialLine
 	
       case 82:
 	// Lower Floor To Lowest
-	EV_DoFloor( line, lowerFloorToLowest );
+			EV_DoFloor(data,  line, lowerFloorToLowest );
 	break;
 	
       case 83:
 	// Lower Floor
-	EV_DoFloor(line,lowerFloor);
+			EV_DoFloor(data, line,lowerFloor);
 	break;
 
       case 84:
 	// LowerAndChange
-	EV_DoFloor(line,lowerAndChange);
+			EV_DoFloor(data, line,lowerAndChange);
 	break;
 
       case 86:
@@ -861,12 +863,12 @@ P_CrossSpecialLine
 	
       case 87:
 	// Perpetual Platform Raise
-	EV_DoPlat(line,perpetualRaise,0);
+	EV_DoPlat(data, line,perpetualRaise,0);
 	break;
 	
       case 88:
 	// PlatDownWaitUp
-	EV_DoPlat(line,downWaitUpStay,0);
+	EV_DoPlat(data, line,downWaitUpStay,0);
 	break;
 	
       case 89:
@@ -881,44 +883,44 @@ P_CrossSpecialLine
 	
       case 91:
 	// Raise Floor
-	EV_DoFloor(line,raiseFloor);
+			EV_DoFloor(data, line,raiseFloor);
 	break;
 	
       case 92:
 	// Raise Floor 24
-	EV_DoFloor(line,raiseFloor24);
+			EV_DoFloor(data, line,raiseFloor24);
 	break;
 	
       case 93:
 	// Raise Floor 24 And Change
-	EV_DoFloor(line,raiseFloor24AndChange);
+			EV_DoFloor(data, line,raiseFloor24AndChange);
 	break;
 	
       case 94:
 	// Raise Floor Crush
-	EV_DoFloor(line,raiseFloorCrush);
+			EV_DoFloor(data, line,raiseFloorCrush);
 	break;
 	
       case 95:
 	// Raise floor to nearest height
 	// and change texture.
-	EV_DoPlat(line,raiseToNearestAndChange,0);
+	EV_DoPlat(data, line,raiseToNearestAndChange,0);
 	break;
 	
       case 96:
 	// Raise floor to shortest texture height
 	// on either side of lines.
-	EV_DoFloor(line,raiseToTexture);
+			EV_DoFloor(data, line,raiseToTexture);
 	break;
 	
       case 97:
 	// TELEPORT!
-	EV_Teleport( line, side, thing );
+	EV_Teleport( data,  line, side, thing );
 	break;
 	
       case 98:
 	// Lower Floor (TURBO)
-	EV_DoFloor(line,turboLower);
+			EV_DoFloor(data, line,turboLower);
 	break;
 
       case 105:
@@ -938,23 +940,23 @@ P_CrossSpecialLine
 
       case 120:
 	// Blazing PlatDownWaitUpStay.
-	EV_DoPlat(line,blazeDWUS,0);
+	EV_DoPlat(data, line,blazeDWUS,0);
 	break;
 	
       case 126:
 	// TELEPORT MonsterONLY.
 	if (!thing->player)
-	    EV_Teleport( line, side, thing );
+	    EV_Teleport( data, line, side, thing );
 	break;
 	
       case 128:
 	// Raise To Nearest Floor
-	EV_DoFloor(line,raiseFloorToNearest);
+			EV_DoFloor(data, line,raiseFloorToNearest);
 	break;
 	
       case 129:
 	// Raise Floor Turbo
-	EV_DoFloor(line,raiseFloorTurbo);
+			EV_DoFloor(data, line,raiseFloorTurbo);
 	break;
     }
 }
@@ -967,7 +969,8 @@ P_CrossSpecialLine
 //
 void
 P_ShootSpecialLine
-( mobj_t*	thing,
+( data_t* data,
+  mobj_t*	thing,
   line_t*	line )
 {
     int		ok;
@@ -991,20 +994,20 @@ P_ShootSpecialLine
     {
       case 24:
 	// RAISE FLOOR
-	EV_DoFloor(line,raiseFloor);
-	P_ChangeSwitchTexture(line,0);
+			EV_DoFloor(data, line,raiseFloor);
+	P_ChangeSwitchTexture(data, line,0);
 	break;
 	
       case 46:
 	// OPEN DOOR
 	EV_DoDoor(line,vld_open);
-	P_ChangeSwitchTexture(line,1);
+			P_ChangeSwitchTexture(data, line,1);
 	break;
 	
       case 47:
 	// RAISE FLOOR NEAR AND CHANGE
-	EV_DoPlat(line,raiseToNearestAndChange,0);
-	P_ChangeSwitchTexture(line,0);
+	EV_DoPlat(data, line,raiseToNearestAndChange,0);
+			P_ChangeSwitchTexture(data, line,0);
 	break;
     }
 }
@@ -1016,7 +1019,7 @@ P_ShootSpecialLine
 // Called every tic frame
 //  that the player origin is in a special sector
 //
-void P_PlayerInSpecialSector (player_t* player)
+void P_PlayerInSpecialSector (data_t* data, player_t* player)
 {
     sector_t*	sector;
 	
@@ -1033,14 +1036,14 @@ void P_PlayerInSpecialSector (player_t* player)
 	// HELLSLIME DAMAGE
 	if (!player->powers[pw_ironfeet])
 	    if (!(leveltime&0x1f))
-		P_DamageMobj (player->mo, NULL, NULL, 10);
+		P_DamageMobj (data, player->mo, NULL, NULL, 10);
 	break;
 	
       case 7:
 	// NUKAGE DAMAGE
 	if (!player->powers[pw_ironfeet])
 	    if (!(leveltime&0x1f))
-		P_DamageMobj (player->mo, NULL, NULL, 5);
+		P_DamageMobj (data, player->mo, NULL, NULL, 5);
 	break;
 	
       case 16:
@@ -1051,7 +1054,7 @@ void P_PlayerInSpecialSector (player_t* player)
 	    || (P_Random()<5) )
 	{
 	    if (!(leveltime&0x1f))
-		P_DamageMobj (player->mo, NULL, NULL, 20);
+		P_DamageMobj (data, player->mo, NULL, NULL, 20);
 	}
 	break;
 			
@@ -1066,14 +1069,14 @@ void P_PlayerInSpecialSector (player_t* player)
 	player->cheats &= ~CF_GODMODE;
 
 	if (!(leveltime&0x1f))
-	    P_DamageMobj (player->mo, NULL, NULL, 20);
+	    P_DamageMobj (data, player->mo, NULL, NULL, 20);
 
 	if (player->health <= 10)
 	    G_ExitLevel();
 	break;
 			
       default:
-	I_Error ("P_PlayerInSpecialSector: "
+	I_Error (data, "P_PlayerInSpecialSector: "
 		 "unknown special %i",
 		 sector->special);
 	break;
@@ -1090,7 +1093,7 @@ void P_PlayerInSpecialSector (player_t* player)
 boolean		levelTimer;
 int		levelTimeCount;
 
-void P_UpdateSpecials (void)
+void P_UpdateSpecials (data_t* data)
 {
     anim_t*	anim;
     int		pic;
@@ -1371,7 +1374,7 @@ line_t*		linespeciallist[MAXLINEANIMS];
 
 
 // Parses command line parameters.
-void P_SpawnSpecials (void)
+void P_SpawnSpecials (data_t* data)
 {
     sector_t*	sector;
     int		i;
@@ -1429,7 +1432,7 @@ void P_SpawnSpecials (void)
 	    
 	  case 10:
 	    // DOOR CLOSE IN 30 SECONDS
-	    P_SpawnDoorCloseIn30 (sector);
+	    P_SpawnDoorCloseIn30 (data, sector);
 	    break;
 	    
 	  case 12:
@@ -1463,7 +1466,7 @@ void P_SpawnSpecials (void)
 	  case 48:
             if (numlinespecials >= MAXLINEANIMS)
             {
-                I_Error("Too many scrolling wall linedefs! "
+                I_Error(data, "Too many scrolling wall linedefs! "
                         "(Vanilla limit is 64)");
             }
 	    // EFFECT FIRSTCOL SCROLL+

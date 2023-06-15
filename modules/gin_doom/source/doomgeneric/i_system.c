@@ -243,7 +243,7 @@ void I_BindVariables(void)
 // I_Quit
 //
 
-void I_Quit (void)
+void I_Quit (data_t* data)
 {
     atexit_listentry_t *entry;
 
@@ -253,7 +253,7 @@ void I_Quit (void)
 
     while (entry != NULL)
     {
-        entry->func();
+        entry->func (data);
         entry = entry->next;
     }
 
@@ -356,7 +356,7 @@ static int ZenityErrorBox(char *message)
 
 static boolean already_quitting = false;
 
-void I_Error (char *error, ...)
+void I_Error (data_t* data, const char *error, ...)
 {
     char msgbuf[512];
     va_list argptr;
@@ -397,7 +397,7 @@ void I_Error (char *error, ...)
     {
         if (entry->run_on_error)
         {
-            entry->func();
+            entry->func (data);
         }
 
         entry = entry->next;

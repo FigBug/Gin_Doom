@@ -39,17 +39,6 @@
 #include "net_defs.h"
 
 
-
-// ------------------------
-// Command line parameters.
-//
-extern  boolean	nomonsters;	// checkparm of -nomonsters
-extern  boolean	respawnparm;	// checkparm of -respawn
-extern  boolean	fastparm;	// checkparm of -fast
-
-extern  boolean	devparm;	// DEBUG: launched with -devparm
-
-
 // -----------------------------------------------------
 // Game Mode - identify IWAD as shareware, retail etc.
 //
@@ -86,7 +75,6 @@ extern	int		startmap;
 // Savegame slot to load on startup.  This is the value provided to
 // the -loadgame option.  If this has not been provided, this is -1.
 
-extern  int             startloadgame;
 
 extern  boolean		autostart;
 

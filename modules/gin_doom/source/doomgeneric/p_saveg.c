@@ -1344,7 +1344,7 @@ static void saveg_write_glow_t(glow_t *str)
 // Write the header for a savegame
 //
 
-void P_WriteSaveGameHeader(char *description)
+void P_WriteSaveGameHeader(data_t* data, char *description)
 {
     char name[VERSIONSIZE]; 
     int i; 
@@ -1355,7 +1355,7 @@ void P_WriteSaveGameHeader(char *description)
         saveg_write8(0);
 
     memset(name, 0, sizeof(name));
-    M_snprintf(name, sizeof(name), "version %i", G_VanillaVersionCode());
+    M_snprintf(name, sizeof(name), "version %i", G_VanillaVersionCode(data));
 
     for (i=0; i<VERSIONSIZE; ++i)
         saveg_write8(name[i]);
@@ -1376,7 +1376,7 @@ void P_WriteSaveGameHeader(char *description)
 // Read the header for a savegame
 //
 
-boolean P_ReadSaveGameHeader(void)
+boolean P_ReadSaveGameHeader(data_t* data)
 {
     int	 i; 
     byte a, b, c; 
@@ -1392,7 +1392,7 @@ boolean P_ReadSaveGameHeader(void)
         read_vcheck[i] = saveg_read8();
 
     memset(vcheck, 0, sizeof(vcheck));
-    M_snprintf(vcheck, sizeof(vcheck), "version %i", G_VanillaVersionCode());
+    M_snprintf(vcheck, sizeof(vcheck), "version %i", G_VanillaVersionCode(data));
     if (strcmp(read_vcheck, vcheck) != 0)
 	return false;				// bad version 
 
@@ -1416,7 +1416,7 @@ boolean P_ReadSaveGameHeader(void)
 // Read the end of file marker.  Returns true if read successfully.
 // 
 
-boolean P_ReadSaveGameEOF(void)
+boolean P_ReadSaveGameEOF(data_t* data)
 {
     int value;
 
@@ -1429,7 +1429,7 @@ boolean P_ReadSaveGameEOF(void)
 // Write the end of file marker
 //
 
-void P_WriteSaveGameEOF(void)
+void P_WriteSaveGameEOF(data_t* data)
 {
     saveg_write8(SAVEGAME_EOF);
 }
@@ -1437,7 +1437,7 @@ void P_WriteSaveGameEOF(void)
 //
 // P_ArchivePlayers
 //
-void P_ArchivePlayers (void)
+void P_ArchivePlayers (data_t* data)
 {
     int		i;
 		
@@ -1457,7 +1457,7 @@ void P_ArchivePlayers (void)
 //
 // P_UnArchivePlayers
 //
-void P_UnArchivePlayers (void)
+void P_UnArchivePlayers (data_t* data)
 {
     int		i;
 	
@@ -1481,7 +1481,7 @@ void P_UnArchivePlayers (void)
 //
 // P_ArchiveWorld
 //
-void P_ArchiveWorld (void)
+void P_ArchiveWorld (data_t* data)
 {
     int			i;
     int			j;
@@ -1529,7 +1529,7 @@ void P_ArchiveWorld (void)
 //
 // P_UnArchiveWorld
 //
-void P_UnArchiveWorld (void)
+void P_UnArchiveWorld (data_t* data)
 {
     int			i;
     int			j;
@@ -1589,7 +1589,7 @@ typedef enum
 //
 // P_ArchiveThinkers
 //
-void P_ArchiveThinkers (void)
+void P_ArchiveThinkers (data_t* data)
 {
     thinker_t*		th;
 
@@ -1617,7 +1617,7 @@ void P_ArchiveThinkers (void)
 //
 // P_UnArchiveThinkers
 //
-void P_UnArchiveThinkers (void)
+void P_UnArchiveThinkers (data_t* data)
 {
     byte		tclass;
     thinker_t*		currentthinker;
@@ -1631,7 +1631,7 @@ void P_UnArchiveThinkers (void)
 	next = currentthinker->next;
 	
 	if (currentthinker->function.acp1 == (actionf_p1)P_MobjThinker)
-	    P_RemoveMobj ((mobj_t *)currentthinker);
+	    P_RemoveMobj (data, (mobj_t *)currentthinker);
 	else
 	    Z_Free (currentthinker);
 
@@ -1664,7 +1664,7 @@ void P_UnArchiveThinkers (void)
 	    break;
 
 	  default:
-	    I_Error ("Unknown tclass %i in savegame",tclass);
+	    I_Error (data, "Unknown tclass %i in savegame",tclass);
 	}
 	
     }
@@ -1701,7 +1701,7 @@ enum
 // T_Glow, (glow_t: sector_t *),
 // T_PlatRaise, (plat_t: sector_t *), - active list
 //
-void P_ArchiveSpecials (void)
+void P_ArchiveSpecials (data_t* data)
 {
     thinker_t*		th;
     int			i;
@@ -1790,7 +1790,7 @@ void P_ArchiveSpecials (void)
 //
 // P_UnArchiveSpecials
 //
-void P_UnArchiveSpecials (void)
+void P_UnArchiveSpecials (data_t* data)
 {
     byte		tclass;
     ceiling_t*		ceiling;
@@ -1822,7 +1822,7 @@ void P_UnArchiveSpecials (void)
 		ceiling->thinker.function.acp1 = (actionf_p1)T_MoveCeiling;
 
 	    P_AddThinker (&ceiling->thinker);
-	    P_AddActiveCeiling(ceiling);
+	    P_AddActiveCeiling(data, ceiling);
 	    break;
 				
 	  case tc_door:
@@ -1853,7 +1853,7 @@ void P_UnArchiveSpecials (void)
 		plat->thinker.function.acp1 = (actionf_p1)T_PlatRaise;
 
 	    P_AddThinker (&plat->thinker);
-	    P_AddActivePlat(plat);
+	    P_AddActivePlat(data, plat);
 	    break;
 				
 	  case tc_flash:

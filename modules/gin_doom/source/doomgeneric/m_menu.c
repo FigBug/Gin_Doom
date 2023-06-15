@@ -153,7 +153,7 @@ typedef struct menu_s
     short		numitems;	// # of menu items
     struct menu_s*	prevMenu;	// previous menu
     menuitem_t*		menuitems;	// menu items
-    void		(*routine)();	// draw routine
+    void		(*routine)(data_t* data);	// draw routine
     short		x;
     short		y;		// x,y of menu
     short		lastOn;		// last item user was on in menu
@@ -201,7 +201,7 @@ void M_QuickSave(void);
 void M_QuickLoad(void);
 
 void M_DrawMainMenu(void);
-void M_DrawReadThis1(void);
+void M_DrawReadThis1(data_t* data);
 void M_DrawReadThis2(void);
 void M_DrawNewGame(void);
 void M_DrawEpisode(void);
@@ -740,7 +740,7 @@ void M_QuickLoad(void)
 // Read This Menus
 // Had a "quick hack to fix romero bug"
 //
-void M_DrawReadThis1(void)
+void M_DrawReadThis1(data_t* data)
 {
     char *lumpname = "CREDIT";
     int skullx = 330, skully = 175;
@@ -800,7 +800,7 @@ void M_DrawReadThis1(void)
             break;
 
         default:
-            I_Error("Unhandled game version");
+            I_Error(data, "Unhandled game version");
             break;
     }
 
@@ -1032,14 +1032,14 @@ void M_ChangeMessages(int choice)
 //
 // M_EndGame
 //
-void M_EndGameResponse(int key)
+void M_EndGameResponse (data_t* data, int key)
 {
     if (key != key_menu_confirm)
 	return;
 		
     currentMenu->lastOn = itemOn;
     M_ClearMenus ();
-    D_StartTitle ();
+    D_StartTitle (data);
 }
 
 void M_EndGame(int choice)
@@ -1128,7 +1128,7 @@ int     quitsounds2[8] =
 
 
 
-void M_QuitResponse(int key)
+void M_QuitResponse(data_t* data, int key)
 {
     if (key != key_menu_confirm)
 	return;
@@ -1140,7 +1140,7 @@ void M_QuitResponse(int key)
 	    S_StartSound(NULL,quitsounds[(gametic>>2)&7]);
 	I_WaitVBL(105);
     }
-    I_Quit ();
+    I_Quit (data);
 }
 
 
@@ -1434,7 +1434,7 @@ boolean M_Responder (data_t* data, event_t* ev)
          || (ev->type == ev_keydown
           && (ev->data1 == key_menu_activate || ev->data1 == key_menu_quit)))
         {
-            I_Quit();
+            I_Quit(data);
             return true;
         }
 
@@ -1449,7 +1449,7 @@ boolean M_Responder (data_t* data, event_t* ev)
 
         if (menuactive && messageToPrint && messageRoutine == M_QuitResponse)
         {
-            M_QuitResponse(key_menu_confirm);
+            M_QuitResponse(data, key_menu_confirm);
         }
         else
         {
@@ -1643,7 +1643,7 @@ boolean M_Responder (data_t* data, event_t* ev)
 	return true;
     }
 
-    if ((devparm && key == key_menu_help) ||
+    if ((data->devparm && key == key_menu_help) ||
         (key != 0 && key == key_menu_screenshot))
     {
 	G_ScreenShot ();
@@ -1948,7 +1948,7 @@ static void M_DrawOPLDev(void)
 // Called after the view has been rendered,
 // but before it has been blitted.
 //
-void M_Drawer (void)
+void M_Drawer (data_t* data)
 {
     static short	x;
     static short	y;
@@ -2009,7 +2009,7 @@ void M_Drawer (void)
 	return;
 
     if (currentMenu->routine)
-	currentMenu->routine();         // call Draw routine
+	currentMenu->routine (data);         // call Draw routine
     
     // DRAW MENU
     x = currentMenu->x;
@@ -2061,7 +2061,7 @@ void M_SetupNextMenu(menu_t *menudef)
 //
 // M_Ticker
 //
-void M_Ticker (void)
+void M_Ticker (data_t* data)
 {
     if (--skullAnimCounter <= 0)
     {

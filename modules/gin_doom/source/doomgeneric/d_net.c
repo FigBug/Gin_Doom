@@ -89,7 +89,7 @@ static void RunTic(data_t* data, ticcmd_t *cmds, boolean *ingame)
     // run a tic.
 
     if (advancedemo)
-        D_DoAdvanceDemo ();
+        D_DoAdvanceDemo (data);
 
     G_Ticker (data);
 }
@@ -105,7 +105,7 @@ static loop_interface_t doom_loop_interface = {
 // Load game settings from the specified structure and
 // set global variables.
 
-static void LoadGameSettings(net_gamesettings_t *settings)
+static void LoadGameSettings(data_t* data, net_gamesettings_t *settings)
 {
     unsigned int i;
 
@@ -113,11 +113,11 @@ static void LoadGameSettings(net_gamesettings_t *settings)
     startepisode = settings->episode;
     startmap = settings->map;
     startskill = settings->skill;
-    startloadgame = settings->loadgame;
+    data->startloadgame = settings->loadgame;
     lowres_turn = settings->lowres_turn;
-    nomonsters = settings->nomonsters;
-    fastparm = settings->fast_monsters;
-    respawnparm = settings->respawn_monsters;
+	data->nomonsters = settings->nomonsters;
+	data->fastparm = settings->fast_monsters;
+	data->respawnparm = settings->respawn_monsters;
     timelimit = settings->timelimit;
     consoleplayer = settings->consoleplayer;
 
@@ -136,7 +136,7 @@ static void LoadGameSettings(net_gamesettings_t *settings)
 // Save the game settings from global variables to the specified
 // game settings structure.
 
-static void SaveGameSettings(net_gamesettings_t *settings)
+static void SaveGameSettings(data_t* data, net_gamesettings_t *settings)
 {
     // Fill in game settings structure with appropriate parameters
     // for the new game
@@ -145,11 +145,11 @@ static void SaveGameSettings(net_gamesettings_t *settings)
     settings->episode = startepisode;
     settings->map = startmap;
     settings->skill = startskill;
-    settings->loadgame = startloadgame;
+    settings->loadgame = data->startloadgame;
     settings->gameversion = gameversion;
-    settings->nomonsters = nomonsters;
-    settings->fast_monsters = fastparm;
-    settings->respawn_monsters = respawnparm;
+    settings->nomonsters = data->nomonsters;
+    settings->fast_monsters = data->fastparm;
+    settings->respawn_monsters = data->respawnparm;
     settings->timelimit = timelimit;
 
     settings->lowres_turn = M_CheckParm("-record") > 0
@@ -212,7 +212,7 @@ static void InitConnectData(net_connect_data_t *connect_data)
     connect_data->is_freedoom = W_CheckNumForName("FREEDOOM") >= 0;
 }
 
-void D_ConnectNetGame(void)
+void D_ConnectNetGame(data_t* data)
 {
     net_connect_data_t connect_data;
 
@@ -237,7 +237,7 @@ void D_ConnectNetGame(void)
 // D_CheckNetGame
 // Works out player numbers among the net participants
 //
-void D_CheckNetGame (void)
+void D_CheckNetGame (data_t* data)
 {
     net_gamesettings_t settings;
 
@@ -248,9 +248,9 @@ void D_CheckNetGame (void)
 
     D_RegisterLoopCallbacks(&doom_loop_interface);
 
-    SaveGameSettings(&settings);
+    SaveGameSettings(data, &settings);
     D_StartNetGame(&settings, NULL);
-    LoadGameSettings(&settings);
+    LoadGameSettings(data, &settings);
 
     DEH_printf("startskill %i  deathmatch: %i  startmap: %i  startepisode: %i\n",
                startskill, deathmatch, startmap, startepisode);

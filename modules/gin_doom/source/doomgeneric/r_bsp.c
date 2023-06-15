@@ -487,7 +487,7 @@ boolean R_CheckBBox (fixed_t*	bspcoord)
 // Add sprites of things in sector.
 // Draw one or more line segments.
 //
-void R_Subsector (int num)
+void R_Subsector (data_t* data, int num)
 {
     int			count;
     seg_t*		line;
@@ -508,7 +508,7 @@ void R_Subsector (int num)
 
     if (frontsector->floorheight < viewz)
     {
-	floorplane = R_FindPlane (frontsector->floorheight,
+	floorplane = R_FindPlane (data, frontsector->floorheight,
 				  frontsector->floorpic,
 				  frontsector->lightlevel);
     }
@@ -518,7 +518,7 @@ void R_Subsector (int num)
     if (frontsector->ceilingheight > viewz 
 	|| frontsector->ceilingpic == skyflatnum)
     {
-	ceilingplane = R_FindPlane (frontsector->ceilingheight,
+	ceilingplane = R_FindPlane (data, frontsector->ceilingheight,
 				    frontsector->ceilingpic,
 				    frontsector->lightlevel);
     }
@@ -542,7 +542,7 @@ void R_Subsector (int num)
 // Renders all subsectors below a given node,
 //  traversing subtree recursively.
 // Just call with BSP root.
-void R_RenderBSPNode (int bspnum)
+void R_RenderBSPNode (data_t* data, int bspnum)
 {
     node_t*	bsp;
     int		side;
@@ -551,9 +551,9 @@ void R_RenderBSPNode (int bspnum)
     if (bspnum & NF_SUBSECTOR)
     {
 	if (bspnum == -1)			
-	    R_Subsector (0);
+	    R_Subsector (data, 0);
 	else
-	    R_Subsector (bspnum&(~NF_SUBSECTOR));
+	    R_Subsector (data, bspnum&(~NF_SUBSECTOR));
 	return;
     }
 		
@@ -563,11 +563,11 @@ void R_RenderBSPNode (int bspnum)
     side = R_PointOnSide (viewx, viewy, bsp);
 
     // Recursively divide front space.
-    R_RenderBSPNode (bsp->children[side]); 
+    R_RenderBSPNode (data, bsp->children[side]); 
 
     // Possibly divide back space.
     if (R_CheckBBox (bsp->bbox[side^1]))	
-	R_RenderBSPNode (bsp->children[side^1]);
+	R_RenderBSPNode (data, bsp->children[side^1]);
 }
 
 

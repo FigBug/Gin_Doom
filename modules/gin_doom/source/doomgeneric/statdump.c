@@ -340,7 +340,7 @@ void StatCopy(wbstartstruct_t *stats)
     }
 }
 
-void StatDump(void)
+void StatDump(data_t* data)
 {
 #if ORIGCODE
     FILE *dumpfile;

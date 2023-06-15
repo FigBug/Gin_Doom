@@ -75,9 +75,9 @@ void P_RemoveThinker (thinker_t* thinker);
 //
 // P_PSPR
 //
-void P_SetupPsprites (player_t* curplayer);
-void P_MovePsprites (player_t* curplayer);
-void P_DropWeapon (player_t* player);
+void P_SetupPsprites (data_t* data, player_t* curplayer);
+void P_MovePsprites (data_t* data, player_t* curplayer);
+void P_DropWeapon (data_t* data, player_t* player);
 
 
 //
@@ -101,24 +101,25 @@ extern int		iquehead;
 extern int		iquetail;
 
 
-void P_RespawnSpecials (void);
+void P_RespawnSpecials (data_t* data);
 
 mobj_t*
 P_SpawnMobj
-( fixed_t	x,
+( data_t* data,
+  fixed_t	x,
   fixed_t	y,
   fixed_t	z,
   mobjtype_t	type );
 
-void 	P_RemoveMobj (mobj_t* th);
-mobj_t* P_SubstNullMobj (mobj_t* th);
-boolean	P_SetMobjState (mobj_t* mobj, statenum_t state);
-void 	P_MobjThinker (mobj_t* mobj);
+void 	P_RemoveMobj (data_t* data, mobj_t* th);
+mobj_t* P_SubstNullMobj (data_t* data, mobj_t* th);
+boolean	P_SetMobjState (data_t* data, mobj_t* mobj, statenum_t state);
+void 	P_MobjThinker (data_t* data, mobj_t* mobj);
 
-void	P_SpawnPuff (fixed_t x, fixed_t y, fixed_t z);
-void 	P_SpawnBlood (fixed_t x, fixed_t y, fixed_t z, int damage);
-mobj_t* P_SpawnMissile (mobj_t* source, mobj_t* dest, mobjtype_t type);
-void	P_SpawnPlayerMissile (mobj_t* source, mobjtype_t type);
+void	P_SpawnPuff (data_t* data, fixed_t x, fixed_t y, fixed_t z);
+void 	P_SpawnBlood (data_t* data, fixed_t x, fixed_t y, fixed_t z, int damage);
+mobj_t* P_SpawnMissile (data_t* data, mobj_t* source, mobj_t* dest, mobjtype_t type);
+void	P_SpawnPlayerMissile (data_t* data, mobj_t* source, mobjtype_t type);
 
 
 //
@@ -173,8 +174,8 @@ extern fixed_t		lowfloor;
 
 void 	P_LineOpening (line_t* linedef);
 
-boolean P_BlockLinesIterator (int x, int y, boolean(*func)(line_t*) );
-boolean P_BlockThingsIterator (int x, int y, boolean(*func)(mobj_t*) );
+boolean P_BlockLinesIterator (data_t* data, int x, int y, boolean(*func)(data_t*,line_t*) );
+boolean P_BlockThingsIterator (data_t* data, int x, int y, boolean(*func)(data_t*,mobj_t*) );
 
 #define PT_ADDLINES		1
 #define PT_ADDTHINGS	2
@@ -184,12 +185,13 @@ extern divline_t	trace;
 
 boolean
 P_PathTraverse
-( fixed_t	x1,
+( data_t* data,
+  fixed_t	x1,
   fixed_t	y1,
   fixed_t	x2,
   fixed_t	y2,
   int		flags,
-  boolean	(*trav) (intercept_t *));
+  boolean	(*trav) (data_t*,intercept_t *));
 
 void P_UnsetThingPosition (mobj_t* thing);
 void P_SetThingPosition (mobj_t* thing);
@@ -222,26 +224,28 @@ extern	line_t*		ceilingline;
 extern	line_t*	spechit[MAXSPECIALCROSS];
 extern	int	numspechit;
 
-boolean P_CheckPosition (mobj_t *thing, fixed_t x, fixed_t y);
-boolean P_TryMove (mobj_t* thing, fixed_t x, fixed_t y);
-boolean P_TeleportMove (mobj_t* thing, fixed_t x, fixed_t y);
-void	P_SlideMove (mobj_t* mo);
-boolean P_CheckSight (mobj_t* t1, mobj_t* t2);
-void 	P_UseLines (player_t* player);
+boolean P_CheckPosition (data_t* data, mobj_t *thing, fixed_t x, fixed_t y);
+boolean P_TryMove (data_t* data, mobj_t* thing, fixed_t x, fixed_t y);
+boolean P_TeleportMove (data_t* data, mobj_t* thing, fixed_t x, fixed_t y);
+void	P_SlideMove (data_t* data, mobj_t* mo);
+boolean P_CheckSight (data_t* data, mobj_t* t1, mobj_t* t2);
+void 	P_UseLines (data_t* data, player_t* player);
 
-boolean P_ChangeSector (sector_t* sector, boolean crunch);
+boolean P_ChangeSector (data_t* data, sector_t* sector, boolean crunch);
 
 extern mobj_t*	linetarget;	// who got hit (or NULL)
 
 fixed_t
 P_AimLineAttack
-( mobj_t*	t1,
+( data_t* data,
+  mobj_t*	t1,
   angle_t	angle,
   fixed_t	distance );
 
 void
 P_LineAttack
-( mobj_t*	t1,
+( data_t* data,
+  mobj_t*	t1,
   angle_t	angle,
   fixed_t	distance,
   fixed_t	slope,
@@ -249,7 +253,8 @@ P_LineAttack
 
 void
 P_RadiusAttack
-( mobj_t*	spot,
+( data_t* data,
+  mobj_t*	spot,
   mobj_t*	source,
   int		damage );
 
@@ -277,12 +282,14 @@ extern int		clipammo[NUMAMMO];
 
 void
 P_TouchSpecialThing
-( mobj_t*	special,
+( data_t*   data,
+  mobj_t*	special,
   mobj_t*	toucher );
 
 void
 P_DamageMobj
-( mobj_t*	target,
+( data_t* data,
+  mobj_t*	target,
   mobj_t*	inflictor,
   mobj_t*	source,
   int		damage );

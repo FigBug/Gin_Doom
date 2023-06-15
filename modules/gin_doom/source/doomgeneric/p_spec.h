@@ -36,33 +36,36 @@ extern	int	levelTimeCount;
 
 
 // at game start
-void    P_InitPicAnims (void);
+void    P_InitPicAnims (data_t* data);
 
 // at map load
-void    P_SpawnSpecials (void);
+void    P_SpawnSpecials (data_t* data);
 
 // every tic
-void    P_UpdateSpecials (void);
+void    P_UpdateSpecials (data_t* data);
 
 // when needed
 boolean
 P_UseSpecialLine
-( mobj_t*	thing,
+( data_t* data,
+  mobj_t*	thing,
   line_t*	line,
   int		side );
 
 void
 P_ShootSpecialLine
-( mobj_t*	thing,
+( data_t* data,
+  mobj_t*	thing,
   line_t*	line );
 
 void
 P_CrossSpecialLine
-( int		linenum,
+( data_t* data,
+  int		linenum,
   int		side,
   mobj_t*	thing );
 
-void    P_PlayerInSpecialSector (player_t* player);
+void    P_PlayerInSpecialSector (data_t* data, player_t* player);
 
 int
 twoSided
@@ -86,7 +89,8 @@ fixed_t P_FindHighestFloorSurrounding(sector_t* sec);
 
 fixed_t
 P_FindNextHighestFloor
-( sector_t*	sec,
+( data_t* data,
+  sector_t*	sec,
   int		currentheight );
 
 fixed_t P_FindLowestCeilingSurrounding(sector_t* sec);
@@ -247,7 +251,8 @@ extern button_t	buttonlist[MAXBUTTONS];
 
 void
 P_ChangeSwitchTexture
-( line_t*	line,
+( data_t*   data,
+  line_t*	line,
   int		useAgain );
 
 void P_InitSwitchList(void);
@@ -305,16 +310,17 @@ typedef struct
 
 extern plat_t*	activeplats[MAXPLATS];
 
-void    T_PlatRaise(plat_t*	plat);
+void    T_PlatRaise(data_t* data, plat_t*	plat);
 
 int
 EV_DoPlat
-( line_t*	line,
+( data_t* data,
+ line_t*	line,
   plattype_e	type,
   int		amount );
 
-void    P_AddActivePlat(plat_t* plat);
-void    P_RemoveActivePlat(plat_t* plat);
+void    P_AddActivePlat(data_t* data, plat_t* plat);
+void    P_RemoveActivePlat(data_t* data, plat_t* plat);
 void    EV_StopPlat(line_t* line);
 void    P_ActivateInStasis(int tag);
 
@@ -377,8 +383,8 @@ EV_DoLockedDoor
   vldoor_e	type,
   mobj_t*	thing );
 
-void    T_VerticalDoor (vldoor_t* door);
-void    P_SpawnDoorCloseIn30 (sector_t* sec);
+void    T_VerticalDoor (data_t* data, vldoor_t* door);
+void    P_SpawnDoorCloseIn30 (data_t* data, sector_t* sec);
 
 void
 P_SpawnDoorRaiseIn5Mins
@@ -518,14 +524,14 @@ extern ceiling_t*	activeceilings[MAXCEILINGS];
 
 int
 EV_DoCeiling
-( line_t*	line,
+( data_t* data, line_t*	line,
   ceiling_e	type );
 
-void    T_MoveCeiling (ceiling_t* ceiling);
-void    P_AddActiveCeiling(ceiling_t* c);
-void    P_RemoveActiveCeiling(ceiling_t* c);
-int	EV_CeilingCrushStop(line_t* line);
-void    P_ActivateInStasisCeiling(line_t* line);
+void    T_MoveCeiling (data_t* data, ceiling_t* ceiling);
+void    P_AddActiveCeiling(data_t* data, ceiling_t* c);
+void    P_RemoveActiveCeiling(data_t* data, ceiling_t* c);
+int	EV_CeilingCrushStop(data_t* data, line_t* line);
+void    P_ActivateInStasisCeiling(data_t* data, line_t* line);
 
 
 //
@@ -606,7 +612,8 @@ typedef enum
 
 result_e
 T_MovePlane
-( sector_t*	sector,
+( data_t* data,
+  sector_t*	sector,
   fixed_t	speed,
   fixed_t	dest,
   boolean	crush,
@@ -620,17 +627,19 @@ EV_BuildStairs
 
 int
 EV_DoFloor
-( line_t*	line,
+( data_t* data,
+  line_t*	line,
   floor_e	floortype );
 
-void T_MoveFloor( floormove_t* floor);
+void T_MoveFloor( data_t* data, floormove_t* floor);
 
 //
 // P_TELEPT
 //
 int
 EV_Teleport
-( line_t*	line,
+( data_t* data,
+  line_t*	line,
   int		side,
   mobj_t*	thing );
 

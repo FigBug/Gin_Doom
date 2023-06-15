@@ -22,9 +22,9 @@
 
 #include "doomtype.h"
 
-void M_LoadDefaults(void);
-void M_SaveDefaults(void);
-void M_SaveDefaultsAlternate(char *main, char *extra);
+void M_LoadDefaults(data_t* data);
+void M_SaveDefaults(data_t* data);
+void M_SaveDefaultsAlternate(data_t* data, char *main, char *extra);
 void M_SetConfigDir(char *dir);
 void M_BindVariable(char *name, void *variable);
 boolean M_SetVariable(char *name, char *value);

@@ -54,7 +54,7 @@ slidename_t	slideFrameNames[MAXSLIDEDOORS] =
 //
 // T_VerticalDoor
 //
-void T_VerticalDoor (vldoor_t* door)
+void T_VerticalDoor (data_t* data, vldoor_t* door)
 {
     result_e	res;
 	
@@ -107,7 +107,7 @@ void T_VerticalDoor (vldoor_t* door)
 	
       case -1:
 	// DOWN
-	res = T_MovePlane(door->sector,
+	res = T_MovePlane(data, door->sector,
 			  door->speed,
 			  door->sector->floorheight,
 			  false,1,door->direction);
@@ -155,7 +155,7 @@ void T_VerticalDoor (vldoor_t* door)
 	
       case 1:
 	// UP
-	res = T_MovePlane(door->sector,
+	res = T_MovePlane(data, door->sector,
 			  door->speed,
 			  door->topheight,
 			  false,1,door->direction);
@@ -516,7 +516,7 @@ EV_VerticalDoor
 //
 // Spawn a door that closes after 30 seconds
 //
-void P_SpawnDoorCloseIn30 (sector_t* sec)
+void P_SpawnDoorCloseIn30 (data_t* data, sector_t* sec)
 {
     vldoor_t*	door;
 	

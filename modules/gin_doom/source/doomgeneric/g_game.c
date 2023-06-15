@@ -77,17 +77,17 @@
 
 void	G_ReadDemoTiccmd (data_t* data, ticcmd_t* cmd);
 void	G_WriteDemoTiccmd (data_t* data, ticcmd_t* cmd);
-void	G_PlayerReborn (int player); 
+void	G_PlayerReborn (data_t* data, int player);
  
-void	G_DoReborn (int playernum); 
+void	G_DoReborn (data_t* data, int playernum);
  
-void	G_DoLoadLevel (void); 
-void	G_DoNewGame (void); 
+void	G_DoLoadLevel (data_t* data);
+void	G_DoNewGame (data_t* data);
 void	G_DoPlayDemo (data_t* data);
-void	G_DoCompleted (void); 
-void	G_DoVictory (void); 
-void	G_DoWorldDone (void); 
-void	G_DoSaveGame (void); 
+void	G_DoCompleted (data_t* data);
+void	G_DoVictory (data_t* data);
+void	G_DoWorldDone (data_t* data);
+void	G_DoSaveGame (data_t* data);
  
 // Gamestate the last time G_Ticker was called.
 
@@ -600,7 +600,7 @@ void G_BuildTiccmd (data_t* data, ticcmd_t* cmd, int maketic)
 //
 // G_DoLoadLevel 
 //
-void G_DoLoadLevel (void) 
+void G_DoLoadLevel (data_t* data)
 { 
     int             i; 
 
@@ -766,7 +766,7 @@ boolean G_Responder (event_t* ev)
 #if 0 
 	if (devparm && ev->type == ev_keydown && ev->data1 == ';') 
 	{ 
-	    G_DeathMatchSpawnPlayer (0); 
+	    G_DeathMatchSpawnPlayer (data, 0); 
 	    return true; 
 	} 
 #endif 
@@ -860,7 +860,7 @@ void G_Ticker (data_t* data)
     // do player reborns if needed
     for (i=0 ; i<MAXPLAYERS ; i++) 
 	if (playeringame[i] && players[i].playerstate == PST_REBORN) 
-	    G_DoReborn (i);
+	    G_DoReborn (data, i);
     
     // do things to change the game state
     while (gameaction != ga_nothing) 
@@ -868,28 +868,28 @@ void G_Ticker (data_t* data)
 	switch (gameaction) 
 	{ 
 	  case ga_loadlevel: 
-	    G_DoLoadLevel (); 
+	    G_DoLoadLevel (data);
 	    break; 
 	  case ga_newgame: 
-	    G_DoNewGame (); 
+	    G_DoNewGame (data);
 	    break; 
 	  case ga_loadgame: 
-	    G_DoLoadGame (); 
+	    G_DoLoadGame (data);
 	    break; 
 	  case ga_savegame: 
-	    G_DoSaveGame (); 
+	    G_DoSaveGame (data);
 	    break; 
 	  case ga_playdemo: 
 	    G_DoPlayDemo (data);
 	    break; 
 	  case ga_completed: 
-	    G_DoCompleted (); 
+	    G_DoCompleted (data);
 	    break; 
 	  case ga_victory: 
 	    F_StartFinale (); 
 	    break; 
 	  case ga_worlddone: 
-	    G_DoWorldDone (); 
+	    G_DoWorldDone (data);
 	    break; 
 	  case ga_screenshot: 
 	    V_ScreenShot("DOOM%02i.%s"); 
@@ -1005,7 +1005,7 @@ void G_Ticker (data_t* data)
     switch (gamestate) 
     { 
       case GS_LEVEL: 
-	P_Ticker (); 
+	P_Ticker (data);
 	ST_Ticker (); 
 	AM_Ticker (); 
 	HU_Ticker ();            
@@ -1020,7 +1020,7 @@ void G_Ticker (data_t* data)
 	break; 
  
       case GS_DEMOSCREEN: 
-	D_PageTicker (); 
+	D_PageTicker (data);
 	break;
     }        
 } 
@@ -1036,10 +1036,10 @@ void G_Ticker (data_t* data)
 // Called at the start.
 // Called by the game initialization functions.
 //
-void G_InitPlayer (int player) 
+void G_InitPlayer (data_t* data, int player)
 {
     // clear everything else to defaults
-    G_PlayerReborn (player); 
+    G_PlayerReborn (data, player);
 }
  
  
@@ -1069,7 +1069,7 @@ void G_PlayerFinishLevel (int player)
 // Called after a player dies 
 // almost everything is cleared and initialized 
 //
-void G_PlayerReborn (int player) 
+void G_PlayerReborn (data_t* data, int player)
 { 
     player_t*	p; 
     int		i; 
@@ -1110,11 +1110,12 @@ void G_PlayerReborn (int player)
 // at the given mapthing_t spot  
 // because something is occupying it 
 //
-void P_SpawnPlayer (mapthing_t* mthing); 
+void P_SpawnPlayer (data_t* data, mapthing_t* mthing);
  
 boolean
 G_CheckSpot
-( int		playernum,
+( data_t* data,
+  int		playernum,
   mapthing_t*	mthing ) 
 { 
     fixed_t		x;
@@ -1136,12 +1137,12 @@ G_CheckSpot
     x = mthing->x << FRACBITS; 
     y = mthing->y << FRACBITS; 
 	 
-    if (!P_CheckPosition (players[playernum].mo, x, y) ) 
+    if (!P_CheckPosition (data, players[playernum].mo, x, y) )
 	return false; 
  
     // flush an old corpse if needed 
     if (bodyqueslot >= BODYQUESIZE) 
-	P_RemoveMobj (bodyque[bodyqueslot%BODYQUESIZE]); 
+	P_RemoveMobj (data, bodyque[bodyqueslot%BODYQUESIZE]);
     bodyque[bodyqueslot%BODYQUESIZE] = players[playernum].mo; 
     bodyqueslot++; 
 
@@ -1200,11 +1201,11 @@ G_CheckSpot
                 ya = finesine[an];
                 break;
             default:
-                I_Error("G_CheckSpot: unexpected angle %d\n", an);
+                I_Error(data, "G_CheckSpot: unexpected angle %d\n", an);
                 xa = ya = 0;
                 break;
         }
-        mo = P_SpawnMobj(x + 20 * xa, y + 20 * ya,
+        mo = P_SpawnMobj(data, x + 20 * xa, y + 20 * ya,
                          ss->sector->floorheight, MT_TFOG);
     }
 
@@ -1220,34 +1221,34 @@ G_CheckSpot
 // Spawns a player at one of the random death match spots 
 // called at level load and each death 
 //
-void G_DeathMatchSpawnPlayer (int playernum) 
+void G_DeathMatchSpawnPlayer (data_t* data, int playernum)
 { 
     int             i,j; 
     int				selections; 
 	 
     selections = deathmatch_p - deathmatchstarts; 
     if (selections < 4) 
-	I_Error ("Only %i deathmatch spots, 4 required", selections); 
+	I_Error (data, "Only %i deathmatch spots, 4 required", selections);
  
     for (j=0 ; j<20 ; j++) 
     { 
 	i = P_Random() % selections; 
-	if (G_CheckSpot (playernum, &deathmatchstarts[i]) ) 
+	if (G_CheckSpot (data, playernum, &deathmatchstarts[i]) )
 	{ 
 	    deathmatchstarts[i].type = playernum+1; 
-	    P_SpawnPlayer (&deathmatchstarts[i]); 
+	    P_SpawnPlayer (data, &deathmatchstarts[i]);
 	    return; 
 	} 
     } 
  
     // no good spot, so the player will probably get stuck 
-    P_SpawnPlayer (&playerstarts[playernum]); 
+    P_SpawnPlayer (data, &playerstarts[playernum]);
 } 
 
 //
 // G_DoReborn 
 // 
-void G_DoReborn (int playernum) 
+void G_DoReborn (data_t* data, int playernum)
 { 
     int                             i; 
 	 
@@ -1266,29 +1267,29 @@ void G_DoReborn (int playernum)
 	// spawn at random spot if in death match 
 	if (deathmatch) 
 	{ 
-	    G_DeathMatchSpawnPlayer (playernum); 
+	    G_DeathMatchSpawnPlayer (data, playernum);
 	    return; 
 	} 
 		 
-	if (G_CheckSpot (playernum, &playerstarts[playernum]) ) 
+	if (G_CheckSpot (data, playernum, &playerstarts[playernum]) )
 	{ 
-	    P_SpawnPlayer (&playerstarts[playernum]); 
+	    P_SpawnPlayer (data, &playerstarts[playernum]);
 	    return; 
 	}
 	
 	// try to spawn at one of the other players spots 
 	for (i=0 ; i<MAXPLAYERS ; i++)
 	{
-	    if (G_CheckSpot (playernum, &playerstarts[i]) ) 
+	    if (G_CheckSpot (data, playernum, &playerstarts[i]) )
 	    { 
 		playerstarts[i].type = playernum+1;	// fake as other player 
-		P_SpawnPlayer (&playerstarts[i]); 
+		P_SpawnPlayer (data, &playerstarts[i]);
 		playerstarts[i].type = i+1;		// restore 
 		return; 
 	    }	    
 	    // he's going to be inside something.  Too bad.
 	}
-	P_SpawnPlayer (&playerstarts[playernum]); 
+	P_SpawnPlayer (data, &playerstarts[playernum]);
     } 
 } 
  
@@ -1343,7 +1344,7 @@ void G_SecretExitLevel (void)
     gameaction = ga_completed; 
 } 
  
-void G_DoCompleted (void) 
+void G_DoCompleted (data_t* data)
 { 
     int             i; 
 	 
@@ -1516,11 +1517,11 @@ void G_WorldDone (void)
     }
 } 
  
-void G_DoWorldDone (void) 
+void G_DoWorldDone (data_t* data)
 {        
     gamestate = GS_LEVEL; 
     gamemap = wminfo.next+1; 
-    G_DoLoadLevel (); 
+    G_DoLoadLevel (data);
     gameaction = ga_nothing; 
     viewactive = true; 
 } 
@@ -1545,7 +1546,7 @@ void G_LoadGame (char* name)
 #define VERSIONSIZE		16 
 
 
-void G_DoLoadGame (void) 
+void G_DoLoadGame (data_t* data) 
 {
     int savedleveltime;
 	 
@@ -1560,7 +1561,7 @@ void G_DoLoadGame (void)
 
     savegame_error = false;
 
-    if (!P_ReadSaveGameHeader())
+    if (!P_ReadSaveGameHeader(data))
     {
         fclose(save_stream);
         return;
@@ -1569,18 +1570,18 @@ void G_DoLoadGame (void)
     savedleveltime = leveltime;
     
     // load a base level 
-    G_InitNew (gameskill, gameepisode, gamemap); 
+    G_InitNew (data, gameskill, gameepisode, gamemap);
  
     leveltime = savedleveltime;
 
     // dearchive all the modifications
-    P_UnArchivePlayers (); 
-    P_UnArchiveWorld (); 
-    P_UnArchiveThinkers (); 
-    P_UnArchiveSpecials (); 
+    P_UnArchivePlayers (data);
+    P_UnArchiveWorld (data);
+    P_UnArchiveThinkers (data);
+    P_UnArchiveSpecials (data);
  
-    if (!P_ReadSaveGameEOF())
-	I_Error ("Bad savegame");
+    if (!P_ReadSaveGameEOF(data))
+	I_Error (data, "Bad savegame");
 
     fclose(save_stream);
     
@@ -1607,7 +1608,7 @@ G_SaveGame
     sendsave = true;
 }
 
-void G_DoSaveGame (void) 
+void G_DoSaveGame (data_t* data)
 { 
     char *savegame_file;
     char *temp_savegame_file;
@@ -1631,28 +1632,28 @@ void G_DoSaveGame (void)
         save_stream = fopen(recovery_savegame_file, "wb");
         if (save_stream == NULL)
         {
-            I_Error("Failed to open either '%s' or '%s' to write savegame.",
+            I_Error(data, "Failed to open either '%s' or '%s' to write savegame.",
                     temp_savegame_file, recovery_savegame_file);
         }
     }
 
     savegame_error = false;
 
-    P_WriteSaveGameHeader(savedescription);
+    P_WriteSaveGameHeader(data, savedescription);
  
-    P_ArchivePlayers (); 
-    P_ArchiveWorld (); 
-    P_ArchiveThinkers (); 
-    P_ArchiveSpecials (); 
+    P_ArchivePlayers (data);
+    P_ArchiveWorld (data);
+    P_ArchiveThinkers (data);
+    P_ArchiveSpecials (data);
 	 
-    P_WriteSaveGameEOF();
+    P_WriteSaveGameEOF(data);
 	 
     // Enforce the same savegame size limit as in Vanilla Doom, 
     // except if the vanilla_savegame_limit setting is turned off.
 
     if (vanilla_savegame_limit && ftell(save_stream) > SAVEGAMESIZE)
     {
-        I_Error ("Savegame buffer overrun");
+        I_Error (data, "Savegame buffer overrun");
     }
     
     // Finish up, close the savegame file.
@@ -1664,7 +1665,7 @@ void G_DoSaveGame (void)
         // We failed to save to the normal location, but we wrote a
         // recovery file to the temp directory. Now we can bomb out
         // with an error.
-        I_Error("Failed to open savegame file '%s' for writing.\n"
+        I_Error(data, "Failed to open savegame file '%s' for writing.\n"
                 "But your game has been saved to '%s' for recovery.",
                 temp_savegame_file, recovery_savegame_file);
     }
@@ -1707,25 +1708,27 @@ G_DeferedInitNew
 } 
 
 
-void G_DoNewGame (void) 
+void G_DoNewGame (data_t* data)
 {
     demoplayback = false; 
     netdemo = false;
     netgame = false;
     deathmatch = false;
     playeringame[1] = playeringame[2] = playeringame[3] = 0;
-    respawnparm = false;
-    fastparm = false;
-    nomonsters = false;
+    data->respawnparm = false;
+    data->fastparm = false;
+    data->nomonsters = false;
     consoleplayer = 0;
-    G_InitNew (d_skill, d_episode, d_map); 
+    G_InitNew (data, d_skill, d_episode, d_map); 
     gameaction = ga_nothing; 
 } 
 
 
 void
 G_InitNew
-( skill_t	skill,
+(
+  data_t* 	data,
+  skill_t	skill,
   int		episode,
   int		map )
 {
@@ -1804,12 +1807,12 @@ G_InitNew
 
     M_ClearRandom ();
 
-    if (skill == sk_nightmare || respawnparm )
+    if (skill == sk_nightmare || data->respawnparm )
 	respawnmonsters = true;
     else
 	respawnmonsters = false;
 
-    if (fastparm || (skill == sk_nightmare && gameskill != sk_nightmare) )
+    if (data->fastparm || (skill == sk_nightmare && gameskill != sk_nightmare) )
     {
 	for (i=S_SARG_RUN1 ; i<=S_SARG_PAIN2 ; i++)
 	    states[i].tics >>= 1;
@@ -1885,7 +1888,7 @@ G_InitNew
     skytexture = R_TextureNumForName(skytexturename);
 
 
-    G_DoLoadLevel ();
+    G_DoLoadLevel (data);
 }
 
 
@@ -2037,12 +2040,12 @@ void G_RecordDemo (char *name)
 } 
 
 // Get the demo version code appropriate for the version set in gameversion.
-int G_VanillaVersionCode(void)
+int G_VanillaVersionCode(data_t* data)
 {
     switch (gameversion)
     {
         case exe_doom_1_2:
-            I_Error("Doom 1.2 does not have a version code!");
+            I_Error(data, "Doom 1.2 does not have a version code!");
         case exe_doom_1_666:
             return 106;
         case exe_doom_1_7:
@@ -2055,7 +2058,7 @@ int G_VanillaVersionCode(void)
     }
 }
 
-void G_BeginRecording (void) 
+void G_BeginRecording (data_t* data) 
 { 
     int             i; 
 
@@ -2081,16 +2084,16 @@ void G_BeginRecording (void)
     }
     else
     {
-        *demo_p++ = G_VanillaVersionCode();
+        *demo_p++ = G_VanillaVersionCode(data);
     }
 
     *demo_p++ = gameskill; 
     *demo_p++ = gameepisode; 
     *demo_p++ = gamemap; 
     *demo_p++ = deathmatch; 
-    *demo_p++ = respawnparm;
-    *demo_p++ = fastparm;
-    *demo_p++ = nomonsters;
+    *demo_p++ = data->respawnparm;
+    *demo_p++ = data->fastparm;
+    *demo_p++ = data->nomonsters;
     *demo_p++ = consoleplayer;
 	 
     for (i=0 ; i<MAXPLAYERS ; i++) 
@@ -2160,7 +2163,7 @@ void G_DoPlayDemo (data_t* data)
 
     demoversion = *demo_p++;
 
-    if (demoversion == G_VanillaVersionCode())
+    if (demoversion == G_VanillaVersionCode(data))
     {
         longtics = false;
     }
@@ -2181,7 +2184,7 @@ void G_DoPlayDemo (data_t* data)
                         "    This appears to be %s.";
 
         //I_Error(message, demoversion, G_VanillaVersionCode(),
-        printf(message, demoversion, G_VanillaVersionCode(),
+        printf(message, demoversion, G_VanillaVersionCode(data),
                          DemoVersionDescription(demoversion));
     }
     
@@ -2189,9 +2192,9 @@ void G_DoPlayDemo (data_t* data)
     episode = *demo_p++; 
     map = *demo_p++; 
     deathmatch = *demo_p++;
-    respawnparm = *demo_p++;
-    fastparm = *demo_p++;
-    nomonsters = *demo_p++;
+    data->respawnparm = *demo_p++;
+    data->fastparm = *demo_p++;
+    data->nomonsters = *demo_p++;
     consoleplayer = *demo_p++;
 	
     for (i=0 ; i<MAXPLAYERS ; i++) 
@@ -2206,7 +2209,7 @@ void G_DoPlayDemo (data_t* data)
 
     // don't spend a lot of time in loadlevel 
     precache = false;
-    G_InitNew (skill, episode, map); 
+    G_InitNew (data, skill, episode, map);
     precache = true; 
     starttime = I_GetTime (data);
 
@@ -2274,15 +2277,15 @@ boolean G_CheckDemoStatus (data_t* data)
 	netgame = false;
 	deathmatch = false;
 	playeringame[1] = playeringame[2] = playeringame[3] = 0;
-	respawnparm = false;
-	fastparm = false;
-	nomonsters = false;
+	data->respawnparm = false;
+	data->fastparm = false;
+	data->nomonsters = false;
 	consoleplayer = 0;
         
         if (singledemo) 
-            I_Quit (); 
+            I_Quit (data);
         else 
-            D_AdvanceDemo (); 
+            D_AdvanceDemo (data);
 
 	return true; 
     } 

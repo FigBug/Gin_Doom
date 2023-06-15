@@ -249,13 +249,13 @@ void NetUpdate (data_t* data)
     }
 }
 
-static void D_Disconnected(void)
+static void D_Disconnected(data_t* data)
 {
     // In drone mode, the game cannot continue once disconnected.
 
     if (drone)
     {
-        I_Error("Disconnected from server in drone mode.");
+        I_Error(data, "Disconnected from server in drone mode.");
     }
 
     // disconnected from server
@@ -268,7 +268,7 @@ static void D_Disconnected(void)
 // available.
 //
 
-void D_ReceiveTic(ticcmd_t *ticcmds, boolean *players_mask)
+void D_ReceiveTic(data_t* data, ticcmd_t *ticcmds, boolean *players_mask)
 {
     int i;
 
@@ -276,7 +276,7 @@ void D_ReceiveTic(ticcmd_t *ticcmds, boolean *players_mask)
 
     if (ticcmds == NULL && players_mask == NULL)
     {
-        D_Disconnected();
+        D_Disconnected(data);
         return;
     }
 
@@ -771,7 +771,7 @@ void TryRunTics (data_t* data)
         lowtic = GetLowTic();
 
 	if (lowtic < gametic/ticdup)
-	    I_Error ("TryRunTics: lowtic < gametic");
+	    I_Error (data, "TryRunTics: lowtic < gametic");
 
         // Don't stay in this loop forever.  The menu is still running,
         // so return to update the screen
@@ -804,7 +804,7 @@ void TryRunTics (data_t* data)
 	for (i=0 ; i<ticdup ; i++)
 	{
             if (gametic/ticdup > lowtic)
-                I_Error ("gametic>lowtic");
+                I_Error (data, "gametic>lowtic");
 
             memcpy(local_playeringame, set->ingame, sizeof(local_playeringame));
 

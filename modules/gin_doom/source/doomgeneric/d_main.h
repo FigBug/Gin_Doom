@@ -33,11 +33,11 @@ void D_ProcessEvents (data_t* data);
 //
 // BASE LEVEL
 //
-void D_PageTicker (void);
+void D_PageTicker (data_t* data);
 void D_PageDrawer (void);
-void D_AdvanceDemo (void);
-void D_DoAdvanceDemo (void);
-void D_StartTitle (void);
+void D_AdvanceDemo (data_t* data);
+void D_DoAdvanceDemo (data_t* data);
+void D_StartTitle (data_t* data);
  
 //
 // GLOBAL VARIABLES

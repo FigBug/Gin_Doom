@@ -61,7 +61,8 @@ void R_DrawPlanes (void);
 
 visplane_t*
 R_FindPlane
-( fixed_t	height,
+( data_t* data,
+  fixed_t	height,
   int		picnum,
   int		lightlevel );
 

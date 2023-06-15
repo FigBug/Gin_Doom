@@ -91,7 +91,7 @@ void P_AllocateThinker (thinker_t*	thinker)
 //
 // P_RunThinkers
 //
-void P_RunThinkers (void)
+void P_RunThinkers (data_t* data)
 {
     thinker_t*	currentthinker;
 
@@ -108,7 +108,7 @@ void P_RunThinkers (void)
 	else
 	{
 	    if (currentthinker->function.acp1)
-		currentthinker->function.acp1 (currentthinker);
+		currentthinker->function.acp1 (data, currentthinker);
 	}
 	currentthinker = currentthinker->next;
     }
@@ -120,7 +120,7 @@ void P_RunThinkers (void)
 // P_Ticker
 //
 
-void P_Ticker (void)
+void P_Ticker (data_t* data)
 {
     int		i;
     
@@ -142,9 +142,9 @@ void P_Ticker (void)
 	if (playeringame[i])
 	    P_PlayerThink (&players[i]);
 			
-    P_RunThinkers ();
+    P_RunThinkers (data);
     P_UpdateSpecials ();
-    P_RespawnSpecials ();
+    P_RespawnSpecials (data);
 
     // for par times
     leveltime++;	

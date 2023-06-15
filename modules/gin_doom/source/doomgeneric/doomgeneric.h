@@ -10,8 +10,6 @@
 #define DOOMGENERIC_RESY 400
 
 
-extern uint32_t* DG_ScreenBuffer;
-
 data_t* DG_Alloc();
 void DG_Free(data_t* data);
 

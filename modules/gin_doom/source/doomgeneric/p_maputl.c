@@ -465,9 +465,10 @@ P_SetThingPosition (mobj_t* thing)
 //
 boolean
 P_BlockLinesIterator
-( int			x,
+( data_t* data,
+  int			x,
   int			y,
-  boolean(*func)(line_t*) )
+  boolean(*func)(data_t*,line_t*) )
 {
     int			offset;
     short*		list;
@@ -494,7 +495,7 @@ P_BlockLinesIterator
 
 	ld->validcount = validcount;
 		
-	if ( !func(ld) )
+	if ( !func(data, ld) )
 	    return false;
     }
     return true;	// everything was checked
@@ -506,9 +507,10 @@ P_BlockLinesIterator
 //
 boolean
 P_BlockThingsIterator
-( int			x,
+( data_t* data,
+  int			x,
   int			y,
-  boolean(*func)(mobj_t*) )
+  boolean(*func)(data_t*,mobj_t*) )
 {
     mobj_t*		mobj;
 	
@@ -525,7 +527,7 @@ P_BlockThingsIterator
 	 mobj ;
 	 mobj = mobj->bnext)
     {
-	if (!func( mobj ) )
+	if (!func( data, mobj ) )
 	    return false;
     }
     return true;
@@ -859,12 +861,13 @@ static void InterceptsOverrun(int num_intercepts, intercept_t *intercept)
 //
 boolean
 P_PathTraverse
-( fixed_t		x1,
+( data_t* data,
+  fixed_t		x1,
   fixed_t		y1,
   fixed_t		x2,
   fixed_t		y2,
   int			flags,
-  boolean (*trav) (intercept_t *))
+  boolean (*trav) (data_t*,intercept_t *))
 {
     fixed_t	xt1;
     fixed_t	yt1;
@@ -965,13 +968,13 @@ P_PathTraverse
     {
 	if (flags & PT_ADDLINES)
 	{
-	    if (!P_BlockLinesIterator (mapx, mapy,PIT_AddLineIntercepts))
+	    if (!P_BlockLinesIterator (data, mapx, mapy,PIT_AddLineIntercepts))
 		return false;	// early out
 	}
 	
 	if (flags & PT_ADDTHINGS)
 	{
-	    if (!P_BlockThingsIterator (mapx, mapy,PIT_AddThingIntercepts))
+	    if (!P_BlockThingsIterator (data, mapx, mapy,PIT_AddThingIntercepts))
 		return false;	// early out
 	}
 		

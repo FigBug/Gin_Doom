@@ -28,9 +28,9 @@
 //
 // GAME
 //
-void G_DeathMatchSpawnPlayer (int playernum);
+void G_DeathMatchSpawnPlayer (data_t* data, int playernum);
 
-void G_InitNew (skill_t skill, int episode, int map);
+void G_InitNew (data_t* data, skill_t skill, int episode, int map);
 
 // Can be called by the startup code or M_Responder.
 // A normal game starts at map 1,
@@ -43,7 +43,7 @@ void G_DeferedPlayDemo (char* demo);
 // calls P_SetupLevel or W_EnterWorld.
 void G_LoadGame (char* name);
 
-void G_DoLoadGame (void);
+void G_DoLoadGame (data_t* data);
 
 // Called by M_Responder.
 void G_SaveGame (int slot, char* description);
@@ -51,7 +51,7 @@ void G_SaveGame (int slot, char* description);
 // Only called by startup code.
 void G_RecordDemo (char* name);
 
-void G_BeginRecording (void);
+void G_BeginRecording (data_t* data);
 
 void G_PlayDemo (char* name);
 void G_TimeDemo (char* name);
@@ -72,7 +72,7 @@ boolean G_Responder (event_t*	ev);
 void G_ScreenShot (void);
 
 void G_DrawMouseSpeedBox(void);
-int G_VanillaVersionCode(void);
+int G_VanillaVersionCode(data_t* data);
 
 extern int vanilla_savegame_limit;
 extern int vanilla_demo_limit;

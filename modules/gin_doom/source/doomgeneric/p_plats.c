@@ -42,14 +42,14 @@ plat_t*		activeplats[MAXPLATS];
 //
 // Move a plat up and down
 //
-void T_PlatRaise(plat_t* plat)
+void T_PlatRaise(data_t* data, plat_t* plat)
 {
     result_e	res;
 	
     switch(plat->status)
     {
       case up:
-	res = T_MovePlane(plat->sector,
+	res = T_MovePlane(data, plat->sector,
 			  plat->speed,
 			  plat->high,
 			  plat->crush,0,1);
@@ -80,12 +80,12 @@ void T_PlatRaise(plat_t* plat)
 		{
 		  case blazeDWUS:
 		  case downWaitUpStay:
-		    P_RemoveActivePlat(plat);
+		    P_RemoveActivePlat(data, plat);
 		    break;
 		    
 		  case raiseAndChange:
 		  case raiseToNearestAndChange:
-		    P_RemoveActivePlat(plat);
+		    P_RemoveActivePlat(data, plat);
 		    break;
 		    
 		  default:
@@ -96,7 +96,7 @@ void T_PlatRaise(plat_t* plat)
 	break;
 	
       case	down:
-	res = T_MovePlane(plat->sector,plat->speed,plat->low,false,0,-1);
+	res = T_MovePlane(data, plat->sector,plat->speed,plat->low,false,0,-1);
 
 	if (res == pastdest)
 	{
@@ -127,7 +127,8 @@ void T_PlatRaise(plat_t* plat)
 //
 int
 EV_DoPlat
-( line_t*	line,
+( data_t* data,
+  line_t*	line,
   plattype_e	type,
   int		amount )
 {
@@ -175,7 +176,7 @@ EV_DoPlat
 	  case raiseToNearestAndChange:
 	    plat->speed = PLATSPEED/2;
 	    sec->floorpic = sides[line->sidenum[0]].sector->floorpic;
-	    plat->high = P_FindNextHighestFloor(sec,sec->floorheight);
+	    plat->high = P_FindNextHighestFloor(data, sec,sec->floorheight);
 	    plat->wait = 0;
 	    plat->status = up;
 	    // NO MORE DAMAGE, IF APPLICABLE
@@ -238,7 +239,7 @@ EV_DoPlat
 	    S_StartSound(&sec->soundorg,sfx_pstart);
 	    break;
 	}
-	P_AddActivePlat(plat);
+	P_AddActivePlat(data, plat);
     }
     return rtn;
 }
@@ -275,7 +276,7 @@ void EV_StopPlat(line_t* line)
 	}
 }
 
-void P_AddActivePlat(plat_t* plat)
+void P_AddActivePlat(data_t* data, plat_t* plat)
 {
     int		i;
     
@@ -285,10 +286,10 @@ void P_AddActivePlat(plat_t* plat)
 	    activeplats[i] = plat;
 	    return;
 	}
-    I_Error ("P_AddActivePlat: no more plats!");
+    I_Error (data, "P_AddActivePlat: no more plats!");
 }
 
-void P_RemoveActivePlat(plat_t* plat)
+void P_RemoveActivePlat(data_t* data, plat_t* plat)
 {
     int		i;
     for (i = 0;i < MAXPLATS;i++)
@@ -300,5 +301,5 @@ void P_RemoveActivePlat(plat_t* plat)
 	    
 	    return;
 	}
-    I_Error ("P_RemoveActivePlat: can't find plat!");
+    I_Error (data, "P_RemoveActivePlat: can't find plat!");
 }

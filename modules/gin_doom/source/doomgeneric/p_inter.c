@@ -331,7 +331,8 @@ P_GivePower
 //
 void
 P_TouchSpecialThing
-( mobj_t*	special,
+( data_t* data,
+  mobj_t*	special,
   mobj_t*	toucher )
 {
     player_t*	player;
@@ -647,12 +648,12 @@ P_TouchSpecialThing
 	break;
 		
       default:
-	I_Error ("P_SpecialThing: Unknown gettable thing");
+	I_Error (data, "P_SpecialThing: Unknown gettable thing");
     }
 	
     if (special->flags & MF_COUNTITEM)
 	player->itemcount++;
-    P_RemoveMobj (special);
+    P_RemoveMobj (data, special);
     player->bonuscount += BONUSADD;
     if (player == &players[consoleplayer])
 	S_StartSound (NULL, sound);
@@ -664,7 +665,9 @@ P_TouchSpecialThing
 //
 void
 P_KillMobj
-( mobj_t*	source,
+(
+  data_t* data,
+  mobj_t*	source,
   mobj_t*	target )
 {
     mobjtype_t	item;
@@ -702,7 +705,7 @@ P_KillMobj
 			
 	target->flags &= ~MF_SOLID;
 	target->player->playerstate = PST_DEAD;
-	P_DropWeapon (target->player);
+	P_DropWeapon (data, target->player);
 
 	if (target->player == &players[consoleplayer]
 	    && automapactive)
@@ -717,10 +720,10 @@ P_KillMobj
     if (target->health < -target->info->spawnhealth 
 	&& target->info->xdeathstate)
     {
-	P_SetMobjState (target, target->info->xdeathstate);
+	P_SetMobjState (data, target, target->info->xdeathstate);
     }
     else
-	P_SetMobjState (target, target->info->deathstate);
+	P_SetMobjState (data, target, target->info->deathstate);
     target->tics -= P_Random()&3;
 
     if (target->tics < 1)
@@ -757,7 +760,7 @@ P_KillMobj
 	return;
     }
 
-    mo = P_SpawnMobj (target->x,target->y,ONFLOORZ, item);
+    mo = P_SpawnMobj (data, target->x,target->y,ONFLOORZ, item);
     mo->flags |= MF_DROPPED;	// special versions of items
 }
 
@@ -777,7 +780,9 @@ P_KillMobj
 //
 void
 P_DamageMobj
-( mobj_t*	target,
+(
+  data_t* 	data,
+  mobj_t*	target,
   mobj_t*	inflictor,
   mobj_t*	source,
   int 		damage )
@@ -891,7 +896,7 @@ P_DamageMobj
     target->health -= damage;	
     if (target->health <= 0)
     {
-	P_KillMobj (source, target);
+	P_KillMobj (data, source, target);
 	return;
     }
 
@@ -900,7 +905,7 @@ P_DamageMobj
     {
 	target->flags |= MF_JUSTHIT;	// fight back!
 	
-	P_SetMobjState (target, target->info->painstate);
+	P_SetMobjState (data, target, target->info->painstate);
     }
 			
     target->reactiontime = 0;		// we're awake now...	
@@ -915,7 +920,7 @@ P_DamageMobj
 	target->threshold = BASETHRESHOLD;
 	if (target->state == &states[target->info->spawnstate]
 	    && target->info->seestate != S_NULL)
-	    P_SetMobjState (target, target->info->seestate);
+	    P_SetMobjState (data, target, target->info->seestate);
     }
 			
 }

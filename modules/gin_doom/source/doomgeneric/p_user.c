@@ -172,7 +172,7 @@ void P_MovePlayer (player_t* player)
 //
 #define ANG5   	(ANG90/18)
 
-void P_DeathThink (player_t* player)
+void P_DeathThink (data_t* data, player_t* player)
 {
     angle_t		angle;
     angle_t		delta;
@@ -226,7 +226,7 @@ void P_DeathThink (player_t* player)
 //
 // P_PlayerThink
 //
-void P_PlayerThink (player_t* player)
+void P_PlayerThink (data_t* data, player_t* player)
 {
     ticcmd_t*		cmd;
     weapontype_t	newweapon;
@@ -265,7 +265,7 @@ void P_PlayerThink (player_t* player)
     P_CalcHeight (player);
 
     if (player->mo->subsector->sector->special)
-	P_PlayerInSpecialSector (player);
+	P_PlayerInSpecialSector (data, player);
     
     // Check for weapon change.
 
@@ -324,7 +324,7 @@ void P_PlayerThink (player_t* player)
 	player->usedown = false;
     
     // cycle psprites
-    P_MovePsprites (player);
+    P_MovePsprites (data, player);
     
     // Counters, time dependend power ups.
 

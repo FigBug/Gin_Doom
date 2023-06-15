@@ -299,7 +299,8 @@ boolean P_CrossBSPNode (int bspnum)
 //
 boolean
 P_CheckSight
-( mobj_t*	t1,
+( data_t* data,
+  mobj_t*	t1,
   mobj_t*	t2 )
 {
     int		s1;
