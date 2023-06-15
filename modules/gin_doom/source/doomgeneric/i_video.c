@@ -84,7 +84,7 @@ struct color {
 
 static struct color colors[256];
 
-void I_GetEvent(void);
+void I_GetEvent(data_t* data);
 
 // The screen buffer; this is modified to draw things to the screen
 
@@ -237,9 +237,9 @@ void I_StartFrame (void)
 
 }
 
-void I_StartTic (void)
+void I_StartTic (data_t* data)
 {
-	I_GetEvent();
+	I_GetEvent (data);
 }
 
 void I_UpdateNoBlit (void)
@@ -250,7 +250,7 @@ void I_UpdateNoBlit (void)
 // I_FinishUpdate
 //
 
-void I_FinishUpdate (void)
+void I_FinishUpdate (data_t* data)
 {
     int y;
     int x_offset, y_offset, x_offset_end;
@@ -291,7 +291,7 @@ void I_FinishUpdate (void)
         line_in += SCREENWIDTH;
     }
 
-	DG_DrawFrame();
+	DG_DrawFrame (data);
 }
 
 //
@@ -384,9 +384,9 @@ void I_EndRead (void)
 {
 }
 
-void I_SetWindowTitle (char *title)
+void I_SetWindowTitle (data_t* data, char *title)
 {
-	DG_SetWindowTitle(title);
+	DG_SetWindowTitle (data, title);
 }
 
 void I_GraphicsCheckCommandLine (void)

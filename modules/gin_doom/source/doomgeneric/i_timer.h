@@ -20,17 +20,19 @@
 #ifndef __I_TIMER__
 #define __I_TIMER__
 
+#include "data.h"
+
 #define TICRATE 35
 
 // Called by D_DoomLoop,
 // returns current time in tics.
-int I_GetTime (void);
+int I_GetTime (data_t* data);
 
 // returns current time in ms
-int I_GetTimeMS (void);
+int I_GetTimeMS (data_t* data);
 
 // Pause for a specified number of ms
-void I_Sleep(int ms);
+void I_Sleep(data_t* data, int ms);
 
 // Initialize timer
 void I_InitTimer(void);

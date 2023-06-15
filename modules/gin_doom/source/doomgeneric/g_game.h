@@ -55,7 +55,7 @@ void G_BeginRecording (void);
 
 void G_PlayDemo (char* name);
 void G_TimeDemo (char* name);
-boolean G_CheckDemoStatus (void);
+boolean G_CheckDemoStatus (data_t* data);
 
 void G_ExitLevel (void);
 void G_SecretExitLevel (void);
@@ -64,9 +64,9 @@ void G_WorldDone (void);
 
 // Read current data from inputs and build a player movement command.
 
-void G_BuildTiccmd (ticcmd_t *cmd, int maketic); 
+void G_BuildTiccmd (data_t* data, ticcmd_t *cmd, int maketic);
 
-void G_Ticker (void);
+void G_Ticker (data_t* data);
 boolean G_Responder (event_t*	ev);
 
 void G_ScreenShot (void);

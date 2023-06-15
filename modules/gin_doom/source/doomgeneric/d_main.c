@@ -83,7 +83,7 @@
 //  calls all ?_Responder, ?_Ticker, and ?_Drawer,
 //  calls I_GetTime, I_StartFrame, and I_StartTic
 //
-void D_DoomLoop (void);
+void D_DoomLoop (data_t* data);
 
 // Location where savegames are stored
 
@@ -137,7 +137,7 @@ void D_CheckNetGame(void);
 // D_ProcessEvents
 // Send all the events of the given timestamp down the responder chain
 //
-void D_ProcessEvents (void)
+void D_ProcessEvents (data_t* data)
 {
     event_t*	ev;
 	
@@ -147,7 +147,7 @@ void D_ProcessEvents (void)
 	
     while ((ev = D_PopEvent()) != NULL)
     {
-	if (M_Responder (ev))
+	if (M_Responder (data, ev))
 	    continue;               // menu ate the event
 	G_Responder (ev);
     }
@@ -167,7 +167,7 @@ extern  boolean setsizeneeded;
 extern  int             showMessages;
 void R_ExecuteSetViewSize (void);
 
-void D_Display (void)
+void D_Display (data_t* data)
 {
     static  boolean		viewactivestate = false;
     static  boolean		menuactivestate = false;
@@ -242,7 +242,7 @@ void D_Display (void)
     
     // draw the view directly
     if (gamestate == GS_LEVEL && !automapactive && gametic)
-    	R_RenderPlayerView (&players[displayplayer]);
+    	R_RenderPlayerView (data, &players[displayplayer]);
 
     if (gamestate == GS_LEVEL && gametic)
     	HU_Drawer ();
@@ -296,28 +296,28 @@ void D_Display (void)
 
     // menus go directly to the screen
     M_Drawer ();          // menu is drawn even on top of everything
-    NetUpdate ();         // send out any new accumulation
+    NetUpdate (data);         // send out any new accumulation
 
 
     // normal update
     if (!wipe)
     {
-	I_FinishUpdate ();              // page flip or blit buffer
+	I_FinishUpdate (data);              // page flip or blit buffer
 	return;
     }
     
     // wipe update
     wipe_EndScreen(0, 0, SCREENWIDTH, SCREENHEIGHT);
 
-    wipestart = I_GetTime () - 1;
+    wipestart = I_GetTime (data) - 1;
 
     do
     {
 	do
 	{
-	    nowtime = I_GetTime ();
+	    nowtime = I_GetTime (data);
 	    tics = nowtime - wipestart;
-            I_Sleep(1);
+            I_Sleep(data, 1);
 	} while (tics <= 0);
         
 	wipestart = nowtime;
@@ -325,7 +325,7 @@ void D_Display (void)
 			       , 0, 0, SCREENWIDTH, SCREENHEIGHT, tics);
 	I_UpdateNoBlit ();
 	M_Drawer ();                            // menu is drawn even on top of wipes
-	I_FinishUpdate ();                      // page flip or blit buffer
+	I_FinishUpdate (data);                  // page flip or blit buffer
     } while (!done);
 }
 
@@ -406,7 +406,7 @@ boolean D_GrabMouseCallback(void)
 //
 //  D_DoomLoop
 //
-void D_DoomLoop (void)
+void D_DoomLoop (data_t* data)
 {
     if (bfgedition &&
         (demorecording || (gameaction == ga_playdemo) || netgame))
@@ -422,9 +422,9 @@ void D_DoomLoop (void)
 
     main_loop_started = true;
 
-    TryRunTics();
+    TryRunTics (data);
 
-    I_SetWindowTitle(gamedescription);
+    I_SetWindowTitle(data, gamedescription);
     I_GraphicsCheckCommandLine();
     I_SetGrabMouseCallback(D_GrabMouseCallback);
     I_InitGraphics();
@@ -433,7 +433,7 @@ void D_DoomLoop (void)
     V_RestoreBuffer();
     R_ExecuteSetViewSize();
 
-    D_StartGameLoop();
+    D_StartGameLoop (data);
 
     if (testcontrols)
     {
@@ -446,14 +446,14 @@ void D_DoomLoop (void)
 		// frame syncronous IO operations
 		I_StartFrame ();
 
-		TryRunTics (); // will run at least one tic
+		TryRunTics (data); // will run at least one tic
 
 		S_UpdateSounds (players[consoleplayer].mo);// move positional sounds
 
 		// Update display, next frame, with current state.
 		if (screenvisible)
 		{
-			D_Display ();
+			D_Display (data);
 		}
     }
 }
@@ -1160,7 +1160,7 @@ static void LoadIwadDeh(void)
 //
 // D_DoomMain
 //
-void D_DoomMain (void)
+void D_DoomMain (data_t* data)
 {
     int p;
     char file[256];
@@ -1814,14 +1814,14 @@ void D_DoomMain (void)
     {
 		singledemo = true;              // quit after one demo
 		G_DeferedPlayDemo (demolumpname);
-		D_DoomLoop ();  // never returns
+		D_DoomLoop (data);  // never returns
     }
 
     p = M_CheckParmWithArgs("-timedemo", 1);
     if (p)
     {
 		G_TimeDemo (demolumpname);
-		D_DoomLoop ();  // never returns
+		D_DoomLoop (data);  // never returns
     }
 
     if (startloadgame >= 0)
@@ -1838,6 +1838,6 @@ void D_DoomMain (void)
 			D_StartTitle ();                // start up intro loop
     }
 
-    D_DoomLoop ();  // never returns
+    D_DoomLoop (data);  // never returns
 }
 

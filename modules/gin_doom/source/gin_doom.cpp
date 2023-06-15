@@ -1,15 +1,16 @@
 
 extern "C"
 {
-void D_DoomMain (void);
-void M_FindResponseFile(void);
-void dg_Create();
+	data_t* DG_Alloc();
+	void DG_Free(data_t* data);
 
-extern uint32_t* DG_ScreenBuffer;
-extern uint32_t runloop;
+	void D_DoomMain (data_t* data);
+	void M_FindResponseFile (data_t* data);
+	void dg_Create (data_t* data);
+
+	extern uint32_t* DG_ScreenBuffer;
+	extern uint32_t runloop;
 }
-
-static Doom* doom = nullptr;
 
 int keyCodes[] = {
     'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'm', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
@@ -91,18 +92,18 @@ constexpr auto shift = 0x100001;
 constexpr auto alt   = 0x100002;
 constexpr auto ctrl  = 0x100003;
 
-void updateFrame (juce::Image img)
+void updateFrame (Doom* doom, juce::Image img)
 {
     juce::ScopedLock sl (doom->lock);
 	doom->screen = img;
-    juce::MessageManager::callAsync ([safe = juce::Component::SafePointer<juce::Component> (doom->component)]
+    juce::MessageManager::callAsync ([doom, safe = juce::Component::SafePointer<juce::Component> (doom->component)]
     {
         if (safe && doom)
 			safe->repaint();
     });
 }
 
-std::optional<std::pair<int, bool>> getKeyEvent()
+std::optional<std::pair<int, bool>> getKeyEvent (Doom* doom)
 {
     juce::ScopedLock sl (doom->lock);
     if (doom->keyEvents.size() == 0)
@@ -114,22 +115,24 @@ std::optional<std::pair<int, bool>> getKeyEvent()
     return evt;
 }
 
-extern "C" void DG_Init()
+extern "C" void DG_Init (data_t* /*data*/)
 {
 }
 
-extern "C" void DG_DrawFrame()
+extern "C" void DG_DrawFrame (data_t* data)
 {
+	auto doom = (Doom*)data->user_data;
+
     if (doom == nullptr)
         return;
 
     juce::Image img (juce::Image::ARGB, 640, 400, true);
 
-    juce::Image::BitmapData data (img, juce::Image::BitmapData::readOnly);
+    juce::Image::BitmapData imgData (img, juce::Image::BitmapData::readOnly);
 
     for (int y = 0; y < 400; y++)
     {
-        uint8_t* p = data.getLinePointer (y);
+        uint8_t* p = imgData.getLinePointer (y);
 
         for (int x = 0; x < 640; x++)
         {
@@ -143,19 +146,19 @@ extern "C" void DG_DrawFrame()
             juce::PixelARGB* s = (juce::PixelARGB*)p;
             s->setARGB (a, r, g, b);
 
-            p += data.pixelStride;
+            p += imgData.pixelStride;
         }
     }
 
-    updateFrame (img);
+    updateFrame (doom, img);
 }
 
-extern "C" void DG_SleepMs (uint32_t ms)
+extern "C" void DG_SleepMs (data_t* /*data*/, uint32_t ms)
 {
     juce::Thread::sleep (int (ms));
 }
 
-extern "C" uint32_t DG_GetTicksMs()
+extern "C" uint32_t DG_GetTicksMs (data_t* /*data*/)
 {
     static uint32_t startup = 0;
     if (startup == 0)
@@ -164,9 +167,11 @@ extern "C" uint32_t DG_GetTicksMs()
     return juce::Time::getMillisecondCounter() - startup;
 }
 
-extern "C" int DG_GetKey (int* pressed, unsigned char* key)
+extern "C" int DG_GetKey (data_t* data, int* pressed, unsigned char* key)
 {
-    auto event = getKeyEvent();
+	auto doom = (Doom*)data->user_data;
+
+    auto event = getKeyEvent (doom);
     if (! event.has_value())
         return 0;
 
@@ -176,9 +181,9 @@ extern "C" int DG_GetKey (int* pressed, unsigned char* key)
     return 1;
 }
 
-extern "C" void DG_SetWindowTitle (const char* title)
+extern "C" void DG_SetWindowTitle (data_t* data, const char* title)
 {
-    juce::ignoreUnused (title);
+    juce::ignoreUnused (data, title);
 }
 
 Doom::Doom()
@@ -213,10 +218,13 @@ juce::Image Doom::getScreen()
 void Doom::run()
 {
 	auto self = juce::WeakReference<Doom> (this);
-
-	doom = this;
-
     auto path = wadFile.getFullPathName();
+
+	data_t* data;
+	data = DG_Alloc();
+	user_data = data;
+
+	data->user_data = this;
 
     const char* params[3];
     params[0] = "doom";
@@ -226,14 +234,14 @@ void Doom::run()
     myargc = 3;
     myargv = (char**)params;
 
-    M_FindResponseFile();
+    M_FindResponseFile (data);
 
     // start doom
     printf("Starting D_DoomMain\r\n");
 
-    dg_Create();
+    dg_Create (data);
 
-    D_DoomMain ();
+    D_DoomMain (data);
 
     juce::MessageManager::callAsync ([self]
     {
@@ -245,7 +253,8 @@ void Doom::run()
 				self->component->repaint();
         }
     });
-	doom = nullptr;
+
+	DG_Free (data);
 }
 
 void Doom::addEvent (int key, bool press)

@@ -24,6 +24,7 @@ extern "C"
 #include "source/doomgeneric/z_zone.h"
 #include "source/doomgeneric/deh_str.h"
 #include "source/doomgeneric/m_misc.h"
+#include "source/doomgeneric/data.h"
 }
 
 namespace gin

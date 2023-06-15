@@ -42,7 +42,7 @@ ticcmd_t *netcmds;
 
 // Called when a player leaves the game
 
-static void PlayerQuitGame(player_t *player)
+static void PlayerQuitGame(data_t* data, player_t *player)
 {
     static char exitmsg[80];
     unsigned int player_num;
@@ -64,11 +64,11 @@ static void PlayerQuitGame(player_t *player)
 
     if (demorecording) 
     {
-        G_CheckDemoStatus ();
+        G_CheckDemoStatus (data);
     }
 }
 
-static void RunTic(ticcmd_t *cmds, boolean *ingame)
+static void RunTic(data_t* data, ticcmd_t *cmds, boolean *ingame)
 {
     extern boolean advancedemo;
     unsigned int i;
@@ -79,7 +79,7 @@ static void RunTic(ticcmd_t *cmds, boolean *ingame)
     {
         if (!demoplayback && playeringame[i] && !ingame[i])
         {
-            PlayerQuitGame(&players[i]);
+            PlayerQuitGame(data, &players[i]);
         }
     }
 
@@ -91,7 +91,7 @@ static void RunTic(ticcmd_t *cmds, boolean *ingame)
     if (advancedemo)
         D_DoAdvanceDemo ();
 
-    G_Ticker ();
+    G_Ticker (data);
 }
 
 static loop_interface_t doom_loop_interface = {

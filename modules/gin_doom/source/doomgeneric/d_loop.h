@@ -20,6 +20,7 @@
 #define __D_LOOP__
 
 #include "net_defs.h"
+#include "data.h"
 
 // Callback function invoked while waiting for the netgame to start.
 // The callback is invoked when new players are ready. The callback
@@ -32,37 +33,37 @@ typedef struct
 {
     // Read events from the event queue, and process them.
 
-    void (*ProcessEvents)();
+    void (*ProcessEvents)(data_t* data);
 
     // Given the current input state, fill in the fields of the specified
     // ticcmd_t structure with data for a new tic.
 
-    void (*BuildTiccmd)(ticcmd_t *cmd, int maketic);
+    void (*BuildTiccmd)(data_t* data, ticcmd_t *cmd, int maketic);
 
     // Advance the game forward one tic, using the specified player input.
 
-    void (*RunTic)(ticcmd_t *cmds, boolean *ingame);
+    void (*RunTic)(data_t* data, ticcmd_t *cmds, boolean *ingame);
 
     // Run the menu (runs independently of the game).
 
-    void (*RunMenu)();
+    void (*RunMenu)(data_t* data);
 } loop_interface_t;
 
 // Register callback functions for the main loop code to use.
 void D_RegisterLoopCallbacks(loop_interface_t *i);
 
 // Create any new ticcmds and broadcast to other players.
-void NetUpdate (void);
+void NetUpdate (data_t* data);
 
 // Broadcasts special packets to other players
 //  to notify of game exit
 void D_QuitNetGame (void);
 
 //? how many ticks to run?
-void TryRunTics (void);
+void TryRunTics (data_t* data);
 
 // Called at start of game loop to initialize timers
-void D_StartGameLoop(void);
+void D_StartGameLoop (data_t* data);
 
 // Initialize networking code and connect to server.
 

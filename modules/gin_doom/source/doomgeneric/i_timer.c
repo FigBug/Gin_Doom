@@ -35,16 +35,16 @@
 static uint32_t basetime = 0;
 
 
-int I_GetTicks(void)
+int I_GetTicks (data_t* data)
 {
-	return DG_GetTicksMs();
+	return DG_GetTicksMs (data);
 }
 
-int  I_GetTime (void)
+int  I_GetTime (data_t* data)
 {
     uint32_t ticks;
 
-    ticks = I_GetTicks();
+    ticks = I_GetTicks (data);
 
     if (basetime == 0)
         basetime = ticks;
@@ -59,11 +59,11 @@ int  I_GetTime (void)
 // Same as I_GetTime, but returns time in milliseconds
 //
 
-int I_GetTimeMS(void)
+int I_GetTimeMS (data_t* data)
 {
     uint32_t ticks;
 
-    ticks = I_GetTicks();
+    ticks = I_GetTicks (data);
 
     if (basetime == 0)
         basetime = ticks;
@@ -73,12 +73,12 @@ int I_GetTimeMS(void)
 
 // Sleep for a specified number of ms
 
-void I_Sleep(int ms)
+void I_Sleep (data_t* data, int ms)
 {
     //SDL_Delay(ms);
     //usleep (ms * 1000);
 
-	DG_SleepMs(ms);
+	DG_SleepMs(data, ms);
 }
 
 void I_WaitVBL(int count)

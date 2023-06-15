@@ -75,15 +75,15 @@
 
 #define SAVEGAMESIZE	0x2c000
 
-void	G_ReadDemoTiccmd (ticcmd_t* cmd); 
-void	G_WriteDemoTiccmd (ticcmd_t* cmd); 
+void	G_ReadDemoTiccmd (data_t* data, ticcmd_t* cmd);
+void	G_WriteDemoTiccmd (data_t* data, ticcmd_t* cmd);
 void	G_PlayerReborn (int player); 
  
 void	G_DoReborn (int playernum); 
  
 void	G_DoLoadLevel (void); 
 void	G_DoNewGame (void); 
-void	G_DoPlayDemo (void); 
+void	G_DoPlayDemo (data_t* data);
 void	G_DoCompleted (void); 
 void	G_DoVictory (void); 
 void	G_DoWorldDone (void); 
@@ -319,7 +319,7 @@ static int G_NextWeapon(int direction)
 // or reads it from the demo buffer. 
 // If recording a demo, write it out 
 // 
-void G_BuildTiccmd (ticcmd_t* cmd, int maketic) 
+void G_BuildTiccmd (data_t* data, ticcmd_t* cmd, int maketic) 
 { 
     int		i; 
     boolean	strafe;
@@ -851,7 +851,7 @@ boolean G_Responder (event_t* ev)
 // G_Ticker
 // Make ticcmd_ts for the players.
 //
-void G_Ticker (void) 
+void G_Ticker (data_t* data) 
 { 
     int		i;
     int		buf; 
@@ -880,7 +880,7 @@ void G_Ticker (void)
 	    G_DoSaveGame (); 
 	    break; 
 	  case ga_playdemo: 
-	    G_DoPlayDemo (); 
+	    G_DoPlayDemo (data);
 	    break; 
 	  case ga_completed: 
 	    G_DoCompleted (); 
@@ -914,9 +914,9 @@ void G_Ticker (void)
 	    memcpy(cmd, &netcmds[i], sizeof(ticcmd_t));
 
 	    if (demoplayback) 
-		G_ReadDemoTiccmd (cmd); 
+		G_ReadDemoTiccmd (data, cmd);
 	    if (demorecording) 
-		G_WriteDemoTiccmd (cmd);
+		G_WriteDemoTiccmd (data, cmd);
 	    
 	    // check for turbo cheats
 
@@ -1895,12 +1895,12 @@ G_InitNew
 #define DEMOMARKER		0x80
 
 
-void G_ReadDemoTiccmd (ticcmd_t* cmd) 
+void G_ReadDemoTiccmd (data_t* data, ticcmd_t* cmd)
 { 
     if (*demo_p == DEMOMARKER) 
     {
 	// end of demo data stream 
-	G_CheckDemoStatus (); 
+	G_CheckDemoStatus (data);
 	return; 
     } 
     cmd->forwardmove = ((signed char)*demo_p++); 
@@ -1923,7 +1923,7 @@ void G_ReadDemoTiccmd (ticcmd_t* cmd)
 
 // Increase the size of the demo buffer to allow unlimited demos
 
-static void IncreaseDemoBuffer(void)
+static void IncreaseDemoBuffer(data_t* data)
 {
     int current_length;
     byte *new_demobuffer;
@@ -1953,12 +1953,12 @@ static void IncreaseDemoBuffer(void)
     demoend = demobuffer + new_length;
 }
 
-void G_WriteDemoTiccmd (ticcmd_t* cmd) 
+void G_WriteDemoTiccmd (data_t* data, ticcmd_t* cmd)
 { 
     byte *demo_start;
 
     if (gamekeydown[key_demo_quit])           // press q to end demo recording 
-	G_CheckDemoStatus (); 
+	G_CheckDemoStatus (data);
 
     demo_start = demo_p;
 
@@ -1987,7 +1987,7 @@ void G_WriteDemoTiccmd (ticcmd_t* cmd)
         if (vanilla_demo_limit)
         {
             // no more space 
-            G_CheckDemoStatus (); 
+            G_CheckDemoStatus (data); 
             return; 
         }
         else
@@ -1995,11 +1995,11 @@ void G_WriteDemoTiccmd (ticcmd_t* cmd)
             // Vanilla demo limit disabled: unlimited
             // demo lengths!
 
-            IncreaseDemoBuffer();
+            IncreaseDemoBuffer (data);
         }
     } 
 	
-    G_ReadDemoTiccmd (cmd);         // make SURE it is exactly the same 
+    G_ReadDemoTiccmd (data, cmd);         // make SURE it is exactly the same 
 } 
  
  
@@ -2149,7 +2149,7 @@ static char *DemoVersionDescription(int version)
     }
 }
 
-void G_DoPlayDemo (void) 
+void G_DoPlayDemo (data_t* data)
 { 
     skill_t skill; 
     int             i, episode, map; 
@@ -2208,7 +2208,7 @@ void G_DoPlayDemo (void)
     precache = false;
     G_InitNew (skill, episode, map); 
     precache = true; 
-    starttime = I_GetTime (); 
+    starttime = I_GetTime (data);
 
     usergame = false; 
     demoplayback = true; 
@@ -2245,7 +2245,7 @@ void G_TimeDemo (char* name)
 =================== 
 */ 
  
-boolean G_CheckDemoStatus (void) 
+boolean G_CheckDemoStatus (data_t* data) 
 { 
     int             endtime; 
 	 
@@ -2254,7 +2254,7 @@ boolean G_CheckDemoStatus (void)
         float fps;
         int realtics;
 
-	endtime = I_GetTime (); 
+	endtime = I_GetTime (data);
         realtics = endtime - starttime;
         fps = ((float) gametic * TICRATE) / realtics;
 

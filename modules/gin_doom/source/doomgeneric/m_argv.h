@@ -21,6 +21,7 @@
 #define __M_ARGV__
 
 #include "doomtype.h"
+#include "data.h"
 
 //
 // MISC
@@ -36,7 +37,7 @@ int M_CheckParm (char* check);
 // following the specified argument.
 int M_CheckParmWithArgs(char *check, int num_args);
 
-void M_FindResponseFile(void);
+void M_FindResponseFile (data_t* data);
 
 // Parameter has been specified?
 

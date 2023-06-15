@@ -232,7 +232,7 @@ static void LoadResponseFile(int argv_index)
 // Find a Response File
 //
 
-void M_FindResponseFile(void)
+void M_FindResponseFile (data_t* data)
 {
     int             i;
 

@@ -276,14 +276,14 @@ static void UpdateShiftStatus(int pressed, unsigned char key)
 }
 
 
-void I_GetEvent(void)
+void I_GetEvent (data_t* data)
 {
     event_t event;
     int pressed;
     unsigned char key;
 
     
-	while (DG_GetKey(&pressed, &key))
+	while (DG_GetKey(data, &pressed, &key))
     {
         UpdateShiftStatus(pressed, key);
 

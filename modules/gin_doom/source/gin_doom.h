@@ -18,12 +18,14 @@ public:
     DoomAudioEngine& getAudioEngine()   { return audio; }
 
 private:
-    friend void updateFrame (juce::Image img);
-    friend std::optional<std::pair<int, bool>> getKeyEvent();
+    friend void updateFrame (Doom*, juce::Image img);
+    friend std::optional<std::pair<int, bool>> getKeyEvent (Doom*);
 
     void run() override;
 
 	juce::CriticalSection lock;
+
+	void*			user_data;
 
 	juce::Image 	screen;
 	DoomComponent*	component = nullptr;

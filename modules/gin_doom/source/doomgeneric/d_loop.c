@@ -116,11 +116,11 @@ static int player_class;
 
 // 35 fps clock adjusted by offsetms milliseconds
 
-static int GetAdjustedTime(void)
+static int GetAdjustedTime(data_t* data)
 {
     int time_ms;
 
-    time_ms = I_GetTimeMS();
+    time_ms = I_GetTimeMS (data);
 
     if (new_sync)
     {
@@ -133,19 +133,19 @@ static int GetAdjustedTime(void)
     return (time_ms * TICRATE) / 1000;
 }
 
-static boolean BuildNewTic(void)
+static boolean BuildNewTic (data_t* data)
 {
     int	gameticdiv;
     ticcmd_t cmd;
 
     gameticdiv = gametic/ticdup;
 
-    I_StartTic ();
-    loop_interface->ProcessEvents();
+    I_StartTic (data);
+    loop_interface->ProcessEvents (data);
 
     // Always run the menu
 
-    loop_interface->RunMenu();
+    loop_interface->RunMenu (data);
 
     if (drone)
     {
@@ -175,7 +175,7 @@ static boolean BuildNewTic(void)
 
     //printf ("mk:%i ",maketic);
     memset(&cmd, 0, sizeof(ticcmd_t));
-    loop_interface->BuildTiccmd(&cmd, maketic);
+    loop_interface->BuildTiccmd(data, &cmd, maketic);
 
 #ifdef FEATURE_MULTIPLAYER
 
@@ -200,7 +200,7 @@ static boolean BuildNewTic(void)
 //
 int      lasttime;
 
-void NetUpdate (void)
+void NetUpdate (data_t* data)
 {
     int nowtime;
     int newtics;
@@ -222,7 +222,7 @@ void NetUpdate (void)
 #endif
 
     // check time
-    nowtime = GetAdjustedTime() / ticdup;
+    nowtime = GetAdjustedTime (data) / ticdup;
     newtics = nowtime - lasttime;
 
     lasttime = nowtime;
@@ -242,7 +242,7 @@ void NetUpdate (void)
 
     for (i=0 ; i<newtics ; i++)
     {
-        if (!BuildNewTic())
+        if (!BuildNewTic (data))
         {
             break;
         }
@@ -302,9 +302,9 @@ void D_ReceiveTic(ticcmd_t *ticcmds, boolean *players_mask)
 // Called after the screen is set but before the game starts running.
 //
 
-void D_StartGameLoop(void)
+void D_StartGameLoop (data_t* data)
 {
-    lasttime = GetAdjustedTime() / ticdup;
+    lasttime = GetAdjustedTime (data) / ticdup;
 }
 
 #if ORIGCODE
@@ -331,7 +331,7 @@ static void BlockUntilStart(net_gamesettings_t *settings,
             I_Error("Netgame startup aborted.");
         }
 
-        I_Sleep(100);
+        I_Sleep(data, 100);
     }
 }
 
@@ -703,7 +703,7 @@ static void SinglePlayerClear(ticcmd_set_t *set)
 // TryRunTics
 //
 
-void TryRunTics (void)
+void TryRunTics (data_t* data)
 {
     int	i;
     int	lowtic;
@@ -714,7 +714,7 @@ void TryRunTics (void)
     int	counts;
 
     // get real tics
-    entertic = I_GetTime() / ticdup;
+    entertic = I_GetTime (data) / ticdup;
     realtics = entertic - oldentertics;
     oldentertics = entertic;
 
@@ -723,11 +723,11 @@ void TryRunTics (void)
 
     if (singletics)
     {
-        BuildNewTic();
+        BuildNewTic (data);
     }
     else
     {
-        NetUpdate ();
+        NetUpdate (data);
     }
 
     lowtic = GetLowTic();
@@ -766,7 +766,7 @@ void TryRunTics (void)
 
     while (!PlayersInGame() || lowtic < gametic/ticdup + counts)
     {
-	NetUpdate ();
+	NetUpdate (data);
 
         lowtic = GetLowTic();
 
@@ -776,12 +776,12 @@ void TryRunTics (void)
         // Don't stay in this loop forever.  The menu is still running,
         // so return to update the screen
 
-	if (I_GetTime() / ticdup - entertic > 0)
+	if (I_GetTime(data) / ticdup - entertic > 0)
 	{
 	    return;
 	}
 
-        I_Sleep(1);
+        I_Sleep(data, 1);
     }
 
     // run the count * ticdup dics
@@ -808,7 +808,7 @@ void TryRunTics (void)
 
             memcpy(local_playeringame, set->ingame, sizeof(local_playeringame));
 
-            loop_interface->RunTic(set->cmds, set->ingame);
+            loop_interface->RunTic (data, set->cmds, set->ingame);
 	    gametic++;
 
 	    // modify command for duplicated tics
@@ -816,7 +816,7 @@ void TryRunTics (void)
             TicdupSquash(set);
 	}
 
-	NetUpdate ();	// check for new console commands
+	NetUpdate (data);	// check for new console commands
     }
 }
 

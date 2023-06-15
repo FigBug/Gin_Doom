@@ -21,6 +21,7 @@
 #define __I_VIDEO__
 
 #include "doomtype.h"
+#include "data.h"
 
 // Screen width and height.
 
@@ -105,13 +106,13 @@ void I_SetPalette (byte* palette);
 int I_GetPaletteIndex(int r, int g, int b);
 
 void I_UpdateNoBlit (void);
-void I_FinishUpdate (void);
+void I_FinishUpdate (data_t* data);
 
 void I_ReadScreen (byte* scr);
 
 void I_BeginRead (void);
 
-void I_SetWindowTitle(char *title);
+void I_SetWindowTitle (data_t* data, char *title);
 
 void I_CheckIsScreensaver(void);
 void I_SetGrabMouseCallback(grabmouse_callback_t func);
@@ -130,7 +131,7 @@ void I_StartFrame (void);
 // Called before processing each tic in a frame.
 // Quick syncronous operations are performed here.
 
-void I_StartTic (void);
+void I_StartTic (data_t* data);
 
 // Enable the loading disk image displayed when reading from disk.
 
