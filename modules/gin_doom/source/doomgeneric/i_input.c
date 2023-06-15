@@ -299,7 +299,7 @@ void I_GetEvent (data_t* data)
 
             if (event.data1 != 0)
             {
-                D_PostEvent(&event);
+                D_PostEvent(data, &event);
             }
         }
         else
@@ -317,7 +317,7 @@ void I_GetEvent (data_t* data)
 
             if (event.data1 != 0)
             {
-                D_PostEvent(&event);
+                D_PostEvent(data, &event);
             }
             break;
         }

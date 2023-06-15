@@ -22,40 +22,34 @@
 #include <stdlib.h>
 #include "d_event.h"
 
-#define MAXEVENTS 64
-
-static event_t events[MAXEVENTS];
-static int eventhead;
-static int eventtail;
-
 //
 // D_PostEvent
 // Called by the I/O functions when input is detected
 //
-void D_PostEvent (event_t* ev)
+void D_PostEvent (data_t* data, event_t* ev)
 {
-    events[eventhead] = *ev;
-    eventhead = (eventhead + 1) % MAXEVENTS;
+    data->d_event.events[data->d_event.eventhead] = *ev;
+	data->d_event.eventhead = (data->d_event.eventhead + 1) % MAXEVENTS;
 }
 
 // Read an event from the queue.
 
-event_t *D_PopEvent(void)
+event_t *D_PopEvent(data_t* data)
 {
     event_t *result;
 
     // No more events waiting.
 
-    if (eventtail == eventhead)
+    if (data->d_event.eventtail == data->d_event.eventhead)
     {
         return NULL;
     }
     
-    result = &events[eventtail];
+    result = &data->d_event.events[data->d_event.eventtail];
 
     // Advance to the next event in the queue.
 
-    eventtail = (eventtail + 1) % MAXEVENTS;
+	data->d_event.eventtail = (data->d_event.eventtail + 1) % MAXEVENTS;
 
     return result;
 }

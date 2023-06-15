@@ -122,16 +122,5 @@ typedef enum
   
 } buttoncode2_t;
 
-
-
-
-// Called by IO functions when input is detected.
-void D_PostEvent (event_t *ev);
-
-// Read an event from the event queue
-
-event_t *D_PopEvent(void);
-
-
 #endif
 

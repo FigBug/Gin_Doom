@@ -8,7 +8,11 @@
 #include "d_player.h"
 #include "v_patch.h"
 #include "m_cheat.h"
+#include "d_event.h"
 
+//
+// am_map
+//
 #define AM_NUMMARKPOINTS 10
 
 typedef struct
@@ -93,6 +97,23 @@ typedef struct
 
 } am_map_t;
 
+//
+// d_event
+//
+#define MAXEVENTS 64
+
+typedef struct
+{
+	event_t events[MAXEVENTS];
+	int eventhead;
+	int eventtail;
+
+} d_event_t;
+
+//
+// misc
+//
+
 typedef struct
 {
 	void*		user_data;
@@ -138,8 +159,14 @@ typedef struct
 	int             show_endoom;
 
 	am_map_t		am_map;
-
+	d_event_t		d_event;
 
 } data_t;
+
+// Called by IO functions when input is detected.
+void D_PostEvent (data_t* data, event_t *ev);
+
+// Read an event from the event queue
+event_t *D_PopEvent(data_t* data);
 
 #endif //DOOM_GENERIC
