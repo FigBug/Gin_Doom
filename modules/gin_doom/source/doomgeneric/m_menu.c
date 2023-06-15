@@ -96,7 +96,7 @@ int			messageLastMenuActive;
 // timed message = no input from user
 boolean			messageNeedsInput;
 
-void    (*messageRoutine)(int response);
+void    (*messageRoutine)(data_t* data, int response);
 
 char gammamsg[5][26] =
 {
@@ -184,18 +184,18 @@ void M_ReadThis(data_t* data, int choice);
 void M_ReadThis2(data_t* data, int choice);
 void M_QuitDOOM(data_t* data, int choice);
 
-void M_ChangeMessages(int choice);
-void M_ChangeSensitivity(int choice);
-void M_SfxVol(int choice);
-void M_MusicVol(int choice);
-void M_ChangeDetail(int choice);
-void M_SizeDisplay(int choice);
+void M_ChangeMessages(data_t* data, int choice);
+void M_ChangeSensitivity(data_t* data, int choice);
+void M_SfxVol(data_t* data, int choice);
+void M_MusicVol(data_t* data, int choice);
+void M_ChangeDetail(data_t* data, int choice);
+void M_SizeDisplay(data_t* data, int choice);
 void M_StartGame(int choice);
-void M_Sound(int choice);
+void M_Sound(data_t* data, int choice);
 
-void M_FinishReadThis(int choice);
+void M_FinishReadThis(data_t* data, int choice);
 void M_LoadSelect(data_t* data, int choice);
-void M_SaveSelect(int choice);
+void M_SaveSelect(data_t* data, int choice);
 void M_ReadSaveStrings(data_t* data);
 void M_QuickSave(data_t* data);
 void M_QuickLoad(data_t* data);
@@ -632,7 +632,7 @@ void M_DoSave(int slot)
 //
 // User wants to save. Start string input for M_Responder
 //
-void M_SaveSelect(int choice)
+void M_SaveSelect(data_t* data, int choice)
 {
     // we are going to be intercepting all chars
     saveStringEnter = 1;
@@ -842,12 +842,12 @@ void M_DrawSound(data_t* data)
 		 16,musicVolume);
 }
 
-void M_Sound(int choice)
+void M_Sound(data_t* data, int choice)
 {
     M_SetupNextMenu(&SoundDef);
 }
 
-void M_SfxVol(int choice)
+void M_SfxVol(data_t* data, int choice)
 {
     switch(choice)
     {
@@ -864,7 +864,7 @@ void M_SfxVol(int choice)
     S_SetSfxVolume(sfxVolume * 8);
 }
 
-void M_MusicVol(int choice)
+void M_MusicVol(data_t* data, int choice)
 {
     switch(choice)
     {
@@ -1014,7 +1014,7 @@ void M_Options(data_t* data, int choice)
 //
 //      Toggle messages on/off
 //
-void M_ChangeMessages(int choice)
+void M_ChangeMessages(data_t* data, int choice)
 {
     // warning: unused parameter `int choice'
     choice = 0;
@@ -1086,11 +1086,11 @@ void M_ReadThis2(data_t* data, int choice)
     {
         // Close the menu
 
-        M_FinishReadThis(0);
+        M_FinishReadThis(data, 0);
     }
 }
 
-void M_FinishReadThis(int choice)
+void M_FinishReadThis(data_t* data, int choice)
 {
     choice = 0;
     M_SetupNextMenu(&MainDef);
@@ -1176,7 +1176,7 @@ void M_QuitDOOM(data_t* data, int choice)
 
 
 
-void M_ChangeSensitivity(int choice)
+void M_ChangeSensitivity(data_t* data, int choice)
 {
     switch(choice)
     {
@@ -1194,7 +1194,7 @@ void M_ChangeSensitivity(int choice)
 
 
 
-void M_ChangeDetail(int choice)
+void M_ChangeDetail(data_t* data, int choice)
 {
     choice = 0;
     detailLevel = 1 - detailLevel;
@@ -1210,7 +1210,7 @@ void M_ChangeDetail(int choice)
 
 
 
-void M_SizeDisplay(int choice)
+void M_SizeDisplay(data_t* data, int choice)
 {
     switch(choice)
     {
@@ -1636,7 +1636,7 @@ boolean M_Responder (data_t* data, event_t* ev)
 	menuactive = messageLastMenuActive;
 	messageToPrint = 0;
 	if (messageRoutine)
-	    messageRoutine(key);
+	    messageRoutine(data, key);
 
 	menuactive = false;
 	S_StartSound(NULL,sfx_swtchx);
@@ -1657,7 +1657,7 @@ boolean M_Responder (data_t* data, event_t* ev)
         {
 	    if (automapactive || chat_on)
 		return false;
-	    M_SizeDisplay(0);
+	    M_SizeDisplay(data, 0);
 	    S_StartSound(NULL,sfx_stnmov);
 	    return true;
 	}
@@ -1665,7 +1665,7 @@ boolean M_Responder (data_t* data, event_t* ev)
         {
 	    if (automapactive || chat_on)
 		return false;
-	    M_SizeDisplay(1);
+	    M_SizeDisplay(data, 1);
 	    S_StartSound(NULL,sfx_stnmov);
 	    return true;
 	}
@@ -1706,7 +1706,7 @@ boolean M_Responder (data_t* data, event_t* ev)
 	}
         else if (key == key_menu_detail)   // Detail toggle
         {
-	    M_ChangeDetail(0);
+	    M_ChangeDetail(data, 0);
 	    S_StartSound(NULL,sfx_swtchn);
 	    return true;
         }
@@ -1724,7 +1724,7 @@ boolean M_Responder (data_t* data, event_t* ev)
         }
         else if (key == key_menu_messages) // Toggle messages
         {
-	    M_ChangeMessages(0);
+	    M_ChangeMessages(data, 0);
 	    S_StartSound(NULL,sfx_swtchn);
 	    return true;
         }

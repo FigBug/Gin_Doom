@@ -557,7 +557,7 @@ boolean D_InitNetGame(net_connect_data_t *connect_data)
 // Called before quitting to leave a net game
 // without hanging the other players
 //
-void D_QuitNetGame (void)
+void D_QuitNetGame (data_t* data)
 {
 #ifdef FEATURE_MULTIPLAYER
     NET_SV_Shutdown();

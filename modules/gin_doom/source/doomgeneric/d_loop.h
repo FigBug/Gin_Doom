@@ -57,7 +57,7 @@ void NetUpdate (data_t* data);
 
 // Broadcasts special packets to other players
 //  to notify of game exit
-void D_QuitNetGame (void);
+void D_QuitNetGame (data_t* data);
 
 //? how many ticks to run?
 void TryRunTics (data_t* data);
