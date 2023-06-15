@@ -143,7 +143,7 @@ void S_Init(int sfxVolume, int musicVolume)
     I_AtExit(S_Shutdown, true);
 }
 
-void S_Shutdown(void)
+void S_Shutdown(data_t* data)
 {
     I_ShutdownSound();
     I_ShutdownMusic();

@@ -558,7 +558,7 @@ static void InterceptsOverrun(int num_intercepts, intercept_t *intercept);
 // Returns true if earlyout and a solid line hit.
 //
 boolean
-PIT_AddLineIntercepts (line_t* ld)
+PIT_AddLineIntercepts (data_t* data, line_t* ld)
 {
     int			s1;
     int			s2;
@@ -613,7 +613,7 @@ PIT_AddLineIntercepts (line_t* ld)
 //
 // PIT_AddThingIntercepts
 //
-boolean PIT_AddThingIntercepts (mobj_t* thing)
+boolean PIT_AddThingIntercepts (data_t* data, mobj_t* thing)
 {
     fixed_t		x1;
     fixed_t		y1;
@@ -682,7 +682,8 @@ boolean PIT_AddThingIntercepts (mobj_t* thing)
 // 
 boolean
 P_TraverseIntercepts
-( traverser_t	func,
+( data_t* data,
+  traverser_t	func,
   fixed_t	maxfrac )
 {
     int			count;
@@ -721,7 +722,7 @@ P_TraverseIntercepts
     }
 #endif
 
-        if ( !func (in) )
+        if ( !func (data, in) )
 	    return false;	// don't bother going farther
 
 	in->frac = INT_MAX;
@@ -997,7 +998,7 @@ P_PathTraverse
 		
     }
     // go through the sorted list
-    return P_TraverseIntercepts ( trav, FRACUNIT );
+    return P_TraverseIntercepts ( data, trav, FRACUNIT );
 }
 
 

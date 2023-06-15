@@ -158,7 +158,7 @@ typedef struct
 extern intercept_t	intercepts[MAXINTERCEPTS];
 extern intercept_t*	intercept_p;
 
-typedef boolean (*traverser_t) (intercept_t *in);
+typedef boolean (*traverser_t) (data_t*, intercept_t *in);
 
 fixed_t P_AproxDistance (fixed_t dx, fixed_t dy);
 int 	P_PointOnLineSide (fixed_t x, fixed_t y, line_t* line);

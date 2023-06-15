@@ -204,7 +204,7 @@ static void SpechitOverrun(line_t *ld);
 // PIT_CheckLine
 // Adjusts tmfloorz and tmceilingz as lines are contacted
 //
-boolean PIT_CheckLine (line_t* ld)
+boolean PIT_CheckLine (data_t* data, line_t* ld)
 {
     if (tmbbox[BOXRIGHT] <= ld->bbox[BOXLEFT]
 	|| tmbbox[BOXLEFT] >= ld->bbox[BOXRIGHT]
@@ -844,7 +844,7 @@ extern fixed_t	bottomslope;
 // Sets linetaget and aimslope when a target is aimed at.
 //
 boolean
-PTR_AimTraverse (intercept_t* in)
+PTR_AimTraverse (data_t* data, intercept_t* in)
 {
     line_t*		li;
     mobj_t*		th;

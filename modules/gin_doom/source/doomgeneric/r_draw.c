@@ -437,7 +437,7 @@ void R_DrawTranslatedColumn (void)
 	|| dc_yl < 0
 	|| dc_yh >= SCREENHEIGHT)
     {
-	I_Error ( "R_DrawColumn: %i to %i at %i",
+	I_Error ( NULL, "R_DrawColumn: %i to %i at %i",
 		  dc_yl, dc_yh, dc_x);
     }
     
@@ -486,7 +486,7 @@ void R_DrawTranslatedColumnLow (void)
 	|| dc_yl < 0
 	|| dc_yh >= SCREENHEIGHT)
     {
-	I_Error ( "R_DrawColumn: %i to %i at %i",
+	I_Error ( NULL, "R_DrawColumn: %i to %i at %i",
 		  dc_yl, dc_yh, x);
     }
     
@@ -601,7 +601,7 @@ void R_DrawSpan (void)
 	|| ds_x2>=SCREENWIDTH
 	|| (unsigned)ds_y>SCREENHEIGHT)
     {
-	I_Error( "R_DrawSpan: %i to %i at %i",
+	I_Error( NULL, "R_DrawSpan: %i to %i at %i",
 		 ds_x1,ds_x2,ds_y);
     }
 //	dscount++;
@@ -730,7 +730,7 @@ void R_DrawSpanLow (void)
 	|| ds_x2>=SCREENWIDTH
 	|| (unsigned)ds_y>SCREENHEIGHT)
     {
-	I_Error( "R_DrawSpan: %i to %i at %i",
+	I_Error( NULL, "R_DrawSpan: %i to %i at %i",
 		 ds_x1,ds_x2,ds_y);
     }
 //	dscount++; 
