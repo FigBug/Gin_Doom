@@ -699,7 +699,7 @@ char *D_TryFindWADByName(char *filename)
 // should be executed (notably loading PWADs).
 //
 
-char *D_FindIWAD(int mask, GameMission_t *mission)
+char *D_FindIWAD(data_t* data, int mask, GameMission_t *mission)
 {
     char *result;
     char *iwadfile;
@@ -714,13 +714,13 @@ char *D_FindIWAD(int mask, GameMission_t *mission)
     // @arg <file>
     //
 
-    iwadparm = M_CheckParmWithArgs("-iwad", 1);
+    iwadparm = M_CheckParmWithArgs(data, "-iwad", 1);
 
     if (iwadparm)
     {
         // Search through IWAD dirs for an IWAD with the given name.
 
-        iwadfile = myargv[iwadparm + 1];
+        iwadfile = data->myargv[iwadparm + 1];
 
         result = D_FindWADByName(iwadfile);
 

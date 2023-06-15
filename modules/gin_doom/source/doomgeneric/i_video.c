@@ -174,7 +174,7 @@ void cmap_to_fb(uint8_t * out, uint8_t * in, int in_pixels)
     }
 }
 
-void I_InitGraphics (void)
+void I_InitGraphics (data_t* data)
 {
     int i;
 
@@ -205,9 +205,9 @@ void I_InitGraphics (void)
     printf("I_InitGraphics: DOOM screen size: w x h: %d x %d\n", SCREENWIDTH, SCREENHEIGHT);
 
 
-    i = M_CheckParmWithArgs("-scaling", 1);
+    i = M_CheckParmWithArgs(data, "-scaling", 1);
     if (i > 0) {
-        i = atoi(myargv[i + 1]);
+        i = atoi(data->myargv[i + 1]);
         fb_scaling = i;
         printf("I_InitGraphics: Scaling factor: %d\n", fb_scaling);
     } else {

@@ -18,7 +18,7 @@
 #ifndef W_MAIN_H
 #define W_MAIN_H
 
-boolean W_ParseCommandLine(void);
+boolean W_ParseCommandLine(data_t* data);
 
 #endif /* #ifndef W_MAIN_H */
 

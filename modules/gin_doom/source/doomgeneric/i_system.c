@@ -130,7 +130,7 @@ static byte *AutoAllocMemory(int *size, int default_ram, int min_ram)
     return zonemem;
 }
 
-byte *I_ZoneBase (int *size)
+byte *I_ZoneBase (data_t* data, int *size)
 {
     byte *zonemem;
     int min_ram, default_ram;
@@ -142,11 +142,11 @@ byte *I_ZoneBase (int *size)
     // Specify the heap size, in MiB (default 16).
     //
 
-    p = M_CheckParmWithArgs("-mb", 1);
+    p = M_CheckParmWithArgs(data, "-mb", 1);
 
     if (p > 0)
     {
-        default_ram = atoi(myargv[p+1]);
+        default_ram = atoi(data->myargv[p+1]);
         min_ram = default_ram;
     }
     else
@@ -403,7 +403,7 @@ void I_Error (data_t* data, const char *error, ...)
         entry = entry->next;
     }
 
-    exit_gui_popup = !M_ParmExists("-nogui");
+    exit_gui_popup = !M_ParmExists(data, "-nogui");
 
     // Pop up a GUI dialog box to show the error message, if the
     // game was not run from the console (and the user will
@@ -496,7 +496,7 @@ static unsigned char mem_dump_custom[DOS_MEM_DUMP_SIZE];
 
 static const unsigned char *dos_mem_dump = mem_dump_dos622;
 
-boolean I_GetMemoryValue(unsigned int offset, void *value, int size)
+boolean I_GetMemoryValue(data_t* data, unsigned int offset, void *value, int size)
 {
     static boolean firsttime = true;
 
@@ -516,19 +516,19 @@ boolean I_GetMemoryValue(unsigned int offset, void *value, int size)
         // The default is to emulate DOS 7.1 (Windows 98).
         //
 
-        p = M_CheckParmWithArgs("-setmem", 1);
+        p = M_CheckParmWithArgs(data, "-setmem", 1);
 
         if (p > 0)
         {
-            if (!strcasecmp(myargv[p + 1], "dos622"))
+            if (!strcasecmp(data->myargv[p + 1], "dos622"))
             {
                 dos_mem_dump = mem_dump_dos622;
             }
-            if (!strcasecmp(myargv[p + 1], "dos71"))
+            if (!strcasecmp(data->myargv[p + 1], "dos71"))
             {
                 dos_mem_dump = mem_dump_win98;
             }
-            else if (!strcasecmp(myargv[p + 1], "dosbox"))
+            else if (!strcasecmp(data->myargv[p + 1], "dosbox"))
             {
                 dos_mem_dump = mem_dump_dosbox;
             }
@@ -538,12 +538,12 @@ boolean I_GetMemoryValue(unsigned int offset, void *value, int size)
                 {
                     ++p;
 
-                    if (p >= myargc || myargv[p][0] == '-')
+                    if (p >= data->myargc || data->myargv[p][0] == '-')
                     {
                         break;
                     }
 
-                    M_StrToInt(myargv[p], &val);
+                    M_StrToInt(data->myargv[p], &val);
                     mem_dump_custom[i++] = (unsigned char) val;
                 }
 

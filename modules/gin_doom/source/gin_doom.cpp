@@ -192,8 +192,9 @@ Doom::~Doom()
 {
 	auto data = (data_t*)user_data;
 
-    data->runloop = 0;
-    stopThread (100);
+	if (data)
+		data->runloop = 0;
+    stopThread (1000);
 }
 
 void Doom::registerComponent (DoomComponent* comp)
@@ -230,8 +231,8 @@ void Doom::run()
     params[1] = "-iwad";
     params[2] = path.toRawUTF8();
 
-    myargc = 3;
-    myargv = (char**)params;
+    data->myargc = 3;
+    data->myargv = (char**)params;
 
     M_FindResponseFile (data);
 
@@ -253,6 +254,7 @@ void Doom::run()
         }
     });
 
+	user_data = nullptr;
 	DG_Free (data);
 }
 

@@ -55,7 +55,7 @@ typedef struct
     // Function to call to draw the screen from the source buffer.
     // Return true if draw was successful.
 
-    boolean (*DrawScreen)(int x1, int y1, int x2, int y2);
+    boolean (*DrawScreen)(data_t* data, int x1, int y1, int x2, int y2);
 
     // If true, this is a "poor quality" mode.  The autoadjust
     // code should always attempt to use a different mode to this
@@ -95,7 +95,7 @@ typedef boolean (*grabmouse_callback_t)(data_t*);
 // Called by D_DoomMain,
 // determines the hardware configuration
 // and sets up the video mode
-void I_InitGraphics (void);
+void I_InitGraphics (data_t* data);
 
 void I_GraphicsCheckCommandLine(void);
 

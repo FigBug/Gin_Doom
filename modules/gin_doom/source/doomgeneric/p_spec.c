@@ -1178,7 +1178,7 @@ void P_UpdateSpecials (data_t* data)
 #define DONUT_FLOORHEIGHT_DEFAULT 0x00000000
 #define DONUT_FLOORPIC_DEFAULT 0x16
 
-static void DonutOverrun(fixed_t *s3_floorheight, short *s3_floorpic,
+static void DonutOverrun(data_t* data, fixed_t *s3_floorheight, short *s3_floorpic,
                          line_t *line, sector_t *pillar_sector)
 {
     static int first = 1;
@@ -1208,7 +1208,7 @@ static void DonutOverrun(fixed_t *s3_floorheight, short *s3_floorpic,
         // system.  The default (if this option is not specified) is to
         // emulate the behavior when running under Windows 98.
 
-        p = M_CheckParmWithArgs("-donut", 2);
+        p = M_CheckParmWithArgs(data, "-donut", 2);
 
         if (p > 0)
         {
@@ -1226,8 +1226,8 @@ static void DonutOverrun(fixed_t *s3_floorheight, short *s3_floorpic,
             // DOSBox under XP:
             // 0000:0000    (00 00 00 F1) ?? ?? ?? 00-(07 00)
 
-            M_StrToInt(myargv[p + 1], &tmp_s3_floorheight);
-            M_StrToInt(myargv[p + 2], &tmp_s3_floorpic);
+            M_StrToInt(data->myargv[p + 1], &tmp_s3_floorheight);
+            M_StrToInt(data->myargv[p + 2], &tmp_s3_floorpic);
 
             if (tmp_s3_floorpic >= numflats)
             {
@@ -1257,7 +1257,7 @@ static void DonutOverrun(fixed_t *s3_floorheight, short *s3_floorpic,
 //
 // Special Stuff that can not be categorized
 //
-int EV_DoDonut(line_t*	line)
+int EV_DoDonut(data_t* data, line_t*	line)
 {
     sector_t*		s1;
     sector_t*		s2;
@@ -1319,7 +1319,7 @@ int EV_DoDonut(line_t*	line)
                         "NULL back sector. "
                         "Unexpected behavior may occur in Vanilla Doom.\n");
 
-                DonutOverrun(&s3_floorheight, &s3_floorpic, line, s1);
+                DonutOverrun(data, &s3_floorheight, &s3_floorpic, line, s1);
             }
             else
             {

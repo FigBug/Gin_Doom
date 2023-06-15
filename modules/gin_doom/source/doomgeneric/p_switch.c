@@ -349,7 +349,7 @@ P_UseSpecialLine
 
       case 9:
 	// Change Donut
-	if (EV_DoDonut(line))
+	if (EV_DoDonut(data, line))
 		P_ChangeSwitchTexture(data, line,0);
 	break;
 	

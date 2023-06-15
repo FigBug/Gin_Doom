@@ -115,7 +115,7 @@ getNextSector
 //
 // SPECIAL
 //
-int EV_DoDonut(line_t* line);
+int EV_DoDonut(data_t* data, line_t* line);
 
 
 

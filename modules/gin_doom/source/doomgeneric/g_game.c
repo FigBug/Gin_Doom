@@ -652,7 +652,7 @@ void G_DoLoadLevel (data_t* data)
 	memset (players[i].frags,0,sizeof(players[i].frags)); 
     } 
 		 
-    P_SetupLevel (data, gameepisode, gamemap, 0, gameskill);    
+    P_SetupLevel (data, gameepisode, gamemap, 0, gameskill);
     displayplayer = consoleplayer;		// view the guy you are playing    
     gameaction = ga_nothing; 
     Z_CheckHeap ();
@@ -1483,7 +1483,7 @@ void G_DoCompleted (data_t* data)
     viewactive = false; 
     automapactive = false; 
 
-    StatCopy(&wminfo);
+    StatCopy(data, &wminfo);
  
     WI_Start (&wminfo); 
 } 
@@ -2010,7 +2010,7 @@ void G_WriteDemoTiccmd (data_t* data, ticcmd_t* cmd)
 //
 // G_RecordDemo
 //
-void G_RecordDemo (char *name)
+void G_RecordDemo (data_t* data, char *name)
 {
     size_t demoname_size;
     int i;
@@ -2030,9 +2030,9 @@ void G_RecordDemo (char *name)
     // Specify the demo buffer size (KiB)
     //
 
-    i = M_CheckParmWithArgs("-maxdemo", 1);
+    i = M_CheckParmWithArgs(data, "-maxdemo", 1);
     if (i)
-	maxsize = atoi(myargv[i+1])*1024;
+	maxsize = atoi(data->myargv[i+1])*1024;
     demobuffer = Z_Malloc (maxsize,PU_STATIC,NULL); 
     demoend = demobuffer + maxsize;
 	
@@ -2068,7 +2068,7 @@ void G_BeginRecording (data_t* data)
     // Record a high resolution "Doom 1.91" demo.
     //
 
-    longtics = M_CheckParm("-longtics") != 0;
+    longtics = M_CheckParm(data, "-longtics") != 0;
 
     // If not recording a longtics demo, record in low res
 
@@ -2200,8 +2200,8 @@ void G_DoPlayDemo (data_t* data)
     for (i=0 ; i<MAXPLAYERS ; i++) 
 	playeringame[i] = *demo_p++; 
 
-    if (playeringame[1] || M_CheckParm("-solo-net") > 0
-                        || M_CheckParm("-netdemo") > 0)
+    if (playeringame[1] || M_CheckParm(data, "-solo-net") > 0
+                        || M_CheckParm(data, "-netdemo") > 0)
     {
 	netgame = true;
 	netdemo = true;
@@ -2220,7 +2220,7 @@ void G_DoPlayDemo (data_t* data)
 //
 // G_TimeDemo 
 //
-void G_TimeDemo (char* name) 
+void G_TimeDemo (data_t* data, char* name) 
 {
     //!
     // @vanilla 
@@ -2228,7 +2228,7 @@ void G_TimeDemo (char* name)
     // Disable rendering the screen entirely.
     //
 
-    nodrawers = M_CheckParm ("-nodraw"); 
+    nodrawers = M_CheckParm (data, "-nodraw");
 
     timingdemo = true; 
     singletics = true; 

@@ -386,7 +386,7 @@ void D_DoomLoop (data_t* data)
     I_SetWindowTitle(data, gamedescription);
     I_GraphicsCheckCommandLine();
     I_SetGrabMouseCallback(D_GrabMouseCallback);
-    I_InitGraphics();
+    I_InitGraphics(data);
     I_EnableLoadingDisk();
 
     V_RestoreBuffer();
@@ -751,10 +751,10 @@ void D_IdentifyVersion(data_t* data)
         // detecting it based on the filename. Valid values are: "doom2",
         // "tnt" and "plutonia".
         //
-        p = M_CheckParmWithArgs("-pack", 1);
+        p = M_CheckParmWithArgs(data, "-pack", 1);
         if (p > 0)
         {
-            SetMissionForPackName(data, myargv[p + 1]);
+            SetMissionForPackName(data, data->myargv[p + 1]);
         }
     }
 }
@@ -824,12 +824,12 @@ void D_SetGameDescription(data_t* data)
 //      print title for every printed line
 char            title[128];
 
-static boolean D_AddFile(char *filename)
+static boolean D_AddFile(data_t* data, char *filename)
 {
     wad_file_t *handle;
 
     printf(" adding %s\n", filename);
-    handle = W_AddFile(filename);
+    handle = W_AddFile(data, filename);
 
     return handle != NULL;
 }
@@ -904,7 +904,7 @@ static struct
 
 // Initialize the game version
 
-static void InitGameVersion(void)
+static void InitGameVersion(data_t* data)
 {
     int p;
     int i;
@@ -917,13 +917,13 @@ static void InitGameVersion(void)
     // "ultimate", "final", "final2", "hacx" and "chex".
     //
 
-    p = M_CheckParmWithArgs("-gameversion", 1);
+    p = M_CheckParmWithArgs(data, "-gameversion", 1);
 
     if (p)
     {
         for (i=0; gameversions[i].description != NULL; ++i)
         {
-            if (!strcmp(myargv[p+1], gameversions[i].cmdline))
+            if (!strcmp(data->myargv[p+1], gameversions[i].cmdline))
             {
                 gameversion = gameversions[i].version;
                 break;
@@ -940,7 +940,7 @@ static void InitGameVersion(void)
                         gameversions[i].description);
             }
             
-            I_Error (NULL, "Unknown game version '%s'", myargv[p+1]);
+            I_Error (NULL, "Unknown game version '%s'", data->myargv[p+1]);
         }
     }
     else
@@ -1032,7 +1032,7 @@ static void D_Endoom(data_t* data)
     // game has actually started.
 
     if (!data->show_endoom || !data->main_loop_started
-     || screensaver_mode || M_CheckParm("-testcontrols") > 0)
+     || screensaver_mode || M_CheckParm(data, "-testcontrols") > 0)
     {
         return;
     }
@@ -1135,7 +1135,7 @@ void D_DoomMain (data_t* data)
     I_PrintBanner(PACKAGE_STRING);
 
     DEH_printf("Z_Init: Init zone memory allocation daemon. \n");
-    Z_Init ();
+    Z_Init (data);
 
 #ifdef FEATURE_MULTIPLAYER
     //!
@@ -1145,7 +1145,7 @@ void D_DoomMain (data_t* data)
     // in the game itself.
     //
 
-    if (M_CheckParm("-dedicated") > 0)
+    if (M_CheckParm(data, "-dedicated") > 0)
     {
         printf("Dedicated server mode.\n");
         NET_DedicatedServer();
@@ -1160,7 +1160,7 @@ void D_DoomMain (data_t* data)
     // servers.
     //
 
-    if (M_CheckParm("-search"))
+    if (M_CheckParm(data, "-search"))
     {
         NET_MasterQuery();
         exit(0);
@@ -1174,11 +1174,11 @@ void D_DoomMain (data_t* data)
     // address.
     //
 
-    p = M_CheckParmWithArgs("-query", 1);
+    p = M_CheckParmWithArgs(data, "-query", 1);
 
     if (p)
     {
-        NET_QueryAddress(myargv[p+1]);
+        NET_QueryAddress(data->myargv[p+1]);
         exit(0);
     }
 
@@ -1188,7 +1188,7 @@ void D_DoomMain (data_t* data)
     // Search the local LAN for running servers.
     //
 
-    if (M_CheckParm("-localsearch"))
+    if (M_CheckParm(data, "-localsearch"))
     {
         NET_LANQuery();
         exit(0);
@@ -1202,7 +1202,7 @@ void D_DoomMain (data_t* data)
     // Disable monsters.
     //
 	
-    data->nomonsters = M_CheckParm ("-nomonsters");
+    data->nomonsters = M_CheckParm(data, "-nomonsters");
 
     //!
     // @vanilla
@@ -1210,7 +1210,7 @@ void D_DoomMain (data_t* data)
     // Monsters respawn after being killed.
     //
 
-	data->respawnparm = M_CheckParm ("-respawn");
+	data->respawnparm = M_CheckParm(data, "-respawn");
 
     //!
     // @vanilla
@@ -1218,7 +1218,7 @@ void D_DoomMain (data_t* data)
     // Monsters move faster.
     //
 
-	data->fastparm = M_CheckParm ("-fast");
+	data->fastparm = M_CheckParm(data, "-fast");
 
     //! 
     // @vanilla
@@ -1227,7 +1227,7 @@ void D_DoomMain (data_t* data)
     // directory.
     //
 
-	data->devparm = M_CheckParm ("-devparm");
+	data->devparm = M_CheckParm(data, "-devparm");
 
     I_DisplayFPSDots(data->devparm);
 
@@ -1238,7 +1238,7 @@ void D_DoomMain (data_t* data)
     // Start a deathmatch game.
     //
 
-    if (M_CheckParm ("-deathmatch"))
+    if (M_CheckParm(data, "-deathmatch"))
 	deathmatch = 1;
 
     //!
@@ -1249,7 +1249,7 @@ void D_DoomMain (data_t* data)
     // all items respawn after 30 seconds.
     //
 
-    if (M_CheckParm ("-altdeath"))
+    if (M_CheckParm(data, "-altdeath"))
 	deathmatch = 2;
 
     if (data->devparm)
@@ -1289,14 +1289,14 @@ void D_DoomMain (data_t* data)
     // x defaults to 200.  Values are rounded up to 10 and down to 400.
     //
 
-    if ( (p=M_CheckParm ("-turbo")) )
+    if ( (p=M_CheckParm(data, "-turbo")) )
     {
 	int     scale = 200;
 	extern int forwardmove[2];
 	extern int sidemove[2];
 	
-	if (p<myargc-1)
-	    scale = atoi (myargv[p+1]);
+	if (p<data->myargc-1)
+	    scale = atoi (data->myargv[p+1]);
 	if (scale < 10)
 	    scale = 10;
 	if (scale > 400)
@@ -1322,7 +1322,7 @@ void D_DoomMain (data_t* data)
     I_AtExit(M_SaveDefaults, false);
 
     // Find main IWAD file and load it.
-	data->iwadfile = D_FindIWAD(IWAD_MASK_DOOM, &gamemission);
+	data->iwadfile = D_FindIWAD(data, IWAD_MASK_DOOM, &gamemission);
 
     // None found?
 
@@ -1335,7 +1335,7 @@ void D_DoomMain (data_t* data)
     modifiedgame = false;
 
     DEH_printf("W_Init: Init WADfiles.\n");
-    D_AddFile(data->iwadfile);
+    D_AddFile(data, data->iwadfile);
 #if ORIGCODE
     numiwadlumps = numlumps;
 #endif
@@ -1345,7 +1345,7 @@ void D_DoomMain (data_t* data)
     // Now that we've loaded the IWAD, we can figure out what gamemission
     // we're playing and which version of Vanilla Doom we need to emulate.
     D_IdentifyVersion(data);
-    InitGameVersion();
+    InitGameVersion(data);
 
 #if ORIGCODE
     //!
@@ -1410,7 +1410,7 @@ void D_DoomMain (data_t* data)
 #endif
 
     // Load PWAD files.
-    modifiedgame = W_ParseCommandLine();
+    modifiedgame = W_ParseCommandLine(data);
 
     // Debug:
 //    W_PrintDirectory();
@@ -1423,7 +1423,7 @@ void D_DoomMain (data_t* data)
     // Play back the demo named demo.lmp.
     //
 
-    p = M_CheckParmWithArgs ("-playdemo", 1);
+    p = M_CheckParmWithArgs (data, "-playdemo", 1);
 
     if (!p)
     {
@@ -1435,7 +1435,7 @@ void D_DoomMain (data_t* data)
         // Play back the demo named demo.lmp, determining the framerate
         // of the screen.
         //
-	p = M_CheckParmWithArgs("-timedemo", 1);
+	p = M_CheckParmWithArgs(data, "-timedemo", 1);
 
     }
 
@@ -1443,16 +1443,16 @@ void D_DoomMain (data_t* data)
     {
         // With Vanilla you have to specify the file without extension,
         // but make that optional.
-        if (M_StringEndsWith(myargv[p + 1], ".lmp"))
+        if (M_StringEndsWith(data->myargv[p + 1], ".lmp"))
         {
-            M_StringCopy(file, myargv[p + 1], sizeof(file));
+            M_StringCopy(file, data->myargv[p + 1], sizeof(file));
         }
         else
         {
-            DEH_snprintf(file, sizeof(file), "%s.lmp", myargv[p+1]);
+            DEH_snprintf(file, sizeof(file), "%s.lmp", data->myargv[p+1]);
         }
 
-        if (D_AddFile(file))
+        if (D_AddFile(data, file))
         {
             M_StringCopy(demolumpname, lumpinfo[numlumps - 1].name,
                          sizeof(demolumpname));
@@ -1463,7 +1463,7 @@ void D_DoomMain (data_t* data)
             // the demo in the same way as Vanilla Doom.  This makes
             // tricks like "-playdemo demo1" possible.
 
-            M_StringCopy(demolumpname, myargv[p + 1], sizeof(demolumpname));
+            M_StringCopy(demolumpname, data->myargv[p + 1], sizeof(demolumpname));
         }
 
         printf("Playing demo %s.\n", file);
@@ -1570,7 +1570,7 @@ void D_DoomMain (data_t* data)
     I_CheckIsScreensaver();
     I_InitTimer();
     I_InitJoystick();
-    I_InitSound(true);
+    I_InitSound(data, true);
     I_InitMusic();
 
 #ifdef FEATURE_MULTIPLAYER
@@ -1595,11 +1595,11 @@ void D_DoomMain (data_t* data)
     // 0 disables all monsters.
     //
 
-    p = M_CheckParmWithArgs("-skill", 1);
+    p = M_CheckParmWithArgs(data, "-skill", 1);
 
     if (p)
     {
-		data->startskill = myargv[p+1][0]-'1';
+		data->startskill = data->myargv[p+1][0]-'1';
 		data->autostart = true;
     }
 
@@ -1610,11 +1610,11 @@ void D_DoomMain (data_t* data)
     // Start playing on episode n (1-4)
     //
 
-    p = M_CheckParmWithArgs("-episode", 1);
+    p = M_CheckParmWithArgs(data, "-episode", 1);
 
     if (p)
     {
-		data->startepisode = myargv[p+1][0]-'0';
+		data->startepisode = data->myargv[p+1][0]-'0';
 		data->startmap = 1;
 		data->autostart = true;
     }
@@ -1629,11 +1629,11 @@ void D_DoomMain (data_t* data)
     // For multiplayer games: exit each level after n minutes.
     //
 
-    p = M_CheckParmWithArgs("-timer", 1);
+    p = M_CheckParmWithArgs(data, "-timer", 1);
 
     if (p)
     {
-	timelimit = atoi(myargv[p+1]);
+	timelimit = atoi(data->myargv[p+1]);
     }
 
     //!
@@ -1643,7 +1643,7 @@ void D_DoomMain (data_t* data)
     // Austin Virtual Gaming: end levels after 20 minutes.
     //
 
-    p = M_CheckParm ("-avg");
+    p = M_CheckParm(data, "-avg");
 
     if (p)
     {
@@ -1658,21 +1658,21 @@ void D_DoomMain (data_t* data)
     // (Doom 2)
     //
 
-    p = M_CheckParmWithArgs("-warp", 1);
+    p = M_CheckParmWithArgs(data, "-warp", 1);
 
     if (p)
     {
         if (gamemode == commercial)
 		{
-			data->startmap = atoi (myargv[p+1]);
+			data->startmap = atoi (data->myargv[p+1]);
 		}
         else
         {
-			data->startepisode = myargv[p+1][0]-'0';
+			data->startepisode = data->myargv[p+1][0]-'0';
 
-            if (p + 2 < myargc)
+            if (p + 2 < data->myargc)
             {
-				data->startmap = myargv[p+2][0]-'0';
+				data->startmap = data->myargv[p+2][0]-'0';
             }
             else
             {
@@ -1685,7 +1685,7 @@ void D_DoomMain (data_t* data)
     // Undocumented:
     // Invoked by setup to test the controls.
 
-    p = M_CheckParm("-testcontrols");
+    p = M_CheckParm(data, "-testcontrols");
 
     if (p > 0)
     {
@@ -1706,11 +1706,11 @@ void D_DoomMain (data_t* data)
     // Load the game in slot s.
     //
 
-    p = M_CheckParmWithArgs("-loadgame", 1);
+    p = M_CheckParmWithArgs(data, "-loadgame", 1);
     
     if (p)
     {
-        data->startloadgame = atoi(myargv[p+1]);
+        data->startloadgame = atoi(data->myargv[p+1]);
     }
     else
     {
@@ -1748,7 +1748,7 @@ void D_DoomMain (data_t* data)
     if (gamemode == commercial && W_CheckNumForName("map01") < 0)
         data->storedemo = true;
 
-    if (M_CheckParmWithArgs("-statdump", 1))
+    if (M_CheckParmWithArgs(data, "-statdump", 1))
     {
         I_AtExit(StatDump, true);
         DEH_printf("External statistics registered.\n");
@@ -1762,15 +1762,15 @@ void D_DoomMain (data_t* data)
     // Record a demo named x.lmp.
     //
 
-    p = M_CheckParmWithArgs("-record", 1);
+    p = M_CheckParmWithArgs(data, "-record", 1);
 
     if (p)
     {
-		G_RecordDemo (myargv[p+1]);
+		G_RecordDemo (data, data->myargv[p+1]);
 		data->autostart = true;
     }
 
-    p = M_CheckParmWithArgs("-playdemo", 1);
+    p = M_CheckParmWithArgs(data, "-playdemo", 1);
     if (p)
     {
 		singledemo = true;              // quit after one demo
@@ -1778,10 +1778,10 @@ void D_DoomMain (data_t* data)
 		D_DoomLoop (data);  // never returns
     }
 
-    p = M_CheckParmWithArgs("-timedemo", 1);
+    p = M_CheckParmWithArgs(data, "-timedemo", 1);
     if (p)
     {
-		G_TimeDemo (demolumpname);
+		G_TimeDemo (data, demolumpname);
 		D_DoomLoop (data);  // never returns
     }
 

@@ -26,11 +26,6 @@
 #include "m_misc.h"
 #include "m_argv.h"  // haleyjd 20110212: warning fix
 
-int		myargc;
-char**		myargv;
-
-
-
 
 //
 // M_CheckParm
@@ -40,13 +35,13 @@ char**		myargv;
 // or 0 if not present
 //
 
-int M_CheckParmWithArgs(char *check, int num_args)
+int M_CheckParmWithArgs(data_t* data, char *check, int num_args)
 {
     int i;
 
-    for (i = 1; i < myargc - num_args; i++)
+    for (i = 1; i < data->myargc - num_args; i++)
     {
-	if (!strcasecmp(check, myargv[i]))
+	if (!strcasecmp(check, data->myargv[i]))
 	    return i;
     }
 
@@ -60,14 +55,14 @@ int M_CheckParmWithArgs(char *check, int num_args)
 // line arguments, false if not.
 //
 
-boolean M_ParmExists(char *check)
+boolean M_ParmExists(data_t* data, char *check)
 {
-    return M_CheckParm(check) != 0;
+    return M_CheckParm(data, check) != 0;
 }
 
-int M_CheckParm(char *check)
+int M_CheckParm(data_t* data, char *check)
 {
-    return M_CheckParmWithArgs(check, 0);
+    return M_CheckParmWithArgs(data, check, 0);
 }
 
 #define MAXARGVS        100
@@ -236,9 +231,9 @@ void M_FindResponseFile (data_t* data)
 {
     int             i;
 
-    for (i = 1; i < myargc; i++)
+    for (i = 1; i < data->myargc; i++)
     {
-        if (myargv[i][0] == '@')
+        if (data->myargv[i][0] == '@')
         {
             LoadResponseFile(i);
         }
@@ -247,15 +242,15 @@ void M_FindResponseFile (data_t* data)
 
 // Return the name of the executable used to start the program:
 
-char *M_GetExecutableName(void)
+char *M_GetExecutableName(data_t* data)
 {
     char *sep;
 
-    sep = strrchr(myargv[0], DIR_SEPARATOR);
+    sep = strrchr(data->myargv[0], DIR_SEPARATOR);
 
     if (sep == NULL)
     {
-        return myargv[0];
+        return data->myargv[0];
     }
     else
     {

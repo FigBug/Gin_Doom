@@ -25,6 +25,7 @@
 #define __Z_ZONE__
 
 #include <stdio.h>
+#include "data.h"
 
 //
 // ZONE MEMORY
@@ -50,7 +51,7 @@ enum
 };
         
 
-void	Z_Init (void);
+void	Z_Init (data_t* data);
 void*	Z_Malloc (int size, int tag, void *ptr);
 void    Z_Free (void *ptr);
 void    Z_FreeTags (int lowtag, int hightag);

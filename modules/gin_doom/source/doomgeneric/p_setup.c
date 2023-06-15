@@ -150,7 +150,7 @@ void P_LoadVertexes (int lump)
 //
 // GetSectorAtNullAddress
 //
-sector_t* GetSectorAtNullAddress(void)
+sector_t* GetSectorAtNullAddress(data_t* data)
 {
     static boolean null_sector_is_initialized = false;
     static sector_t null_sector;
@@ -158,8 +158,8 @@ sector_t* GetSectorAtNullAddress(void)
     if (!null_sector_is_initialized)
     {
         memset(&null_sector, 0, sizeof(null_sector));
-        I_GetMemoryValue(0, &null_sector.floorheight, 4);
-        I_GetMemoryValue(4, &null_sector.ceilingheight, 4);
+        I_GetMemoryValue(data, 0, &null_sector.floorheight, 4);
+        I_GetMemoryValue(data, 4, &null_sector.ceilingheight, 4);
         null_sector_is_initialized = true;
     }
 
@@ -169,7 +169,7 @@ sector_t* GetSectorAtNullAddress(void)
 //
 // P_LoadSegs
 //
-void P_LoadSegs (int lump)
+void P_LoadSegs (data_t* udata, int lump)
 {
     byte*		data;
     int			i;
@@ -213,7 +213,7 @@ void P_LoadSegs (int lump)
 
             if (sidenum < 0 || sidenum >= numsides)
             {
-                li->backsector = GetSectorAtNullAddress();
+                li->backsector = GetSectorAtNullAddress(udata);
             }
             else
             {
@@ -658,7 +658,7 @@ void P_GroupLines (void)
 // Pad the REJECT lump with extra data when the lump is too small,
 // to simulate a REJECT buffer overflow in Vanilla Doom.
 
-static void PadRejectArray(byte *array, unsigned int len)
+static void PadRejectArray(data_t* data, byte *array, unsigned int len)
 {
     unsigned int i;
     unsigned int byte_num;
@@ -696,7 +696,7 @@ static void PadRejectArray(byte *array, unsigned int len)
 
         // Pad remaining space with 0 (or 0xff, if specified on command line).
 
-        if (M_CheckParm("-reject_pad_with_ff"))
+        if (M_CheckParm(data, "-reject_pad_with_ff"))
         {
             padvalue = 0xff;
         }
@@ -709,7 +709,7 @@ static void PadRejectArray(byte *array, unsigned int len)
     }
 }
 
-static void P_LoadReject(int lumpnum)
+static void P_LoadReject(data_t* data, int lumpnum)
 {
     int minlength;
     int lumplen;
@@ -733,7 +733,7 @@ static void P_LoadReject(int lumpnum)
         rejectmatrix = Z_Malloc(minlength, PU_LEVEL, &rejectmatrix);
         W_ReadLump(lumpnum, rejectmatrix);
 
-        PadRejectArray(rejectmatrix + lumplen, minlength - lumplen);
+        PadRejectArray(data, rejectmatrix + lumplen, minlength - lumplen);
     }
 }
 
@@ -802,10 +802,10 @@ P_SetupLevel
     P_LoadLineDefs (lumpnum+ML_LINEDEFS);
     P_LoadSubsectors (lumpnum+ML_SSECTORS);
     P_LoadNodes (lumpnum+ML_NODES);
-    P_LoadSegs (lumpnum+ML_SEGS);
+    P_LoadSegs (data, lumpnum+ML_SEGS);
 
     P_GroupLines ();
-    P_LoadReject (lumpnum+ML_REJECT);
+    P_LoadReject (data, lumpnum+ML_REJECT);
 
     bodyqueslot = 0;
     deathmatch_p = deathmatchstarts;

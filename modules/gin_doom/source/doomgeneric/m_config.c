@@ -1892,11 +1892,11 @@ void M_LoadDefaults (data_t* data)
     // default.
     //
 
-    i = M_CheckParmWithArgs("-config", 1);
+    i = M_CheckParmWithArgs(data, "-config", 1);
 
     if (i)
     {
-	doom_defaults.filename = myargv[i+1];
+	doom_defaults.filename = data->myargv[i+1];
 	printf ("	default file: %s\n",doom_defaults.filename);
     }
     else
@@ -1914,11 +1914,11 @@ void M_LoadDefaults (data_t* data)
     // the default.
     //
 
-    i = M_CheckParmWithArgs("-extraconfig", 1);
+    i = M_CheckParmWithArgs(data, "-extraconfig", 1);
 
     if (i)
     {
-        extra_defaults.filename = myargv[i+1];
+        extra_defaults.filename = data->myargv[i+1];
         printf("        extra configuration file: %s\n", 
                extra_defaults.filename);
     }

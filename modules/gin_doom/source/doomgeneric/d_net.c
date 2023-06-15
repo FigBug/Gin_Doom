@@ -151,11 +151,11 @@ static void SaveGameSettings(data_t* data, net_gamesettings_t *settings)
     settings->respawn_monsters = data->respawnparm;
     settings->timelimit = timelimit;
 
-    settings->lowres_turn = M_CheckParm("-record") > 0
-                         && M_CheckParm("-longtics") == 0;
+    settings->lowres_turn = M_CheckParm(data, "-record") > 0
+                         && M_CheckParm(data, "-longtics") == 0;
 }
 
-static void InitConnectData(net_connect_data_t *connect_data)
+static void InitConnectData(data_t* data, net_connect_data_t *connect_data)
 {
     connect_data->max_players = MAXPLAYERS;
     connect_data->drone = false;
@@ -166,7 +166,7 @@ static void InitConnectData(net_connect_data_t *connect_data)
     // Run as the left screen in three screen mode.
     //
 
-    if (M_CheckParm("-left") > 0)
+    if (M_CheckParm(data, "-left") > 0)
     {
         viewangleoffset = ANG90;
         connect_data->drone = true;
@@ -178,7 +178,7 @@ static void InitConnectData(net_connect_data_t *connect_data)
     // Run as the right screen in three screen mode.
     //
 
-    if (M_CheckParm("-right") > 0)
+    if (M_CheckParm(data, "-right") > 0)
     {
         viewangleoffset = ANG270;
         connect_data->drone = true;
@@ -195,8 +195,8 @@ static void InitConnectData(net_connect_data_t *connect_data)
 
     // Are we recording a demo? Possibly set lowres turn mode
 
-    connect_data->lowres_turn = M_CheckParm("-record") > 0
-                             && M_CheckParm("-longtics") == 0;
+    connect_data->lowres_turn = M_CheckParm(data, "-record") > 0
+                             && M_CheckParm(data, "-longtics") == 0;
 
     // Read checksums of our WAD directory and dehacked information
 
@@ -215,7 +215,7 @@ void D_ConnectNetGame(data_t* data)
 {
     net_connect_data_t connect_data;
 
-    InitConnectData(&connect_data);
+    InitConnectData(data, &connect_data);
     netgame = D_InitNetGame(&connect_data);
 
     //!
@@ -226,7 +226,7 @@ void D_ConnectNetGame(data_t* data)
     // demos.
     //
 
-    if (M_CheckParm("-solo-net") > 0)
+    if (M_CheckParm(data, "-solo-net") > 0)
     {
         netgame = true;
     }
@@ -263,7 +263,7 @@ void D_CheckNetGame (data_t* data)
     {
         // Gross hack to work like Vanilla:
 
-        if (timelimit == 20 && M_CheckParm("-avg"))
+        if (timelimit == 20 && M_CheckParm(data, "-avg"))
         {
             DEH_printf("Austin Virtual Gaming: Levels will end "
                            "after 20 minutes\n");

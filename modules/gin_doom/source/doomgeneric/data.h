@@ -9,13 +9,15 @@ typedef struct
 
 	uint32_t* 	DG_ScreenBuffer;
 
+	// m_argv.c
+	int				myargc;
+	char**			myargv;
+
 	// d_main.c
 	char *          savegamedir;
 
 	// location of IWAD and WAD files
-
 	char *          iwadfile;
-
 
 	boolean		    devparm;	// started game with -devparm
 	boolean         nomonsters;	// checkparm of -nomonsters

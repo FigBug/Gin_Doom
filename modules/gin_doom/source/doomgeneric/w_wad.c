@@ -136,7 +136,7 @@ static void ExtendLumpInfo(int newnumlumps)
 // Other files are single lumps with the base filename
 //  for the lump name.
 
-wad_file_t *W_AddFile (char *filename)
+wad_file_t *W_AddFile (data_t* data, char *filename)
 {
     wadinfo_t header;
     lumpinfo_t *lump_p;
@@ -150,7 +150,7 @@ wad_file_t *W_AddFile (char *filename)
 
     // open the file and add to directory
 
-    wad_file = W_OpenFile(filename);
+    wad_file = W_OpenFile(data, filename);
 
     if (wad_file == NULL)
     {

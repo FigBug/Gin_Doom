@@ -198,7 +198,7 @@ P_TeleportMove
 // MOVEMENT ITERATOR FUNCTIONS
 //
 
-static void SpechitOverrun(line_t *ld);
+static void SpechitOverrun(data_t* data, line_t *ld);
 
 //
 // PIT_CheckLine
@@ -263,7 +263,7 @@ boolean PIT_CheckLine (data_t* data, line_t* ld)
         // fraggle: spechits overrun emulation code from prboom-plus
         if (numspechit > MAXSPECIALCROSS_ORIGINAL)
         {
-            SpechitOverrun(ld);
+            SpechitOverrun(data, ld);
         }
     }
 
@@ -1396,7 +1396,7 @@ P_ChangeSector
 // of the spechit array.  This is by Andrey Budko (e6y) and comes from his
 // PrBoom plus port.  A big thanks to Andrey for this.
 
-static void SpechitOverrun(line_t *ld)
+static void SpechitOverrun(data_t* data, line_t *ld)
 {
     static unsigned int baseaddr = 0;
     unsigned int addr;
@@ -1416,11 +1416,11 @@ static void SpechitOverrun(line_t *ld)
         // Use the specified magic value when emulating spechit overruns.
         //
 
-        p = M_CheckParmWithArgs("-spechit", 1);
+        p = M_CheckParmWithArgs(data, "-spechit", 1);
         
         if (p > 0)
         {
-            M_StrToInt(myargv[p+1], (int *) &baseaddr);
+            M_StrToInt(data->myargv[p+1], (int *) &baseaddr);
         }
         else
         {
