@@ -264,6 +264,30 @@ typedef struct
 } d_loop_t;
 
 //
+// f_finale
+//
+typedef struct
+{
+	char*	finaletext;
+	char*	finaleflat;
+
+} f_finale_t;
+
+//
+// f_wipe
+//
+typedef struct
+{
+	// when zero, stop the wipe
+	boolean	go;
+
+	byte*	wipe_scr_start;
+	byte*	wipe_scr_end;
+	byte*	wipe_scr;
+
+} f_wipe_t;
+
+//
 // misc
 //
 
@@ -283,6 +307,9 @@ typedef struct
 	d_event_t		d_event;
 	d_items_t		d_items;
 	d_loop_t		d_loop;
+	ticcmd_t*		netcmds;
+	f_finale_t		f_finale;
+	f_wipe_t		f_wipe;
 
 } data_t;
 

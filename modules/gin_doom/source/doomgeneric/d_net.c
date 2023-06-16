@@ -38,8 +38,6 @@
 
 #include "d_loop.h"
 
-ticcmd_t *netcmds;
-
 // Called when a player leaves the game
 
 static void PlayerQuitGame(data_t* data, player_t *player)
@@ -82,7 +80,7 @@ static void RunTic(data_t* data, ticcmd_t *cmds, boolean *ingame)
         }
     }
 
-    netcmds = cmds;
+    data->netcmds = cmds;
 
     // check that there are players in the game.  if not, we cannot
     // run a tic.

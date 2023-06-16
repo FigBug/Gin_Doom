@@ -31,10 +31,10 @@
 boolean F_Responder (event_t* ev);
 
 // Called by main loop.
-void F_Ticker (void);
+void F_Ticker (data_t* data);
 
 // Called by main loop.
-void F_Drawer (void);
+void F_Drawer (data_t* data);
 
 
 void F_StartFinale (data_t* data);

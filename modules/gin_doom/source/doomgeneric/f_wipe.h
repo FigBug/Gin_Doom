@@ -37,7 +37,8 @@ enum
 
 int
 wipe_StartScreen
-( int		x,
+( data_t* data,
+  int		x,
   int		y,
   int		width,
   int		height );
@@ -45,7 +46,8 @@ wipe_StartScreen
 
 int
 wipe_EndScreen
-( int		x,
+( data_t* data,
+  int		x,
   int		y,
   int		width,
   int		height );
@@ -53,7 +55,8 @@ wipe_EndScreen
 
 int
 wipe_ScreenWipe
-( int		wipeno,
+( data_t* data,
+  int		wipeno,
   int		x,
   int		y,
   int		width,

@@ -94,8 +94,6 @@ static textscreen_t textscreens[] =
     { pack_plut, 1, 31, "RROCK19",   P6TEXT},
 };
 
-char*	finaletext;
-char*	finaleflat;
 
 void	F_StartCast (void);
 void	F_CastTicker (void);
@@ -140,15 +138,15 @@ void F_StartFinale (data_t* data)
          && (logical_gamemission != doom || gameepisode == screen->episode)
          && gamemap == screen->level)
         {
-            finaletext = screen->text;
-            finaleflat = screen->background;
+            data->f_finale.finaletext = screen->text;
+			data->f_finale.finaleflat = screen->background;
         }
     }
 
     // Do dehacked substitutions of strings
   
-    finaletext = DEH_String(finaletext);
-    finaleflat = DEH_String(finaleflat);
+	data->f_finale.finaletext = DEH_String(data->f_finale.finaletext);
+	data->f_finale.finaleflat = DEH_String(data->f_finale.finaleflat);
     
     finalestage = F_STAGE_TEXT;
     finalecount = 0;
@@ -169,7 +167,7 @@ boolean F_Responder (event_t *event)
 //
 // F_Ticker
 //
-void F_Ticker (void)
+void F_Ticker (data_t* data)
 {
     size_t		i;
     
@@ -204,7 +202,7 @@ void F_Ticker (void)
 	return;
 		
     if (finalestage == F_STAGE_TEXT
-     && finalecount>strlen (finaletext)*TEXTSPEED + TEXTWAIT)
+     && finalecount>strlen (data->f_finale.finaletext)*TEXTSPEED + TEXTWAIT)
     {
 	finalecount = 0;
 	finalestage = F_STAGE_ARTSCREEN;
@@ -224,7 +222,7 @@ void F_Ticker (void)
 extern	patch_t *hu_font[HU_FONTSIZE];
 
 
-void F_TextWrite (void)
+void F_TextWrite (data_t* data)
 {
     byte*	src;
     byte*	dest;
@@ -237,7 +235,7 @@ void F_TextWrite (void)
     int		cy;
     
     // erase the entire screen to a tiled background
-    src = W_CacheLumpName ( finaleflat , PU_CACHE);
+    src = W_CacheLumpName ( data->f_finale.finaleflat , PU_CACHE);
     dest = I_VideoBuffer;
 	
     for (y=0 ; y<SCREENHEIGHT ; y++)
@@ -259,7 +257,7 @@ void F_TextWrite (void)
     // draw some of the text onto the screen
     cx = 10;
     cy = 10;
-    ch = finaletext;
+    ch = data->f_finale.finaletext;
 	
     count = ((signed int) finalecount - 10) / TEXTSPEED;
     if (count < 0)
@@ -699,7 +697,7 @@ static void F_ArtScreenDrawer(void)
 //
 // F_Drawer
 //
-void F_Drawer (void)
+void F_Drawer (data_t* data)
 {
     switch (finalestage)
     {
@@ -707,7 +705,7 @@ void F_Drawer (void)
             F_CastDrawer();
             break;
         case F_STAGE_TEXT:
-            F_TextWrite();
+            F_TextWrite(data);
             break;
         case F_STAGE_ARTSCREEN:
             F_ArtScreenDrawer();

@@ -911,7 +911,7 @@ void G_Ticker (data_t* data)
 	{ 
 	    cmd = &players[i].cmd; 
 
-	    memcpy(cmd, &netcmds[i], sizeof(ticcmd_t));
+	    memcpy(cmd, &data->netcmds[i], sizeof(ticcmd_t));
 
 	    if (demoplayback) 
 		G_ReadDemoTiccmd (data, cmd);
@@ -1016,7 +1016,7 @@ void G_Ticker (data_t* data)
 	break; 
 			 
       case GS_FINALE: 
-	F_Ticker (); 
+	F_Ticker (data); 
 	break; 
  
       case GS_DEMOSCREEN: 

@@ -255,7 +255,4 @@ extern int		skyflatnum;
 
 extern	int		rndindex;
 
-extern  ticcmd_t       *netcmds;
-
-
 #endif

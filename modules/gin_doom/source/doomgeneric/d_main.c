@@ -166,7 +166,7 @@ void D_Display (data_t* data)
     if (gamestate != wipegamestate)
 		{
 		wipe = true;
-		wipe_StartScreen(0, 0, SCREENWIDTH, SCREENHEIGHT);
+		wipe_StartScreen(data, 0, 0, SCREENWIDTH, SCREENHEIGHT);
     }
     else
     	wipe = false;
@@ -195,7 +195,7 @@ void D_Display (data_t* data)
 		break;
 
       case GS_FINALE:
-		F_Drawer ();
+		F_Drawer (data);
 		break;
 
       case GS_DEMOSCREEN:
@@ -273,7 +273,7 @@ void D_Display (data_t* data)
     }
     
     // wipe update
-    wipe_EndScreen(0, 0, SCREENWIDTH, SCREENHEIGHT);
+    wipe_EndScreen(data, 0, 0, SCREENWIDTH, SCREENHEIGHT);
 
     wipestart = I_GetTime (data) - 1;
 
@@ -287,8 +287,7 @@ void D_Display (data_t* data)
 	} while (tics <= 0);
         
 	wipestart = nowtime;
-	done = wipe_ScreenWipe(wipe_Melt
-			       , 0, 0, SCREENWIDTH, SCREENHEIGHT, tics);
+	done = wipe_ScreenWipe(data, wipe_Melt, 0, 0, SCREENWIDTH, SCREENHEIGHT, tics);
 	I_UpdateNoBlit ();
 	M_Drawer (data);                            // menu is drawn even on top of wipes
 	I_FinishUpdate (data);                  // page flip or blit buffer
