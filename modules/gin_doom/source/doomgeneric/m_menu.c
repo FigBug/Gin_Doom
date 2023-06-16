@@ -1643,7 +1643,7 @@ boolean M_Responder (data_t* data, event_t* ev)
 	return true;
     }
 
-    if ((data->devparm && key == key_menu_help) ||
+    if ((data->d_main.devparm && key == key_menu_help) ||
         (key != 0 && key == key_menu_screenshot))
     {
 	G_ScreenShot ();

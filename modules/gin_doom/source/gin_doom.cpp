@@ -193,7 +193,7 @@ Doom::~Doom()
 	auto data = (data_t*)user_data;
 
 	if (data)
-		data->runloop = 0;
+		data->d_main.runloop = 0;
     stopThread (1000);
 }
 

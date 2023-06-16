@@ -44,7 +44,6 @@ void P_SpawnMapThing (data_t* data, mapthing_t*	mthing);
 // P_SetMobjState
 // Returns true if the mobj is still present.
 //
-int test;
 
 boolean P_SetMobjState (data_t* data, mobj_t* mobj, statenum_t state)
 {
@@ -724,7 +723,7 @@ void P_SpawnPlayer (data_t* data, mapthing_t* mthing)
     if (mthing->type-1 == consoleplayer)
     {
 	// wake up the status bar
-	ST_Start ();
+	ST_Start (data);
 	// wake up the heads up text
 	HU_Start ();		
     }
@@ -804,7 +803,7 @@ void P_SpawnMapThing (data_t* data, mapthing_t* mthing)
 	return;
 		
     // don't spawn any monsters if -nomonsters
-    if (data->nomonsters
+    if (data->d_main.nomonsters
 	&& ( i == MT_SKULL
 	     || (mobjinfo[i].flags & MF_COUNTKILL)) )
     {

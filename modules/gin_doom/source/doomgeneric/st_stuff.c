@@ -857,7 +857,7 @@ void ST_updateFaceWidget(void)
 
 }
 
-void ST_updateWidgets(void)
+void ST_updateWidgets(data_t* data)
 {
     static int	largeammo = 1994; // means "n/a"
     int		i;
@@ -865,10 +865,10 @@ void ST_updateWidgets(void)
     // must redirect the pointer if the ready weapon has changed.
     //  if (w_ready.data != plyr->readyweapon)
     //  {
-    if (weaponinfo[plyr->readyweapon].ammo == am_noammo)
-	w_ready.num = &largeammo;
+    if (data->d_items.weaponinfo[plyr->readyweapon].ammo == am_noammo)
+		w_ready.num = &largeammo;
     else
-	w_ready.num = &plyr->ammo[weaponinfo[plyr->readyweapon].ammo];
+		w_ready.num = &plyr->ammo[data->d_items.weaponinfo[plyr->readyweapon].ammo];
     //{
     // static int tic=0;
     // static int dir=-1;
@@ -921,12 +921,12 @@ void ST_updateWidgets(void)
 
 }
 
-void ST_Ticker (void)
+void ST_Ticker (data_t* data)
 {
 
     st_clock++;
     st_randomnumber = M_Random();
-    ST_updateWidgets();
+    ST_updateWidgets(data);
     st_oldhealth = plyr->health;
 
 }
@@ -1224,7 +1224,7 @@ void ST_initData(void)
 
 
 
-void ST_createWidgets(void)
+void ST_createWidgets(data_t* data)
 {
 
     int i;
@@ -1234,7 +1234,7 @@ void ST_createWidgets(void)
 		  ST_AMMOX,
 		  ST_AMMOY,
 		  tallnum,
-		  &plyr->ammo[weaponinfo[plyr->readyweapon].ammo],
+		  &plyr->ammo[data->d_items.weaponinfo[plyr->readyweapon].ammo],
 		  &st_statusbaron,
 		  ST_AMMOWIDTH );
 
@@ -1386,14 +1386,14 @@ void ST_createWidgets(void)
 static boolean	st_stopped = true;
 
 
-void ST_Start (void)
+void ST_Start (data_t* data)
 {
 
     if (!st_stopped)
 	ST_Stop();
 
     ST_initData();
-    ST_createWidgets();
+    ST_createWidgets(data);
     st_stopped = false;
 
 }

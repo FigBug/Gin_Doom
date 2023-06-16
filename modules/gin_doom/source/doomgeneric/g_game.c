@@ -1006,7 +1006,7 @@ void G_Ticker (data_t* data)
     { 
       case GS_LEVEL: 
 	P_Ticker (data);
-	ST_Ticker (); 
+	ST_Ticker (data); 
 	AM_Ticker (data);
 	HU_Ticker ();            
 	break; 
@@ -1715,9 +1715,9 @@ void G_DoNewGame (data_t* data)
     netgame = false;
     deathmatch = false;
     playeringame[1] = playeringame[2] = playeringame[3] = 0;
-    data->respawnparm = false;
-    data->fastparm = false;
-    data->nomonsters = false;
+    data->d_main.respawnparm = false;
+    data->d_main.fastparm = false;
+    data->d_main.nomonsters = false;
     consoleplayer = 0;
     G_InitNew (data, d_skill, d_episode, d_map); 
     gameaction = ga_nothing; 
@@ -1807,12 +1807,12 @@ G_InitNew
 
     M_ClearRandom ();
 
-    if (skill == sk_nightmare || data->respawnparm )
+    if (skill == sk_nightmare || data->d_main.respawnparm )
 	respawnmonsters = true;
     else
 	respawnmonsters = false;
 
-    if (data->fastparm || (skill == sk_nightmare && gameskill != sk_nightmare) )
+    if (data->d_main.fastparm || (skill == sk_nightmare && gameskill != sk_nightmare) )
     {
 	for (i=S_SARG_RUN1 ; i<=S_SARG_PAIN2 ; i++)
 	    states[i].tics >>= 1;
@@ -2091,9 +2091,9 @@ void G_BeginRecording (data_t* data)
     *demo_p++ = gameepisode; 
     *demo_p++ = gamemap; 
     *demo_p++ = deathmatch; 
-    *demo_p++ = data->respawnparm;
-    *demo_p++ = data->fastparm;
-    *demo_p++ = data->nomonsters;
+    *demo_p++ = data->d_main.respawnparm;
+    *demo_p++ = data->d_main.fastparm;
+    *demo_p++ = data->d_main.nomonsters;
     *demo_p++ = consoleplayer;
 	 
     for (i=0 ; i<MAXPLAYERS ; i++) 
@@ -2192,9 +2192,9 @@ void G_DoPlayDemo (data_t* data)
     episode = *demo_p++; 
     map = *demo_p++; 
     deathmatch = *demo_p++;
-    data->respawnparm = *demo_p++;
-    data->fastparm = *demo_p++;
-    data->nomonsters = *demo_p++;
+    data->d_main.respawnparm = *demo_p++;
+    data->d_main.fastparm = *demo_p++;
+    data->d_main.nomonsters = *demo_p++;
     consoleplayer = *demo_p++;
 	
     for (i=0 ; i<MAXPLAYERS ; i++) 
@@ -2277,9 +2277,9 @@ boolean G_CheckDemoStatus (data_t* data)
 	netgame = false;
 	deathmatch = false;
 	playeringame[1] = playeringame[2] = playeringame[3] = 0;
-	data->respawnparm = false;
-	data->fastparm = false;
-	data->nomonsters = false;
+	data->d_main.respawnparm = false;
+	data->d_main.fastparm = false;
+	data->d_main.nomonsters = false;
 	consoleplayer = 0;
         
         if (singledemo) 

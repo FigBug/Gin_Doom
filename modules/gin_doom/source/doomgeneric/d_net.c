@@ -87,7 +87,7 @@ static void RunTic(data_t* data, ticcmd_t *cmds, boolean *ingame)
     // check that there are players in the game.  if not, we cannot
     // run a tic.
 
-    if (data->advancedemo)
+    if (data->d_main.advancedemo)
         D_DoAdvanceDemo (data);
 
     G_Ticker (data);
@@ -109,14 +109,14 @@ static void LoadGameSettings(data_t* data, net_gamesettings_t *settings)
     unsigned int i;
 
     deathmatch = settings->deathmatch;
-    data->startepisode = settings->episode;
-	data->startmap = settings->map;
-    data->startskill = settings->skill;
-    data->startloadgame = settings->loadgame;
+    data->d_main.startepisode = settings->episode;
+	data->d_main.startmap = settings->map;
+    data->d_main.startskill = settings->skill;
+    data->d_main.startloadgame = settings->loadgame;
     lowres_turn = settings->lowres_turn;
-	data->nomonsters = settings->nomonsters;
-	data->fastparm = settings->fast_monsters;
-	data->respawnparm = settings->respawn_monsters;
+	data->d_main.nomonsters = settings->nomonsters;
+	data->d_main.fastparm = settings->fast_monsters;
+	data->d_main.respawnparm = settings->respawn_monsters;
     timelimit = settings->timelimit;
     consoleplayer = settings->consoleplayer;
 
@@ -141,14 +141,14 @@ static void SaveGameSettings(data_t* data, net_gamesettings_t *settings)
     // for the new game
 
     settings->deathmatch = deathmatch;
-    settings->episode = data->startepisode;
-    settings->map = data->startmap;
-    settings->skill = data->startskill;
-    settings->loadgame = data->startloadgame;
+    settings->episode = data->d_main.startepisode;
+    settings->map = data->d_main.startmap;
+    settings->skill = data->d_main.startskill;
+    settings->loadgame = data->d_main.startloadgame;
     settings->gameversion = gameversion;
-    settings->nomonsters = data->nomonsters;
-    settings->fast_monsters = data->fastparm;
-    settings->respawn_monsters = data->respawnparm;
+    settings->nomonsters = data->d_main.nomonsters;
+    settings->fast_monsters = data->d_main.fastparm;
+    settings->respawn_monsters = data->d_main.respawnparm;
     settings->timelimit = timelimit;
 
     settings->lowres_turn = M_CheckParm(data, "-record") > 0
@@ -242,7 +242,7 @@ void D_CheckNetGame (data_t* data)
 
     if (netgame)
     {
-		data->autostart = true;
+		data->d_main.autostart = true;
     }
 
     D_RegisterLoopCallbacks(&doom_loop_interface);
@@ -252,7 +252,7 @@ void D_CheckNetGame (data_t* data)
     LoadGameSettings(data, &settings);
 
     DEH_printf("startskill %i  deathmatch: %i  startmap: %i  startepisode: %i\n",
-			   data->startskill, deathmatch, data->startmap, data->startepisode);
+			   data->d_main.startskill, deathmatch, data->d_main.startmap, data->d_main.startepisode);
 
     DEH_printf("player %i of %i (%i nodes)\n",
                consoleplayer+1, settings.num_players, settings.num_players);

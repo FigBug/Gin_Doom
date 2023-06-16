@@ -92,6 +92,13 @@ void D_CheckNetGame(data_t* data);
 
 extern boolean			inhelpscreens;
 
+void D_Main_Init (data_t* data)
+{
+	// d_main.c
+	data->d_main.main_loop_started = false;
+	data->d_main.show_endoom = 1;
+}
+
 //
 // D_ProcessEvents
 // Send all the events of the given timestamp down the responder chain
@@ -101,7 +108,7 @@ void D_ProcessEvents (data_t* data)
     event_t*	ev;
 	
     // IF STORE DEMO, DO NOT ACCEPT INPUT
-    if (data->storedemo)
+    if (data->d_main.storedemo)
         return;
 	
     while ((ev = D_PopEvent(data)) != NULL)
@@ -326,7 +333,7 @@ void D_BindVariables(data_t* data)
     M_BindVariable("snd_channels",           &snd_channels);
     M_BindVariable("vanilla_savegame_limit", &vanilla_savegame_limit);
     M_BindVariable("vanilla_demo_limit",     &vanilla_demo_limit);
-    M_BindVariable("show_endoom",            &data->show_endoom);
+    M_BindVariable("show_endoom",            &data->d_main.show_endoom);
 
     // Multiplayer chat macros
 
@@ -359,7 +366,7 @@ boolean D_GrabMouseCallback(data_t* data)
 
     // only grab mouse when playing levels (but not demos)
 
-    return (gamestate == GS_LEVEL) && !demoplayback && !data->advancedemo;
+    return (gamestate == GS_LEVEL) && !demoplayback && !data->d_main.advancedemo;
 }
 
 //
@@ -367,7 +374,7 @@ boolean D_GrabMouseCallback(data_t* data)
 //
 void D_DoomLoop (data_t* data)
 {
-    if (data->bfgedition &&
+    if (data->d_main.bfgedition &&
         (demorecording || (gameaction == ga_playdemo) || netgame))
     {
         printf(" WARNING: You are playing using one of the Doom Classic\n"
@@ -379,7 +386,7 @@ void D_DoomLoop (data_t* data)
     if (demorecording)
     	G_BeginRecording (data);
 
-	data->main_loop_started = true;
+	data->d_main.main_loop_started = true;
 
     TryRunTics (data);
 
@@ -399,8 +406,8 @@ void D_DoomLoop (data_t* data)
         wipegamestate = gamestate;
     }
 
-	data->runloop = 1;
-    while (data->runloop)
+	data->d_main.runloop = 1;
+    while (data->d_main.runloop)
     {
 		// frame syncronous IO operations
 		I_StartFrame ();
@@ -454,7 +461,7 @@ void D_PageDrawer (void)
 //
 void D_AdvanceDemo (data_t* data)
 {
-	data->advancedemo = true;
+	data->d_main.advancedemo = true;
 }
 
 
@@ -465,7 +472,7 @@ void D_AdvanceDemo (data_t* data)
 void D_DoAdvanceDemo (data_t* data)
 {
     players[consoleplayer].playerstate = PST_LIVE;  // not reborn
-	data->advancedemo = false;
+	data->d_main.advancedemo = false;
     usergame = false;               // no save / end game here
     paused = false;
     gameaction = ga_nothing;
@@ -538,7 +545,7 @@ void D_DoAdvanceDemo (data_t* data)
 
     // The Doom 3: BFG Edition version of doom2.wad does not have a
     // TITLETPIC lump. Use INTERPIC instead as a workaround.
-    if (data->bfgedition && !strcasecmp(pagename, "TITLEPIC")
+    if (data->d_main.bfgedition && !strcasecmp(pagename, "TITLEPIC")
         && W_CheckNumForName("titlepic") < 0)
     {
         pagename = DEH_String("INTERPIC");
@@ -1031,7 +1038,7 @@ static void D_Endoom(data_t* data)
     // in screensaver or control test mode. Only show it once the
     // game has actually started.
 
-    if (!data->show_endoom || !data->main_loop_started
+    if (!data->d_main.show_endoom || !data->d_main.main_loop_started
      || screensaver_mode || M_CheckParm(data, "-testcontrols") > 0)
     {
         return;
@@ -1041,7 +1048,7 @@ static void D_Endoom(data_t* data)
 
     I_Endoom(endoom);
 
-	data->runloop = 0;
+	data->d_main.runloop = 0;
 }
 
 #if ORIGCODE
@@ -1202,7 +1209,7 @@ void D_DoomMain (data_t* data)
     // Disable monsters.
     //
 	
-    data->nomonsters = M_CheckParm(data, "-nomonsters");
+    data->d_main.nomonsters = M_CheckParm(data, "-nomonsters");
 
     //!
     // @vanilla
@@ -1210,7 +1217,7 @@ void D_DoomMain (data_t* data)
     // Monsters respawn after being killed.
     //
 
-	data->respawnparm = M_CheckParm(data, "-respawn");
+	data->d_main.respawnparm = M_CheckParm(data, "-respawn");
 
     //!
     // @vanilla
@@ -1218,7 +1225,7 @@ void D_DoomMain (data_t* data)
     // Monsters move faster.
     //
 
-	data->fastparm = M_CheckParm(data, "-fast");
+	data->d_main.fastparm = M_CheckParm(data, "-fast");
 
     //! 
     // @vanilla
@@ -1227,9 +1234,9 @@ void D_DoomMain (data_t* data)
     // directory.
     //
 
-	data->devparm = M_CheckParm(data, "-devparm");
+	data->d_main.devparm = M_CheckParm(data, "-devparm");
 
-    I_DisplayFPSDots(data->devparm);
+    I_DisplayFPSDots(data->d_main.devparm);
 
     //!
     // @category net
@@ -1252,7 +1259,7 @@ void D_DoomMain (data_t* data)
     if (M_CheckParm(data, "-altdeath"))
 	deathmatch = 2;
 
-    if (data->devparm)
+    if (data->d_main.devparm)
 	DEH_printf(D_DEVSTR);
     
     // find which dir to use for config files
@@ -1322,11 +1329,11 @@ void D_DoomMain (data_t* data)
     I_AtExit(M_SaveDefaults, false);
 
     // Find main IWAD file and load it.
-	data->iwadfile = D_FindIWAD(data, IWAD_MASK_DOOM, &gamemission);
+	data->d_main.iwadfile = D_FindIWAD(data, IWAD_MASK_DOOM, &gamemission);
 
     // None found?
 
-    if (data->iwadfile == NULL)
+    if (data->d_main.iwadfile == NULL)
     {
         I_Error(data, "Game mode indeterminate.  No IWAD file was found.  Try\n"
                 "specifying one with the '-iwad' command line parameter.\n");
@@ -1335,7 +1342,7 @@ void D_DoomMain (data_t* data)
     modifiedgame = false;
 
     DEH_printf("W_Init: Init WADfiles.\n");
-    D_AddFile(data, data->iwadfile);
+    D_AddFile(data, data->d_main.iwadfile);
 #if ORIGCODE
     numiwadlumps = numlumps;
 #endif
@@ -1373,7 +1380,7 @@ void D_DoomMain (data_t* data)
     if (W_CheckNumForName("dmenupic") >= 0)
     {
         printf("BFG Edition: Using workarounds as needed.\n");
-        data->bfgedition = true;
+        data->d_main.bfgedition = true;
 
         // BFG Edition changes the names of the secret levels to
         // censor the Wolfenstein references. It also has an extra
@@ -1514,7 +1521,7 @@ void D_DoomMain (data_t* data)
     else
 #endif
     {
-		data->savegamedir = M_GetSaveGameDir(D_SaveGameIWADName(gamemission));
+		data->d_main.savegamedir = M_GetSaveGameDir(D_SaveGameIWADName(gamemission));
     }
 
     // Check for -file in shareware
@@ -1582,10 +1589,10 @@ void D_DoomMain (data_t* data)
     D_ConnectNetGame(data);
 
     // get skill / episode / map from parms
-    data->startskill = sk_medium;
-	data->startepisode = 1;
-	data->startmap = 1;
-    data->autostart = false;
+    data->d_main.startskill = sk_medium;
+	data->d_main.startepisode = 1;
+	data->d_main.startmap = 1;
+    data->d_main.autostart = false;
 
     //!
     // @arg <skill>
@@ -1599,8 +1606,8 @@ void D_DoomMain (data_t* data)
 
     if (p)
     {
-		data->startskill = data->myargv[p+1][0]-'1';
-		data->autostart = true;
+		data->d_main.startskill = data->myargv[p+1][0]-'1';
+		data->d_main.autostart = true;
     }
 
     //!
@@ -1614,9 +1621,9 @@ void D_DoomMain (data_t* data)
 
     if (p)
     {
-		data->startepisode = data->myargv[p+1][0]-'0';
-		data->startmap = 1;
-		data->autostart = true;
+		data->d_main.startepisode = data->myargv[p+1][0]-'0';
+		data->d_main.startmap = 1;
+		data->d_main.autostart = true;
     }
 	
     timelimit = 0;
@@ -1664,22 +1671,22 @@ void D_DoomMain (data_t* data)
     {
         if (gamemode == commercial)
 		{
-			data->startmap = atoi (data->myargv[p+1]);
+			data->d_main.startmap = atoi (data->myargv[p+1]);
 		}
         else
         {
-			data->startepisode = data->myargv[p+1][0]-'0';
+			data->d_main.startepisode = data->myargv[p+1][0]-'0';
 
             if (p + 2 < data->myargc)
             {
-				data->startmap = data->myargv[p+2][0]-'0';
+				data->d_main.startmap = data->myargv[p+2][0]-'0';
             }
             else
             {
-				data->startmap = 1;
+				data->d_main.startmap = 1;
             }
         }
-		data->autostart = true;
+		data->d_main.autostart = true;
     }
 
     // Undocumented:
@@ -1689,9 +1696,9 @@ void D_DoomMain (data_t* data)
 
     if (p > 0)
     {
-		data->startepisode = 1;
-		data->startmap = 1;
-		data->autostart = true;
+		data->d_main.startepisode = 1;
+		data->d_main.startmap = 1;
+		data->d_main.autostart = true;
         testcontrols = true;
     }
 
@@ -1710,12 +1717,12 @@ void D_DoomMain (data_t* data)
     
     if (p)
     {
-        data->startloadgame = atoi(data->myargv[p+1]);
+        data->d_main.startloadgame = atoi(data->myargv[p+1]);
     }
     else
     {
         // Not loading a game
-        data->startloadgame = -1;
+        data->d_main.startloadgame = -1;
     }
 
     DEH_printf("M_Init: Init miscellaneous info.\n");
@@ -1746,7 +1753,7 @@ void D_DoomMain (data_t* data)
     // in the main loop.
 
     if (gamemode == commercial && W_CheckNumForName("map01") < 0)
-        data->storedemo = true;
+        data->d_main.storedemo = true;
 
     if (M_CheckParmWithArgs(data, "-statdump", 1))
     {
@@ -1767,7 +1774,7 @@ void D_DoomMain (data_t* data)
     if (p)
     {
 		G_RecordDemo (data, data->myargv[p+1]);
-		data->autostart = true;
+		data->d_main.autostart = true;
     }
 
     p = M_CheckParmWithArgs(data, "-playdemo", 1);
@@ -1785,16 +1792,16 @@ void D_DoomMain (data_t* data)
 		D_DoomLoop (data);  // never returns
     }
 
-    if (data->startloadgame >= 0)
+    if (data->d_main.startloadgame >= 0)
     {
-        M_StringCopy(file, P_SaveGameFile(data, data->startloadgame), sizeof(file));
+        M_StringCopy(file, P_SaveGameFile(data, data->d_main.startloadgame), sizeof(file));
         G_LoadGame(file);
     }
 
     if (gameaction != ga_loadgame )
     {
-		if (data->autostart || netgame)
-			G_InitNew (data, data->startskill, data->startepisode, data->startmap);
+		if (data->d_main.autostart || netgame)
+			G_InitNew (data, data->d_main.startskill, data->d_main.startepisode, data->d_main.startmap);
 		else
 			D_StartTitle (data);                // start up intro loop
     }

@@ -186,6 +186,21 @@ mline_t thintriangle_guy[] = {
 // segment in map coordinates (with the upright y-axis n' all) so
 // that it can be used with the brain-dead drawing stuff.
 
+void AM_Map_Init (data_t* data)
+{
+	// am_map.c
+	cheatseq_t cheat_amap = CHEAT("iddt", 0);
+
+	data->am_map.leveljuststarted = 1; 	// kluge until AM_LevelInit() is called
+	data->am_map.finit_width = SCREENWIDTH;
+	data->am_map.finit_height = SCREENHEIGHT - 32;
+	data->am_map.scale_mtof = (fixed_t)INITSCALEMTOF;
+	data->am_map.markpointnum = 0; // next point to be assigned
+	data->am_map.followplayer = 1; // specifies whether to follow the player around
+	data->am_map.cheat_amap = cheat_amap;
+	data->am_map.stopped = true;
+}
+
 void
 AM_getIslope
 ( mline_t*	ml,

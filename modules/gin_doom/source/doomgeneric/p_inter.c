@@ -158,7 +158,8 @@ P_GiveAmmo
 //
 boolean
 P_GiveWeapon
-( player_t*	player,
+( data_t*	data,
+  player_t*	player,
   weapontype_t	weapon,
   boolean	dropped )
 {
@@ -175,9 +176,9 @@ P_GiveWeapon
 		player->weaponowned[weapon] = true;
 	
 		if (deathmatch)
-			P_GiveAmmo (player, weaponinfo[weapon].ammo, 5);
+			P_GiveAmmo (player, data->d_items.weaponinfo[weapon].ammo, 5);
 		else
-			P_GiveAmmo (player, weaponinfo[weapon].ammo, 2);
+			P_GiveAmmo (player, data->d_items.weaponinfo[weapon].ammo, 2);
 		player->pendingweapon = weapon;
 
 		if (player == &players[consoleplayer])
@@ -185,14 +186,14 @@ P_GiveWeapon
 		return false;
     }
 	
-    if (weaponinfo[weapon].ammo != am_noammo)
+    if (data->d_items.weaponinfo[weapon].ammo != am_noammo)
     {
 		// give one clip with a dropped weapon,
 		// two clips with a found weapon
 		if (dropped)
-			gaveammo = P_GiveAmmo (player, weaponinfo[weapon].ammo, 1);
+			gaveammo = P_GiveAmmo (player, data->d_items.weaponinfo[weapon].ammo, 1);
 		else
-			gaveammo = P_GiveAmmo (player, weaponinfo[weapon].ammo, 2);
+			gaveammo = P_GiveAmmo (player, data->d_items.weaponinfo[weapon].ammo, 2);
     }
     else
     {
@@ -599,49 +600,49 @@ P_TouchSpecialThing
 	
 	// weapons
       case SPR_BFUG:
-	if (!P_GiveWeapon (player, wp_bfg, false) )
+	if (!P_GiveWeapon (data, player, wp_bfg, false) )
 	    return;
 	player->message = DEH_String(GOTBFG9000);
 	sound = sfx_wpnup;	
 	break;
 	
       case SPR_MGUN:
-	if (!P_GiveWeapon (player, wp_chaingun, (special->flags&MF_DROPPED) != 0) )
+	if (!P_GiveWeapon (data, player, wp_chaingun, (special->flags&MF_DROPPED) != 0) )
 	    return;
 	player->message = DEH_String(GOTCHAINGUN);
 	sound = sfx_wpnup;	
 	break;
 	
       case SPR_CSAW:
-	if (!P_GiveWeapon (player, wp_chainsaw, false) )
+	if (!P_GiveWeapon (data, player, wp_chainsaw, false) )
 	    return;
 	player->message = DEH_String(GOTCHAINSAW);
 	sound = sfx_wpnup;	
 	break;
 	
       case SPR_LAUN:
-	if (!P_GiveWeapon (player, wp_missile, false) )
+	if (!P_GiveWeapon (data, player, wp_missile, false) )
 	    return;
 	player->message = DEH_String(GOTLAUNCHER);
 	sound = sfx_wpnup;	
 	break;
 	
       case SPR_PLAS:
-	if (!P_GiveWeapon (player, wp_plasma, false) )
+	if (!P_GiveWeapon (data, player, wp_plasma, false) )
 	    return;
 	player->message = DEH_String(GOTPLASMA);
 	sound = sfx_wpnup;	
 	break;
 	
       case SPR_SHOT:
-	if (!P_GiveWeapon (player, wp_shotgun, (special->flags&MF_DROPPED) != 0 ) )
+	if (!P_GiveWeapon (data, player, wp_shotgun, (special->flags&MF_DROPPED) != 0 ) )
 	    return;
 	player->message = DEH_String(GOTSHOTGUN);
 	sound = sfx_wpnup;	
 	break;
 		
       case SPR_SGN2:
-	if (!P_GiveWeapon (player, wp_supershotgun, (special->flags&MF_DROPPED) != 0 ) )
+	if (!P_GiveWeapon (data, player, wp_supershotgun, (special->flags&MF_DROPPED) != 0 ) )
 	    return;
 	player->message = DEH_String(GOTSHOTGUN2);
 	sound = sfx_wpnup;	

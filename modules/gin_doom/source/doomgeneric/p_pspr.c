@@ -137,7 +137,7 @@ void P_BringUpWeapon (data_t* data, player_t* player)
     if (player->pendingweapon == wp_chainsaw)
 	S_StartSound (player->mo, sfx_sawup);
 		
-    newstate = weaponinfo[player->pendingweapon].upstate;
+    newstate = data->d_items.weaponinfo[player->pendingweapon].upstate;
 
     player->pendingweapon = wp_nochange;
     player->psprites[ps_weapon].sy = WEAPONBOTTOM;
@@ -155,7 +155,7 @@ boolean P_CheckAmmo (data_t* data, player_t* player)
     ammotype_t		ammo;
     int			count;
 
-    ammo = weaponinfo[player->readyweapon].ammo;
+    ammo = data->d_items.weaponinfo[player->readyweapon].ammo;
 
     // Minimal amount for one shot varies.
     if (player->readyweapon == wp_bfg)
@@ -226,7 +226,7 @@ boolean P_CheckAmmo (data_t* data, player_t* player)
     // Now set appropriate weapon overlay.
     P_SetPsprite (data, player,
 		  ps_weapon,
-		  weaponinfo[player->readyweapon].downstate);
+				  data->d_items.weaponinfo[player->readyweapon].downstate);
 
     return false;	
 }
@@ -243,7 +243,7 @@ void P_FireWeapon (data_t* data, player_t* player)
 	return;
 	
     P_SetMobjState (data, player->mo, S_PLAY_ATK1);
-    newstate = weaponinfo[player->readyweapon].atkstate;
+    newstate = data->d_items.weaponinfo[player->readyweapon].atkstate;
     P_SetPsprite (data, player, ps_weapon, newstate);
     P_NoiseAlert (player->mo, player->mo);
 }
@@ -258,7 +258,7 @@ void P_DropWeapon (data_t* data, player_t* player)
 {
     P_SetPsprite (data, player,
 		  ps_weapon,
-		  weaponinfo[player->readyweapon].downstate);
+				  data->d_items.weaponinfo[player->readyweapon].downstate);
 }
 
 
@@ -298,7 +298,7 @@ A_WeaponReady
     {
 	// change weapon
 	//  (pending weapon should allready be validated)
-	newstate = weaponinfo[player->readyweapon].downstate;
+	newstate = data->d_items.weaponinfo[player->readyweapon].downstate;
 	P_SetPsprite (data, player, ps_weapon, newstate);
 	return;	
     }
@@ -432,7 +432,7 @@ A_Raise
     
     // The weapon has been raised all the way,
     //  so change to the ready state.
-    newstate = weaponinfo[player->readyweapon].readystate;
+    newstate = data->d_items.weaponinfo[player->readyweapon].readystate;
 
     P_SetPsprite (data, player, ps_weapon, newstate);
 }
@@ -449,7 +449,7 @@ A_GunFlash
   pspdef_t*	psp ) 
 {
     P_SetMobjState (data, player->mo, S_PLAY_ATK2);
-    P_SetPsprite (data, player,ps_flash,weaponinfo[player->readyweapon].flashstate);
+    P_SetPsprite (data, player,ps_flash,data->d_items.weaponinfo[player->readyweapon].flashstate);
 }
 
 
@@ -569,7 +569,7 @@ A_FireMissile
 ( data_t* data, player_t*	player,
   pspdef_t*	psp ) 
 {
-    DecreaseAmmo(player, weaponinfo[player->readyweapon].ammo, 1);
+    DecreaseAmmo(player, data->d_items.weaponinfo[player->readyweapon].ammo, 1);
     P_SpawnPlayerMissile (data, player->mo, MT_ROCKET);
 }
 
@@ -582,7 +582,7 @@ A_FireBFG
 ( data_t* data, player_t*	player,
   pspdef_t*	psp ) 
 {
-    DecreaseAmmo(player, weaponinfo[player->readyweapon].ammo, 
+    DecreaseAmmo(player, data->d_items.weaponinfo[player->readyweapon].ammo,
                  deh_bfg_cells_per_shot);
     P_SpawnPlayerMissile (data, player->mo, MT_BFG);
 }
@@ -597,11 +597,11 @@ A_FirePlasma
 ( data_t* data, player_t*	player,
   pspdef_t*	psp ) 
 {
-    DecreaseAmmo(player, weaponinfo[player->readyweapon].ammo, 1);
+    DecreaseAmmo(player, data->d_items.weaponinfo[player->readyweapon].ammo, 1);
 
     P_SetPsprite (data, player,
 		  ps_flash,
-		  weaponinfo[player->readyweapon].flashstate+(P_Random ()&1) );
+				  data->d_items.weaponinfo[player->readyweapon].flashstate+(P_Random ()&1) );
 
     P_SpawnPlayerMissile (data, player->mo, MT_PLASMA);
 }
@@ -671,11 +671,11 @@ A_FirePistol
     S_StartSound (player->mo, sfx_pistol);
 
     P_SetMobjState (data, player->mo, S_PLAY_ATK2);
-    DecreaseAmmo(player, weaponinfo[player->readyweapon].ammo, 1);
+    DecreaseAmmo(player, data->d_items.weaponinfo[player->readyweapon].ammo, 1);
 
     P_SetPsprite (data, player,
 		  ps_flash,
-		  weaponinfo[player->readyweapon].flashstate);
+				  data->d_items.weaponinfo[player->readyweapon].flashstate);
 
     P_BulletSlope (data, player->mo);
     P_GunShot (data, player->mo, !player->refire);
@@ -696,11 +696,11 @@ A_FireShotgun
     S_StartSound (player->mo, sfx_shotgn);
     P_SetMobjState (data, player->mo, S_PLAY_ATK2);
 
-    DecreaseAmmo(player, weaponinfo[player->readyweapon].ammo, 1);
+    DecreaseAmmo(player, data->d_items.weaponinfo[player->readyweapon].ammo, 1);
 
     P_SetPsprite (data, player,
 		  ps_flash,
-		  weaponinfo[player->readyweapon].flashstate);
+				  data->d_items.weaponinfo[player->readyweapon].flashstate);
 
     P_BulletSlope (data, player->mo);
 	
@@ -727,11 +727,11 @@ A_FireShotgun2
     S_StartSound (player->mo, sfx_dshtgn);
     P_SetMobjState (data, player->mo, S_PLAY_ATK2);
 
-    DecreaseAmmo(player, weaponinfo[player->readyweapon].ammo, 2);
+    DecreaseAmmo(player, data->d_items.weaponinfo[player->readyweapon].ammo, 2);
 
     P_SetPsprite (data, player,
 		  ps_flash,
-		  weaponinfo[player->readyweapon].flashstate);
+				  data->d_items.weaponinfo[player->readyweapon].flashstate);
 
     P_BulletSlope (data, player->mo);
 	
@@ -759,15 +759,15 @@ A_FireCGun
 {
     S_StartSound (player->mo, sfx_pistol);
 
-    if (!player->ammo[weaponinfo[player->readyweapon].ammo])
+    if (!player->ammo[data->d_items.weaponinfo[player->readyweapon].ammo])
 	return;
 		
     P_SetMobjState (data, player->mo, S_PLAY_ATK2);
-    DecreaseAmmo(player, weaponinfo[player->readyweapon].ammo, 1);
+    DecreaseAmmo(player, data->d_items.weaponinfo[player->readyweapon].ammo, 1);
 
     P_SetPsprite (data, player,
 		  ps_flash,
-		  weaponinfo[player->readyweapon].flashstate
+				  data->d_items.weaponinfo[player->readyweapon].flashstate
 		  + psp->state
 		  - &states[S_CHAIN1] );
 

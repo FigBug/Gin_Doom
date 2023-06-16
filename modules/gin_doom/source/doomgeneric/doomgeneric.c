@@ -8,21 +8,9 @@ data_t* DG_Alloc()
 	data = malloc (sizeof (data_t));
 	memset (data, 0, sizeof (data_t));
 
-	// d_main.c
-	data->main_loop_started = false;
-	data->show_endoom = 1;
-
-	// am_map.c
-	cheatseq_t cheat_amap = CHEAT("iddt", 0);
-
-	data->am_map.leveljuststarted = 1; 	// kluge until AM_LevelInit() is called
-	data->am_map.finit_width = SCREENWIDTH;
-	data->am_map.finit_height = SCREENHEIGHT - 32;
-	data->am_map.scale_mtof = (fixed_t)INITSCALEMTOF;
-	data->am_map.markpointnum = 0; // next point to be assigned
-	data->am_map.followplayer = 1; // specifies whether to follow the player around
-	data->am_map.cheat_amap = cheat_amap;
-	data->am_map.stopped = true;
+	D_Main_Init (data);
+	AM_Map_Init (data);
+	D_Items_Init (data);
 
 	return data;
 }

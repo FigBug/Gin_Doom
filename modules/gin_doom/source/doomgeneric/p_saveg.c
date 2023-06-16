@@ -51,7 +51,7 @@ char *P_TempSaveGameFile(data_t* data)
 
     if (filename == NULL)
     {
-        filename = M_StringJoin(data->savegamedir, "temp.dsg", NULL);
+        filename = M_StringJoin(data->d_main.savegamedir, "temp.dsg", NULL);
     }
 
     return filename;
@@ -67,12 +67,12 @@ char *P_SaveGameFile(data_t* data, int slot)
 
     if (filename == NULL)
     {
-        filename_size = strlen(data->savegamedir) + 32;
+        filename_size = strlen(data->d_main.savegamedir) + 32;
         filename = malloc(filename_size);
     }
 
     DEH_snprintf(basename, 32, SAVEGAMENAME "%d.dsg", slot);
-    M_snprintf(filename, filename_size, "%s%s", data->savegamedir, basename);
+    M_snprintf(filename, filename_size, "%s%s", data->d_main.savegamedir, basename);
 
     return filename;
 }

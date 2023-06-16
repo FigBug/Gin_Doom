@@ -111,20 +111,18 @@ typedef struct
 } d_event_t;
 
 //
-// misc
+// d_items
 //
-
 typedef struct
 {
-	void*		user_data;
+	weaponinfo_t	weaponinfo[NUMWEAPONS];
+} d_items_t;
 
-	uint32_t* 	DG_ScreenBuffer;
-
-	// m_argv.c
-	int				myargc;
-	char**			myargv;
-
-	// d_main.c
+//
+// d_main
+//
+typedef struct
+{
 	char *          savegamedir;
 
 	// location of IWAD and WAD files
@@ -158,8 +156,27 @@ typedef struct
 
 	int             show_endoom;
 
+} d_main_t;
+
+//
+// misc
+//
+
+typedef struct
+{
+	void*		user_data;
+
+	uint32_t* 	DG_ScreenBuffer;
+
+	// m_argv.c
+	int				myargc;
+	char**			myargv;
+
+	// d_main.c
+	d_main_t		d_main;
 	am_map_t		am_map;
 	d_event_t		d_event;
+	d_items_t		d_items;
 
 } data_t;
 
@@ -168,5 +185,9 @@ void D_PostEvent (data_t* data, event_t *ev);
 
 // Read an event from the event queue
 event_t *D_PopEvent(data_t* data);
+
+void D_Main_Init (data_t* data);
+void AM_Map_Init (data_t* data);
+void D_Items_Init (data_t* data);
 
 #endif //DOOM_GENERIC
