@@ -169,7 +169,7 @@ typedef struct
 } anim_t;
 
 
-static point_t lnodes[NUMEPISODES][NUMMAPS] =
+static const point_t lnodes[NUMEPISODES][NUMMAPS] =
 {
     // Episode 0 World Map
     {
@@ -224,7 +224,7 @@ static point_t lnodes[NUMEPISODES][NUMMAPS] =
      0, { NULL, NULL, NULL }, 0, 0, 0, 0 }
 
 
-static anim_t epsd0animinfo[] =
+static const anim_t epsd0animinfo[] =
 {
     ANIM(ANIM_ALWAYS, TICRATE/3, 3, 224, 104, 0),
     ANIM(ANIM_ALWAYS, TICRATE/3, 3, 184, 160, 0),
@@ -238,7 +238,7 @@ static anim_t epsd0animinfo[] =
     ANIM(ANIM_ALWAYS, TICRATE/3, 3, 64, 24, 0),
 };
 
-static anim_t epsd1animinfo[] =
+static const anim_t epsd1animinfo[] =
 {
     ANIM(ANIM_LEVEL, TICRATE/3, 1, 128, 136, 1),
     ANIM(ANIM_LEVEL, TICRATE/3, 1, 128, 136, 2),
@@ -251,7 +251,7 @@ static anim_t epsd1animinfo[] =
     ANIM(ANIM_LEVEL, TICRATE/3, 1, 128, 136, 8),
 };
 
-static anim_t epsd2animinfo[] =
+static const anim_t epsd2animinfo[] =
 {
     ANIM(ANIM_ALWAYS, TICRATE/3, 3, 104, 168, 0),
     ANIM(ANIM_ALWAYS, TICRATE/3, 3, 40, 136, 0),
@@ -261,14 +261,14 @@ static anim_t epsd2animinfo[] =
     ANIM(ANIM_ALWAYS, TICRATE/4, 3, 40, 0, 0),
 };
 
-static int NUMANIMS[NUMEPISODES] =
+static const int NUMANIMS[NUMEPISODES] =
 {
     arrlen(epsd0animinfo),
     arrlen(epsd1animinfo),
     arrlen(epsd2animinfo),
 };
 
-static anim_t *anims[NUMEPISODES] =
+static const anim_t *anims[NUMEPISODES] =
 {
     epsd0animinfo,
     epsd1animinfo,
