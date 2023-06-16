@@ -1014,8 +1014,8 @@ void A_Tracer (data_t* data, mobj_t* actor)
     mobj_t*	dest;
     mobj_t*	th;
 		
-    if (gametic & 3)
-	return;
+    if (data->d_loop.gametic & 3)
+		return;
     
     // spawn a puff of smoke behind the rocket		
     P_SpawnPuff (data, actor->x, actor->y, actor->z);
@@ -1034,7 +1034,7 @@ void A_Tracer (data_t* data, mobj_t* actor)
     dest = actor->tracer;
 	
     if (!dest || dest->health <= 0)
-	return;
+		return;
     
     // change angle	
     exact = R_PointToAngle2 (actor->x,

@@ -1135,16 +1135,16 @@ void M_QuitResponse(data_t* data, int key)
     if (!netgame)
     {
 	if (gamemode == commercial)
-	    S_StartSound(NULL,quitsounds2[(gametic>>2)&7]);
+	    S_StartSound(NULL,quitsounds2[(data->d_loop.gametic>>2)&7]);
 	else
-	    S_StartSound(NULL,quitsounds[(gametic>>2)&7]);
+	    S_StartSound(NULL,quitsounds[(data->d_loop.gametic>>2)&7]);
 	I_WaitVBL(105);
     }
     I_Quit (data);
 }
 
 
-static char *M_SelectEndMessage(void)
+static char *M_SelectEndMessage(data_t* data)
 {
     char **endmsg;
 
@@ -1161,14 +1161,14 @@ static char *M_SelectEndMessage(void)
         endmsg = doom2_endmsg;
     }
 
-    return endmsg[gametic % NUM_QUITMESSAGES];
+    return endmsg[data->d_loop.gametic % NUM_QUITMESSAGES];
 }
 
 
 void M_QuitDOOM(data_t* data, int choice)
 {
     DEH_snprintf(endstring, sizeof(endstring), "%s\n\n" DOSY,
-                 DEH_String(M_SelectEndMessage()));
+                 DEH_String(M_SelectEndMessage(data)));
 
     M_StartMessage(endstring,M_QuitResponse,true);
 }

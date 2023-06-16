@@ -11,6 +11,7 @@ data_t* DG_Alloc()
 	D_Main_Init (data);
 	AM_Map_Init (data);
 	D_Items_Init (data);
+	D_Loop_Init (data);
 
 	return data;
 }

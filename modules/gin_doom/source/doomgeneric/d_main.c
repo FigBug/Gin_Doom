@@ -171,14 +171,14 @@ void D_Display (data_t* data)
     else
     	wipe = false;
 
-    if (gamestate == GS_LEVEL && gametic)
+    if (gamestate == GS_LEVEL && data->d_loop.gametic)
     	HU_Erase(data);
     
     // do buffered drawing
     switch (gamestate)
     {
       case GS_LEVEL:
-		if (!gametic)
+		if (!data->d_loop.gametic)
 			break;
 		if (data->am_map.automapactive)
 			AM_Drawer (data);
@@ -207,10 +207,10 @@ void D_Display (data_t* data)
     I_UpdateNoBlit ();
     
     // draw the view directly
-    if (gamestate == GS_LEVEL && !data->am_map.automapactive && gametic)
+    if (gamestate == GS_LEVEL && !data->am_map.automapactive && data->d_loop.gametic)
     	R_RenderPlayerView (data, &players[displayplayer]);
 
-    if (gamestate == GS_LEVEL && gametic)
+    if (gamestate == GS_LEVEL && data->d_loop.gametic)
     	HU_Drawer (data);
     
     // clean up border stuff

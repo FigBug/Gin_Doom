@@ -159,6 +159,111 @@ typedef struct
 } d_main_t;
 
 //
+// d_loop
+//
+typedef struct
+{
+	ticcmd_t cmds[NET_MAXPLAYERS];
+	boolean ingame[NET_MAXPLAYERS];
+} ticcmd_set_t;
+
+// Callback function invoked while waiting for the netgame to start.
+// The callback is invoked when new players are ready. The callback
+// should return true, or return false to abort startup.
+
+typedef boolean (*netgame_startup_callback_t)(int ready_players,
+											  int num_players);
+
+typedef struct
+{
+	// Read events from the event queue, and process them.
+
+	void (*ProcessEvents)(void* data);
+
+	// Given the current input state, fill in the fields of the specified
+	// ticcmd_t structure with data for a new tic.
+
+	void (*BuildTiccmd)(void* data, ticcmd_t *cmd, int maketic);
+
+	// Advance the game forward one tic, using the specified player input.
+
+	void (*RunTic)(void* data, ticcmd_t *cmds, boolean *ingame);
+
+	// Run the menu (runs independently of the game).
+
+	void (*RunMenu)(void* data);
+} loop_interface_t;
+
+typedef struct
+{
+	//
+	// gametic is the tic about to (or currently being) run
+	// maketic is the tic that hasn't had control made for it yet
+	// recvtic is the latest tic received from the server.
+	//
+	// a gametic cannot be run until ticcmds are received for it
+	// from all players.
+	//
+
+	ticcmd_set_t ticdata[BACKUPTICS];
+
+	// The index of the next tic to be made (with a call to BuildTiccmd).
+
+	int maketic;
+
+	// The number of complete tics received from the server so far.
+
+	int recvtic;
+
+	// The number of tics that have been run (using RunTic) so far.
+
+	int gametic;
+
+	// When set to true, a single tic is run each time TryRunTics() is called.
+	// This is used for -timedemo mode.
+
+	boolean singletics;
+
+	// Index of the local player.
+
+	int localplayer;
+
+	// Used for original sync code.
+
+	int      skiptics;
+
+	// Reduce the bandwidth needed by sampling game input less and transmitting
+	// less.  If ticdup is 2, sample half normal, 3 = one third normal, etc.
+
+	int		ticdup;
+
+	// Amount to offset the timer for game sync.
+
+	fixed_t         offsetms;
+
+	// Use new client syncronisation code
+
+	boolean  new_sync;
+
+	// Callback functions for loop code.
+
+	loop_interface_t *loop_interface;
+
+	// Current players in the multiplayer game.
+	// This is distinct from playeringame[] used by the game code, which may
+	// modify playeringame[] when playing back multiplayer demos.
+
+	boolean local_playeringame[NET_MAXPLAYERS];
+
+	// Requested player class "sent" to the server on connect.
+	// If we are only doing a single player game then this needs to be remembered
+	// and saved in the game settings.
+
+	int player_class;
+
+} d_loop_t;
+
+//
 // misc
 //
 
@@ -177,6 +282,7 @@ typedef struct
 	am_map_t		am_map;
 	d_event_t		d_event;
 	d_items_t		d_items;
+	d_loop_t		d_loop;
 
 } data_t;
 
@@ -189,5 +295,6 @@ event_t *D_PopEvent(data_t* data);
 void D_Main_Init (data_t* data);
 void AM_Map_Init (data_t* data);
 void D_Items_Init (data_t* data);
+void D_Loop_init (data_t* data);
 
 #endif //DOOM_GENERIC

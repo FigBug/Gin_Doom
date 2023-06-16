@@ -22,35 +22,8 @@
 #include "net_defs.h"
 #include "data.h"
 
-// Callback function invoked while waiting for the netgame to start.
-// The callback is invoked when new players are ready. The callback
-// should return true, or return false to abort startup.
-
-typedef boolean (*netgame_startup_callback_t)(int ready_players,
-                                              int num_players);
-
-typedef struct
-{
-    // Read events from the event queue, and process them.
-
-    void (*ProcessEvents)(data_t* data);
-
-    // Given the current input state, fill in the fields of the specified
-    // ticcmd_t structure with data for a new tic.
-
-    void (*BuildTiccmd)(data_t* data, ticcmd_t *cmd, int maketic);
-
-    // Advance the game forward one tic, using the specified player input.
-
-    void (*RunTic)(data_t* data, ticcmd_t *cmds, boolean *ingame);
-
-    // Run the menu (runs independently of the game).
-
-    void (*RunMenu)(data_t* data);
-} loop_interface_t;
-
 // Register callback functions for the main loop code to use.
-void D_RegisterLoopCallbacks(loop_interface_t *i);
+void D_RegisterLoopCallbacks(data_t* data, loop_interface_t *i);
 
 // Create any new ticcmds and broadcast to other players.
 void NetUpdate (data_t* data);
@@ -67,16 +40,13 @@ void D_StartGameLoop (data_t* data);
 
 // Initialize networking code and connect to server.
 
-boolean D_InitNetGame(net_connect_data_t *connect_data);
+boolean D_InitNetGame(data_t* data, net_connect_data_t *connect_data);
 
 // Start game with specified settings. The structure will be updated
 // with the actual settings for the game.
 
-void D_StartNetGame(net_gamesettings_t *settings,
+void D_StartNetGame(data_t* data, net_gamesettings_t *settings,
                     netgame_startup_callback_t callback);
-
-extern boolean singletics;
-extern int gametic, ticdup;
 
 #endif
 

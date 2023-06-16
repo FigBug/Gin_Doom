@@ -353,7 +353,7 @@ void G_BuildTiccmd (data_t* data, ticcmd_t* cmd, int maketic)
 	|| joyxmove > 0  
 	|| gamekeydown[key_right]
 	|| gamekeydown[key_left]) 
-	turnheld += ticdup; 
+	turnheld += data->d_loop.ticdup;
     else 
 	turnheld = 0; 
 
@@ -498,7 +498,7 @@ void G_BuildTiccmd (data_t* data, ticcmd_t* cmd, int maketic)
         } 
         else 
         { 
-            dclicktime += ticdup; 
+            dclicktime += data->d_loop.ticdup;
             if (dclicktime > 20) 
             { 
                 dclicks = 0; 
@@ -525,7 +525,7 @@ void G_BuildTiccmd (data_t* data, ticcmd_t* cmd, int maketic)
         } 
         else 
         { 
-            dclicktime2 += ticdup; 
+            dclicktime2 += data->d_loop.ticdup;
             if (dclicktime2 > 20) 
             { 
                 dclicks2 = 0; 
@@ -637,7 +637,7 @@ void G_DoLoadLevel (data_t* data)
         skytexture = R_TextureNumForName(skytexturename);
     }
 
-    levelstarttic = gametic;        // for time calculation
+    levelstarttic = data->d_loop.gametic;        // for time calculation
     
     if (wipegamestate == GS_LEVEL) 
 	wipegamestate = -1;             // force a wipe 
@@ -903,7 +903,7 @@ void G_Ticker (data_t* data)
     
     // get commands, check consistancy,
     // and build new consistancy check
-    buf = (gametic/ticdup)%BACKUPTICS; 
+    buf = (data->d_loop.gametic/data->d_loop.ticdup)%BACKUPTICS;
  
     for (i=0 ; i<MAXPLAYERS ; i++)
     {
@@ -931,8 +931,8 @@ void G_Ticker (data_t* data)
                 turbodetected[i] = true;
             }
 
-            if ((gametic & 31) == 0 
-             && ((gametic >> 5) % MAXPLAYERS) == i
+            if ((data->d_loop.gametic & 31) == 0
+             && ((data->d_loop.gametic >> 5) % MAXPLAYERS) == i
              && turbodetected[i])
             {
                 static char turbomessage[80];
@@ -943,9 +943,9 @@ void G_Ticker (data_t* data)
                 turbodetected[i] = false;
             }
 
-	    if (netgame && !netdemo && !(gametic%ticdup) ) 
+	    if (netgame && !netdemo && !(data->d_loop.gametic%data->d_loop.ticdup) )
 	    { 
-		if (gametic > BACKUPTICS 
+		if (data->d_loop.gametic > BACKUPTICS
 		    && consistancy[i][buf] != cmd->consistancy) 
 		{ 
 		    I_Error (NULL, "consistency failure (%i should be %i)",
@@ -2231,7 +2231,7 @@ void G_TimeDemo (data_t* data, char* name)
     nodrawers = M_CheckParm (data, "-nodraw");
 
     timingdemo = true; 
-    singletics = true; 
+	data->d_loop.singletics = true;
 
     defdemoname = name; 
     gameaction = ga_playdemo; 
@@ -2259,14 +2259,14 @@ boolean G_CheckDemoStatus (data_t* data)
 
 	endtime = I_GetTime (data);
         realtics = endtime - starttime;
-        fps = ((float) gametic * TICRATE) / realtics;
+        fps = ((float) data->d_loop.gametic * TICRATE) / realtics;
 
         // Prevent recursive calls
         timingdemo = false;
         demoplayback = false;
 
 	I_Error (NULL, "timed %i gametics in %i realtics (%f fps)",
-                 gametic, realtics, fps);
+			 data->d_loop.gametic, realtics, fps);
     } 
 	 
     if (demoplayback) 
