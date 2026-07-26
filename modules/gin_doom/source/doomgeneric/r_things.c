@@ -414,7 +414,7 @@ R_DrawVisSprite
 	    ( (vis->mobjflags & MF_TRANSLATION) >> (MF_TRANSSHIFT-8) );
     }
 	
-    data->dc_iscale = abs(vis->xiscale)>>detailshift;
+    data->dc_iscale = abs(vis->xiscale)>>data->detailshift;
     data->dc_texturemid = vis->texturemid;
     frac = vis->startfrac;
     spryscale = vis->scale;
@@ -542,7 +542,7 @@ void R_ProjectSprite (data_t* data, mobj_t* thing)
     // store information in a vissprite
     vis = R_NewVisSprite ();
     vis->mobjflags = thing->flags;
-    vis->scale = xscale<<detailshift;
+    vis->scale = xscale<<data->detailshift;
     vis->gx = thing->x;
     vis->gy = thing->y;
     vis->gz = thing->z;
@@ -587,7 +587,7 @@ void R_ProjectSprite (data_t* data, mobj_t* thing)
     else
     {
 	// diminished light
-	index = xscale>>(LIGHTSCALESHIFT-detailshift);
+	index = xscale>>(LIGHTSCALESHIFT-data->detailshift);
 
 	if (index >= MAXLIGHTSCALE) 
 	    index = MAXLIGHTSCALE-1;
@@ -612,20 +612,20 @@ void R_AddSprites (data_t* data, sector_t* sec)
     // A sector might have been split into several
     //  data->subsectors during BSP building.
     // Thus we check whether its already added.
-    if (sec->validcount == validcount)
+    if (sec->validcount == data->validcount)
 	return;		
 
     // Well, now it will be done.
-    sec->validcount = validcount;
+    sec->validcount = data->validcount;
 	
     lightnum = (sec->lightlevel >> LIGHTSEGSHIFT)+data->extralight;
 
     if (lightnum < 0)		
-	spritelights = scalelight[0];
+	spritelights = data->scalelight[0];
     else if (lightnum >= LIGHTLEVELS)
-	spritelights = scalelight[LIGHTLEVELS-1];
+	spritelights = data->scalelight[LIGHTLEVELS-1];
     else
-	spritelights = scalelight[lightnum];
+	spritelights = data->scalelight[lightnum];
 
     // Handle all things in sector.
     for (thing = sec->thinglist ; thing ; thing = thing->snext)
@@ -688,7 +688,7 @@ void R_DrawPSprite (data_t* data, pspdef_t* psp)
     vis->texturemid = (BASEYCENTER<<FRACBITS)+FRACUNIT/2-(psp->sy-spritetopoffset[lump]);
     vis->x1 = x1 < 0 ? 0 : x1;
     vis->x2 = x2 >= viewwidth ? viewwidth-1 : x2;	
-    vis->scale = pspritescale<<detailshift;
+    vis->scale = pspritescale<<data->detailshift;
     
     if (flip)
     {
@@ -748,11 +748,11 @@ void R_DrawPlayerSprites (data_t* data)
 	+data->extralight;
 
     if (lightnum < 0)		
-	spritelights = scalelight[0];
+	spritelights = data->scalelight[0];
     else if (lightnum >= LIGHTLEVELS)
-	spritelights = scalelight[LIGHTLEVELS-1];
+	spritelights = data->scalelight[LIGHTLEVELS-1];
     else
-	spritelights = scalelight[lightnum];
+	spritelights = data->scalelight[lightnum];
     
     // clip to screen bounds
     mfloorclip = screenheightarray;

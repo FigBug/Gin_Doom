@@ -121,7 +121,6 @@ void D_ProcessEvents (data_t* data)
 //
 
 // data->wipegamestate can be set to -1 to force a wipe on the next draw
-extern  boolean setsizeneeded;
 extern  int             showMessages;
 void R_ExecuteSetViewSize (data_t* data);
 
@@ -147,7 +146,7 @@ void D_Display (data_t* data)
     redrawsbar = false;
     
     // change the view size if needed
-    if (setsizeneeded)
+    if (data->setsizeneeded)
     {
 		R_ExecuteSetViewSize (data);
 		oldgamestate = -1;                      // force background redraw

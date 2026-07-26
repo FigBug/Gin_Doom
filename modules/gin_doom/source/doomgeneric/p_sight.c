@@ -162,10 +162,10 @@ boolean P_CrossSubsector (data_t* data, int num)
 	line = seg->linedef;
 
 	// allready checked other side?
-	if (line->validcount == validcount)
+	if (line->validcount == data->validcount)
 	    continue;
 	
-	line->validcount = validcount;
+	line->validcount = data->validcount;
 
 	v1 = line->v1;
 	v2 = line->v2;
@@ -196,7 +196,7 @@ boolean P_CrossSubsector (data_t* data, int num)
         }
 
 	// stop because it is not two sided anyway
-	// might do this after updating validcount?
+	// might do this after updating data->validcount?
 	if ( !(line->flags & ML_TWOSIDED) )
 	    return false;
 	
@@ -332,7 +332,7 @@ P_CheckSight
     // Now look from eyes of t1 to any part of t2.
     sightcounts[1]++;
 
-    validcount++;
+    data->validcount++;
 	
     sightzstart = t1->z + t1->height - (t1->height>>2);
     topslope = (t2->z+t2->height) - sightzstart;

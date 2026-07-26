@@ -46,7 +46,6 @@
 
 
 // increment every time a check is made
-int			validcount = 1;		
 
 
 extern lighttable_t**	walllights;
@@ -54,38 +53,27 @@ extern lighttable_t**	walllights;
 
 
 // just for profiling purposes
-int			framecount;	
 
-int			sscount;
-int			linecount;
-int			loopcount;
 
 
 
 
 
 // 0 = high, 1 = low
-int			detailshift;	
 
 //
 // precalculated math tables
 //
-angle_t			clipangle;
 
-// The viewangletox[data->viewangle + FINEANGLES/4] lookup
+// The data->viewangletox[data->viewangle + FINEANGLES/4] lookup
 // maps the visible view angles to screen X coordinates,
 // flattening the arc to a flat data->projection plane.
 // There will be many angles mapped to the same X. 
-int			viewangletox[FINEANGLES/2];
 
 // The xtoviewangleangle[] table maps a screen pixel
 // to the lowest data->viewangle that maps back to x ranges
-// from clipangle to -clipangle.
-angle_t			xtoviewangle[SCREENWIDTH+1];
+// from data->clipangle to -data->clipangle.
 
-lighttable_t*		scalelight[LIGHTLEVELS][MAXLIGHTSCALE];
-lighttable_t*		scalelightfixed[MAXLIGHTSCALE];
-lighttable_t*		zlight[LIGHTLEVELS][MAXLIGHTZ];
 
 // bumped light from gun blasts
 
@@ -467,7 +455,7 @@ fixed_t R_ScaleFromGlobalAngle (data_t* data, angle_t visangle)
     // both sines are allways positive
     sinea = finesine[anglea>>ANGLETOFINESHIFT];	
     sineb = finesine[angleb>>ANGLETOFINESHIFT];
-    num = FixedMul(data->projection,sineb)<<detailshift;
+    num = FixedMul(data->projection,sineb)<<data->detailshift;
     den = FixedMul(rw_distance,sinea);
 
     if (den > num>>16)
@@ -532,8 +520,8 @@ void R_InitTextureMapping (data_t* data)
     int			t;
     fixed_t		focallength;
     
-    // Use tangent table to generate viewangletox:
-    //  viewangletox will give the next greatest x
+    // Use tangent table to generate data->viewangletox:
+    //  data->viewangletox will give the next greatest x
     //  after the view angle.
     //
     // Calc focallength
@@ -557,45 +545,45 @@ void R_InitTextureMapping (data_t* data)
 	    else if (t>viewwidth+1)
 		t = viewwidth+1;
 	}
-	viewangletox[i] = t;
+	data->viewangletox[i] = t;
     }
     
-    // Scan viewangletox[] to generate xtoviewangle[]:
-    //  xtoviewangle will give the smallest view angle
+    // Scan data->viewangletox[] to generate data->xtoviewangle[]:
+    //  data->xtoviewangle will give the smallest view angle
     //  that maps to x.	
     for (x=0;x<=viewwidth;x++)
     {
 	i = 0;
-	while (viewangletox[i]>x)
+	while (data->viewangletox[i]>x)
 	    i++;
-	xtoviewangle[x] = (i<<ANGLETOFINESHIFT)-ANG90;
+	data->xtoviewangle[x] = (i<<ANGLETOFINESHIFT)-ANG90;
     }
     
-    // Take out the fencepost cases from viewangletox.
+    // Take out the fencepost cases from data->viewangletox.
     for (i=0 ; i<FINEANGLES/2 ; i++)
     {
 	t = FixedMul (finetangent[i], focallength);
 	t = data->centerx - t;
 	
-	if (viewangletox[i] == -1)
-	    viewangletox[i] = 0;
-	else if (viewangletox[i] == viewwidth+1)
-	    viewangletox[i]  = viewwidth;
+	if (data->viewangletox[i] == -1)
+	    data->viewangletox[i] = 0;
+	else if (data->viewangletox[i] == viewwidth+1)
+	    data->viewangletox[i]  = viewwidth;
     }
 	
-    clipangle = xtoviewangle[0];
+    data->clipangle = data->xtoviewangle[0];
 }
 
 
 
 //
 // R_InitLightTables
-// Only inits the zlight table,
-//  because the scalelight table changes with view size.
+// Only inits the data->zlight table,
+//  because the data->scalelight table changes with view size.
 //
 #define DISTMAP		2
 
-void R_InitLightTables (void)
+void R_InitLightTables (data_t* data)
 {
     int		i;
     int		j;
@@ -620,7 +608,7 @@ void R_InitLightTables (void)
 	    if (level >= NUMCOLORMAPS)
 		level = NUMCOLORMAPS-1;
 
-	    zlight[i][j] = colormaps + level*256;
+	    data->zlight[i][j] = colormaps + level*256;
 	}
     }
 }
@@ -633,9 +621,6 @@ void R_InitLightTables (void)
 //  because it might be in the middle of a refresh.
 // The change will take effect next refresh.
 //
-boolean		setsizeneeded;
-int		setblocks;
-int		setdetail;
 
 
 void
@@ -644,9 +629,9 @@ R_SetViewSize
   int		blocks,
   int		detail )
 {
-    setsizeneeded = true;
-    setblocks = blocks;
-    setdetail = detail;
+    data->setsizeneeded = true;
+    data->setblocks = blocks;
+    data->setdetail = detail;
 }
 
 
@@ -662,21 +647,21 @@ void R_ExecuteSetViewSize (data_t* data)
     int		level;
     int		startmap; 	
 
-    setsizeneeded = false;
+    data->setsizeneeded = false;
 
-    if (setblocks == 11)
+    if (data->setblocks == 11)
     {
 	scaledviewwidth = SCREENWIDTH;
 	viewheight = SCREENHEIGHT;
     }
     else
     {
-	scaledviewwidth = setblocks*32;
-	viewheight = (setblocks*168/10)&~7;
+	scaledviewwidth = data->setblocks*32;
+	viewheight = (data->setblocks*168/10)&~7;
     }
     
-    detailshift = setdetail;
-    viewwidth = scaledviewwidth>>detailshift;
+    data->detailshift = data->setdetail;
+    viewwidth = scaledviewwidth>>data->detailshift;
 	
     data->centery = viewheight/2;
     data->centerx = viewwidth/2;
@@ -684,7 +669,7 @@ void R_ExecuteSetViewSize (data_t* data)
     data->centeryfrac = data->centery<<FRACBITS;
     data->projection = data->centerxfrac;
 
-    if (!detailshift)
+    if (!data->detailshift)
     {
 	colfunc = basecolfunc = R_DrawColumn;
 	fuzzcolfunc = R_DrawFuzzColumn;
@@ -716,12 +701,12 @@ void R_ExecuteSetViewSize (data_t* data)
     {
 	dy = ((i-viewheight/2)<<FRACBITS)+FRACUNIT/2;
 	dy = abs(dy);
-	yslope[i] = FixedDiv ( (viewwidth<<detailshift)/2*FRACUNIT, dy);
+	yslope[i] = FixedDiv ( (viewwidth<<data->detailshift)/2*FRACUNIT, dy);
     }
 	
     for (i=0 ; i<viewwidth ; i++)
     {
-	cosadj = abs(finecosine[xtoviewangle[i]>>ANGLETOFINESHIFT]);
+	cosadj = abs(finecosine[data->xtoviewangle[i]>>ANGLETOFINESHIFT]);
 	distscale[i] = FixedDiv (FRACUNIT,cosadj);
     }
     
@@ -732,7 +717,7 @@ void R_ExecuteSetViewSize (data_t* data)
 	startmap = ((LIGHTLEVELS-1-i)*2)*NUMCOLORMAPS/LIGHTLEVELS;
 	for (j=0 ; j<MAXLIGHTSCALE ; j++)
 	{
-	    level = startmap - j*SCREENWIDTH/(viewwidth<<detailshift)/DISTMAP;
+	    level = startmap - j*SCREENWIDTH/(viewwidth<<data->detailshift)/DISTMAP;
 	    
 	    if (level < 0)
 		level = 0;
@@ -740,7 +725,7 @@ void R_ExecuteSetViewSize (data_t* data)
 	    if (level >= NUMCOLORMAPS)
 		level = NUMCOLORMAPS-1;
 
-	    scalelight[i][j] = colormaps + level*256;
+	    data->scalelight[i][j] = colormaps + level*256;
 	}
     }
 }
@@ -766,13 +751,13 @@ void R_Init (data_t* data)
     R_SetViewSize(data, screenblocks, detailLevel);
     R_InitPlanes ();
     printf (".");
-    R_InitLightTables ();
+    R_InitLightTables (data);
     printf (".");
     R_InitSkyMap ();
     R_InitTranslationTables (data);
     printf (".");
 	
-    framecount = 0;
+    data->framecount = 0;
 }
 
 
@@ -825,7 +810,7 @@ void R_SetupFrame (data_t* data, player_t* player)
     data->viewsin = finesine[data->viewangle>>ANGLETOFINESHIFT];
     data->viewcos = finecosine[data->viewangle>>ANGLETOFINESHIFT];
 	
-    sscount = 0;
+    data->sscount = 0;
 	
     if (player->fixedcolormap)
     {
@@ -833,16 +818,16 @@ void R_SetupFrame (data_t* data, player_t* player)
 	    colormaps
 	    + player->fixedcolormap*256*sizeof(lighttable_t);
 	
-	walllights = scalelightfixed;
+	walllights = data->scalelightfixed;
 
 	for (i=0 ; i<MAXLIGHTSCALE ; i++)
-	    scalelightfixed[i] = data->fixedcolormap;
+	    data->scalelightfixed[i] = data->fixedcolormap;
     }
     else
 	data->fixedcolormap = 0;
 		
-    framecount++;
-    validcount++;
+    data->framecount++;
+    data->validcount++;
 }
 
 

@@ -191,6 +191,23 @@ struct data_s
 	player_t*       viewplayer;
 	int             extralight;
 
+	// r_main.c render scratch
+	int             validcount;
+	int             framecount;
+	int             sscount;
+	int             linecount;
+	int             loopcount;
+	int             detailshift;
+	angle_t         clipangle;
+	int             viewangletox[FINEANGLES/2];
+	angle_t         xtoviewangle[SCREENWIDTH+1];
+	byte*           scalelight[16][48];      // [LIGHTLEVELS][MAXLIGHTSCALE]
+	byte*           scalelightfixed[48];     // [MAXLIGHTSCALE]
+	byte*           zlight[16][128];         // [LIGHTLEVELS][MAXLIGHTZ]
+	boolean         setsizeneeded;
+	int             setblocks;
+	int             setdetail;
+
 	// level geometry (p_setup.c)
 	int             numvertexes;
 	vertex_t*       vertexes;

@@ -106,13 +106,13 @@ P_RecursiveSound
     sector_t*	other;
 	
     // wake up all monsters in this sector
-    if (sec->validcount == validcount
+    if (sec->validcount == data->validcount
 	&& sec->soundtraversed <= soundblocks+1)
     {
 	return;		// already flooded
     }
     
-    sec->validcount = validcount;
+    sec->validcount = data->validcount;
     sec->soundtraversed = soundblocks+1;
     sec->soundtarget = soundtarget;
 	
@@ -156,7 +156,7 @@ P_NoiseAlert
   mobj_t*	emmiter )
 {
     soundtarget = target;
-    validcount++;
+    data->validcount++;
     P_RecursiveSound(data, emmiter->subsector->sector, 0);
 }
 

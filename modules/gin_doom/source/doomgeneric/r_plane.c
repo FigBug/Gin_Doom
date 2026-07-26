@@ -147,7 +147,7 @@ R_MapPlane
     }
 	
     length = FixedMul (distance,distscale[x1]);
-    angle = (data->viewangle + xtoviewangle[x1])>>ANGLETOFINESHIFT;
+    angle = (data->viewangle + data->xtoviewangle[x1])>>ANGLETOFINESHIFT;
     data->ds_xfrac = data->viewx + FixedMul(finecosine[angle], length);
     data->ds_yfrac = -data->viewy - FixedMul(finesine[angle], length);
 
@@ -392,7 +392,7 @@ void R_DrawPlanes (data_t* data)
 	// sky flat
 	if (pl->picnum == skyflatnum)
 	{
-	    data->dc_iscale = pspriteiscale>>detailshift;
+	    data->dc_iscale = pspriteiscale>>data->detailshift;
 	    
 	    // Sky is allways drawn full bright,
 	    //  i.e. colormaps[0] is used.
@@ -407,7 +407,7 @@ void R_DrawPlanes (data_t* data)
 
 		if (data->dc_yl <= data->dc_yh)
 		{
-		    angle = (data->viewangle + xtoviewangle[x])>>ANGLETOSKYSHIFT;
+		    angle = (data->viewangle + data->xtoviewangle[x])>>ANGLETOSKYSHIFT;
 		    data->dc_x = x;
 		    data->dc_source = R_GetColumn(skytexture, angle);
 		    colfunc (data);
@@ -429,7 +429,7 @@ void R_DrawPlanes (data_t* data)
 	if (light < 0)
 	    light = 0;
 
-	planezlight = zlight[light];
+	planezlight = data->zlight[light];
 
 	pl->top[pl->maxx+1] = 0xff;
 	pl->top[pl->minx-1] = 0xff;

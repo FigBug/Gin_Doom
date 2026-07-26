@@ -1478,7 +1478,6 @@ void G_DoWorldDone (data_t* data)
 // G_InitFromSavegame
 // Can be called by the startup code or the menu task. 
 //
-extern boolean setsizeneeded;
 void R_ExecuteSetViewSize (data_t* data);
 
 char	savename[256];
@@ -1531,7 +1530,7 @@ void G_DoLoadGame (data_t* data)
 
     fclose(save_stream);
     
-    if (setsizeneeded)
+    if (data->setsizeneeded)
     	R_ExecuteSetViewSize (data);
     
     // draw the pattern into the back screen

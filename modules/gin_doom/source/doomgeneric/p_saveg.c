@@ -359,7 +359,7 @@ static void saveg_read_mobj_t(data_t* data, mobj_t *str)
     // fixed_t momz;
     str->momz = saveg_read32();
 
-    // int validcount;
+    // int data->validcount;
     str->validcount = saveg_read32();
 
     // mobjtype_t type;
@@ -477,7 +477,7 @@ static void saveg_write_mobj_t(data_t* data, mobj_t *str)
     // fixed_t momz;
     saveg_write32(str->momz);
 
-    // int validcount;
+    // int data->validcount;
     saveg_write32(str->validcount);
 
     // mobjtype_t type;

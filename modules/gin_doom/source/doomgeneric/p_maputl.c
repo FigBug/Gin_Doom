@@ -457,9 +457,9 @@ P_SetThingPosition (data_t* data, mobj_t* thing)
 
 //
 // P_BlockLinesIterator
-// The validcount flags are used to avoid checking data->lines
+// The data->validcount flags are used to avoid checking data->lines
 // that are marked in multiple mapblocks,
-// so increment validcount before the first call
+// so increment data->validcount before the first call
 // to P_BlockLinesIterator, then make one or more calls
 // to it.
 //
@@ -490,10 +490,10 @@ P_BlockLinesIterator
     {
 	ld = &data->lines[*list];
 
-	if (ld->validcount == validcount)
+	if (ld->validcount == data->validcount)
 	    continue; 	// line has already been checked
 
-	ld->validcount = validcount;
+	ld->validcount = data->validcount;
 		
 	if ( !func(data, ld) )
 	    return false;
@@ -893,7 +893,7 @@ P_PathTraverse
 		
     earlyout = flags & PT_EARLYOUT;
 		
-    validcount++;
+    data->validcount++;
     intercept_p = intercepts;
 	
     if ( ((x1-bmaporgx)&(MAPBLOCKSIZE-1)) == 0)

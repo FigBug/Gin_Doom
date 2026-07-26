@@ -121,11 +121,11 @@ R_RenderMaskedSegRange
 	lightnum++;
 
     if (lightnum < 0)		
-	walllights = scalelight[0];
+	walllights = data->scalelight[0];
     else if (lightnum >= LIGHTLEVELS)
-	walllights = scalelight[LIGHTLEVELS-1];
+	walllights = data->scalelight[LIGHTLEVELS-1];
     else
-	walllights = scalelight[lightnum];
+	walllights = data->scalelight[lightnum];
 
     maskedtexturecol = ds->maskedtexturecol;
 
@@ -254,7 +254,7 @@ void R_RenderSegLoop (data_t* data)
 	if (segtextured)
 	{
 	    // calculate texture offset
-	    angle = (rw_centerangle + xtoviewangle[rw_x])>>ANGLETOFINESHIFT;
+	    angle = (rw_centerangle + data->xtoviewangle[rw_x])>>ANGLETOFINESHIFT;
 	    texturecolumn = rw_offset-FixedMul(finetangent[angle],rw_distance);
 	    texturecolumn >>= FRACBITS;
 	    // calculate lighting
@@ -416,11 +416,11 @@ R_StoreWallRange
     
     // calculate scale at both ends and step
     ds_p->scale1 = rw_scale = 
-	R_ScaleFromGlobalAngle (data, data->viewangle + xtoviewangle[start]);
+	R_ScaleFromGlobalAngle (data, data->viewangle + data->xtoviewangle[start]);
     
     if (stop > start )
     {
-	ds_p->scale2 = R_ScaleFromGlobalAngle (data, data->viewangle + xtoviewangle[stop]);
+	ds_p->scale2 = R_ScaleFromGlobalAngle (data, data->viewangle + data->xtoviewangle[stop]);
 	ds_p->scalestep = rw_scalestep = 
 	    (ds_p->scale2 - rw_scale) / (stop-start);
     }
@@ -438,7 +438,7 @@ R_StoreWallRange
 			
 	    gxt = FixedMul(trx,data->viewcos); 
 	    gyt = -FixedMul(try,data->viewsin); 
-	    ds_p->scale1 = FixedDiv(data->projection, gxt-gyt)<<detailshift;
+	    ds_p->scale1 = FixedDiv(data->projection, gxt-gyt)<<data->detailshift;
 	}
 #endif
 	ds_p->scale2 = ds_p->scale1;
@@ -648,11 +648,11 @@ R_StoreWallRange
 		lightnum++;
 
 	    if (lightnum < 0)		
-		walllights = scalelight[0];
+		walllights = data->scalelight[0];
 	    else if (lightnum >= LIGHTLEVELS)
-		walllights = scalelight[LIGHTLEVELS-1];
+		walllights = data->scalelight[LIGHTLEVELS-1];
 	    else
-		walllights = scalelight[lightnum];
+		walllights = data->scalelight[lightnum];
 	}
     }
     

@@ -13,6 +13,7 @@ data_t* DG_Alloc()
 	data->precache = true;
 	data->wipegamestate = GS_DEMOSCREEN;
 	data->sfxVolume = 8;
+	data->validcount = 1;
 	data->musicVolume = 8;
 	data->mousebuttons = &data->mousearray[1];
 	data->joybuttons = &data->joyarray[1];

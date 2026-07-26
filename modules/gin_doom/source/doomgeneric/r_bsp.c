@@ -268,7 +268,7 @@ void R_AddLine (data_t* data, seg_t* line)
     angle2 = R_PointToAngle(data, line->v2->x, line->v2->y);
     
     // Clip to view edges.
-    // OPTIMIZE: make constant out of 2*clipangle (FIELDOFVIEW).
+    // OPTIMIZE: make constant out of 2*data->clipangle (FIELDOFVIEW).
     span = angle1 - angle2;
     
     // Back side? I.e. backface culling?
@@ -280,34 +280,34 @@ void R_AddLine (data_t* data, seg_t* line)
     angle1 -= data->viewangle;
     angle2 -= data->viewangle;
 	
-    tspan = angle1 + clipangle;
-    if (tspan > 2*clipangle)
+    tspan = angle1 + data->clipangle;
+    if (tspan > 2*data->clipangle)
     {
-	tspan -= 2*clipangle;
+	tspan -= 2*data->clipangle;
 
 	// Totally off the left edge?
 	if (tspan >= span)
 	    return;
 	
-	angle1 = clipangle;
+	angle1 = data->clipangle;
     }
-    tspan = clipangle - angle2;
-    if (tspan > 2*clipangle)
+    tspan = data->clipangle - angle2;
+    if (tspan > 2*data->clipangle)
     {
-	tspan -= 2*clipangle;
+	tspan -= 2*data->clipangle;
 
 	// Totally off the left edge?
 	if (tspan >= span)
 	    return;	
-	angle2 = -clipangle;
+	angle2 = -data->clipangle;
     }
     
     // The seg is in the view range,
     // but not necessarily visible.
     angle1 = (angle1+ANG90)>>ANGLETOFINESHIFT;
     angle2 = (angle2+ANG90)>>ANGLETOFINESHIFT;
-    x1 = viewangletox[angle1];
-    x2 = viewangletox[angle2];
+    x1 = data->viewangletox[angle1];
+    x2 = data->viewangletox[angle2];
 
     // Does not cross a pixel?
     if (x1 == x2)
@@ -430,28 +430,28 @@ boolean R_CheckBBox (data_t* data, fixed_t* bspcoord)
     if (span >= ANG180)
 	return true;
     
-    tspan = angle1 + clipangle;
+    tspan = angle1 + data->clipangle;
 
-    if (tspan > 2*clipangle)
+    if (tspan > 2*data->clipangle)
     {
-	tspan -= 2*clipangle;
+	tspan -= 2*data->clipangle;
 
 	// Totally off the left edge?
 	if (tspan >= span)
 	    return false;	
 
-	angle1 = clipangle;
+	angle1 = data->clipangle;
     }
-    tspan = clipangle - angle2;
-    if (tspan > 2*clipangle)
+    tspan = data->clipangle - angle2;
+    if (tspan > 2*data->clipangle)
     {
-	tspan -= 2*clipangle;
+	tspan -= 2*data->clipangle;
 
 	// Totally off the left edge?
 	if (tspan >= span)
 	    return false;
 	
-	angle2 = -clipangle;
+	angle2 = -data->clipangle;
     }
 
 
@@ -460,8 +460,8 @@ boolean R_CheckBBox (data_t* data, fixed_t* bspcoord)
     //  (adjacent pixels are touching).
     angle1 = (angle1+ANG90)>>ANGLETOFINESHIFT;
     angle2 = (angle2+ANG90)>>ANGLETOFINESHIFT;
-    sx1 = viewangletox[angle1];
-    sx2 = viewangletox[angle2];
+    sx1 = data->viewangletox[angle1];
+    sx2 = data->viewangletox[angle2];
 
     // Does not cross a pixel.
     if (sx1 == sx2)
@@ -503,7 +503,7 @@ void R_Subsector (data_t* data, int num)
 		 data->numsubsectors);
 #endif
 
-    sscount++;
+    data->sscount++;
     sub = &data->subsectors[num];
     frontsector = sub->sector;
     count = sub->numlines;

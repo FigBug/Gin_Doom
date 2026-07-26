@@ -37,10 +37,7 @@ extern int		viewwindowy;
 
 
 
-extern int		validcount;
 
-extern int		linecount;
-extern int		loopcount;
 
 
 //
@@ -59,9 +56,6 @@ extern int		loopcount;
 #define MAXLIGHTZ	       128
 #define LIGHTZSHIFT		20
 
-extern lighttable_t*	scalelight[LIGHTLEVELS][MAXLIGHTSCALE];
-extern lighttable_t*	scalelightfixed[MAXLIGHTSCALE];
-extern lighttable_t*	zlight[LIGHTLEVELS][MAXLIGHTZ];
 
 
 
@@ -73,7 +67,6 @@ extern lighttable_t*	zlight[LIGHTLEVELS][MAXLIGHTZ];
 // Blocky/low detail mode.
 //B remove this?
 //  0 = high, 1 = low
-extern	int		detailshift;	
 
 
 //

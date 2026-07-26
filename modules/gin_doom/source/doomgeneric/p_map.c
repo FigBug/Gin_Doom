@@ -165,7 +165,7 @@ P_TeleportMove
     tmfloorz = tmdropoffz = newsubsec->sector->floorheight;
     tmceilingz = newsubsec->sector->ceilingheight;
 			
-    validcount++;
+    data->validcount++;
     numspechit = 0;
     
     // stomp on any things contacted
@@ -436,7 +436,7 @@ P_CheckPosition
     tmfloorz = tmdropoffz = newsubsec->sector->floorheight;
     tmceilingz = newsubsec->sector->ceilingheight;
 			
-    validcount++;
+    data->validcount++;
     numspechit = 0;
 
     if ( tmflags & MF_NOCLIP )

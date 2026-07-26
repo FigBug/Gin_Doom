@@ -573,7 +573,7 @@ void P_GroupLines (data_t* data)
         data->sectors[i].lines = linebuffer;
         linebuffer += data->sectors[i].linecount;
 
-        // Reset linecount to zero so in the next stage we can count
+        // Reset data->linecount to zero so in the next stage we can count
         // data->lines into the list.
 
         data->sectors[i].linecount = 0;
