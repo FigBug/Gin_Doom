@@ -966,7 +966,7 @@ P_SpawnMissile
 	S_StartSound(data, th, th->info->seesound);
 
     th->target = source;	// where it came from
-    an = R_PointToAngle2 (source->x, source->y, dest->x, dest->y);
+    an = R_PointToAngle2(data, source->x, source->y, dest->x, dest->y);
 
     // fuzzy player
     if (dest->flags & MF_SHADOW)

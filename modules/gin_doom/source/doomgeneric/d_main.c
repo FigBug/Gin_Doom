@@ -428,7 +428,7 @@ char                    *pagename;
 
 //
 // D_PageTicker
-// Handles timing for warped projection
+// Handles timing for warped data->projection
 //
 void D_PageTicker (data_t* data)
 {

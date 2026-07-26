@@ -264,8 +264,8 @@ void R_AddLine (data_t* data, seg_t* line)
     curline = line;
 
     // OPTIMIZE: quickly reject orthogonal back data->sides.
-    angle1 = R_PointToAngle (line->v1->x, line->v1->y);
-    angle2 = R_PointToAngle (line->v2->x, line->v2->y);
+    angle1 = R_PointToAngle(data, line->v1->x, line->v1->y);
+    angle2 = R_PointToAngle(data, line->v2->x, line->v2->y);
     
     // Clip to view edges.
     // OPTIMIZE: make constant out of 2*clipangle (FIELDOFVIEW).
@@ -277,8 +277,8 @@ void R_AddLine (data_t* data, seg_t* line)
 
     // Global angle needed by segcalc.
     rw_angle1 = angle1;
-    angle1 -= viewangle;
-    angle2 -= viewangle;
+    angle1 -= data->viewangle;
+    angle2 -= data->viewangle;
 	
     tspan = angle1 + clipangle;
     if (tspan > 2*clipangle)
@@ -374,7 +374,7 @@ int	checkcoord[12][4] =
 };
 
 
-boolean R_CheckBBox (fixed_t*	bspcoord)
+boolean R_CheckBBox (data_t* data, fixed_t* bspcoord)
 {
     int			boxx;
     int			boxy;
@@ -397,16 +397,16 @@ boolean R_CheckBBox (fixed_t*	bspcoord)
     
     // Find the corners of the box
     // that define the edges from current viewpoint.
-    if (viewx <= bspcoord[BOXLEFT])
+    if (data->viewx <= bspcoord[BOXLEFT])
 	boxx = 0;
-    else if (viewx < bspcoord[BOXRIGHT])
+    else if (data->viewx < bspcoord[BOXRIGHT])
 	boxx = 1;
     else
 	boxx = 2;
 		
-    if (viewy >= bspcoord[BOXTOP])
+    if (data->viewy >= bspcoord[BOXTOP])
 	boxy = 0;
-    else if (viewy > bspcoord[BOXBOTTOM])
+    else if (data->viewy > bspcoord[BOXBOTTOM])
 	boxy = 1;
     else
 	boxy = 2;
@@ -421,8 +421,8 @@ boolean R_CheckBBox (fixed_t*	bspcoord)
     y2 = bspcoord[checkcoord[boxpos][3]];
     
     // check clip list for an open space
-    angle1 = R_PointToAngle (x1, y1) - viewangle;
-    angle2 = R_PointToAngle (x2, y2) - viewangle;
+    angle1 = R_PointToAngle(data, x1, y1) - data->viewangle;
+    angle2 = R_PointToAngle(data, x2, y2) - data->viewangle;
 	
     span = angle1 - angle2;
 
@@ -509,7 +509,7 @@ void R_Subsector (data_t* data, int num)
     count = sub->numlines;
     line = &data->segs[sub->firstline];
 
-    if (frontsector->floorheight < viewz)
+    if (frontsector->floorheight < data->viewz)
     {
 	floorplane = R_FindPlane (data, frontsector->floorheight,
 				  frontsector->floorpic,
@@ -518,7 +518,7 @@ void R_Subsector (data_t* data, int num)
     else
 	floorplane = NULL;
     
-    if (frontsector->ceilingheight > viewz 
+    if (frontsector->ceilingheight > data->viewz 
 	|| frontsector->ceilingpic == skyflatnum)
     {
 	ceilingplane = R_FindPlane (data, frontsector->ceilingheight,
@@ -528,7 +528,7 @@ void R_Subsector (data_t* data, int num)
     else
 	ceilingplane = NULL;
 		
-    R_AddSprites (frontsector);	
+    R_AddSprites (data, frontsector);	
 
     while (count--)
     {
@@ -563,13 +563,13 @@ void R_RenderBSPNode (data_t* data, int bspnum)
     bsp = &data->nodes[bspnum];
     
     // Decide which side the view point is on.
-    side = R_PointOnSide (viewx, viewy, bsp);
+    side = R_PointOnSide (data->viewx, data->viewy, bsp);
 
     // Recursively divide front space.
     R_RenderBSPNode (data, bsp->children[side]);
 
     // Possibly divide back space.
-    if (R_CheckBBox (bsp->bbox[side^1]))	
+    if (R_CheckBBox (data, bsp->bbox[side^1]))	
 	R_RenderBSPNode (data, bsp->children[side^1]);
 }
 

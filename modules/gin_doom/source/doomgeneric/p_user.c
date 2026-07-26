@@ -192,7 +192,7 @@ void P_DeathThink (data_t* data, player_t* player)
 	
     if (player->attacker && player->attacker != player->mo)
     {
-	angle = R_PointToAngle2 (player->mo->x,
+	angle = R_PointToAngle2(data, player->mo->x,
 				 player->mo->y,
 				 player->attacker->x,
 				 player->attacker->y);

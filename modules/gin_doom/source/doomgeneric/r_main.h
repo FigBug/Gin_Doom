@@ -29,20 +29,13 @@
 //
 // POV related.
 //
-extern fixed_t		viewcos;
-extern fixed_t		viewsin;
 
 extern int		viewwindowx;
 extern int		viewwindowy;
 
 
 
-extern int		centerx;
-extern int		centery;
 
-extern fixed_t		centerxfrac;
-extern fixed_t		centeryfrac;
-extern fixed_t		projection;
 
 extern int		validcount;
 
@@ -70,8 +63,6 @@ extern lighttable_t*	scalelight[LIGHTLEVELS][MAXLIGHTSCALE];
 extern lighttable_t*	scalelightfixed[MAXLIGHTSCALE];
 extern lighttable_t*	zlight[LIGHTLEVELS][MAXLIGHTZ];
 
-extern int		extralight;
-extern lighttable_t*	fixedcolormap;
 
 
 // Number of diminishing brightness levels.
@@ -113,23 +104,26 @@ R_PointOnSegSide
 
 angle_t
 R_PointToAngle
-( fixed_t	x,
+( data_t* data,
+  fixed_t	x,
   fixed_t	y );
 
 angle_t
 R_PointToAngle2
-( fixed_t	x1,
+( data_t* data,
+  fixed_t	x1,
   fixed_t	y1,
   fixed_t	x2,
   fixed_t	y2 );
 
 fixed_t
 R_PointToDist
-( fixed_t	x,
+( data_t* data,
+  fixed_t	x,
   fixed_t	y );
 
 
-fixed_t R_ScaleFromGlobalAngle (angle_t visangle);
+fixed_t R_ScaleFromGlobalAngle (data_t* data, angle_t visangle);
 
 subsector_t*
 R_PointInSubsector

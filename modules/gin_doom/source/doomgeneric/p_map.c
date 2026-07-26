@@ -612,7 +612,7 @@ fixed_t		tmymove;
 // Adjusts the xmove / ymove
 // so that the next move will slide along the wall.
 //
-void P_HitSlideLine (line_t* ld)
+void P_HitSlideLine (data_t* data, line_t* ld)
 {
     int			side;
 
@@ -638,12 +638,12 @@ void P_HitSlideLine (line_t* ld)
 	
     side = P_PointOnLineSide (slidemo->x, slidemo->y, ld);
 	
-    lineangle = R_PointToAngle2 (0,0, ld->dx, ld->dy);
+    lineangle = R_PointToAngle2(data, 0,0, ld->dx, ld->dy);
 
     if (side == 1)
 	lineangle += ANG180;
 
-    moveangle = R_PointToAngle2 (0,0, tmxmove, tmymove);
+    moveangle = R_PointToAngle2(data, 0,0, tmxmove, tmymove);
     deltaangle = moveangle-lineangle;
 
     if (deltaangle > ANG180)
@@ -807,7 +807,7 @@ void P_SlideMove (data_t* data, mobj_t* mo)
     tmxmove = FixedMul (mo->momx, bestslidefrac);
     tmymove = FixedMul (mo->momy, bestslidefrac);
 
-    P_HitSlideLine (bestslideline);	// clip the moves
+    P_HitSlideLine (data, bestslideline);	// clip the moves
 
     mo->momx = tmxmove;
     mo->momy = tmymove;

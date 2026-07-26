@@ -80,12 +80,7 @@ extern spritedef_t*	sprites;
 //
 // POV data.
 //
-extern fixed_t		viewx;
-extern fixed_t		viewy;
-extern fixed_t		viewz;
 
-extern angle_t		viewangle;
-extern player_t*	viewplayer;
 
 
 // ?

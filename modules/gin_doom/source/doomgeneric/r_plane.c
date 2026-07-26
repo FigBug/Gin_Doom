@@ -105,8 +105,8 @@ void R_InitPlanes (void)
 //  data->ds_source
 //  basexscale
 //  baseyscale
-//  viewx
-//  viewy
+//  data->viewx
+//  data->viewy
 //
 // BASIC PRIMITIVE
 //
@@ -147,12 +147,12 @@ R_MapPlane
     }
 	
     length = FixedMul (distance,distscale[x1]);
-    angle = (viewangle + xtoviewangle[x1])>>ANGLETOFINESHIFT;
-    data->ds_xfrac = viewx + FixedMul(finecosine[angle], length);
-    data->ds_yfrac = -viewy - FixedMul(finesine[angle], length);
+    angle = (data->viewangle + xtoviewangle[x1])>>ANGLETOFINESHIFT;
+    data->ds_xfrac = data->viewx + FixedMul(finecosine[angle], length);
+    data->ds_yfrac = -data->viewy - FixedMul(finesine[angle], length);
 
-    if (fixedcolormap)
-	data->ds_colormap = fixedcolormap;
+    if (data->fixedcolormap)
+	data->ds_colormap = data->fixedcolormap;
     else
     {
 	index = distance >> LIGHTZSHIFT;
@@ -176,7 +176,7 @@ R_MapPlane
 // R_ClearPlanes
 // At begining of frame.
 //
-void R_ClearPlanes (void)
+void R_ClearPlanes (data_t* data)
 {
     int		i;
     angle_t	angle;
@@ -195,11 +195,11 @@ void R_ClearPlanes (void)
     memset (cachedheight, 0, sizeof(cachedheight));
 
     // left to right mapping
-    angle = (viewangle-ANG90)>>ANGLETOFINESHIFT;
+    angle = (data->viewangle-ANG90)>>ANGLETOFINESHIFT;
 	
     // scale will be unit scale at SCREENWIDTH/2 distance
-    basexscale = FixedDiv (finecosine[angle],centerxfrac);
-    baseyscale = -FixedDiv (finesine[angle],centerxfrac);
+    basexscale = FixedDiv (finecosine[angle],data->centerxfrac);
+    baseyscale = -FixedDiv (finesine[angle],data->centerxfrac);
 }
 
 
@@ -407,7 +407,7 @@ void R_DrawPlanes (data_t* data)
 
 		if (data->dc_yl <= data->dc_yh)
 		{
-		    angle = (viewangle + xtoviewangle[x])>>ANGLETOSKYSHIFT;
+		    angle = (data->viewangle + xtoviewangle[x])>>ANGLETOSKYSHIFT;
 		    data->dc_x = x;
 		    data->dc_source = R_GetColumn(skytexture, angle);
 		    colfunc (data);
@@ -420,8 +420,8 @@ void R_DrawPlanes (data_t* data)
         lumpnum = firstflat + flattranslation[pl->picnum];
 	data->ds_source = W_CacheLumpNum(lumpnum, PU_STATIC);
 	
-	planeheight = abs(pl->height-viewz);
-	light = (pl->lightlevel >> LIGHTSEGSHIFT)+extralight;
+	planeheight = abs(pl->height-data->viewz);
+	light = (pl->lightlevel >> LIGHTSEGSHIFT)+data->extralight;
 
 	if (light >= LIGHTLEVELS)
 	    light = LIGHTLEVELS-1;

@@ -418,7 +418,7 @@ R_DrawVisSprite
     data->dc_texturemid = vis->texturemid;
     frac = vis->startfrac;
     spryscale = vis->scale;
-    sprtopscreen = centeryfrac - FixedMul(data->dc_texturemid,spryscale);
+    sprtopscreen = data->centeryfrac - FixedMul(data->dc_texturemid,spryscale);
 	
     for (data->dc_x=vis->x1 ; data->dc_x<=vis->x2 ; data->dc_x++, frac += vis->xiscale)
     {
@@ -442,7 +442,7 @@ R_DrawVisSprite
 // Generates a vissprite for a thing
 //  if it might be visible.
 //
-void R_ProjectSprite (mobj_t* thing)
+void R_ProjectSprite (data_t* data, mobj_t* thing)
 {
     fixed_t		tr_x;
     fixed_t		tr_y;
@@ -473,11 +473,11 @@ void R_ProjectSprite (mobj_t* thing)
     fixed_t		iscale;
     
     // transform the origin point
-    tr_x = thing->x - viewx;
-    tr_y = thing->y - viewy;
+    tr_x = thing->x - data->viewx;
+    tr_y = thing->y - data->viewy;
 	
-    gxt = FixedMul(tr_x,viewcos); 
-    gyt = -FixedMul(tr_y,viewsin);
+    gxt = FixedMul(tr_x,data->viewcos); 
+    gyt = -FixedMul(tr_y,data->viewsin);
     
     tz = gxt-gyt; 
 
@@ -485,10 +485,10 @@ void R_ProjectSprite (mobj_t* thing)
     if (tz < MINZ)
 	return;
     
-    xscale = FixedDiv(projection, tz);
+    xscale = FixedDiv(data->projection, tz);
 	
-    gxt = -FixedMul(tr_x,viewsin); 
-    gyt = FixedMul(tr_y,viewcos); 
+    gxt = -FixedMul(tr_x,data->viewsin); 
+    gyt = FixedMul(tr_y,data->viewcos); 
     tx = -(gyt+gxt); 
 
     // too far off the side?
@@ -512,7 +512,7 @@ void R_ProjectSprite (mobj_t* thing)
     if (sprframe->rotate)
     {
 	// choose a different rotation based on player view
-	ang = R_PointToAngle (thing->x, thing->y);
+	ang = R_PointToAngle(data, thing->x, thing->y);
 	rot = (ang-thing->angle+(unsigned)(ANG45/2)*9)>>29;
 	lump = sprframe->lump[rot];
 	flip = (boolean)sprframe->flip[rot];
@@ -526,14 +526,14 @@ void R_ProjectSprite (mobj_t* thing)
     
     // calculate edges of the shape
     tx -= spriteoffset[lump];	
-    x1 = (centerxfrac + FixedMul (tx,xscale) ) >>FRACBITS;
+    x1 = (data->centerxfrac + FixedMul (tx,xscale) ) >>FRACBITS;
 
     // off the right side?
     if (x1 > viewwidth)
 	return;
     
     tx +=  spritewidth[lump];
-    x2 = ((centerxfrac + FixedMul (tx,xscale) ) >>FRACBITS) - 1;
+    x2 = ((data->centerxfrac + FixedMul (tx,xscale) ) >>FRACBITS) - 1;
 
     // off the left side
     if (x2 < 0)
@@ -547,7 +547,7 @@ void R_ProjectSprite (mobj_t* thing)
     vis->gy = thing->y;
     vis->gz = thing->z;
     vis->gzt = thing->z + spritetopoffset[lump];
-    vis->texturemid = vis->gzt - viewz;
+    vis->texturemid = vis->gzt - data->viewz;
     vis->x1 = x1 < 0 ? 0 : x1;
     vis->x2 = x2 >= viewwidth ? viewwidth-1 : x2;	
     iscale = FixedDiv (FRACUNIT, xscale);
@@ -573,10 +573,10 @@ void R_ProjectSprite (mobj_t* thing)
 	// shadow draw
 	vis->colormap = NULL;
     }
-    else if (fixedcolormap)
+    else if (data->fixedcolormap)
     {
 	// fixed map
-	vis->colormap = fixedcolormap;
+	vis->colormap = data->fixedcolormap;
     }
     else if (thing->frame & FF_FULLBRIGHT)
     {
@@ -603,7 +603,7 @@ void R_ProjectSprite (mobj_t* thing)
 // R_AddSprites
 // During BSP traversal, this adds sprites by sector.
 //
-void R_AddSprites (sector_t* sec)
+void R_AddSprites (data_t* data, sector_t* sec)
 {
     mobj_t*		thing;
     int			lightnum;
@@ -618,7 +618,7 @@ void R_AddSprites (sector_t* sec)
     // Well, now it will be done.
     sec->validcount = validcount;
 	
-    lightnum = (sec->lightlevel >> LIGHTSEGSHIFT)+extralight;
+    lightnum = (sec->lightlevel >> LIGHTSEGSHIFT)+data->extralight;
 
     if (lightnum < 0)		
 	spritelights = scalelight[0];
@@ -629,7 +629,7 @@ void R_AddSprites (sector_t* sec)
 
     // Handle all things in sector.
     for (thing = sec->thinglist ; thing ; thing = thing->snext)
-	R_ProjectSprite (thing);
+	R_ProjectSprite (data, thing);
 }
 
 
@@ -669,14 +669,14 @@ void R_DrawPSprite (data_t* data, pspdef_t* psp)
     tx = psp->sx-160*FRACUNIT;
 	
     tx -= spriteoffset[lump];	
-    x1 = (centerxfrac + FixedMul (tx,pspritescale) ) >>FRACBITS;
+    x1 = (data->centerxfrac + FixedMul (tx,pspritescale) ) >>FRACBITS;
 
     // off the right side
     if (x1 > viewwidth)
 	return;		
 
     tx +=  spritewidth[lump];
-    x2 = ((centerxfrac + FixedMul (tx, pspritescale) ) >>FRACBITS) - 1;
+    x2 = ((data->centerxfrac + FixedMul (tx, pspritescale) ) >>FRACBITS) - 1;
 
     // off the left side
     if (x2 < 0)
@@ -706,16 +706,16 @@ void R_DrawPSprite (data_t* data, pspdef_t* psp)
 
     vis->patch = lump;
 
-    if (viewplayer->powers[pw_invisibility] > 4*32
-	|| viewplayer->powers[pw_invisibility] & 8)
+    if (data->viewplayer->powers[pw_invisibility] > 4*32
+	|| data->viewplayer->powers[pw_invisibility] & 8)
     {
 	// shadow draw
 	vis->colormap = NULL;
     }
-    else if (fixedcolormap)
+    else if (data->fixedcolormap)
     {
 	// fixed color
-	vis->colormap = fixedcolormap;
+	vis->colormap = data->fixedcolormap;
     }
     else if (psp->state->frame & FF_FULLBRIGHT)
     {
@@ -744,8 +744,8 @@ void R_DrawPlayerSprites (data_t* data)
     
     // get light level
     lightnum =
-	(viewplayer->mo->subsector->sector->lightlevel >> LIGHTSEGSHIFT) 
-	+extralight;
+	(data->viewplayer->mo->subsector->sector->lightlevel >> LIGHTSEGSHIFT) 
+	+data->extralight;
 
     if (lightnum < 0)		
 	spritelights = scalelight[0];
@@ -759,7 +759,7 @@ void R_DrawPlayerSprites (data_t* data)
     mceilingclip = negonearray;
     
     // add all active psprites
-    for (i=0, psp=viewplayer->psprites;
+    for (i=0, psp=data->viewplayer->psprites;
 	 i<NUMPSPRITES;
 	 i++,psp++)
     {
@@ -975,7 +975,7 @@ void R_DrawMasked (data_t* data)
     
     // draw the psprites on top of everything
     //  but does not draw on side views
-    if (!viewangleoffset)		
+    if (!data->viewangleoffset)		
 	R_DrawPlayerSprites (data);
 }
 

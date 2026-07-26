@@ -336,7 +336,7 @@ static int S_AdjustSoundParams(data_t* data, mobj_t *listener, mobj_t *source,
     }
     
     // angle of source to listener
-    angle = R_PointToAngle2(listener->x,
+    angle = R_PointToAngle2(data, listener->x,
                             listener->y,
                             source->x,
                             source->y);

@@ -651,7 +651,7 @@ static void saveg_read_player_t(player_t *str)
     // ticcmd_t cmd;
     saveg_read_ticcmd_t(&str->cmd);
 
-    // fixed_t viewz;
+    // fixed_t data->viewz;
     str->viewz = saveg_read32();
 
     // fixed_t viewheight;
@@ -750,10 +750,10 @@ static void saveg_read_player_t(player_t *str)
     // mobj_t* attacker;
     str->attacker = saveg_readp();
 
-    // int extralight;
+    // int data->extralight;
     str->extralight = saveg_read32();
 
-    // int fixedcolormap;
+    // int data->fixedcolormap;
     str->fixedcolormap = saveg_read32();
 
     // int colormap;
@@ -782,7 +782,7 @@ static void saveg_write_player_t(player_t *str)
     // ticcmd_t cmd;
     saveg_write_ticcmd_t(&str->cmd);
 
-    // fixed_t viewz;
+    // fixed_t data->viewz;
     saveg_write32(str->viewz);
 
     // fixed_t viewheight;
@@ -881,10 +881,10 @@ static void saveg_write_player_t(player_t *str)
     // mobj_t* attacker;
     saveg_writep(str->attacker);
 
-    // int extralight;
+    // int data->extralight;
     saveg_write32(str->extralight);
 
-    // int fixedcolormap;
+    // int data->fixedcolormap;
     saveg_write32(str->fixedcolormap);
 
     // int colormap;

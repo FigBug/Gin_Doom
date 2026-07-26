@@ -747,7 +747,7 @@ void ST_updateFaceWidget(data_t* data)
 	    }
 	    else
 	    {
-		badguyangle = R_PointToAngle2(plyr->mo->x,
+		badguyangle = R_PointToAngle2(data, plyr->mo->x,
 					      plyr->mo->y,
 					      plyr->attacker->x,
 					      plyr->attacker->y);

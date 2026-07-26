@@ -167,7 +167,7 @@ static void InitConnectData(data_t* data, net_connect_data_t *connect_data)
 
     if (M_CheckParm(data, "-left") > 0)
     {
-        viewangleoffset = ANG90;
+        data->viewangleoffset = ANG90;
         connect_data->drone = true;
     }
 
@@ -179,7 +179,7 @@ static void InitConnectData(data_t* data, net_connect_data_t *connect_data)
 
     if (M_CheckParm(data, "-right") > 0)
     {
-        viewangleoffset = ANG270;
+        data->viewangleoffset = ANG270;
         connect_data->drone = true;
     }
 

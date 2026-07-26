@@ -120,7 +120,7 @@ void R_DrawColumn (data_t* data)
     // Determine scaling,
     //  which is the only mapping to be done.
     fracstep = data->dc_iscale; 
-    frac = data->dc_texturemid + (data->dc_yl-centery)*fracstep; 
+    frac = data->dc_texturemid + (data->dc_yl-data->centery)*fracstep; 
 
     // Inner loop that does the actual texture mapping,
     //  e.g. a DDA-lile scaling.
@@ -162,7 +162,7 @@ void R_DrawColumn (data_t* data)
     dest = ylookup[data->dc_yl] + columnofs[data->dc_x];  
 	 
     fracstep = data->dc_iscale<<9; 
-    frac = (data->dc_texturemid + (data->dc_yl-centery)*data->dc_iscale)<<9; 
+    frac = (data->dc_texturemid + (data->dc_yl-data->centery)*data->dc_iscale)<<9; 
  
     fracstep2 = fracstep+fracstep;
     fracstep3 = fracstep2+fracstep;
@@ -230,7 +230,7 @@ void R_DrawColumnLow (data_t* data)
     dest2 = ylookup[data->dc_yl] + columnofs[x+1];
     
     fracstep = data->dc_iscale; 
-    frac = data->dc_texturemid + (data->dc_yl-centery)*fracstep;
+    frac = data->dc_texturemid + (data->dc_yl-data->centery)*fracstep;
     
     do 
     {
@@ -307,7 +307,7 @@ void R_DrawFuzzColumn (data_t* data)
 
     // Looks familiar.
     fracstep = data->dc_iscale; 
-    frac = data->dc_texturemid + (data->dc_yl-centery)*fracstep; 
+    frac = data->dc_texturemid + (data->dc_yl-data->centery)*fracstep; 
 
     // Looks like an attempt at dithering,
     //  using the colormap #6 (of 0-31, a bit
@@ -373,7 +373,7 @@ void R_DrawFuzzColumnLow (data_t* data)
 
     // Looks familiar.
     fracstep = data->dc_iscale; 
-    frac = data->dc_texturemid + (data->dc_yl-centery)*fracstep; 
+    frac = data->dc_texturemid + (data->dc_yl-data->centery)*fracstep; 
 
     // Looks like an attempt at dithering,
     //  using the colormap #6 (of 0-31, a bit
@@ -440,7 +440,7 @@ void R_DrawTranslatedColumn (data_t* data)
 
     // Looks familiar.
     fracstep = data->dc_iscale; 
-    frac = data->dc_texturemid + (data->dc_yl-centery)*fracstep; 
+    frac = data->dc_texturemid + (data->dc_yl-data->centery)*fracstep; 
 
     // Here we do an additional index re-mapping.
     do 
@@ -490,7 +490,7 @@ void R_DrawTranslatedColumnLow (data_t* data)
 
     // Looks familiar.
     fracstep = data->dc_iscale; 
-    frac = data->dc_texturemid + (data->dc_yl-centery)*fracstep; 
+    frac = data->dc_texturemid + (data->dc_yl-data->centery)*fracstep; 
 
     // Here we do an additional index re-mapping.
     do 

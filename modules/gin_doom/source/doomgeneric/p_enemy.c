@@ -522,7 +522,7 @@ P_LookForPlayers
 			
 	if (!allaround)
 	{
-	    an = R_PointToAngle2 (actor->x,
+	    an = R_PointToAngle2(data, actor->x,
 				  actor->y, 
 				  player->mo->x,
 				  player->mo->y)
@@ -774,7 +774,7 @@ void A_FaceTarget (data_t* data, mobj_t* actor)
     
     actor->flags &= ~MF_AMBUSH;
 	
-    actor->angle = R_PointToAngle2 (actor->x,
+    actor->angle = R_PointToAngle2(data, actor->x,
 				    actor->y,
 				    actor->target->x,
 				    actor->target->y);
@@ -1037,7 +1037,7 @@ void A_Tracer (data_t* data, mobj_t* actor)
 	return;
     
     // change angle	
-    exact = R_PointToAngle2 (actor->x,
+    exact = R_PointToAngle2(data, actor->x,
 			     actor->y,
 			     dest->x,
 			     dest->y);
