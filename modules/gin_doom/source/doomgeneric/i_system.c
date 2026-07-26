@@ -424,7 +424,7 @@ void I_Error (data_t* data, const char *error, ...)
         CFStringRef message;
 	int i;
 
-	// The CoreFoundation message box wraps text lines, so replace
+	// The CoreFoundation message box wraps text data->lines, so replace
 	// newline characters with spaces so that multiline messages
 	// are continuous.
 

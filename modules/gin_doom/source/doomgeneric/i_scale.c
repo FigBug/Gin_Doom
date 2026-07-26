@@ -464,7 +464,7 @@ static boolean I_Stretch1x(data_t* data, int x1, int y1, int x2, int y2)
     bufp = src_buffer + y1 * SCREENWIDTH + x1;
     screenp = (byte *) dest_buffer + y1 * dest_pitch + x1;
 
-    // For every 5 lines of src_buffer, 6 lines are written to dest_buffer
+    // For every 5 data->lines of src_buffer, 6 data->lines are written to dest_buffer
     // (200 -> 240)
 
     for (y=0; y<SCREENHEIGHT; y += 5)
@@ -553,7 +553,7 @@ static boolean I_Stretch2x(data_t* data, int x1, int y1, int x2, int y2)
     bufp = src_buffer + y1 * SCREENWIDTH + x1;
     screenp = (byte *) dest_buffer + y1 * dest_pitch + x1;
 
-    // For every 5 lines of src_buffer, 12 lines are written to dest_buffer.
+    // For every 5 data->lines of src_buffer, 12 data->lines are written to dest_buffer.
     // (200 -> 480)
 
     for (y=0; y<SCREENHEIGHT; y += 5)
@@ -668,7 +668,7 @@ static boolean I_Stretch3x(data_t* data, int x1, int y1, int x2, int y2)
     bufp = src_buffer + y1 * SCREENWIDTH + x1;
     screenp = (byte *) dest_buffer + y1 * dest_pitch + x1;
 
-    // For every 5 lines of src_buffer, 18 lines are written to dest_buffer.
+    // For every 5 data->lines of src_buffer, 18 data->lines are written to dest_buffer.
     // (200 -> 720)
 
     for (y=0; y<SCREENHEIGHT; y += 5)
@@ -809,7 +809,7 @@ static boolean I_Stretch4x(data_t* data, int x1, int y1, int x2, int y2)
     bufp = src_buffer + y1 * SCREENWIDTH + x1;
     screenp = (byte *) dest_buffer + y1 * dest_pitch + x1;
 
-    // For every 5 lines of src_buffer, 24 lines are written to dest_buffer.
+    // For every 5 data->lines of src_buffer, 24 data->lines are written to dest_buffer.
     // (200 -> 960)
 
     for (y=0; y<SCREENHEIGHT; y += 5)
@@ -956,7 +956,7 @@ static boolean I_Stretch5x(data_t* data, int x1, int y1, int x2, int y2)
     bufp = src_buffer + y1 * SCREENWIDTH + x1;
     screenp = (byte *) dest_buffer + y1 * dest_pitch + x1;
 
-    // For every 1 line of src_buffer, 6 lines are written to dest_buffer.
+    // For every 1 line of src_buffer, 6 data->lines are written to dest_buffer.
     // (200 -> 1200)
 
     for (y=0; y<SCREENHEIGHT; y += 1)

@@ -9,6 +9,7 @@ struct musicinfo_s;
 #include "d_event.h"
 #include "doomdef.h"
 #include "d_player.h"
+#include "r_defs.h"
 
 struct data_s
 {
@@ -189,6 +190,22 @@ struct data_s
 	fixed_t         viewsin;
 	player_t*       viewplayer;
 	int             extralight;
+
+	// level geometry (p_setup.c)
+	int             numvertexes;
+	vertex_t*       vertexes;
+	int             numsegs;
+	seg_t*          segs;
+	int             numsectors;
+	sector_t*       sectors;
+	int             numsubsectors;
+	subsector_t*    subsectors;
+	int             numnodes;
+	node_t*         nodes;
+	int             numlines;
+	line_t*         lines;
+	int             numsides;
+	side_t*         sides;
 
 
 };

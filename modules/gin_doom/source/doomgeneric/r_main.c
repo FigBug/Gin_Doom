@@ -652,7 +652,8 @@ int		setdetail;
 
 void
 R_SetViewSize
-( int		blocks,
+( data_t* data,
+  int		blocks,
   int		detail )
 {
     setsizeneeded = true;
@@ -774,7 +775,7 @@ void R_Init (data_t* data)
     // viewwidth / viewheight / detailLevel are set by the defaults
     printf (".");
 
-    R_SetViewSize (screenblocks, detailLevel);
+    R_SetViewSize(data, screenblocks, detailLevel);
     R_InitPlanes ();
     printf (".");
     R_InitLightTables ();
@@ -792,7 +793,8 @@ void R_Init (data_t* data)
 //
 subsector_t*
 R_PointInSubsector
-( fixed_t	x,
+( data_t* data,
+  fixed_t	x,
   fixed_t	y )
 {
     node_t*	node;
@@ -800,19 +802,19 @@ R_PointInSubsector
     int		nodenum;
 
     // single subsector is a special case
-    if (!numnodes)				
-	return subsectors;
+    if (!data->numnodes)				
+	return data->subsectors;
 		
-    nodenum = numnodes-1;
+    nodenum = data->numnodes-1;
 
     while (! (nodenum & NF_SUBSECTOR) )
     {
-	node = &nodes[nodenum];
+	node = &data->nodes[nodenum];
 	side = R_PointOnSide (x, y, node);
 	nodenum = node->children[side];
     }
 	
-    return &subsectors[nodenum & ~NF_SUBSECTOR];
+    return &data->subsectors[nodenum & ~NF_SUBSECTOR];
 }
 
 
@@ -874,7 +876,7 @@ void R_RenderPlayerView (data_t* data, player_t* player)
     NetUpdate (data);
 
     // The head node is the last node output.
-    R_RenderBSPNode (data, numnodes-1);
+    R_RenderBSPNode (data, data->numnodes-1);
     
     // Check for new console commands.
     NetUpdate (data);

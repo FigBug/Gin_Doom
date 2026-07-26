@@ -69,18 +69,21 @@ void    P_PlayerInSpecialSector (data_t* data, player_t* player);
 
 int
 twoSided
-( int		sector,
+( data_t* data,
+  int		sector,
   int		line );
 
 sector_t*
 getSector
-( int		currentSector,
+( data_t* data,
+  int		currentSector,
   int		line,
   int		side );
 
 side_t*
 getSide
-( int		currentSector,
+( data_t* data,
+  int		currentSector,
   int		line,
   int		side );
 
@@ -98,7 +101,8 @@ fixed_t P_FindHighestCeilingSurrounding(sector_t* sec);
 
 int
 P_FindSectorFromLineTag
-( line_t*	line,
+( data_t* data,
+  line_t*	line,
   int		start );
 
 int
@@ -627,7 +631,8 @@ T_MovePlane
 
 int
 EV_BuildStairs
-( line_t*	line,
+( data_t* data,
+  line_t*	line,
   stair_e	type );
 
 int

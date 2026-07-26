@@ -133,7 +133,8 @@ fixed_t R_ScaleFromGlobalAngle (angle_t visangle);
 
 subsector_t*
 R_PointInSubsector
-( fixed_t	x,
+( data_t* data,
+  fixed_t	x,
   fixed_t	y );
 
 void
@@ -155,6 +156,6 @@ void R_RenderPlayerView (data_t* data, player_t *player);
 void R_Init (data_t* data);
 
 // Called by M_Responder.
-void R_SetViewSize (int blocks, int detail);
+void R_SetViewSize (data_t* data, int blocks, int detail);
 
 #endif

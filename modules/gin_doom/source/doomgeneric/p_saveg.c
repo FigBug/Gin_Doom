@@ -905,7 +905,7 @@ static void saveg_write_player_t(player_t *str)
 // ceiling_t
 //
 
-static void saveg_read_ceiling_t(ceiling_t *str)
+static void saveg_read_ceiling_t(data_t* data, ceiling_t *str)
 {
     int sector;
 
@@ -917,7 +917,7 @@ static void saveg_read_ceiling_t(ceiling_t *str)
 
     // sector_t* sector;
     sector = saveg_read32();
-    str->sector = &sectors[sector];
+    str->sector = &data->sectors[sector];
 
     // fixed_t bottomheight;
     str->bottomheight = saveg_read32();
@@ -941,7 +941,7 @@ static void saveg_read_ceiling_t(ceiling_t *str)
     str->olddirection = saveg_read32();
 }
 
-static void saveg_write_ceiling_t(ceiling_t *str)
+static void saveg_write_ceiling_t(data_t* data, ceiling_t *str)
 {
     // thinker_t thinker;
     saveg_write_thinker_t(&str->thinker);
@@ -950,7 +950,7 @@ static void saveg_write_ceiling_t(ceiling_t *str)
     saveg_write_enum(str->type);
 
     // sector_t* sector;
-    saveg_write32(str->sector - sectors);
+    saveg_write32(str->sector - data->sectors);
 
     // fixed_t bottomheight;
     saveg_write32(str->bottomheight);
@@ -978,7 +978,7 @@ static void saveg_write_ceiling_t(ceiling_t *str)
 // vldoor_t
 //
 
-static void saveg_read_vldoor_t(vldoor_t *str)
+static void saveg_read_vldoor_t(data_t* data, vldoor_t *str)
 {
     int sector;
 
@@ -990,7 +990,7 @@ static void saveg_read_vldoor_t(vldoor_t *str)
 
     // sector_t* sector;
     sector = saveg_read32();
-    str->sector = &sectors[sector];
+    str->sector = &data->sectors[sector];
 
     // fixed_t topheight;
     str->topheight = saveg_read32();
@@ -1008,7 +1008,7 @@ static void saveg_read_vldoor_t(vldoor_t *str)
     str->topcountdown = saveg_read32();
 }
 
-static void saveg_write_vldoor_t(vldoor_t *str)
+static void saveg_write_vldoor_t(data_t* data, vldoor_t *str)
 {
     // thinker_t thinker;
     saveg_write_thinker_t(&str->thinker);
@@ -1017,7 +1017,7 @@ static void saveg_write_vldoor_t(vldoor_t *str)
     saveg_write_enum(str->type);
 
     // sector_t* sector;
-    saveg_write32(str->sector - sectors);
+    saveg_write32(str->sector - data->sectors);
 
     // fixed_t topheight;
     saveg_write32(str->topheight);
@@ -1039,7 +1039,7 @@ static void saveg_write_vldoor_t(vldoor_t *str)
 // floormove_t
 //
 
-static void saveg_read_floormove_t(floormove_t *str)
+static void saveg_read_floormove_t(data_t* data, floormove_t *str)
 {
     int sector;
 
@@ -1054,7 +1054,7 @@ static void saveg_read_floormove_t(floormove_t *str)
 
     // sector_t* sector;
     sector = saveg_read32();
-    str->sector = &sectors[sector];
+    str->sector = &data->sectors[sector];
 
     // int direction;
     str->direction = saveg_read32();
@@ -1072,7 +1072,7 @@ static void saveg_read_floormove_t(floormove_t *str)
     str->speed = saveg_read32();
 }
 
-static void saveg_write_floormove_t(floormove_t *str)
+static void saveg_write_floormove_t(data_t* data, floormove_t *str)
 {
     // thinker_t thinker;
     saveg_write_thinker_t(&str->thinker);
@@ -1084,7 +1084,7 @@ static void saveg_write_floormove_t(floormove_t *str)
     saveg_write32(str->crush);
 
     // sector_t* sector;
-    saveg_write32(str->sector - sectors);
+    saveg_write32(str->sector - data->sectors);
 
     // int direction;
     saveg_write32(str->direction);
@@ -1106,7 +1106,7 @@ static void saveg_write_floormove_t(floormove_t *str)
 // plat_t
 //
 
-static void saveg_read_plat_t(plat_t *str)
+static void saveg_read_plat_t(data_t* data, plat_t *str)
 {
     int sector;
 
@@ -1115,7 +1115,7 @@ static void saveg_read_plat_t(plat_t *str)
 
     // sector_t* sector;
     sector = saveg_read32();
-    str->sector = &sectors[sector];
+    str->sector = &data->sectors[sector];
 
     // fixed_t speed;
     str->speed = saveg_read32();
@@ -1148,13 +1148,13 @@ static void saveg_read_plat_t(plat_t *str)
     str->type = saveg_read_enum();
 }
 
-static void saveg_write_plat_t(plat_t *str)
+static void saveg_write_plat_t(data_t* data, plat_t *str)
 {
     // thinker_t thinker;
     saveg_write_thinker_t(&str->thinker);
 
     // sector_t* sector;
-    saveg_write32(str->sector - sectors);
+    saveg_write32(str->sector - data->sectors);
 
     // fixed_t speed;
     saveg_write32(str->speed);
@@ -1191,7 +1191,7 @@ static void saveg_write_plat_t(plat_t *str)
 // lightflash_t
 //
 
-static void saveg_read_lightflash_t(lightflash_t *str)
+static void saveg_read_lightflash_t(data_t* data, lightflash_t *str)
 {
     int sector;
 
@@ -1200,7 +1200,7 @@ static void saveg_read_lightflash_t(lightflash_t *str)
 
     // sector_t* sector;
     sector = saveg_read32();
-    str->sector = &sectors[sector];
+    str->sector = &data->sectors[sector];
 
     // int count;
     str->count = saveg_read32();
@@ -1218,13 +1218,13 @@ static void saveg_read_lightflash_t(lightflash_t *str)
     str->mintime = saveg_read32();
 }
 
-static void saveg_write_lightflash_t(lightflash_t *str)
+static void saveg_write_lightflash_t(data_t* data, lightflash_t *str)
 {
     // thinker_t thinker;
     saveg_write_thinker_t(&str->thinker);
 
     // sector_t* sector;
-    saveg_write32(str->sector - sectors);
+    saveg_write32(str->sector - data->sectors);
 
     // int count;
     saveg_write32(str->count);
@@ -1246,7 +1246,7 @@ static void saveg_write_lightflash_t(lightflash_t *str)
 // strobe_t
 //
 
-static void saveg_read_strobe_t(strobe_t *str)
+static void saveg_read_strobe_t(data_t* data, strobe_t *str)
 {
     int sector;
 
@@ -1255,7 +1255,7 @@ static void saveg_read_strobe_t(strobe_t *str)
 
     // sector_t* sector;
     sector = saveg_read32();
-    str->sector = &sectors[sector];
+    str->sector = &data->sectors[sector];
 
     // int count;
     str->count = saveg_read32();
@@ -1273,13 +1273,13 @@ static void saveg_read_strobe_t(strobe_t *str)
     str->brighttime = saveg_read32();
 }
 
-static void saveg_write_strobe_t(strobe_t *str)
+static void saveg_write_strobe_t(data_t* data, strobe_t *str)
 {
     // thinker_t thinker;
     saveg_write_thinker_t(&str->thinker);
 
     // sector_t* sector;
-    saveg_write32(str->sector - sectors);
+    saveg_write32(str->sector - data->sectors);
 
     // int count;
     saveg_write32(str->count);
@@ -1301,7 +1301,7 @@ static void saveg_write_strobe_t(strobe_t *str)
 // glow_t
 //
 
-static void saveg_read_glow_t(glow_t *str)
+static void saveg_read_glow_t(data_t* data, glow_t *str)
 {
     int sector;
 
@@ -1310,7 +1310,7 @@ static void saveg_read_glow_t(glow_t *str)
 
     // sector_t* sector;
     sector = saveg_read32();
-    str->sector = &sectors[sector];
+    str->sector = &data->sectors[sector];
 
     // int minlight;
     str->minlight = saveg_read32();
@@ -1322,13 +1322,13 @@ static void saveg_read_glow_t(glow_t *str)
     str->direction = saveg_read32();
 }
 
-static void saveg_write_glow_t(glow_t *str)
+static void saveg_write_glow_t(data_t* data, glow_t *str)
 {
     // thinker_t thinker;
     saveg_write_thinker_t(&str->thinker);
 
     // sector_t* sector;
-    saveg_write32(str->sector - sectors);
+    saveg_write32(str->sector - data->sectors);
 
     // int minlight;
     saveg_write32(str->minlight);
@@ -1489,8 +1489,8 @@ void P_ArchiveWorld (data_t* data)
     line_t*		li;
     side_t*		si;
     
-    // do sectors
-    for (i=0, sec = sectors ; i<numsectors ; i++,sec++)
+    // do data->sectors
+    for (i=0, sec = data->sectors ; i<data->numsectors ; i++,sec++)
     {
 	saveg_write16(sec->floorheight >> FRACBITS);
 	saveg_write16(sec->ceilingheight >> FRACBITS);
@@ -1502,8 +1502,8 @@ void P_ArchiveWorld (data_t* data)
     }
 
     
-    // do lines
-    for (i=0, li = lines ; i<numlines ; i++,li++)
+    // do data->lines
+    for (i=0, li = data->lines ; i<data->numlines ; i++,li++)
     {
 	saveg_write16(li->flags);
 	saveg_write16(li->special);
@@ -1513,7 +1513,7 @@ void P_ArchiveWorld (data_t* data)
 	    if (li->sidenum[j] == -1)
 		continue;
 	    
-	    si = &sides[li->sidenum[j]];
+	    si = &data->sides[li->sidenum[j]];
 
 	    saveg_write16(si->textureoffset >> FRACBITS);
 	    saveg_write16(si->rowoffset >> FRACBITS);
@@ -1537,8 +1537,8 @@ void P_UnArchiveWorld (data_t* data)
     line_t*		li;
     side_t*		si;
     
-    // do sectors
-    for (i=0, sec = sectors ; i<numsectors ; i++,sec++)
+    // do data->sectors
+    for (i=0, sec = data->sectors ; i<data->numsectors ; i++,sec++)
     {
 	sec->floorheight = saveg_read16() << FRACBITS;
 	sec->ceilingheight = saveg_read16() << FRACBITS;
@@ -1551,8 +1551,8 @@ void P_UnArchiveWorld (data_t* data)
 	sec->soundtarget = 0;
     }
     
-    // do lines
-    for (i=0, li = lines ; i<numlines ; i++,li++)
+    // do data->lines
+    for (i=0, li = data->lines ; i<data->numlines ; i++,li++)
     {
 	li->flags = saveg_read16();
 	li->special = saveg_read16();
@@ -1561,7 +1561,7 @@ void P_UnArchiveWorld (data_t* data)
 	{
 	    if (li->sidenum[j] == -1)
 		continue;
-	    si = &sides[li->sidenum[j]];
+	    si = &data->sides[li->sidenum[j]];
 	    si->textureoffset = saveg_read16() << FRACBITS;
 	    si->rowoffset = saveg_read16() << FRACBITS;
 	    si->toptexture = saveg_read16();
@@ -1655,7 +1655,7 @@ void P_UnArchiveThinkers (data_t* data)
 
 	    mobj->target = NULL;
             mobj->tracer = NULL;
-	    P_SetThingPosition (mobj);
+	    P_SetThingPosition (data, mobj);
 	    mobj->info = &mobjinfo[mobj->type];
 	    mobj->floorz = mobj->subsector->sector->floorheight;
 	    mobj->ceilingz = mobj->subsector->sector->ceilingheight;
@@ -1719,7 +1719,7 @@ void P_ArchiveSpecials (data_t* data)
 	    {
                 saveg_write8(tc_ceiling);
 		saveg_write_pad();
-                saveg_write_ceiling_t((ceiling_t *) th);
+                saveg_write_ceiling_t(data, (ceiling_t *) th);
 	    }
 	    continue;
 	}
@@ -1728,7 +1728,7 @@ void P_ArchiveSpecials (data_t* data)
 	{
             saveg_write8(tc_ceiling);
 	    saveg_write_pad();
-            saveg_write_ceiling_t((ceiling_t *) th);
+            saveg_write_ceiling_t(data, (ceiling_t *) th);
 	    continue;
 	}
 			
@@ -1736,7 +1736,7 @@ void P_ArchiveSpecials (data_t* data)
 	{
             saveg_write8(tc_door);
 	    saveg_write_pad();
-            saveg_write_vldoor_t((vldoor_t *) th);
+            saveg_write_vldoor_t(data, (vldoor_t *) th);
 	    continue;
 	}
 			
@@ -1744,7 +1744,7 @@ void P_ArchiveSpecials (data_t* data)
 	{
             saveg_write8(tc_floor);
 	    saveg_write_pad();
-            saveg_write_floormove_t((floormove_t *) th);
+            saveg_write_floormove_t(data, (floormove_t *) th);
 	    continue;
 	}
 			
@@ -1752,7 +1752,7 @@ void P_ArchiveSpecials (data_t* data)
 	{
             saveg_write8(tc_plat);
 	    saveg_write_pad();
-            saveg_write_plat_t((plat_t *) th);
+            saveg_write_plat_t(data, (plat_t *) th);
 	    continue;
 	}
 			
@@ -1760,7 +1760,7 @@ void P_ArchiveSpecials (data_t* data)
 	{
             saveg_write8(tc_flash);
 	    saveg_write_pad();
-            saveg_write_lightflash_t((lightflash_t *) th);
+            saveg_write_lightflash_t(data, (lightflash_t *) th);
 	    continue;
 	}
 			
@@ -1768,7 +1768,7 @@ void P_ArchiveSpecials (data_t* data)
 	{
             saveg_write8(tc_strobe);
 	    saveg_write_pad();
-            saveg_write_strobe_t((strobe_t *) th);
+            saveg_write_strobe_t(data, (strobe_t *) th);
 	    continue;
 	}
 			
@@ -1776,7 +1776,7 @@ void P_ArchiveSpecials (data_t* data)
 	{
             saveg_write8(tc_glow);
 	    saveg_write_pad();
-            saveg_write_glow_t((glow_t *) th);
+            saveg_write_glow_t(data, (glow_t *) th);
 	    continue;
 	}
     }
@@ -1815,7 +1815,7 @@ void P_UnArchiveSpecials (data_t* data)
 	  case tc_ceiling:
 	    saveg_read_pad();
 	    ceiling = Z_Malloc (sizeof(*ceiling), PU_LEVEL, NULL);
-            saveg_read_ceiling_t(ceiling);
+            saveg_read_ceiling_t(data, ceiling);
 	    ceiling->sector->specialdata = ceiling;
 
 	    if (ceiling->thinker.function.acp1)
@@ -1828,7 +1828,7 @@ void P_UnArchiveSpecials (data_t* data)
 	  case tc_door:
 	    saveg_read_pad();
 	    door = Z_Malloc (sizeof(*door), PU_LEVEL, NULL);
-            saveg_read_vldoor_t(door);
+            saveg_read_vldoor_t(data, door);
 	    door->sector->specialdata = door;
 	    door->thinker.function.acp1 = (actionf_p1)T_VerticalDoor;
 	    P_AddThinker (&door->thinker);
@@ -1837,7 +1837,7 @@ void P_UnArchiveSpecials (data_t* data)
 	  case tc_floor:
 	    saveg_read_pad();
 	    floor = Z_Malloc (sizeof(*floor), PU_LEVEL, NULL);
-            saveg_read_floormove_t(floor);
+            saveg_read_floormove_t(data, floor);
 	    floor->sector->specialdata = floor;
 	    floor->thinker.function.acp1 = (actionf_p1)T_MoveFloor;
 	    P_AddThinker (&floor->thinker);
@@ -1846,7 +1846,7 @@ void P_UnArchiveSpecials (data_t* data)
 	  case tc_plat:
 	    saveg_read_pad();
 	    plat = Z_Malloc (sizeof(*plat), PU_LEVEL, NULL);
-            saveg_read_plat_t(plat);
+            saveg_read_plat_t(data, plat);
 	    plat->sector->specialdata = plat;
 
 	    if (plat->thinker.function.acp1)
@@ -1859,7 +1859,7 @@ void P_UnArchiveSpecials (data_t* data)
 	  case tc_flash:
 	    saveg_read_pad();
 	    flash = Z_Malloc (sizeof(*flash), PU_LEVEL, NULL);
-            saveg_read_lightflash_t(flash);
+            saveg_read_lightflash_t(data, flash);
 	    flash->thinker.function.acp1 = (actionf_p1)T_LightFlash;
 	    P_AddThinker (&flash->thinker);
 	    break;
@@ -1867,7 +1867,7 @@ void P_UnArchiveSpecials (data_t* data)
 	  case tc_strobe:
 	    saveg_read_pad();
 	    strobe = Z_Malloc (sizeof(*strobe), PU_LEVEL, NULL);
-            saveg_read_strobe_t(strobe);
+            saveg_read_strobe_t(data, strobe);
 	    strobe->thinker.function.acp1 = (actionf_p1)T_StrobeFlash;
 	    P_AddThinker (&strobe->thinker);
 	    break;
@@ -1875,7 +1875,7 @@ void P_UnArchiveSpecials (data_t* data)
 	  case tc_glow:
 	    saveg_read_pad();
 	    glow = Z_Malloc (sizeof(*glow), PU_LEVEL, NULL);
-            saveg_read_glow_t(glow);
+            saveg_read_glow_t(data, glow);
 	    glow->thinker.function.acp1 = (actionf_p1)T_Glow;
 	    P_AddThinker (&glow->thinker);
 	    break;

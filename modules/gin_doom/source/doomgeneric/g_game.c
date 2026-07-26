@@ -1093,7 +1093,7 @@ G_CheckSpot
     data->bodyqueslot++; 
 
     // spawn a teleport fog
-    ss = R_PointInSubsector (x,y);
+    ss = R_PointInSubsector(data, x,y);
 
 
     // The code in the released source looks like this:

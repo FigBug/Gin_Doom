@@ -15,7 +15,7 @@
 // DESCRIPTION:
 //	Implements special effects:
 //	Texture animation, height or lighting changes
-//	 according to adjacent sectors, respective
+//	 according to adjacent data->sectors, respective
 //	 utility functions, etc.
 //	Line Tag handling. Line and Sector triggers.
 //
@@ -194,48 +194,51 @@ void P_InitPicAnims (data_t* data)
 
 
 //
-// getSide()
+// getSide(data, )
 // Will return a side_t*
 //  given the number of the current sector,
 //  the line number, and the side (0/1) that you want.
 //
 side_t*
 getSide
-( int		currentSector,
+( data_t* data,
+  int		currentSector,
   int		line,
   int		side )
 {
-    return &sides[ (sectors[currentSector].lines[line])->sidenum[side] ];
+    return &data->sides[ (data->sectors[currentSector].lines[line])->sidenum[side] ];
 }
 
 
 //
-// getSector()
+// getSector(data, )
 // Will return a sector_t*
 //  given the number of the current sector,
 //  the line number and the side (0/1) that you want.
 //
 sector_t*
 getSector
-( int		currentSector,
+( data_t* data,
+  int		currentSector,
   int		line,
   int		side )
 {
-    return sides[ (sectors[currentSector].lines[line])->sidenum[side] ].sector;
+    return data->sides[ (data->sectors[currentSector].lines[line])->sidenum[side] ].sector;
 }
 
 
 //
-// twoSided()
+// twoSided(data, )
 // Given the sector number and the line number,
 //  it will tell you whether the line is two-sided or not.
 //
 int
 twoSided
-( int	sector,
+( data_t* data,
+  int	sector,
   int	line )
 {
-    return (sectors[sector].lines[line])->flags & ML_TWOSIDED;
+    return (data->sectors[sector].lines[line])->flags & ML_TWOSIDED;
 }
 
 
@@ -323,7 +326,7 @@ fixed_t	P_FindHighestFloorSurrounding(sector_t *sec)
 
 // Thanks to entryway for the Vanilla overflow emulation.
 
-// 20 adjoining sectors max!
+// 20 adjoining data->sectors max!
 #define MAX_ADJOINING_SECTORS     20
 
 fixed_t
@@ -358,7 +361,7 @@ P_FindNextHighestFloor
             else if (h == MAX_ADJOINING_SECTORS + 2)
             {
                 // Fatal overflow: game crashes at 22 textures
-                I_Error(data, "Sector with more than 22 adjoining sectors. "
+                I_Error(data, "Sector with more than 22 adjoining data->sectors. "
                         "Vanilla will crash here");
             }
 
@@ -443,13 +446,14 @@ fixed_t	P_FindHighestCeilingSurrounding(sector_t* sec)
 //
 int
 P_FindSectorFromLineTag
-( line_t*	line,
+( data_t* data,
+  line_t*	line,
   int		start )
 {
     int	i;
 	
-    for (i=start+1;i<numsectors;i++)
-	if (sectors[i].tag == line->tag)
+    for (i=start+1;i<data->numsectors;i++)
+	if (data->sectors[i].tag == line->tag)
 	    return i;
     
     return -1;
@@ -491,7 +495,7 @@ P_FindMinSurroundingLight
 //
 // EVENTS
 // Events are operations triggered by using, crossing,
-// or shooting special lines, or by timed thinkers.
+// or shooting special data->lines, or by timed thinkers.
 //
 
 //
@@ -509,7 +513,7 @@ P_CrossSpecialLine
     line_t*	line;
     int		ok;
 
-    line = &lines[linenum];
+    line = &data->lines[linenum];
     
     //	Triggers that other things can activate
     if (!thing->player)
@@ -584,7 +588,7 @@ P_CrossSpecialLine
 	
       case 8:
 	// Build Stairs
-	EV_BuildStairs(line,build8);
+	EV_BuildStairs(data, line,build8);
 	line->special = 0;
 	break;
 	
@@ -638,7 +642,7 @@ P_CrossSpecialLine
 	
       case 30:
 	// Raise floor to shortest texture height
-	//  on either side of lines.
+	//  on either side of data->lines.
 			EV_DoFloor(data, line,raiseToTexture);
 	line->special = 0;
 	break;
@@ -747,7 +751,7 @@ P_CrossSpecialLine
 	
       case 100:
 	// Build Stairs Turbo 16
-	EV_BuildStairs(line,turbo16);
+	EV_BuildStairs(data, line,turbo16);
 	line->special = 0;
 	break;
 	
@@ -909,7 +913,7 @@ P_CrossSpecialLine
 	
       case 96:
 	// Raise floor to shortest texture height
-	// on either side of lines.
+	// on either side of data->lines.
 			EV_DoFloor(data, line,raiseToTexture);
 	break;
 	
@@ -1131,7 +1135,7 @@ void P_UpdateSpecials (data_t* data)
 	{
 	  case 48:
 	    // EFFECT FIRSTCOL SCROLL +
-	    sides[line->sidenum[0]].textureoffset += FRACUNIT;
+	    data->sides[line->sidenum[0]].textureoffset += FRACUNIT;
 	    break;
 	}
     }
@@ -1147,17 +1151,17 @@ void P_UpdateSpecials (data_t* data)
 		switch(buttonlist[i].where)
 		{
 		  case top:
-		    sides[buttonlist[i].line->sidenum[0]].toptexture =
+		    data->sides[buttonlist[i].line->sidenum[0]].toptexture =
 			buttonlist[i].btexture;
 		    break;
 		    
 		  case middle:
-		    sides[buttonlist[i].line->sidenum[0]].midtexture =
+		    data->sides[buttonlist[i].line->sidenum[0]].midtexture =
 			buttonlist[i].btexture;
 		    break;
 		    
 		  case bottom:
-		    sides[buttonlist[i].line->sidenum[0]].bottomtexture =
+		    data->sides[buttonlist[i].line->sidenum[0]].bottomtexture =
 			buttonlist[i].btexture;
 		    break;
 		}
@@ -1271,9 +1275,9 @@ int EV_DoDonut(data_t* data, line_t*	line)
 
     secnum = -1;
     rtn = 0;
-    while ((secnum = P_FindSectorFromLineTag(line,secnum)) >= 0)
+    while ((secnum = P_FindSectorFromLineTag(data, line,secnum)) >= 0)
     {
-	s1 = &sectors[secnum];
+	s1 = &data->sectors[secnum];
 
 	// ALREADY MOVING?  IF SO, KEEP GOING...
 	if (s1->specialdata)
@@ -1392,8 +1396,8 @@ void P_SpawnSpecials (data_t* data)
     }
 
     //	Init special SECTORs.
-    sector = sectors;
-    for (i=0 ; i<numsectors ; i++, sector++)
+    sector = data->sectors;
+    for (i=0 ; i<data->numsectors ; i++, sector++)
     {
 	if (!sector->special)
 	    continue;
@@ -1459,9 +1463,9 @@ void P_SpawnSpecials (data_t* data)
     
     //	Init line EFFECTs
     numlinespecials = 0;
-    for (i = 0;i < numlines; i++)
+    for (i = 0;i < data->numlines; i++)
     {
-	switch(lines[i].special)
+	switch(data->lines[i].special)
 	{
 	  case 48:
             if (numlinespecials >= MAXLINEANIMS)
@@ -1470,7 +1474,7 @@ void P_SpawnSpecials (data_t* data)
                         "(Vanilla limit is 64)");
             }
 	    // EFFECT FIRSTCOL SCROLL+
-	    linespeciallist[numlinespecials] = &lines[i];
+	    linespeciallist[numlinespecials] = &data->lines[i];
 	    numlinespecials++;
 	    break;
 	}

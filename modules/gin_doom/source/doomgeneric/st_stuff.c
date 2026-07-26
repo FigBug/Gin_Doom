@@ -242,7 +242,7 @@
 #define ST_MSGTEXTY			0
 // Dimensions given in characters.
 #define ST_MSGWIDTH			52
-// Or shall I say, in lines?
+// Or shall I say, in data->lines?
 #define ST_MSGHEIGHT		1
 
 #define ST_OUTTEXTX			0
@@ -250,7 +250,7 @@
 
 // Width, in characters again.
 #define ST_OUTWIDTH			52 
- // Height, in lines. 
+ // Height, in data->lines. 
 #define ST_OUTHEIGHT		1
 
 #define ST_MAPTITLEX \

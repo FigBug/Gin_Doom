@@ -943,7 +943,7 @@ void R_DrawViewBorder (data_t* data)
     ofs = (viewheight+top)*SCREENWIDTH-side; 
     R_VideoErase (data, ofs, top*SCREENWIDTH+side); 
  
-    // copy sides using wraparound 
+    // copy data->sides using wraparound 
     ofs = top*SCREENWIDTH + SCREENWIDTH-side; 
     side <<= 1;
     

@@ -79,7 +79,7 @@ fixed_t		tmdropoffz;
 // so missiles don't explode against sky hack walls
 line_t*		ceilingline;
 
-// keep track of special lines as they are hit,
+// keep track of special data->lines as they are hit,
 // but don't process them until the move is proven valid
 
 line_t*		spechit[MAXSPECIALCROSS];
@@ -155,12 +155,12 @@ P_TeleportMove
     tmbbox[BOXRIGHT] = x + tmthing->radius;
     tmbbox[BOXLEFT] = x - tmthing->radius;
 
-    newsubsec = R_PointInSubsector (x,y);
+    newsubsec = R_PointInSubsector(data, x,y);
     ceilingline = NULL;
     
     // The base floor/ceiling is from the subsector
     // that contains the point.
-    // Any contacted lines the step closer together
+    // Any contacted data->lines the step closer together
     // will adjust them.
     tmfloorz = tmdropoffz = newsubsec->sector->floorheight;
     tmceilingz = newsubsec->sector->ceilingheight;
@@ -188,7 +188,7 @@ P_TeleportMove
     thing->x = x;
     thing->y = y;
 
-    P_SetThingPosition (thing);
+    P_SetThingPosition (data, thing);
 	
     return true;
 }
@@ -202,7 +202,7 @@ static void SpechitOverrun(data_t* data, line_t *ld);
 
 //
 // PIT_CheckLine
-// Adjusts tmfloorz and tmceilingz as lines are contacted
+// Adjusts tmfloorz and tmceilingz as data->lines are contacted
 //
 boolean PIT_CheckLine (data_t* data, line_t* ld)
 {
@@ -223,7 +223,7 @@ boolean PIT_CheckLine (data_t* data, line_t* ld)
     // If the line is special, keep track of it
     // to process later if the move is proven ok.
     // NOTE: specials are NOT sorted by order,
-    // so two special lines that are only 8 pixels apart
+    // so two special data->lines that are only 8 pixels apart
     // could be crossed in either order.
     
     if (!ld->backsector)
@@ -387,7 +387,7 @@ boolean PIT_CheckThing (data_t* data, mobj_t* thing)
 //
 // during:
 //  special things are touched if MF_PICKUP
-//  early out on solid lines?
+//  early out on solid data->lines?
 //
 // out:
 //  newsubsec
@@ -426,12 +426,12 @@ P_CheckPosition
     tmbbox[BOXRIGHT] = x + tmthing->radius;
     tmbbox[BOXLEFT] = x - tmthing->radius;
 
-    newsubsec = R_PointInSubsector (x,y);
+    newsubsec = R_PointInSubsector(data, x,y);
     ceilingline = NULL;
     
     // The base floor / ceiling is from the subsector
     // that contains the point.
-    // Any contacted lines the step closer together
+    // Any contacted data->lines the step closer together
     // will adjust them.
     tmfloorz = tmdropoffz = newsubsec->sector->floorheight;
     tmceilingz = newsubsec->sector->ceilingheight;
@@ -457,7 +457,7 @@ P_CheckPosition
 	    if (!P_BlockThingsIterator(data, bx,by,PIT_CheckThing))
 		return false;
     
-    // check lines
+    // check data->lines
     xl = (tmbbox[BOXLEFT] - bmaporgx)>>MAPBLOCKSHIFT;
     xh = (tmbbox[BOXRIGHT] - bmaporgx)>>MAPBLOCKSHIFT;
     yl = (tmbbox[BOXBOTTOM] - bmaporgy)>>MAPBLOCKSHIFT;
@@ -475,7 +475,7 @@ P_CheckPosition
 //
 // P_TryMove
 // Attempt to move to a new position,
-// crossing special lines unless MF_TELEPORT is set.
+// crossing special data->lines unless MF_TELEPORT is set.
 //
 boolean
 P_TryMove
@@ -525,9 +525,9 @@ P_TryMove
     thing->x = x;
     thing->y = y;
 
-    P_SetThingPosition (thing);
+    P_SetThingPosition (data, thing);
     
-    // if any special lines were hit, do the effect
+    // if any special data->lines were hit, do the effect
     if (! (thing->flags&(MF_TELEPORT|MF_NOCLIP)) )
     {
 	while (numspechit--)
@@ -539,7 +539,7 @@ P_TryMove
 	    if (side != oldside)
 	    {
 		if (ld->special)
-		    P_CrossSpecialLine (data, ld-lines, oldside, thing);
+		    P_CrossSpecialLine (data, ld-data->lines, oldside, thing);
 	    }
 	}
     }
@@ -960,7 +960,7 @@ boolean PTR_ShootTraverse (data_t* data, intercept_t* in)
 		
 	dist = FixedMul (attackrange, in->frac);
 
-        // e6y: emulation of missed back side on two-sided lines.
+        // e6y: emulation of missed back side on two-sided data->lines.
         // backsector can be NULL when emulating missing back side.
 
         if (li->backsector == NULL)
@@ -1178,7 +1178,7 @@ boolean	PTR_UseTraverse (data_t* data, intercept_t* in)
 
 //
 // P_UseLines
-// Looks for special lines in front of the player to activate.
+// Looks for special data->lines in front of the player to activate.
 //
 void P_UseLines (data_t* data, player_t*	player)
 {
@@ -1290,7 +1290,7 @@ P_RadiusAttack
 
 //
 // SECTOR HEIGHT CHANGING
-// After modifying a sectors floor or ceiling height,
+// After modifying a data->sectors floor or ceiling height,
 // call this routine to adjust the positions
 // of all things that touch the sector.
 //
@@ -1430,7 +1430,7 @@ static void SpechitOverrun(data_t* data, line_t *ld)
     
     // Calculate address used in doom2.exe
 
-    addr = baseaddr + (ld - lines) * 0x3E;
+    addr = baseaddr + (ld - data->lines) * 0x3E;
 
     switch(numspechit)
     {

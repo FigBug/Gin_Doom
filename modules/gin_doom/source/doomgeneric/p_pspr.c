@@ -245,7 +245,7 @@ void P_FireWeapon (data_t* data, player_t* player)
     P_SetMobjState (data, player->mo, S_PLAY_ATK1);
     newstate = weaponinfo[player->readyweapon].atkstate;
     P_SetPsprite (data, player, ps_weapon, newstate);
-    P_NoiseAlert (player->mo, player->mo);
+    P_NoiseAlert (data, player->mo, player->mo);
 }
 
 

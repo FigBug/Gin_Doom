@@ -125,7 +125,7 @@ void	P_SpawnPlayerMissile (data_t* data, mobj_t* source, mobjtype_t type);
 //
 // P_ENEMY
 //
-void P_NoiseAlert (mobj_t* target, mobj_t* emmiter);
+void P_NoiseAlert (data_t* data, mobj_t* target, mobj_t* emmiter);
 
 
 //
@@ -194,7 +194,7 @@ P_PathTraverse
   boolean	(*trav) (data_t*,intercept_t *));
 
 void P_UnsetThingPosition (mobj_t* thing);
-void P_SetThingPosition (mobj_t* thing);
+void P_SetThingPosition (data_t* data, mobj_t* thing);
 
 
 //

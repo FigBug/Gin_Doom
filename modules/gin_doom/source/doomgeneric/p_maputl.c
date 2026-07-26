@@ -334,7 +334,7 @@ void P_LineOpening (line_t* linedef)
 
 //
 // P_UnsetThingPosition
-// Unlinks a thing from block map and sectors.
+// Unlinks a thing from block map and data->sectors.
 // On each position change, BLOCKMAP and other
 // lookups maintaining lists ot things inside
 // these structures need to be updated.
@@ -388,7 +388,7 @@ void P_UnsetThingPosition (mobj_t* thing)
 // Sets thing->subsector properly
 //
 void
-P_SetThingPosition (mobj_t* thing)
+P_SetThingPosition (data_t* data, mobj_t* thing)
 {
     subsector_t*	ss;
     sector_t*		sec;
@@ -398,7 +398,7 @@ P_SetThingPosition (mobj_t* thing)
 
     
     // link into subsector
-    ss = R_PointInSubsector (thing->x,thing->y);
+    ss = R_PointInSubsector(data, thing->x,thing->y);
     thing->subsector = ss;
     
     if ( ! (thing->flags & MF_NOSECTOR) )
@@ -457,7 +457,7 @@ P_SetThingPosition (mobj_t* thing)
 
 //
 // P_BlockLinesIterator
-// The validcount flags are used to avoid checking lines
+// The validcount flags are used to avoid checking data->lines
 // that are marked in multiple mapblocks,
 // so increment validcount before the first call
 // to P_BlockLinesIterator, then make one or more calls
@@ -488,7 +488,7 @@ P_BlockLinesIterator
 
     for ( list = blockmaplump+offset ; *list != -1 ; list++)
     {
-	ld = &lines[*list];
+	ld = &data->lines[*list];
 
 	if (ld->validcount == validcount)
 	    continue; 	// line has already been checked
@@ -549,12 +549,12 @@ static void InterceptsOverrun(int num_intercepts, intercept_t *intercept);
 
 //
 // PIT_AddLineIntercepts.
-// Looks for lines in the given block
+// Looks for data->lines in the given block
 // that intercept the given trace
 // to add to the intercepts list.
 //
 // A line is crossed if its endpoints
-// are on opposite sides of the trace.
+// are on opposite data->sides of the trace.
 // Returns true if earlyout and a solid line hit.
 //
 boolean
@@ -678,7 +678,7 @@ boolean PIT_AddThingIntercepts (data_t* data, mobj_t* thing)
 //
 // P_TraverseIntercepts
 // Returns true if the traverser function returns true
-// for all lines.
+// for all data->lines.
 // 
 boolean
 P_TraverseIntercepts
@@ -858,7 +858,7 @@ static void InterceptsOverrun(int num_intercepts, intercept_t *intercept)
 // Traces a line from x1,y1 to x2,y2,
 // calling the traverser function for each.
 // Returns true if the traverser function returns true
-// for all lines.
+// for all data->lines.
 //
 boolean
 P_PathTraverse

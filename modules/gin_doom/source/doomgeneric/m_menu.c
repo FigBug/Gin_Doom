@@ -1197,7 +1197,7 @@ void M_ChangeDetail(data_t* data, int choice)
     choice = 0;
     detailLevel = 1 - detailLevel;
 
-    R_SetViewSize (screenblocks, detailLevel);
+    R_SetViewSize(data, screenblocks, detailLevel);
 
     if (!detailLevel)
 	data->players[data->consoleplayer].message = DEH_String(DETAILHI);
@@ -1229,7 +1229,7 @@ void M_SizeDisplay(data_t* data, int choice)
     }
 	
 
-    R_SetViewSize (screenblocks, detailLevel);
+    R_SetViewSize(data, screenblocks, detailLevel);
 }
 
 

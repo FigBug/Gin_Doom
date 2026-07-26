@@ -100,7 +100,8 @@ P_DivlineSide
 //
 fixed_t
 P_InterceptVector2
-( divline_t*	v2,
+( data_t* data,
+  divline_t*	v2,
   divline_t*	v1 )
 {
     fixed_t	frac;
@@ -125,7 +126,7 @@ P_InterceptVector2
 // Returns true
 //  if strace crosses the given subsector successfully.
 //
-boolean P_CrossSubsector (int num)
+boolean P_CrossSubsector (data_t* data, int num)
 {
     seg_t*		seg;
     line_t*		line;
@@ -144,17 +145,17 @@ boolean P_CrossSubsector (int num)
     fixed_t		slope;
 	
 #ifdef RANGECHECK
-    if (num>=numsubsectors)
+    if (num>=data->numsubsectors)
 	I_Error (NULL, "P_CrossSubsector: ss %i with numss = %i",
 		 num,
-		 numsubsectors);
+		 data->numsubsectors);
 #endif
 
-    sub = &subsectors[num];
+    sub = &data->subsectors[num];
     
-    // check lines
+    // check data->lines
     count = sub->numlines;
-    seg = &segs[sub->firstline];
+    seg = &data->segs[sub->firstline];
 
     for ( ; count ; seg++, count--)
     {
@@ -225,7 +226,7 @@ boolean P_CrossSubsector (int num)
 	if (openbottom >= opentop)	
 	    return false;		// stop
 	
-	frac = P_InterceptVector2 (&strace, &divl);
+	frac = P_InterceptVector2(data, &strace, &divl);
 		
 	if (front->floorheight != back->floorheight)
 	{
@@ -255,7 +256,7 @@ boolean P_CrossSubsector (int num)
 // Returns true
 //  if strace crosses the given node successfully.
 //
-boolean P_CrossBSPNode (int bspnum)
+boolean P_CrossBSPNode (data_t* data, int bspnum)
 {
     node_t*	bsp;
     int		side;
@@ -263,20 +264,20 @@ boolean P_CrossBSPNode (int bspnum)
     if (bspnum & NF_SUBSECTOR)
     {
 	if (bspnum == -1)
-	    return P_CrossSubsector (0);
+	    return P_CrossSubsector (data, 0);
 	else
-	    return P_CrossSubsector (bspnum&(~NF_SUBSECTOR));
+	    return P_CrossSubsector (data, bspnum&(~NF_SUBSECTOR));
     }
 		
-    bsp = &nodes[bspnum];
+    bsp = &data->nodes[bspnum];
     
     // decide which side the start point is on
     side = P_DivlineSide (strace.x, strace.y, (divline_t *)bsp);
     if (side == 2)
-	side = 0;	// an "on" should cross both sides
+	side = 0;	// an "on" should cross both data->sides
 
     // cross the starting side
-    if (!P_CrossBSPNode (bsp->children[side]) )
+    if (!P_CrossBSPNode (data, bsp->children[side]) )
 	return false;
 	
     // the partition plane is crossed here
@@ -287,7 +288,7 @@ boolean P_CrossBSPNode (int bspnum)
     }
     
     // cross the ending side		
-    return P_CrossBSPNode (bsp->children[side^1]);
+    return P_CrossBSPNode (data, bsp->children[side^1]);
 }
 
 
@@ -312,9 +313,9 @@ P_CheckSight
     // First check for trivial rejection.
 
     // Determine subsector entries in REJECT table.
-    s1 = (t1->subsector->sector - sectors);
-    s2 = (t2->subsector->sector - sectors);
-    pnum = s1*numsectors + s2;
+    s1 = (t1->subsector->sector - data->sectors);
+    s2 = (t2->subsector->sector - data->sectors);
+    pnum = s1*data->numsectors + s2;
     bytenum = pnum>>3;
     bitnum = 1 << (pnum&7);
 
@@ -345,7 +346,7 @@ P_CheckSight
     strace.dy = t2->y - t1->y;
 
     // the head node is the last node output
-    return P_CrossBSPNode (numnodes-1);	
+    return P_CrossBSPNode (data, data->numnodes-1);	
 }
 
 

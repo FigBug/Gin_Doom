@@ -360,17 +360,17 @@ void AM_findMinMaxBoundaries(data_t* data)
     min_x = min_y =  INT_MAX;
     max_x = max_y = -INT_MAX;
   
-    for (i=0;i<numvertexes;i++)
+    for (i=0;i<data->numvertexes;i++)
     {
-	if (vertexes[i].x < min_x)
-	    min_x = vertexes[i].x;
-	else if (vertexes[i].x > max_x)
-	    max_x = vertexes[i].x;
+	if (data->vertexes[i].x < min_x)
+	    min_x = data->vertexes[i].x;
+	else if (data->vertexes[i].x > max_x)
+	    max_x = data->vertexes[i].x;
     
-	if (vertexes[i].y < min_y)
-	    min_y = vertexes[i].y;
-	else if (vertexes[i].y > max_y)
-	    max_y = vertexes[i].y;
+	if (data->vertexes[i].y < min_y)
+	    min_y = data->vertexes[i].y;
+	else if (data->vertexes[i].y > max_y)
+	    max_y = data->vertexes[i].y;
     }
   
     max_w = max_x - min_x;
@@ -837,7 +837,7 @@ void AM_clearFB(data_t* data, int color)
 
 
 //
-// Automap clipping of lines.
+// Automap clipping of data->lines.
 //
 // Based on Cohen-Sutherland clipping algorithm but with a slightly
 // faster reject and precalculated slopes.  If the speed is needed,
@@ -1055,7 +1055,7 @@ AM_drawFline
 
 
 //
-// Clip lines, draw visible part sof lines.
+// Clip data->lines, draw visible part sof data->lines.
 //
 void
 AM_drawMline
@@ -1071,7 +1071,7 @@ AM_drawMline
 
 
 //
-// Draws flat (floor/ceiling tile) aligned grid lines.
+// Draws flat (floor/ceiling tile) aligned grid data->lines.
 //
 void AM_drawGrid(data_t* data, int color)
 {
@@ -1116,7 +1116,7 @@ void AM_drawGrid(data_t* data, int color)
 }
 
 //
-// Determines visible lines, draws them.
+// Determines visible data->lines, draws them.
 // This is LineDef based, not LineSeg based.
 //
 void AM_drawWalls(data_t* data)
@@ -1124,37 +1124,37 @@ void AM_drawWalls(data_t* data)
     int i;
     static mline_t l;
 
-    for (i=0;i<numlines;i++)
+    for (i=0;i<data->numlines;i++)
     {
-	l.a.x = lines[i].v1->x;
-	l.a.y = lines[i].v1->y;
-	l.b.x = lines[i].v2->x;
-	l.b.y = lines[i].v2->y;
-	if (cheating || (lines[i].flags & ML_MAPPED))
+	l.a.x = data->lines[i].v1->x;
+	l.a.y = data->lines[i].v1->y;
+	l.b.x = data->lines[i].v2->x;
+	l.b.y = data->lines[i].v2->y;
+	if (cheating || (data->lines[i].flags & ML_MAPPED))
 	{
-	    if ((lines[i].flags & LINE_NEVERSEE) && !cheating)
+	    if ((data->lines[i].flags & LINE_NEVERSEE) && !cheating)
 		continue;
-	    if (!lines[i].backsector)
+	    if (!data->lines[i].backsector)
 	    {
 		AM_drawMline(&l, WALLCOLORS+lightlev);
 	    }
 	    else
 	    {
-		if (lines[i].special == 39)
+		if (data->lines[i].special == 39)
 		{ // teleporters
 		    AM_drawMline(&l, WALLCOLORS+WALLRANGE/2);
 		}
-		else if (lines[i].flags & ML_SECRET) // secret door
+		else if (data->lines[i].flags & ML_SECRET) // secret door
 		{
 		    if (cheating) AM_drawMline(&l, SECRETWALLCOLORS + lightlev);
 		    else AM_drawMline(&l, WALLCOLORS+lightlev);
 		}
-		else if (lines[i].backsector->floorheight
-			   != lines[i].frontsector->floorheight) {
+		else if (data->lines[i].backsector->floorheight
+			   != data->lines[i].frontsector->floorheight) {
 		    AM_drawMline(&l, FDWALLCOLORS + lightlev); // floor level change
 		}
-		else if (lines[i].backsector->ceilingheight
-			   != lines[i].frontsector->ceilingheight) {
+		else if (data->lines[i].backsector->ceilingheight
+			   != data->lines[i].frontsector->ceilingheight) {
 		    AM_drawMline(&l, CDWALLCOLORS+lightlev); // ceiling level change
 		}
 		else if (cheating) {
@@ -1164,7 +1164,7 @@ void AM_drawWalls(data_t* data)
 	}
 	else if (plr->powers[pw_allmap])
 	{
-	    if (!(lines[i].flags & LINE_NEVERSEE)) AM_drawMline(&l, GRAYS+3);
+	    if (!(data->lines[i].flags & LINE_NEVERSEE)) AM_drawMline(&l, GRAYS+3);
 	}
     }
 }
@@ -1288,15 +1288,16 @@ void AM_drawPlayers(data_t* data)
 
 void
 AM_drawThings
-( int	colors,
+( data_t* data,
+  int	colors,
   int 	colorrange)
 {
     int		i;
     mobj_t*	t;
 
-    for (i=0;i<numsectors;i++)
+    for (i=0;i<data->numsectors;i++)
     {
-	t = sectors[i].thinglist;
+	t = data->sectors[i].thinglist;
 	while (t)
 	{
 	    AM_drawLineCharacter
@@ -1344,7 +1345,7 @@ void AM_Drawer(data_t* data)
     AM_drawWalls(data);
     AM_drawPlayers(data);
     if (cheating==2)
-	AM_drawThings(THINGCOLORS, THINGRANGE);
+	AM_drawThings(data, THINGCOLORS, THINGRANGE);
     AM_drawCrosshair(data, XHAIRCOLORS);
 
     AM_drawMarks(data);

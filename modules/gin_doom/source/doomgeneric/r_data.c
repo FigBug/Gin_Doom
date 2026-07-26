@@ -819,10 +819,10 @@ void R_PrecacheLevel (data_t* data)
     flatpresent = Z_Malloc(numflats, PU_STATIC, NULL);
     memset (flatpresent,0,numflats);	
 
-    for (i=0 ; i<numsectors ; i++)
+    for (i=0 ; i<data->numsectors ; i++)
     {
-	flatpresent[sectors[i].floorpic] = 1;
-	flatpresent[sectors[i].ceilingpic] = 1;
+	flatpresent[data->sectors[i].floorpic] = 1;
+	flatpresent[data->sectors[i].ceilingpic] = 1;
     }
 	
     flatmemory = 0;
@@ -843,11 +843,11 @@ void R_PrecacheLevel (data_t* data)
     texturepresent = Z_Malloc(numtextures, PU_STATIC, NULL);
     memset (texturepresent,0, numtextures);
 	
-    for (i=0 ; i<numsides ; i++)
+    for (i=0 ; i<data->numsides ; i++)
     {
-	texturepresent[sides[i].toptexture] = 1;
-	texturepresent[sides[i].midtexture] = 1;
-	texturepresent[sides[i].bottomtexture] = 1;
+	texturepresent[data->sides[i].toptexture] = 1;
+	texturepresent[data->sides[i].midtexture] = 1;
+	texturepresent[data->sides[i].bottomtexture] = 1;
     }
 
     // Sky texture is always present.

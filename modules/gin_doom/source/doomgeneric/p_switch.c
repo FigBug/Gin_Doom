@@ -207,9 +207,9 @@ P_ChangeSwitchTexture
     if (!useAgain)
 	line->special = 0;
 
-    texTop = sides[line->sidenum[0]].toptexture;
-    texMid = sides[line->sidenum[0]].midtexture;
-    texBot = sides[line->sidenum[0]].bottomtexture;
+    texTop = data->sides[line->sidenum[0]].toptexture;
+    texMid = data->sides[line->sidenum[0]].midtexture;
+    texBot = data->sides[line->sidenum[0]].bottomtexture;
 	
     sound = sfx_swtchn;
 
@@ -222,7 +222,7 @@ P_ChangeSwitchTexture
 	if (switchlist[i] == texTop)
 	{
 	    S_StartSound(data, buttonlist->soundorg,sound);
-	    sides[line->sidenum[0]].toptexture = switchlist[i^1];
+	    data->sides[line->sidenum[0]].toptexture = switchlist[i^1];
 
 	    if (useAgain)
 		P_StartButton(data, line,top,switchlist[i],BUTTONTIME);
@@ -234,7 +234,7 @@ P_ChangeSwitchTexture
 	    if (switchlist[i] == texMid)
 	    {
 		S_StartSound(data, buttonlist->soundorg,sound);
-		sides[line->sidenum[0]].midtexture = switchlist[i^1];
+		data->sides[line->sidenum[0]].midtexture = switchlist[i^1];
 
 		if (useAgain)
 		    P_StartButton(data, line, middle,switchlist[i],BUTTONTIME);
@@ -246,7 +246,7 @@ P_ChangeSwitchTexture
 		if (switchlist[i] == texBot)
 		{
 		    S_StartSound(data, buttonlist->soundorg,sound);
-		    sides[line->sidenum[0]].bottomtexture = switchlist[i^1];
+		    data->sides[line->sidenum[0]].bottomtexture = switchlist[i^1];
 
 		    if (useAgain)
 			P_StartButton(data, line, bottom,switchlist[i],BUTTONTIME);
@@ -266,7 +266,7 @@ P_ChangeSwitchTexture
 //
 // P_UseSpecialLine
 // Called when a thing uses a special line.
-// Only the front sides of lines are usable.
+// Only the front data->sides of data->lines are usable.
 //
 boolean
 P_UseSpecialLine
@@ -277,7 +277,7 @@ P_UseSpecialLine
 {               
 
     // Err...
-    // Use the back sides of VERY SPECIAL lines...
+    // Use the back data->sides of VERY SPECIAL data->lines...
     if (side)
     {
 	switch(line->special)
@@ -343,7 +343,7 @@ P_UseSpecialLine
 	// SWITCHES
       case 7:
 	// Build Stairs
-	if (EV_BuildStairs(line,build8))
+	if (EV_BuildStairs(data, line,build8))
 		P_ChangeSwitchTexture(data, line,0);
 	break;
 
@@ -481,7 +481,7 @@ P_UseSpecialLine
 	
       case 127:
 	// Build Stairs Turbo 16
-	if (EV_BuildStairs(line,turbo16))
+	if (EV_BuildStairs(data, line,turbo16))
 		P_ChangeSwitchTexture(data, line,0);
 	break;
 	

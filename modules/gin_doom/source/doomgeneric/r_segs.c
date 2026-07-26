@@ -33,9 +33,9 @@
 #include "r_sky.h"
 
 
-// OPTIMIZE: closed two sided lines as single sided
+// OPTIMIZE: closed two sided data->lines as single sided
 
-// True if any of the segs textures might be visible.
+// True if any of the data->segs textures might be visible.
 boolean		segtextured;	
 
 // False if the back side is the same plane.
@@ -541,7 +541,7 @@ R_StoreWallRange
 	}
 	else
 	{
-	    // same plane on both sides
+	    // same plane on both data->sides
 	    markfloor = false;
 	}
 	
@@ -554,7 +554,7 @@ R_StoreWallRange
 	}
 	else
 	{
-	    // same plane on both sides
+	    // same plane on both data->sides
 	    markceiling = false;
 	}
 	
@@ -612,7 +612,7 @@ R_StoreWallRange
 	}
     }
     
-    // calculate rw_offset (only needed for textured lines)
+    // calculate rw_offset (only needed for textured data->lines)
     segtextured = midtexture | toptexture | bottomtexture | maskedtexture;
 
     if (segtextured)

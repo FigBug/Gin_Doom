@@ -402,7 +402,7 @@ P_NightmareRespawn (data_t* data, mobj_t* mobj)
     S_StartSound(data, mo, sfx_telept);
 
     // spawn a teleport fog at the new spot
-    ss = R_PointInSubsector (x,y); 
+    ss = R_PointInSubsector(data, x,y); 
 
     mo = P_SpawnMobj (data, x, y, ss->sector->floorheight , MT_TFOG);
 
@@ -538,7 +538,7 @@ P_SpawnMobj
     mobj->frame = st->frame;
 
     // set subsector and/or block links
-    P_SetThingPosition (mobj);
+    P_SetThingPosition (data, mobj);
 	
     mobj->floorz = mobj->subsector->sector->floorheight;
     mobj->ceilingz = mobj->subsector->sector->ceilingheight;
@@ -629,7 +629,7 @@ void P_RespawnSpecials (data_t* data)
     y = mthing->y << FRACBITS; 
 	  
     // spawn a teleport fog at the new spot
-    ss = R_PointInSubsector (x,y); 
+    ss = R_PointInSubsector(data, x,y); 
     mo = P_SpawnMobj (data, x, y, ss->sector->floorheight , MT_IFOG);
     S_StartSound(data, mo, sfx_itmbk);
 

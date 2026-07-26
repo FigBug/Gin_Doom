@@ -262,9 +262,9 @@ EV_DoFloor
 
     secnum = -1;
     rtn = 0;
-    while ((secnum = P_FindSectorFromLineTag(line,secnum)) >= 0)
+    while ((secnum = P_FindSectorFromLineTag(data, line,secnum)) >= 0)
     {
-	sec = &sectors[secnum];
+	sec = &data->sectors[secnum];
 		
 	// ALREADY MOVING?  IF SO, KEEP GOING...
 	if (sec->specialdata)
@@ -372,15 +372,15 @@ EV_DoFloor
 	      floor->speed = FLOORSPEED;
 	      for (i = 0; i < sec->linecount; i++)
 	      {
-		  if (twoSided (secnum, i) )
+		  if (twoSided(data, secnum, i) )
 		  {
-		      side = getSide(secnum,i,0);
+		      side = getSide(data, secnum,i,0);
 		      if (side->bottomtexture >= 0)
 			  if (textureheight[side->bottomtexture] < 
 			      minsize)
 			      minsize = 
 				  textureheight[side->bottomtexture];
-		      side = getSide(secnum,i,1);
+		      side = getSide(data, secnum,i,1);
 		      if (side->bottomtexture >= 0)
 			  if (textureheight[side->bottomtexture] < 
 			      minsize)
@@ -403,11 +403,11 @@ EV_DoFloor
 
 	    for (i = 0; i < sec->linecount; i++)
 	    {
-		if ( twoSided(secnum, i) )
+		if ( twoSided(data, secnum, i) )
 		{
-		    if (getSide(secnum,i,0)->sector-sectors == secnum)
+		    if (getSide(data, secnum,i,0)->sector-data->sectors == secnum)
 		    {
-			sec = getSector(secnum,i,1);
+			sec = getSector(data, secnum,i,1);
 
 			if (sec->floorheight == floor->floordestheight)
 			{
@@ -418,7 +418,7 @@ EV_DoFloor
 		    }
 		    else
 		    {
-			sec = getSector(secnum,i,0);
+			sec = getSector(data, secnum,i,0);
 
 			if (sec->floorheight == floor->floordestheight)
 			{
@@ -444,7 +444,8 @@ EV_DoFloor
 //
 int
 EV_BuildStairs
-( line_t*	line,
+( data_t* data,
+  line_t*	line,
   stair_e	type )
 {
     int			secnum;
@@ -465,9 +466,9 @@ EV_BuildStairs
 
     secnum = -1;
     rtn = 0;
-    while ((secnum = P_FindSectorFromLineTag(line,secnum)) >= 0)
+    while ((secnum = P_FindSectorFromLineTag(data, line,secnum)) >= 0)
     {
-	sec = &sectors[secnum];
+	sec = &data->sectors[secnum];
 		
 	// ALREADY MOVING?  IF SO, KEEP GOING...
 	if (sec->specialdata)
@@ -510,13 +511,13 @@ EV_BuildStairs
 		    continue;
 					
 		tsec = (sec->lines[i])->frontsector;
-		newsecnum = tsec-sectors;
+		newsecnum = tsec-data->sectors;
 		
 		if (secnum != newsecnum)
 		    continue;
 
 		tsec = (sec->lines[i])->backsector;
-		newsecnum = tsec - sectors;
+		newsecnum = tsec - data->sectors;
 
 		if (tsec->floorpic != texture)
 		    continue;

@@ -253,7 +253,7 @@ void D_CheckNetGame (data_t* data)
     DEH_printf("startskill %i  data->deathmatch: %i  startmap: %i  startepisode: %i\n",
 			   data->startskill, data->deathmatch, data->startmap, data->startepisode);
 
-    DEH_printf("player %i of %i (%i nodes)\n",
+    DEH_printf("player %i of %i (%i data->nodes)\n",
                data->consoleplayer+1, settings.num_players, settings.num_players);
 
     // Show data->players here; the server might have specified a time limit

@@ -262,9 +262,9 @@ EV_DoDoor
     secnum = -1;
     rtn = 0;
     
-    while ((secnum = P_FindSectorFromLineTag(line,secnum)) >= 0)
+    while ((secnum = P_FindSectorFromLineTag(data, line,secnum)) >= 0)
     {
-	sec = &sectors[secnum];
+	sec = &data->sectors[secnum];
 	if (sec->specialdata)
 	    continue;
 		
@@ -346,7 +346,7 @@ EV_VerticalDoor
     vldoor_t*	door;
     int		side;
 	
-    side = 0;	// only front sides can be used
+    side = 0;	// only front data->sides can be used
 
     //	Check for locks
     player = thing->player;
@@ -395,7 +395,7 @@ EV_VerticalDoor
     }
 	
     // if the sector has an active thinker, use it
-    sec = sides[ line->sidenum[side^1]] .sector;
+    sec = data->sides[ line->sidenum[side^1]] .sector;
 
     if (sec->specialdata)
     {
@@ -631,7 +631,7 @@ int P_FindSlidingDoorType(line_t*	line)
 	
     for (i = 0;i < MAXSLIDEDOORS;i++)
     {
-	val = sides[line->sidenum[0]].midtexture;
+	val = data->sides[line->sidenum[0]].midtexture;
 	if (val == slideFrames[i].frontFrames[0])
 	    return i;
     }
@@ -649,8 +649,8 @@ void T_SlidingDoor (data_t* data, slidedoor_t* door)
 	    if (++door->frame == SNUMFRAMES)
 	    {
 		// IF DOOR IS DONE OPENING...
-		sides[door->line->sidenum[0]].midtexture = 0;
-		sides[door->line->sidenum[1]].midtexture = 0;
+		data->sides[door->line->sidenum[0]].midtexture = 0;
+		data->sides[door->line->sidenum[1]].midtexture = 0;
 		door->line->flags &= ML_BLOCKING^0xff;
 					
 		if (door->type == sdt_openOnly)
@@ -668,10 +668,10 @@ void T_SlidingDoor (data_t* data, slidedoor_t* door)
 		// IF DOOR NEEDS TO ANIMATE TO NEXT FRAME...
 		door->timer = SWAITTICS;
 					
-		sides[door->line->sidenum[0]].midtexture =
+		data->sides[door->line->sidenum[0]].midtexture =
 		    slideFrames[door->whichDoorIndex].
 		    frontFrames[door->frame];
-		sides[door->line->sidenum[1]].midtexture =
+		data->sides[door->line->sidenum[1]].midtexture =
 		    slideFrames[door->whichDoorIndex].
 		    backFrames[door->frame];
 	    }
@@ -712,10 +712,10 @@ void T_SlidingDoor (data_t* data, slidedoor_t* door)
 		// IF DOOR NEEDS TO ANIMATE TO NEXT FRAME...
 		door->timer = SWAITTICS;
 					
-		sides[door->line->sidenum[0]].midtexture =
+		data->sides[door->line->sidenum[0]].midtexture =
 		    slideFrames[door->whichDoorIndex].
 		    frontFrames[door->frame];
-		sides[door->line->sidenum[1]].midtexture =
+		data->sides[door->line->sidenum[1]].midtexture =
 		    slideFrames[door->whichDoorIndex].
 		    backFrames[door->frame];
 	    }

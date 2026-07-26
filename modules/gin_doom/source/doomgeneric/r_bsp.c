@@ -263,7 +263,7 @@ void R_AddLine (data_t* data, seg_t* line)
     
     curline = line;
 
-    // OPTIMIZE: quickly reject orthogonal back sides.
+    // OPTIMIZE: quickly reject orthogonal back data->sides.
     angle1 = R_PointToAngle (line->v1->x, line->v1->y);
     angle2 = R_PointToAngle (line->v2->x, line->v2->y);
     
@@ -329,10 +329,10 @@ void R_AddLine (data_t* data, seg_t* line)
 	|| backsector->floorheight != frontsector->floorheight)
 	goto clippass;	
 		
-    // Reject empty lines used for triggers
+    // Reject empty data->lines used for triggers
     //  and special events.
-    // Identical floor and ceiling on both sides,
-    // identical light levels on both sides,
+    // Identical floor and ceiling on both data->sides,
+    // identical light levels on both data->sides,
     // and no middle texture.
     if (backsector->ceilingpic == frontsector->ceilingpic
 	&& backsector->floorpic == frontsector->floorpic
@@ -497,17 +497,17 @@ void R_Subsector (data_t* data, int num)
     subsector_t*	sub;
 	
 #ifdef RANGECHECK
-    if (num>=numsubsectors)
+    if (num>=data->numsubsectors)
 	I_Error (NULL, "R_Subsector: ss %i with numss = %i",
 		 num,
-		 numsubsectors);
+		 data->numsubsectors);
 #endif
 
     sscount++;
-    sub = &subsectors[num];
+    sub = &data->subsectors[num];
     frontsector = sub->sector;
     count = sub->numlines;
-    line = &segs[sub->firstline];
+    line = &data->segs[sub->firstline];
 
     if (frontsector->floorheight < viewz)
     {
@@ -542,7 +542,7 @@ void R_Subsector (data_t* data, int num)
 
 //
 // RenderBSPNode
-// Renders all subsectors below a given node,
+// Renders all data->subsectors below a given node,
 //  traversing subtree recursively.
 // Just call with BSP root.
 void R_RenderBSPNode (data_t* data, int bspnum)
@@ -560,7 +560,7 @@ void R_RenderBSPNode (data_t* data, int bspnum)
 	return;
     }
 		
-    bsp = &nodes[bspnum];
+    bsp = &data->nodes[bspnum];
     
     // Decide which side the view point is on.
     side = R_PointOnSide (viewx, viewy, bsp);

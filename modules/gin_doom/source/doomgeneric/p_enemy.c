@@ -89,15 +89,16 @@ void A_Fall (data_t* data, mobj_t *actor);
 
 //
 // Called by P_NoiseAlert.
-// Recursively traverse adjacent sectors,
-// sound blocking lines cut off traversal.
+// Recursively traverse adjacent data->sectors,
+// sound blocking data->lines cut off traversal.
 //
 
 mobj_t*		soundtarget;
 
 void
 P_RecursiveSound
-( sector_t*	sec,
+( data_t* data,
+  sector_t*	sec,
   int		soundblocks )
 {
     int		i;
@@ -126,18 +127,18 @@ P_RecursiveSound
 	if (openrange <= 0)
 	    continue;	// closed door
 	
-	if ( sides[ check->sidenum[0] ].sector == sec)
-	    other = sides[ check->sidenum[1] ] .sector;
+	if ( data->sides[ check->sidenum[0] ].sector == sec)
+	    other = data->sides[ check->sidenum[1] ] .sector;
 	else
-	    other = sides[ check->sidenum[0] ].sector;
+	    other = data->sides[ check->sidenum[0] ].sector;
 	
 	if (check->flags & ML_SOUNDBLOCK)
 	{
 	    if (!soundblocks)
-		P_RecursiveSound (other, 1);
+		P_RecursiveSound(data, other, 1);
 	}
 	else
-	    P_RecursiveSound (other, soundblocks);
+	    P_RecursiveSound(data, other, soundblocks);
     }
 }
 
@@ -150,12 +151,13 @@ P_RecursiveSound
 //
 void
 P_NoiseAlert
-( mobj_t*	target,
+( data_t* data,
+  mobj_t*	target,
   mobj_t*	emmiter )
 {
     soundtarget = target;
     validcount++;
-    P_RecursiveSound (emmiter->subsector->sector, 0);
+    P_RecursiveSound(data, emmiter->subsector->sector, 0);
 }
 
 
@@ -1263,7 +1265,7 @@ void A_Fire (data_t* data, mobj_t* actor)
     actor->x = dest->x + FixedMul (24*FRACUNIT, finecosine[an]);
     actor->y = dest->y + FixedMul (24*FRACUNIT, finesine[an]);
     actor->z = dest->z;
-    P_SetThingPosition (actor);
+    P_SetThingPosition (data, actor);
 }
 
 

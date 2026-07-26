@@ -610,7 +610,7 @@ void R_AddSprites (sector_t* sec)
 
     // BSP is traversed by subsector.
     // A sector might have been split into several
-    //  subsectors during BSP building.
+    //  data->subsectors during BSP building.
     // Thus we check whether its already added.
     if (sec->validcount == validcount)
 	return;		
@@ -848,7 +848,7 @@ void R_DrawSprite (data_t* data, vissprite_t* spr)
     for (x = spr->x1 ; x<=spr->x2 ; x++)
 	clipbot[x] = cliptop[x] = -2;
     
-    // Scan drawsegs from end to start for obscuring segs.
+    // Scan drawsegs from end to start for obscuring data->segs.
     // The first drawseg that has a greater scale
     //  is the clip seg.
     for (ds=ds_p-1 ; ds >= drawsegs ; ds--)
