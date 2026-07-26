@@ -118,6 +118,35 @@ struct data_s
 	struct channel_s* channels;
 	struct musicinfo_s* mus_playing;
 
+	// g_game.c input/demo state
+	int             next_weapon;
+	boolean         gamekeydown[256];   // NUMKEYS
+	int             turnheld;
+	boolean         mousearray[9];      // MAX_MOUSE_BUTTONS+1
+	boolean*        mousebuttons;       // &mousearray[1], set in DG_Alloc
+	int             dclicktime;
+	boolean         dclickstate;
+	int             dclicks;
+	int             dclicktime2;
+	boolean         dclickstate2;
+	int             dclicks2;
+	int             joyxmove;
+	int             joyymove;
+	int             joystrafemove;
+	boolean         joyarray[21];       // MAX_JOY_BUTTONS+1
+	boolean*        joybuttons;         // &joyarray[1], set in DG_Alloc
+	int             savegameslot;
+	char            savedescription[32];
+	boolean         timingdemo;
+	int             starttime;
+	boolean         turbodetected[MAXPLAYERS];
+	boolean         longtics;
+	boolean         lowres_turn;
+	boolean         netdemo;
+	byte            consistancy[MAXPLAYERS][BACKUPTICS];
+	int             mousex;
+	int             mousey;
+
 
 };
 

@@ -98,18 +98,12 @@ gamestate_t     oldgamestate;
 
 
  
-boolean         timingdemo;             // if true, exit with report on completion 
-int             starttime;          	// for comparative timing purposes  	 
  
  
 
-boolean         turbodetected[MAXPLAYERS];
  
  
 char           *demoname;
-boolean         longtics;               // cph's doom 1.91 longtics hack
-boolean         lowres_turn;            // low resolution turning for longtics
-boolean		netdemo; 
 byte*		demobuffer;
 byte*		demo_p;
 byte*		demoend; 
@@ -121,7 +115,6 @@ int             testcontrols_mousespeed;
 
  
  
-byte		consistancy[MAXPLAYERS][BACKUPTICS]; 
  
 #define MAXPLMOVE		(forwardmove[1]) 
  
@@ -144,7 +137,6 @@ static int *weapon_keys[] = {
 
 // Set to -1 or +1 to switch to the previous or next weapon.
 
-static int next_weapon = 0;
 
 // Used for prev/next weapon keys.
 
@@ -169,32 +161,13 @@ static const struct
 #define NUMKEYS		256 
 #define MAX_JOY_BUTTONS 20
 
-static boolean  gamekeydown[NUMKEYS]; 
-static int      turnheld;		// for accelerative turning 
  
-static boolean  mousearray[MAX_MOUSE_BUTTONS + 1];
-static boolean *mousebuttons = &mousearray[1];  // allow [-1]
 
 // mouse values are used once 
-int             mousex;
-int             mousey;         
 
-static int      dclicktime;
-static boolean  dclickstate;
-static int      dclicks; 
-static int      dclicktime2;
-static boolean  dclickstate2;
-static int      dclicks2;
 
 // joystick values are repeated 
-static int      joyxmove;
-static int      joyymove;
-static int      joystrafemove;
-static boolean  joyarray[MAX_JOY_BUTTONS + 1]; 
-static boolean *joybuttons = &joyarray[1];		// allow [-1] 
  
-static int      savegameslot; 
-static char     savedescription[32]; 
  
 #define	BODYQUESIZE	32
 
@@ -305,32 +278,32 @@ void G_BuildTiccmd (data_t* data, ticcmd_t* cmd, int maketic)
     memset(cmd, 0, sizeof(ticcmd_t));
 
     cmd->consistancy = 
-	consistancy[data->consoleplayer][maketic%BACKUPTICS]; 
+	data->consistancy[data->consoleplayer][maketic%BACKUPTICS]; 
  
-    strafe = gamekeydown[key_strafe] || mousebuttons[mousebstrafe] 
-	|| joybuttons[joybstrafe]; 
+    strafe = data->gamekeydown[key_strafe] || data->mousebuttons[mousebstrafe] 
+	|| data->joybuttons[joybstrafe]; 
 
     // fraggle: support the old "joyb_speed = 31" hack which
     // allowed an autorun effect
 
     speed = key_speed >= NUMKEYS
          || joybspeed >= MAX_JOY_BUTTONS
-         || gamekeydown[key_speed] 
-         || joybuttons[joybspeed];
+         || data->gamekeydown[key_speed] 
+         || data->joybuttons[joybspeed];
  
     forward = side = 0;
     
     // use two stage accelerative turning
     // on the keyboard and joystick
-    if (joyxmove < 0
-	|| joyxmove > 0  
-	|| gamekeydown[key_right]
-	|| gamekeydown[key_left]) 
-	turnheld += ticdup; 
+    if (data->joyxmove < 0
+	|| data->joyxmove > 0  
+	|| data->gamekeydown[key_right]
+	|| data->gamekeydown[key_left]) 
+	data->turnheld += ticdup; 
     else 
-	turnheld = 0; 
+	data->turnheld = 0; 
 
-    if (turnheld < SLOWTURNTICS) 
+    if (data->turnheld < SLOWTURNTICS) 
 	tspeed = 2;             // slow turn 
     else 
 	tspeed = speed;
@@ -338,62 +311,62 @@ void G_BuildTiccmd (data_t* data, ticcmd_t* cmd, int maketic)
     // let movement keys cancel each other out
     if (strafe) 
     { 
-	if (gamekeydown[key_right]) 
+	if (data->gamekeydown[key_right]) 
 	{
 	    // fprintf(stderr, "strafe right\n");
 	    side += sidemove[speed]; 
 	}
-	if (gamekeydown[key_left]) 
+	if (data->gamekeydown[key_left]) 
 	{
 	    //	fprintf(stderr, "strafe left\n");
 	    side -= sidemove[speed]; 
 	}
-	if (joyxmove > 0) 
+	if (data->joyxmove > 0) 
 	    side += sidemove[speed]; 
-	if (joyxmove < 0) 
+	if (data->joyxmove < 0) 
 	    side -= sidemove[speed]; 
  
     } 
     else 
     { 
-	if (gamekeydown[key_right]) 
+	if (data->gamekeydown[key_right]) 
 	    cmd->angleturn -= angleturn[tspeed]; 
-	if (gamekeydown[key_left]) 
+	if (data->gamekeydown[key_left]) 
 	    cmd->angleturn += angleturn[tspeed]; 
-	if (joyxmove > 0) 
+	if (data->joyxmove > 0) 
 	    cmd->angleturn -= angleturn[tspeed]; 
-	if (joyxmove < 0) 
+	if (data->joyxmove < 0) 
 	    cmd->angleturn += angleturn[tspeed]; 
     } 
  
-    if (gamekeydown[key_up]) 
+    if (data->gamekeydown[key_up]) 
     {
 	// fprintf(stderr, "up\n");
 	forward += forwardmove[speed]; 
     }
-    if (gamekeydown[key_down]) 
+    if (data->gamekeydown[key_down]) 
     {
 	// fprintf(stderr, "down\n");
 	forward -= forwardmove[speed]; 
     }
 
-    if (joyymove < 0) 
+    if (data->joyymove < 0) 
         forward += forwardmove[speed]; 
-    if (joyymove > 0) 
+    if (data->joyymove > 0) 
         forward -= forwardmove[speed]; 
 
-    if (gamekeydown[key_strafeleft]
-     || joybuttons[joybstrafeleft]
-     || mousebuttons[mousebstrafeleft]
-     || joystrafemove < 0)
+    if (data->gamekeydown[key_strafeleft]
+     || data->joybuttons[joybstrafeleft]
+     || data->mousebuttons[mousebstrafeleft]
+     || data->joystrafemove < 0)
     {
         side -= sidemove[speed];
     }
 
-    if (gamekeydown[key_straferight]
-     || joybuttons[joybstraferight]
-     || mousebuttons[mousebstraferight]
-     || joystrafemove > 0)
+    if (data->gamekeydown[key_straferight]
+     || data->joybuttons[joybstraferight]
+     || data->mousebuttons[mousebstraferight]
+     || data->joystrafemove > 0)
     {
         side += sidemove[speed]; 
     }
@@ -401,26 +374,26 @@ void G_BuildTiccmd (data_t* data, ticcmd_t* cmd, int maketic)
     // buttons
     cmd->chatchar = HU_dequeueChatChar(); 
  
-    if (gamekeydown[key_fire] || mousebuttons[mousebfire] 
-	|| joybuttons[joybfire]) 
+    if (data->gamekeydown[key_fire] || data->mousebuttons[mousebfire] 
+	|| data->joybuttons[joybfire]) 
 	cmd->buttons |= BT_ATTACK; 
  
-    if (gamekeydown[key_use]
-     || joybuttons[joybuse]
-     || mousebuttons[mousebuse])
+    if (data->gamekeydown[key_use]
+     || data->joybuttons[joybuse]
+     || data->mousebuttons[mousebuse])
     { 
 	cmd->buttons |= BT_USE;
 	// clear double clicks if hit use button 
-	dclicks = 0;                   
+	data->dclicks = 0;                   
     } 
 
     // If the previous or next weapon button is pressed, the
-    // next_weapon variable is set to change weapons when
+    // data->next_weapon variable is set to change weapons when
     // we generate a ticcmd.  Choose a new weapon.
 
-    if (data->gamestate == GS_LEVEL && next_weapon != 0)
+    if (data->gamestate == GS_LEVEL && data->next_weapon != 0)
     {
-        i = G_NextWeapon(data, next_weapon);
+        i = G_NextWeapon(data, data->next_weapon);
         cmd->buttons |= BT_CHANGE;
         cmd->buttons |= i << BT_WEAPONSHIFT;
     }
@@ -432,7 +405,7 @@ void G_BuildTiccmd (data_t* data, ticcmd_t* cmd, int maketic)
         {
             int key = *weapon_keys[i];
 
-            if (gamekeydown[key])
+            if (data->gamekeydown[key])
             {
                 cmd->buttons |= BT_CHANGE;
                 cmd->buttons |= i<<BT_WEAPONSHIFT;
@@ -441,14 +414,14 @@ void G_BuildTiccmd (data_t* data, ticcmd_t* cmd, int maketic)
         }
     }
 
-    next_weapon = 0;
+    data->next_weapon = 0;
 
     // mouse
-    if (mousebuttons[mousebforward]) 
+    if (data->mousebuttons[mousebforward]) 
     {
 	forward += forwardmove[speed];
     }
-    if (mousebuttons[mousebbackward])
+    if (data->mousebuttons[mousebbackward])
     {
         forward -= forwardmove[speed];
     }
@@ -456,72 +429,72 @@ void G_BuildTiccmd (data_t* data, ticcmd_t* cmd, int maketic)
     if (dclick_use)
     {
         // forward double click
-        if (mousebuttons[mousebforward] != dclickstate && dclicktime > 1 ) 
+        if (data->mousebuttons[mousebforward] != data->dclickstate && data->dclicktime > 1 ) 
         { 
-            dclickstate = mousebuttons[mousebforward]; 
-            if (dclickstate) 
-                dclicks++; 
-            if (dclicks == 2) 
+            data->dclickstate = data->mousebuttons[mousebforward]; 
+            if (data->dclickstate) 
+                data->dclicks++; 
+            if (data->dclicks == 2) 
             { 
                 cmd->buttons |= BT_USE; 
-                dclicks = 0; 
+                data->dclicks = 0; 
             } 
             else 
-                dclicktime = 0; 
+                data->dclicktime = 0; 
         } 
         else 
         { 
-            dclicktime += ticdup; 
-            if (dclicktime > 20) 
+            data->dclicktime += ticdup; 
+            if (data->dclicktime > 20) 
             { 
-                dclicks = 0; 
-                dclickstate = 0; 
+                data->dclicks = 0; 
+                data->dclickstate = 0; 
             } 
         }
         
         // strafe double click
         bstrafe =
-            mousebuttons[mousebstrafe] 
-            || joybuttons[joybstrafe]; 
-        if (bstrafe != dclickstate2 && dclicktime2 > 1 ) 
+            data->mousebuttons[mousebstrafe] 
+            || data->joybuttons[joybstrafe]; 
+        if (bstrafe != data->dclickstate2 && data->dclicktime2 > 1 ) 
         { 
-            dclickstate2 = bstrafe; 
-            if (dclickstate2) 
-                dclicks2++; 
-            if (dclicks2 == 2) 
+            data->dclickstate2 = bstrafe; 
+            if (data->dclickstate2) 
+                data->dclicks2++; 
+            if (data->dclicks2 == 2) 
             { 
                 cmd->buttons |= BT_USE; 
-                dclicks2 = 0; 
+                data->dclicks2 = 0; 
             } 
             else 
-                dclicktime2 = 0; 
+                data->dclicktime2 = 0; 
         } 
         else 
         { 
-            dclicktime2 += ticdup; 
-            if (dclicktime2 > 20) 
+            data->dclicktime2 += ticdup; 
+            if (data->dclicktime2 > 20) 
             { 
-                dclicks2 = 0; 
-                dclickstate2 = 0; 
+                data->dclicks2 = 0; 
+                data->dclickstate2 = 0; 
             } 
         } 
     }
 
-    forward += mousey; 
+    forward += data->mousey; 
 
     if (strafe) 
-	side += mousex*2; 
+	side += data->mousex*2; 
     else 
-	cmd->angleturn -= mousex*0x8; 
+	cmd->angleturn -= data->mousex*0x8; 
 
-    if (mousex == 0)
+    if (data->mousex == 0)
     {
         // No movement in the previous frame
 
         testcontrols_mousespeed = 0;
     }
     
-    mousex = mousey = 0; 
+    data->mousex = data->mousey = 0; 
 	 
     if (forward > MAXPLMOVE) 
 	forward = MAXPLMOVE; 
@@ -545,12 +518,12 @@ void G_BuildTiccmd (data_t* data, ticcmd_t* cmd, int maketic)
     if (data->sendsave) 
     { 
 	data->sendsave = false; 
-	cmd->buttons = BT_SPECIAL | BTS_SAVEGAME | (savegameslot<<BTS_SAVESHIFT); 
+	cmd->buttons = BT_SPECIAL | BTS_SAVEGAME | (data->savegameslot<<BTS_SAVESHIFT); 
     } 
 
     // low-res turning
 
-    if (lowres_turn)
+    if (data->lowres_turn)
     {
         static signed short carry = 0;
         signed short desired_angleturn;
@@ -619,7 +592,7 @@ void G_DoLoadLevel (data_t* data)
 
     for (i=0 ; i<MAXPLAYERS ; i++) 
     { 
-	turbodetected[i] = false;
+	data->turbodetected[i] = false;
 	if (data->playeringame[i] && data->players[i].playerstate == PST_DEAD) 
 	    data->players[i].playerstate = PST_REBORN; 
 	memset (data->players[i].frags,0,sizeof(data->players[i].frags)); 
@@ -632,12 +605,12 @@ void G_DoLoadLevel (data_t* data)
     
     // clear cmd building stuff
 
-    memset (gamekeydown, 0, sizeof(gamekeydown));
-    joyxmove = joyymove = joystrafemove = 0;
-    mousex = mousey = 0;
+    memset (data->gamekeydown, 0, sizeof(data->gamekeydown));
+    data->joyxmove = data->joyymove = data->joystrafemove = 0;
+    data->mousex = data->mousey = 0;
     data->sendpause = data->sendsave = data->paused = false;
-    memset(mousearray, 0, sizeof(mousearray));
-    memset(joyarray, 0, sizeof(joyarray));
+    memset(data->mousearray, 0, sizeof(data->mousearray));
+    memset(data->joyarray, 0, sizeof(data->joyarray));
 
     if (testcontrols)
     {
@@ -645,7 +618,7 @@ void G_DoLoadLevel (data_t* data)
     }
 } 
 
-static void SetJoyButtons(unsigned int buttons_mask)
+static void SetJoyButtons(data_t* data, unsigned int buttons_mask)
 {
     int i;
 
@@ -655,25 +628,25 @@ static void SetJoyButtons(unsigned int buttons_mask)
 
         // Detect button press:
 
-        if (!joybuttons[i] && button_on)
+        if (!data->joybuttons[i] && button_on)
         {
             // Weapon cycling:
 
             if (i == joybprevweapon)
             {
-                next_weapon = -1;
+                data->next_weapon = -1;
             }
             else if (i == joybnextweapon)
             {
-                next_weapon = 1;
+                data->next_weapon = 1;
             }
         }
 
-        joybuttons[i] = button_on;
+        data->joybuttons[i] = button_on;
     }
 }
 
-static void SetMouseButtons(unsigned int buttons_mask)
+static void SetMouseButtons(data_t* data, unsigned int buttons_mask)
 {
     int i;
 
@@ -683,19 +656,19 @@ static void SetMouseButtons(unsigned int buttons_mask)
 
         // Detect button press:
 
-        if (!mousebuttons[i] && button_on)
+        if (!data->mousebuttons[i] && button_on)
         {
             if (i == mousebprevweapon)
             {
-                next_weapon = -1;
+                data->next_weapon = -1;
             }
             else if (i == mousebnextweapon)
             {
-                next_weapon = 1;
+                data->next_weapon = 1;
             }
         }
 
-	mousebuttons[i] = button_on;
+	data->mousebuttons[i] = button_on;
     }
 }
 
@@ -767,16 +740,16 @@ boolean G_Responder (data_t* data, event_t* ev)
         testcontrols_mousespeed = abs(ev->data2);
     }
 
-    // If the next/previous weapon keys are pressed, set the next_weapon
+    // If the next/previous weapon keys are pressed, set the data->next_weapon
     // variable to change weapons when the next ticcmd is generated.
 
     if (ev->type == ev_keydown && ev->data1 == key_prevweapon)
     {
-        next_weapon = -1;
+        data->next_weapon = -1;
     }
     else if (ev->type == ev_keydown && ev->data1 == key_nextweapon)
     {
-        next_weapon = 1;
+        data->next_weapon = 1;
     }
 
     switch (ev->type) 
@@ -788,27 +761,27 @@ boolean G_Responder (data_t* data, event_t* ev)
 	}
         else if (ev->data1 <NUMKEYS) 
         {
-	    gamekeydown[ev->data1] = true; 
+	    data->gamekeydown[ev->data1] = true; 
         }
 
 	return true;    // eat key down events 
  
       case ev_keyup: 
 	if (ev->data1 <NUMKEYS) 
-	    gamekeydown[ev->data1] = false; 
+	    data->gamekeydown[ev->data1] = false; 
 	return false;   // always let key up events filter down 
 		 
       case ev_mouse: 
-        SetMouseButtons(ev->data1);
-	mousex = ev->data2*(mouseSensitivity+5)/10; 
-	mousey = ev->data3*(mouseSensitivity+5)/10; 
+        SetMouseButtons(data, ev->data1);
+	data->mousex = ev->data2*(mouseSensitivity+5)/10; 
+	data->mousey = ev->data3*(mouseSensitivity+5)/10; 
 	return true;    // eat events 
  
       case ev_joystick: 
-        SetJoyButtons(ev->data1);
-	joyxmove = ev->data2; 
-	joyymove = ev->data3; 
-        joystrafemove = ev->data4;
+        SetJoyButtons(data, ev->data1);
+	data->joyxmove = ev->data2; 
+	data->joyymove = ev->data3; 
+        data->joystrafemove = ev->data4;
 	return true;    // eat events 
  
       default: 
@@ -874,8 +847,8 @@ void G_Ticker (data_t* data)
 	} 
     }
     
-    // get commands, check consistancy,
-    // and build new consistancy check
+    // get commands, check data->consistancy,
+    // and build new data->consistancy check
     buf = (data->gametic/ticdup)%BACKUPTICS; 
  
     for (i=0 ; i<MAXPLAYERS ; i++)
@@ -901,33 +874,33 @@ void G_Ticker (data_t* data)
 
             if (cmd->forwardmove > TURBOTHRESHOLD)
             {
-                turbodetected[i] = true;
+                data->turbodetected[i] = true;
             }
 
             if ((data->gametic & 31) == 0 
              && ((data->gametic >> 5) % MAXPLAYERS) == i
-             && turbodetected[i])
+             && data->turbodetected[i])
             {
                 static char turbomessage[80];
                 extern char *player_names[4];
                 M_snprintf(turbomessage, sizeof(turbomessage),
                            "%s is turbo!", player_names[i]);
                 data->players[data->consoleplayer].message = turbomessage;
-                turbodetected[i] = false;
+                data->turbodetected[i] = false;
             }
 
-	    if (data->netgame && !netdemo && !(data->gametic%ticdup) ) 
+	    if (data->netgame && !data->netdemo && !(data->gametic%ticdup) ) 
 	    { 
 		if (data->gametic > BACKUPTICS 
-		    && consistancy[i][buf] != cmd->consistancy) 
+		    && data->consistancy[i][buf] != cmd->consistancy) 
 		{ 
 		    I_Error (NULL, "consistency failure (%i should be %i)",
-			     cmd->consistancy, consistancy[i][buf]); 
+			     cmd->consistancy, data->consistancy[i][buf]); 
 		} 
 		if (data->players[i].mo) 
-		    consistancy[i][buf] = data->players[i].mo->x; 
+		    data->consistancy[i][buf] = data->players[i].mo->x; 
 		else 
-		    consistancy[i][buf] = rndindex; 
+		    data->consistancy[i][buf] = rndindex; 
 	    } 
 	}
     }
@@ -950,13 +923,13 @@ void G_Ticker (data_t* data)
 		    break; 
 					 
 		  case BTS_SAVEGAME:
-		    if (!savedescription[0]) 
+		    if (!data->savedescription[0]) 
                     {
-                        M_StringCopy(savedescription, "NET GAME",
-                                     sizeof(savedescription));
+                        M_StringCopy(data->savedescription, "NET GAME",
+                                     sizeof(data->savedescription));
                     }
 
-		    savegameslot =  
+		    data->savegameslot =  
 			(data->players[i].cmd.buttons & BTS_SAVEMASK)>>BTS_SAVESHIFT; 
 		    data->gameaction = ga_savegame; 
 		    break; 
@@ -1577,8 +1550,8 @@ G_SaveGame
   int	slot,
   char*	description )
 {
-    savegameslot = slot;
-    M_StringCopy(savedescription, description, sizeof(savedescription));
+    data->savegameslot = slot;
+    M_StringCopy(data->savedescription, description, sizeof(data->savedescription));
     data->sendsave = true;
 }
 
@@ -1590,7 +1563,7 @@ void G_DoSaveGame (data_t* data)
 
     recovery_savegame_file = NULL;
     temp_savegame_file = P_TempSaveGameFile(data);
-    savegame_file = P_SaveGameFile(data, savegameslot);
+    savegame_file = P_SaveGameFile(data, data->savegameslot);
 
     // Open the savegame file for writing.  We write to a temporary file
     // and then rename it at the end if it was successfully written.
@@ -1613,7 +1586,7 @@ void G_DoSaveGame (data_t* data)
 
     savegame_error = false;
 
-    P_WriteSaveGameHeader(data, savedescription);
+    P_WriteSaveGameHeader(data, data->savedescription);
  
     P_ArchivePlayers (data);
     P_ArchiveWorld (data);
@@ -1651,7 +1624,7 @@ void G_DoSaveGame (data_t* data)
     rename(temp_savegame_file, savegame_file);
     
     data->gameaction = ga_nothing;
-    M_StringCopy(savedescription, "", sizeof(savedescription));
+    M_StringCopy(data->savedescription, "", sizeof(data->savedescription));
 
     data->players[data->consoleplayer].message = DEH_String(GGSAVED);
 
@@ -1686,7 +1659,7 @@ G_DeferedInitNew
 void G_DoNewGame (data_t* data)
 {
     data->demoplayback = false; 
-    netdemo = false;
+    data->netdemo = false;
     data->netgame = false;
     data->deathmatch = false;
     data->playeringame[1] = data->playeringame[2] = data->playeringame[3] = 0;
@@ -1884,9 +1857,9 @@ void G_ReadDemoTiccmd (data_t* data, ticcmd_t* cmd)
     cmd->forwardmove = ((signed char)*demo_p++); 
     cmd->sidemove = ((signed char)*demo_p++); 
 
-    // If this is a longtics demo, read back in higher resolution
+    // If this is a data->longtics demo, read back in higher resolution
 
-    if (longtics)
+    if (data->longtics)
     {
         cmd->angleturn = *demo_p++;
         cmd->angleturn |= (*demo_p++) << 8;
@@ -1935,7 +1908,7 @@ void G_WriteDemoTiccmd (data_t* data, ticcmd_t* cmd)
 { 
     byte *demo_start;
 
-    if (gamekeydown[key_demo_quit])           // press q to end demo recording 
+    if (data->gamekeydown[key_demo_quit])           // press q to end demo recording 
 	G_CheckDemoStatus (data);
 
     demo_start = demo_p;
@@ -1943,9 +1916,9 @@ void G_WriteDemoTiccmd (data_t* data, ticcmd_t* cmd)
     *demo_p++ = cmd->forwardmove; 
     *demo_p++ = cmd->sidemove; 
 
-    // If this is a longtics demo, record in higher resolution
+    // If this is a data->longtics demo, record in higher resolution
  
-    if (longtics)
+    if (data->longtics)
     {
         *demo_p++ = (cmd->angleturn & 0xff);
         *demo_p++ = (cmd->angleturn >> 8) & 0xff;
@@ -2043,17 +2016,17 @@ void G_BeginRecording (data_t* data)
     // Record a high resolution "Doom 1.91" demo.
     //
 
-    longtics = M_CheckParm(data, "-longtics") != 0;
+    data->longtics = M_CheckParm(data, "-data->longtics") != 0;
 
-    // If not recording a longtics demo, record in low res
+    // If not recording a data->longtics demo, record in low res
 
-    lowres_turn = !longtics;
+    data->lowres_turn = !data->longtics;
     
     demo_p = demobuffer;
 	
     // Save the right version code for this demo
  
-    if (longtics)
+    if (data->longtics)
     {
         *demo_p++ = DOOM_191_VERSION;
     }
@@ -2140,12 +2113,12 @@ void G_DoPlayDemo (data_t* data)
 
     if (demoversion == G_VanillaVersionCode(data))
     {
-        longtics = false;
+        data->longtics = false;
     }
     else if (demoversion == DOOM_191_VERSION)
     {
         // demo recorded with cph's modified "v1.91" doom exe
-        longtics = true;
+        data->longtics = true;
     }
     else
     {
@@ -2176,17 +2149,17 @@ void G_DoPlayDemo (data_t* data)
 	data->playeringame[i] = *demo_p++; 
 
     if (data->playeringame[1] || M_CheckParm(data, "-solo-net") > 0
-                        || M_CheckParm(data, "-netdemo") > 0)
+                        || M_CheckParm(data, "-data->netdemo") > 0)
     {
 	data->netgame = true;
-	netdemo = true;
+	data->netdemo = true;
     }
 
     // don't spend a lot of time in loadlevel 
     data->precache = false;
     G_InitNew (data, skill, episode, map);
     data->precache = true; 
-    starttime = I_GetTime (data);
+    data->starttime = I_GetTime (data);
 
     data->usergame = false; 
     data->demoplayback = true; 
@@ -2205,7 +2178,7 @@ void G_TimeDemo (data_t* data, char* name)
 
     data->nodrawers = M_CheckParm (data, "-nodraw");
 
-    timingdemo = true; 
+    data->timingdemo = true; 
     singletics = true; 
 
     defdemoname = name; 
@@ -2227,17 +2200,17 @@ boolean G_CheckDemoStatus (data_t* data)
 { 
     int             endtime; 
 	 
-    if (timingdemo) 
+    if (data->timingdemo) 
     { 
         float fps;
         int realtics;
 
 	endtime = I_GetTime (data);
-        realtics = endtime - starttime;
+        realtics = endtime - data->starttime;
         fps = ((float) data->gametic * TICRATE) / realtics;
 
         // Prevent recursive calls
-        timingdemo = false;
+        data->timingdemo = false;
         data->demoplayback = false;
 
 	I_Error (NULL, "timed %i gametics in %i realtics (%f fps)",
@@ -2248,7 +2221,7 @@ boolean G_CheckDemoStatus (data_t* data)
     { 
         W_ReleaseLumpName(defdemoname);
 	data->demoplayback = false; 
-	netdemo = false;
+	data->netdemo = false;
 	data->netgame = false;
 	data->deathmatch = false;
 	data->playeringame[1] = data->playeringame[2] = data->playeringame[3] = 0;

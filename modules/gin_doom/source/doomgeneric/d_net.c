@@ -112,14 +112,14 @@ static void LoadGameSettings(data_t* data, net_gamesettings_t *settings)
 	data->startmap = settings->map;
     data->startskill = settings->skill;
     data->startloadgame = settings->loadgame;
-    lowres_turn = settings->lowres_turn;
+    data->lowres_turn = settings->lowres_turn;
 	data->nomonsters = settings->nomonsters;
 	data->fastparm = settings->fast_monsters;
 	data->respawnparm = settings->respawn_monsters;
     data->timelimit = settings->timelimit;
     data->consoleplayer = settings->consoleplayer;
 
-    if (lowres_turn)
+    if (data->lowres_turn)
     {
         printf("NOTE: Turning resolution is reduced; this is probably "
                "because there is a client recording a Vanilla demo.\n");
@@ -151,7 +151,7 @@ static void SaveGameSettings(data_t* data, net_gamesettings_t *settings)
     settings->timelimit = data->timelimit;
 
     settings->lowres_turn = M_CheckParm(data, "-record") > 0
-                         && M_CheckParm(data, "-longtics") == 0;
+                         && M_CheckParm(data, "-data->longtics") == 0;
 }
 
 static void InitConnectData(data_t* data, net_connect_data_t *connect_data)
@@ -195,7 +195,7 @@ static void InitConnectData(data_t* data, net_connect_data_t *connect_data)
     // Are we recording a demo? Possibly set lowres turn mode
 
     connect_data->lowres_turn = M_CheckParm(data, "-record") > 0
-                             && M_CheckParm(data, "-longtics") == 0;
+                             && M_CheckParm(data, "-data->longtics") == 0;
 
     // Read checksums of our WAD directory and dehacked information
 
