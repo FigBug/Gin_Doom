@@ -109,7 +109,7 @@ void F_StartFinale (data_t* data)
 {
     size_t i;
 
-    gameaction = ga_nothing;
+    data->gameaction = ga_nothing;
     data->gamestate = GS_FINALE;
     data->viewactive = false;
     automapactive = false;
@@ -187,7 +187,7 @@ void F_Ticker (data_t* data)
 	if (data->gamemap == 30)
 	  F_StartCast (data);
 	else
-	  gameaction = ga_worlddone;
+	  data->gameaction = ga_worlddone;
       }
     }
     
@@ -208,7 +208,7 @@ void F_Ticker (data_t* data)
     {
 	finalecount = 0;
 	finalestage = F_STAGE_ARTSCREEN;
-	wipegamestate = -1;		// force a wipe
+	data->wipegamestate = -1;		// force a wipe
 	if (data->gameepisode == 3)
 	    S_StartMusic(data, mus_bunny);
     }
@@ -339,7 +339,7 @@ boolean		castattacking;
 //
 void F_StartCast (data_t* data)
 {
-    wipegamestate = -1;		// force a screen wipe
+    data->wipegamestate = -1;		// force a screen wipe
     castnum = 0;
     caststate = &states[mobjinfo[castorder[castnum].type].seestate];
     casttics = caststate->tics;

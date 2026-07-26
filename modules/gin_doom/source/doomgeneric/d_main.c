@@ -120,8 +120,7 @@ void D_ProcessEvents (data_t* data)
 //  draw current display, possibly wiping it from the previous
 //
 
-// wipegamestate can be set to -1 to force a wipe on the next draw
-gamestate_t     wipegamestate = GS_DEMOSCREEN;
+// data->wipegamestate can be set to -1 to force a wipe on the next draw
 extern  boolean setsizeneeded;
 extern  int             showMessages;
 void R_ExecuteSetViewSize (void);
@@ -156,7 +155,7 @@ void D_Display (data_t* data)
     }
 
     // save the current screen if about to wipe
-    if (data->gamestate != wipegamestate)
+    if (data->gamestate != data->wipegamestate)
 		{
 		wipe = true;
 		wipe_StartScreen(data, 0, 0, SCREENWIDTH, SCREENHEIGHT);
@@ -239,7 +238,7 @@ void D_Display (data_t* data)
     menuactivestate = menuactive;
     viewactivestate = data->viewactive;
     inhelpscreensstate = inhelpscreens;
-    oldgamestate = wipegamestate = data->gamestate;
+    oldgamestate = data->wipegamestate = data->gamestate;
     
     // draw pause pic
     if (data->paused)
@@ -368,7 +367,7 @@ boolean D_GrabMouseCallback(data_t* data)
 void D_DoomLoop (data_t* data)
 {
     if (data->bfgedition &&
-        (data->demorecording || (gameaction == ga_playdemo) || data->netgame))
+        (data->demorecording || (data->gameaction == ga_playdemo) || data->netgame))
     {
         printf(" WARNING: You are playing using one of the Doom Classic\n"
                " IWAD files shipped with the Doom 3: BFG Edition. These are\n"
@@ -396,7 +395,7 @@ void D_DoomLoop (data_t* data)
 
     if (testcontrols)
     {
-        wipegamestate = data->gamestate;
+        data->wipegamestate = data->gamestate;
     }
 
 	data->runloop = 1;
@@ -468,7 +467,7 @@ void D_DoAdvanceDemo (data_t* data)
 	data->advancedemo = false;
     data->usergame = false;               // no save / end game here
     data->paused = false;
-    gameaction = ga_nothing;
+    data->gameaction = ga_nothing;
 
     // The Ultimate Doom executable changed the demo sequence to add
     // a DEMO4 demo.  Final Doom was based on Ultimate, so also
@@ -499,7 +498,7 @@ void D_DoAdvanceDemo (data_t* data)
 	  S_StartMusic(data, mus_intro);
 	break;
       case 1:
-	G_DeferedPlayDemo(DEH_String("demo1"));
+	G_DeferedPlayDemo(data, DEH_String("demo1"));
 	break;
       case 2:
 	pagetic = 200;
@@ -507,7 +506,7 @@ void D_DoAdvanceDemo (data_t* data)
 	pagename = DEH_String("CREDIT");
 	break;
       case 3:
-	G_DeferedPlayDemo(DEH_String("demo2"));
+	G_DeferedPlayDemo(data, DEH_String("demo2"));
 	break;
       case 4:
 	data->gamestate = GS_DEMOSCREEN;
@@ -528,11 +527,11 @@ void D_DoAdvanceDemo (data_t* data)
 	}
 	break;
       case 5:
-	G_DeferedPlayDemo(DEH_String("demo3"));
+	G_DeferedPlayDemo(data, DEH_String("demo3"));
 	break;
         // THE DEFINITIVE DOOM Special Edition demo
       case 6:
-	G_DeferedPlayDemo(DEH_String("demo4"));
+	G_DeferedPlayDemo(data, DEH_String("demo4"));
 	break;
     }
 
@@ -552,7 +551,7 @@ void D_DoAdvanceDemo (data_t* data)
 //
 void D_StartTitle (data_t* data)
 {
-    gameaction = ga_nothing;
+    data->gameaction = ga_nothing;
     demosequence = -1;
     D_AdvanceDemo (data);
 }
@@ -1774,7 +1773,7 @@ void D_DoomMain (data_t* data)
     if (p)
     {
 		data->singledemo = true;              // quit after one demo
-		G_DeferedPlayDemo (demolumpname);
+		G_DeferedPlayDemo (data, demolumpname);
 		D_DoomLoop (data);  // never returns
     }
 
@@ -1788,10 +1787,10 @@ void D_DoomMain (data_t* data)
     if (data->startloadgame >= 0)
     {
         M_StringCopy(file, P_SaveGameFile(data, data->startloadgame), sizeof(file));
-        G_LoadGame(file);
+        G_LoadGame(data, file);
     }
 
-    if (gameaction != ga_loadgame )
+    if (data->gameaction != ga_loadgame )
     {
 		if (data->autostart || data->netgame)
 			G_InitNew (data, data->startskill, data->startepisode, data->startmap);

@@ -654,7 +654,7 @@ ST_Responder (data_t* data, event_t* ev)
 
       // So be it.
       plyr->message = DEH_String(STSTR_CLEV);
-      G_DeferedInitNew(data->gameskill, epsd, map);
+      G_DeferedInitNew(data, data->gameskill, epsd, map);
     }
   }
   return false;

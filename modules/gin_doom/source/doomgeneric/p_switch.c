@@ -356,7 +356,7 @@ P_UseSpecialLine
       case 11:
 	// Exit level
 			P_ChangeSwitchTexture(data, line,0);
-	G_ExitLevel ();
+	G_ExitLevel (data);
 	break;
 	
       case 14:
@@ -428,7 +428,7 @@ P_UseSpecialLine
       case 51:
 	// Secret EXIT
 			P_ChangeSwitchTexture(data, line,0);
-	G_SecretExitLevel ();
+	G_SecretExitLevel (data);
 	break;
 	
       case 55:

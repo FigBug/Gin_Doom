@@ -35,18 +35,20 @@ void G_InitNew (data_t* data, skill_t skill, int episode, int map);
 // Can be called by the startup code or M_Responder.
 // A normal game starts at map 1,
 // but a warp test can start elsewhere
-void G_DeferedInitNew (skill_t skill, int episode, int map);
+void G_DeferedInitNew
+( data_t* data,
+  skill_t skill, int episode, int map);
 
-void G_DeferedPlayDemo (char* demo);
+void G_DeferedPlayDemo (data_t* data, char* demo);
 
 // Can be called by the startup code or M_Responder,
 // calls P_SetupLevel or W_EnterWorld.
-void G_LoadGame (char* name);
+void G_LoadGame (data_t* data, char* name);
 
 void G_DoLoadGame (data_t* data);
 
 // Called by M_Responder.
-void G_SaveGame (int slot, char* description);
+void G_SaveGame (data_t* data, int slot, char* description);
 
 // Only called by startup code.
 void G_RecordDemo (data_t* data, char* name);
@@ -57,8 +59,8 @@ void G_PlayDemo (char* name);
 void G_TimeDemo (data_t* data, char* name);
 boolean G_CheckDemoStatus (data_t* data);
 
-void G_ExitLevel (void);
-void G_SecretExitLevel (void);
+void G_ExitLevel (data_t* data);
+void G_SecretExitLevel (data_t* data);
 
 void G_WorldDone (data_t* data);
 
@@ -69,7 +71,7 @@ void G_BuildTiccmd (data_t* data, ticcmd_t *cmd, int maketic);
 void G_Ticker (data_t* data);
 boolean G_Responder (data_t* data, event_t* ev);
 
-void G_ScreenShot (void);
+void G_ScreenShot (data_t* data);
 
 void G_DrawMouseSpeedBox(void);
 int G_VanillaVersionCode(data_t* data);

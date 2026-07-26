@@ -120,7 +120,6 @@ boolean			menuactive;
 #define SKULLXOFF		-32
 #define LINEHEIGHT		16
 
-extern boolean		sendpause;
 char			savegamestrings[10][SAVESTRINGSIZE];
 
 char	endstring[160];
@@ -575,7 +574,7 @@ void M_LoadSelect(data_t* data, int choice)
 	
     M_StringCopy(name, P_SaveGameFile(data, choice), sizeof(name));
 
-    G_LoadGame (name);
+    G_LoadGame (data, name);
     M_ClearMenus ();
 }
 
@@ -619,9 +618,9 @@ void M_DrawSave(data_t* data)
 //
 // M_Responder calls this when user is finished
 //
-void M_DoSave(int slot)
+void M_DoSave(data_t* data, int slot)
 {
-    G_SaveGame (slot,savegamestrings[slot]);
+    G_SaveGame (data, slot,savegamestrings[slot]);
     M_ClearMenus ();
 
     // PICK QUICKSAVE SLOT YET?
@@ -673,7 +672,7 @@ void M_QuickSaveResponse(data_t* data, int key)
 {
     if (key == key_menu_confirm)
     {
-	M_DoSave(quickSaveSlot);
+	M_DoSave(data, quickSaveSlot);
 	S_StartSound(data, NULL,sfx_swtchx);
     }
 }
@@ -932,12 +931,12 @@ void M_DrawEpisode(data_t* data)
     V_DrawPatchDirect(54, 38, W_CacheLumpName(DEH_String("M_EPISOD"), PU_CACHE));
 }
 
-void M_VerifyNightmare(int key)
+void M_VerifyNightmare(data_t* data, int key)
 {
     if (key != key_menu_confirm)
 	return;
 		
-    G_DeferedInitNew(nightmare,epi+1,1);
+    G_DeferedInitNew(data, nightmare,epi+1,1);
     M_ClearMenus ();
 }
 
@@ -949,7 +948,7 @@ void M_ChooseSkill(data_t* data, int choice)
 	return;
     }
 	
-    G_DeferedInitNew(choice,epi+1,1);
+    G_DeferedInitNew(data, choice,epi+1,1);
     M_ClearMenus ();
 }
 
@@ -1584,7 +1583,7 @@ boolean M_Responder (data_t* data, event_t* ev)
 	  case KEY_ENTER:
 	    saveStringEnter = 0;
 	    if (savegamestrings[saveSlot][0])
-		M_DoSave(saveSlot);
+		M_DoSave(data, saveSlot);
 	    break;
 
 	  default:
@@ -1646,7 +1645,7 @@ boolean M_Responder (data_t* data, event_t* ev)
     if ((data->devparm && key == key_menu_help) ||
         (key != 0 && key == key_menu_screenshot))
     {
-	G_ScreenShot ();
+	G_ScreenShot (data);
 	return true;
     }
 
@@ -2042,7 +2041,7 @@ void M_ClearMenus (void)
 {
     menuactive = 0;
     // if (!data->netgame && data->usergame && data->paused)
-    //       sendpause = true;
+    //       data->sendpause = true;
 }
 
 

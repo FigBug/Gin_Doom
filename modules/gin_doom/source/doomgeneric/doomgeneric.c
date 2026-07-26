@@ -11,6 +11,7 @@ data_t* DG_Alloc()
 	data->main_loop_started = false;
 	data->show_endoom = 1;
 	data->precache = true;
+	data->wipegamestate = GS_DEMOSCREEN;
 
 	return data;
 }

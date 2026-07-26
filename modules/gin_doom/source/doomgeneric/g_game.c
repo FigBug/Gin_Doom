@@ -90,16 +90,13 @@ void	G_DoWorldDone (data_t* data);
 void	G_DoSaveGame (data_t* data);
  
 // Gamestate the last time G_Ticker was called.
+gamestate_t     oldgamestate;
 
-gamestate_t     oldgamestate; 
- 
-gameaction_t    gameaction; 
+
 
 // If non-zero, exit the level after this number of minutes.
 
 
-boolean         sendpause;             	// send a pause event next tic 
-boolean         sendsave;             	// send a save event next tic 
  
 boolean         timingdemo;             // if true, exit with report on completion 
 int             starttime;          	// for comparative timing purposes  	 
@@ -123,7 +120,6 @@ int             testcontrols_mousespeed;
  
 
  
-wbstartstruct_t wminfo;               	// parms for world map / intermission 
  
 byte		consistancy[MAXPLAYERS][BACKUPTICS]; 
  
@@ -541,15 +537,15 @@ void G_BuildTiccmd (data_t* data, ticcmd_t* cmd, int maketic)
     cmd->sidemove += side;
     
     // special buttons
-    if (sendpause) 
+    if (data->sendpause) 
     { 
-	sendpause = false; 
+	data->sendpause = false; 
 	cmd->buttons = BT_SPECIAL | BTS_PAUSE; 
     } 
  
-    if (sendsave) 
+    if (data->sendsave) 
     { 
-	sendsave = false; 
+	data->sendsave = false; 
 	cmd->buttons = BT_SPECIAL | BTS_SAVEGAME | (savegameslot<<BTS_SAVESHIFT); 
     } 
 
@@ -617,8 +613,8 @@ void G_DoLoadLevel (data_t* data)
 
     data->levelstarttic = data->gametic;        // for time calculation
     
-    if (wipegamestate == GS_LEVEL) 
-	wipegamestate = -1;             // force a wipe 
+    if (data->wipegamestate == GS_LEVEL) 
+	data->wipegamestate = -1;             // force a wipe 
 
     data->gamestate = GS_LEVEL; 
 
@@ -632,7 +628,7 @@ void G_DoLoadLevel (data_t* data)
 		 
     P_SetupLevel (data, data->gameepisode, data->gamemap, 0, data->gameskill);
     data->displayplayer = data->consoleplayer;		// view the guy you are playing    
-    gameaction = ga_nothing; 
+    data->gameaction = ga_nothing; 
     Z_CheckHeap ();
     
     // clear cmd building stuff
@@ -640,7 +636,7 @@ void G_DoLoadLevel (data_t* data)
     memset (gamekeydown, 0, sizeof(gamekeydown));
     joyxmove = joyymove = joystrafemove = 0;
     mousex = mousey = 0;
-    sendpause = sendsave = data->paused = false;
+    data->sendpause = data->sendsave = data->paused = false;
     memset(mousearray, 0, sizeof(mousearray));
     memset(joyarray, 0, sizeof(joyarray));
 
@@ -725,7 +721,7 @@ boolean G_Responder (data_t* data, event_t* ev)
     }
     
     // any other key pops up menu if in demos
-    if (gameaction == ga_nothing && !data->singledemo && 
+    if (data->gameaction == ga_nothing && !data->singledemo && 
 	(data->demoplayback || data->gamestate == GS_DEMOSCREEN) 
 	) 
     { 
@@ -789,7 +785,7 @@ boolean G_Responder (data_t* data, event_t* ev)
       case ev_keydown: 
 	if (ev->data1 == key_pause) 
 	{ 
-	    sendpause = true; 
+	    data->sendpause = true; 
 	}
         else if (ev->data1 <NUMKEYS) 
         {
@@ -841,9 +837,9 @@ void G_Ticker (data_t* data)
 	    G_DoReborn (data, i);
     
     // do things to change the game state
-    while (gameaction != ga_nothing) 
+    while (data->gameaction != ga_nothing) 
     { 
-	switch (gameaction) 
+	switch (data->gameaction) 
 	{ 
 	  case ga_loadlevel: 
 	    G_DoLoadLevel (data);
@@ -872,7 +868,7 @@ void G_Ticker (data_t* data)
 	  case ga_screenshot: 
 	    V_ScreenShot("DOOM%02i.%s"); 
             data->players[data->consoleplayer].message = DEH_String("screen shot");
-	    gameaction = ga_nothing; 
+	    data->gameaction = ga_nothing; 
 	    break; 
 	  case ga_nothing: 
 	    break; 
@@ -889,7 +885,7 @@ void G_Ticker (data_t* data)
 	{ 
 	    cmd = &data->players[i].cmd; 
 
-	    memcpy(cmd, &netcmds[i], sizeof(ticcmd_t));
+	    memcpy(cmd, &data->netcmds[i], sizeof(ticcmd_t));
 
 	    if (data->demoplayback) 
 		G_ReadDemoTiccmd (data, cmd);
@@ -963,7 +959,7 @@ void G_Ticker (data_t* data)
 
 		    savegameslot =  
 			(data->players[i].cmd.buttons & BTS_SAVEMASK)>>BTS_SAVESHIFT; 
-		    gameaction = ga_savegame; 
+		    data->gameaction = ga_savegame; 
 		    break; 
 		} 
 	    } 
@@ -1233,7 +1229,7 @@ void G_DoReborn (data_t* data, int playernum)
     if (!data->netgame)
     {
 	// reload the level from scratch
-	gameaction = ga_loadlevel;  
+	data->gameaction = ga_loadlevel;  
     }
     else 
     {
@@ -1272,9 +1268,9 @@ void G_DoReborn (data_t* data, int playernum)
 } 
  
  
-void G_ScreenShot (void) 
+void G_ScreenShot (data_t* data) 
 { 
-    gameaction = ga_screenshot; 
+    data->gameaction = ga_screenshot; 
 } 
  
 
@@ -1304,14 +1300,14 @@ int cpars[32] =
 boolean		secretexit; 
 extern char*	pagename; 
  
-void G_ExitLevel (void) 
+void G_ExitLevel (data_t* data) 
 { 
     secretexit = false; 
-    gameaction = ga_completed; 
+    data->gameaction = ga_completed; 
 } 
 
 // Here's for the german edition.
-void G_SecretExitLevel (void) 
+void G_SecretExitLevel (data_t* data) 
 { 
     // IF NO WOLF3D LEVELS, NO SECRET EXIT!
     if ( (gamemode == commercial)
@@ -1319,14 +1315,14 @@ void G_SecretExitLevel (void)
 	secretexit = false;
     else
 	secretexit = true; 
-    gameaction = ga_completed; 
+    data->gameaction = ga_completed; 
 } 
  
 void G_DoCompleted (data_t* data)
 { 
     int             i; 
 	 
-    gameaction = ga_nothing; 
+    data->gameaction = ga_nothing; 
  
     for (i=0 ; i<MAXPLAYERS ; i++) 
 	if (data->playeringame[i]) 
@@ -1343,7 +1339,7 @@ void G_DoCompleted (data_t* data)
         {
             if (data->gamemap == 5)
             {
-                gameaction = ga_victory;
+                data->gameaction = ga_victory;
                 return;
             }
         }
@@ -1352,7 +1348,7 @@ void G_DoCompleted (data_t* data)
             switch(data->gamemap)
             {
               case 8:
-                gameaction = ga_victory;
+                data->gameaction = ga_victory;
                 return;
               case 9: 
                 for (i=0 ; i<MAXPLAYERS ; i++) 
@@ -1367,7 +1363,7 @@ void G_DoCompleted (data_t* data)
 	 && (gamemode != commercial) ) 
     {
 	// victory 
-	gameaction = ga_victory; 
+	data->gameaction = ga_victory; 
 	return; 
     } 
 	 
@@ -1381,89 +1377,89 @@ void G_DoCompleted (data_t* data)
 //#endif
     
 	 
-    wminfo.didsecret = data->players[data->consoleplayer].didsecret; 
-    wminfo.epsd = data->gameepisode -1; 
-    wminfo.last = data->gamemap -1;
+    data->wminfo.didsecret = data->players[data->consoleplayer].didsecret; 
+    data->wminfo.epsd = data->gameepisode -1; 
+    data->wminfo.last = data->gamemap -1;
     
-    // wminfo.next is 0 biased, unlike data->gamemap
+    // data->wminfo.next is 0 biased, unlike data->gamemap
     if ( gamemode == commercial)
     {
 	if (secretexit)
 	    switch(data->gamemap)
 	    {
-	      case 15: wminfo.next = 30; break;
-	      case 31: wminfo.next = 31; break;
+	      case 15: data->wminfo.next = 30; break;
+	      case 31: data->wminfo.next = 31; break;
 	    }
 	else
 	    switch(data->gamemap)
 	    {
 	      case 31:
-	      case 32: wminfo.next = 15; break;
-	      default: wminfo.next = data->gamemap;
+	      case 32: data->wminfo.next = 15; break;
+	      default: data->wminfo.next = data->gamemap;
 	    }
     }
     else
     {
 	if (secretexit) 
-	    wminfo.next = 8; 	// go to secret level 
+	    data->wminfo.next = 8; 	// go to secret level 
 	else if (data->gamemap == 9) 
 	{
 	    // returning from secret level 
 	    switch (data->gameepisode) 
 	    { 
 	      case 1: 
-		wminfo.next = 3; 
+		data->wminfo.next = 3; 
 		break; 
 	      case 2: 
-		wminfo.next = 5; 
+		data->wminfo.next = 5; 
 		break; 
 	      case 3: 
-		wminfo.next = 6; 
+		data->wminfo.next = 6; 
 		break; 
 	      case 4:
-		wminfo.next = 2;
+		data->wminfo.next = 2;
 		break;
 	    }                
 	} 
 	else 
-	    wminfo.next = data->gamemap;          // go to next level 
+	    data->wminfo.next = data->gamemap;          // go to next level 
     }
 		 
-    wminfo.maxkills = data->totalkills; 
-    wminfo.maxitems = data->totalitems; 
-    wminfo.maxsecret = data->totalsecret; 
-    wminfo.maxfrags = 0; 
+    data->wminfo.maxkills = data->totalkills; 
+    data->wminfo.maxitems = data->totalitems; 
+    data->wminfo.maxsecret = data->totalsecret; 
+    data->wminfo.maxfrags = 0; 
 
     // Set par time. Doom episode 4 doesn't have a par time, so this
     // overflows into the cpars array. It's necessary to emulate this
     // for statcheck regression testing.
     if (gamemode == commercial)
-	wminfo.partime = TICRATE*cpars[data->gamemap-1];
+	data->wminfo.partime = TICRATE*cpars[data->gamemap-1];
     else if (data->gameepisode < 4)
-	wminfo.partime = TICRATE*pars[data->gameepisode][data->gamemap];
+	data->wminfo.partime = TICRATE*pars[data->gameepisode][data->gamemap];
     else
-        wminfo.partime = TICRATE*cpars[data->gamemap];
+        data->wminfo.partime = TICRATE*cpars[data->gamemap];
 
-    wminfo.pnum = data->consoleplayer; 
+    data->wminfo.pnum = data->consoleplayer; 
  
     for (i=0 ; i<MAXPLAYERS ; i++) 
     { 
-	wminfo.plyr[i].in = data->playeringame[i]; 
-	wminfo.plyr[i].skills = data->players[i].killcount; 
-	wminfo.plyr[i].sitems = data->players[i].itemcount; 
-	wminfo.plyr[i].ssecret = data->players[i].secretcount; 
-	wminfo.plyr[i].stime = data->leveltime; 
-	memcpy (wminfo.plyr[i].frags, data->players[i].frags 
-		, sizeof(wminfo.plyr[i].frags)); 
+	data->wminfo.plyr[i].in = data->playeringame[i]; 
+	data->wminfo.plyr[i].skills = data->players[i].killcount; 
+	data->wminfo.plyr[i].sitems = data->players[i].itemcount; 
+	data->wminfo.plyr[i].ssecret = data->players[i].secretcount; 
+	data->wminfo.plyr[i].stime = data->leveltime; 
+	memcpy (data->wminfo.plyr[i].frags, data->players[i].frags 
+		, sizeof(data->wminfo.plyr[i].frags)); 
     } 
  
     data->gamestate = GS_INTERMISSION; 
     data->viewactive = false; 
     automapactive = false; 
 
-    StatCopy(data, &wminfo);
+    StatCopy(data, &data->wminfo);
  
-    WI_Start (data, &wminfo); 
+    WI_Start (data, &data->wminfo); 
 } 
 
 
@@ -1472,7 +1468,7 @@ void G_DoCompleted (data_t* data)
 //
 void G_WorldDone (data_t* data) 
 { 
-    gameaction = ga_worlddone; 
+    data->gameaction = ga_worlddone; 
 
     if (secretexit) 
 	data->players[data->consoleplayer].didsecret = true; 
@@ -1498,9 +1494,9 @@ void G_WorldDone (data_t* data)
 void G_DoWorldDone (data_t* data)
 {        
     data->gamestate = GS_LEVEL; 
-    data->gamemap = wminfo.next+1; 
+    data->gamemap = data->wminfo.next+1; 
     G_DoLoadLevel (data);
-    gameaction = ga_nothing; 
+    data->gameaction = ga_nothing; 
     data->viewactive = true; 
 } 
  
@@ -1515,10 +1511,10 @@ void R_ExecuteSetViewSize (void);
 
 char	savename[256];
 
-void G_LoadGame (char* name) 
+void G_LoadGame (data_t* data, char* name) 
 { 
     M_StringCopy(savename, name, sizeof(savename));
-    gameaction = ga_loadgame; 
+    data->gameaction = ga_loadgame; 
 } 
  
 #define VERSIONSIZE		16 
@@ -1528,7 +1524,7 @@ void G_DoLoadGame (data_t* data)
 {
     int savedleveltime;
 	 
-    gameaction = ga_nothing; 
+    data->gameaction = ga_nothing; 
 	 
     save_stream = fopen(savename, "rb");
 
@@ -1578,12 +1574,13 @@ void G_DoLoadGame (data_t* data)
 //
 void
 G_SaveGame
-( int	slot,
+( data_t* data,
+  int	slot,
   char*	description )
 {
     savegameslot = slot;
     M_StringCopy(savedescription, description, sizeof(savedescription));
-    sendsave = true;
+    data->sendsave = true;
 }
 
 void G_DoSaveGame (data_t* data)
@@ -1654,7 +1651,7 @@ void G_DoSaveGame (data_t* data)
     remove(savegame_file);
     rename(temp_savegame_file, savegame_file);
     
-    gameaction = ga_nothing;
+    data->gameaction = ga_nothing;
     M_StringCopy(savedescription, "", sizeof(savedescription));
 
     data->players[data->consoleplayer].message = DEH_String(GGSAVED);
@@ -1675,14 +1672,15 @@ int     d_map;
  
 void
 G_DeferedInitNew
-( skill_t	skill,
+( data_t* data,
+  skill_t	skill,
   int		episode,
   int		map) 
 { 
     d_skill = skill; 
     d_episode = episode; 
     d_map = map; 
-    gameaction = ga_newgame; 
+    data->gameaction = ga_newgame; 
 } 
 
 
@@ -1698,7 +1696,7 @@ void G_DoNewGame (data_t* data)
     data->nomonsters = false;
     data->consoleplayer = 0;
     G_InitNew (data, d_skill, d_episode, d_map); 
-    gameaction = ga_nothing; 
+    data->gameaction = ga_nothing; 
 } 
 
 
@@ -2085,10 +2083,10 @@ void G_BeginRecording (data_t* data)
 
 char*	defdemoname; 
  
-void G_DeferedPlayDemo (char* name) 
+void G_DeferedPlayDemo (data_t* data, char* name) 
 { 
     defdemoname = name; 
-    gameaction = ga_playdemo; 
+    data->gameaction = ga_playdemo; 
 } 
 
 // Generate a string describing a demo version
@@ -2136,7 +2134,7 @@ void G_DoPlayDemo (data_t* data)
     int             i, episode, map; 
     int demoversion;
 	 
-    gameaction = ga_nothing; 
+    data->gameaction = ga_nothing; 
     demobuffer = demo_p = W_CacheLumpName (defdemoname, PU_STATIC); 
 
     demoversion = *demo_p++;
@@ -2212,7 +2210,7 @@ void G_TimeDemo (data_t* data, char* name)
     singletics = true; 
 
     defdemoname = name; 
-    gameaction = ga_playdemo; 
+    data->gameaction = ga_playdemo; 
 } 
  
  

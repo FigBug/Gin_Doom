@@ -752,8 +752,8 @@ P_SetupLevel
     char	lumpname[9];
     int		lumpnum;
 	
-    data->totalkills = data->totalitems = data->totalsecret = wminfo.maxfrags = 0;
-    wminfo.partime = 180;
+    data->totalkills = data->totalitems = data->totalsecret = data->wminfo.maxfrags = 0;
+    data->wminfo.partime = 180;
     for (i=0 ; i<MAXPLAYERS ; i++)
     {
 	data->players[i].killcount = data->players[i].secretcount 

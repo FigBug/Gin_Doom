@@ -97,6 +97,13 @@ struct data_s
 	boolean         playeringame[MAXPLAYERS];
 	player_t        players[MAXPLAYERS];
 
+	gameaction_t    gameaction;
+	boolean         sendpause;
+	boolean         sendsave;
+	wbstartstruct_t wminfo;
+	gamestate_t     wipegamestate;
+	ticcmd_t*       netcmds;
+
 
 };
 
