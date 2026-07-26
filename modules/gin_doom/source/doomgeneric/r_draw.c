@@ -54,25 +54,15 @@
 //
 
 
-byte*		viewimage; 
-int		viewwidth;
-int		scaledviewwidth;
-int		viewheight;
-int		viewwindowx;
-int		viewwindowy; 
-byte*		ylookup[MAXHEIGHT]; 
-int		columnofs[MAXWIDTH]; 
 
 // Color tables for different players,
 //  translate a limited part to another
 //  (color ramps used for  suit colors).
 //
-byte		translations[3][256];	
  
 // Backing buffer containing the bezel drawn around the screen and 
 // surrounding background.
 
-static byte *background_buffer = NULL;
 
 
 //
@@ -83,7 +73,6 @@ static byte *background_buffer = NULL;
 // first pixel in a column (possibly virtual) 
 
 // just for profiling 
-int			dccount;
 
 //
 // A column is a vertical slice/span from a wall texture that,
@@ -113,9 +102,9 @@ void R_DrawColumn (data_t* data)
 #endif 
 
     // Framebuffer destination address.
-    // Use ylookup LUT to avoid multiply with ScreenWidth.
-    // Use columnofs LUT for subwindows? 
-    dest = ylookup[data->dc_yl] + columnofs[data->dc_x];  
+    // Use data->ylookup LUT to avoid multiply with ScreenWidth.
+    // Use data->columnofs LUT for subwindows? 
+    dest = data->ylookup[data->dc_yl] + data->columnofs[data->dc_x];  
 
     // Determine scaling,
     //  which is the only mapping to be done.
@@ -159,7 +148,7 @@ void R_DrawColumn (data_t* data)
 
     source = data->dc_source;
     colormap = data->dc_colormap;		 
-    dest = ylookup[data->dc_yl] + columnofs[data->dc_x];  
+    dest = data->ylookup[data->dc_yl] + data->columnofs[data->dc_x];  
 	 
     fracstep = data->dc_iscale<<9; 
     frac = (data->dc_texturemid + (data->dc_yl-data->centery)*data->dc_iscale)<<9; 
@@ -221,13 +210,13 @@ void R_DrawColumnLow (data_t* data)
 	
 	I_Error (NULL, "R_DrawColumn: %i to %i at %i", data->dc_yl, data->dc_yh, data->dc_x);
     }
-    //	dccount++; 
+    //	data->dccount++; 
 #endif 
     // Blocky mode, need to multiply by 2.
     x = data->dc_x << 1;
     
-    dest = ylookup[data->dc_yl] + columnofs[x];
-    dest2 = ylookup[data->dc_yl] + columnofs[x+1];
+    dest = data->ylookup[data->dc_yl] + data->columnofs[x];
+    dest2 = data->ylookup[data->dc_yl] + data->columnofs[x+1];
     
     fracstep = data->dc_iscale; 
     frac = data->dc_texturemid + (data->dc_yl-data->centery)*fracstep;
@@ -262,7 +251,6 @@ int	fuzzoffset[FUZZTABLE] =
     FUZZOFF,FUZZOFF,-FUZZOFF,FUZZOFF,FUZZOFF,-FUZZOFF,FUZZOFF 
 }; 
 
-int	fuzzpos = 0; 
 
 
 //
@@ -285,8 +273,8 @@ void R_DrawFuzzColumn (data_t* data)
 	data->dc_yl = 1;
 
     // .. and high.
-    if (data->dc_yh == viewheight-1) 
-	data->dc_yh = viewheight - 2; 
+    if (data->dc_yh == data->viewheight-1) 
+	data->dc_yh = data->viewheight - 2; 
 		 
     count = data->dc_yh - data->dc_yl; 
 
@@ -303,7 +291,7 @@ void R_DrawFuzzColumn (data_t* data)
     }
 #endif
     
-    dest = ylookup[data->dc_yl] + columnofs[data->dc_x];
+    dest = data->ylookup[data->dc_yl] + data->columnofs[data->dc_x];
 
     // Looks familiar.
     fracstep = data->dc_iscale; 
@@ -318,11 +306,11 @@ void R_DrawFuzzColumn (data_t* data)
 	//  a pixel that is either one column
 	//  left or right of the current one.
 	// Add index from colormap to index.
-	*dest = colormaps[6*256+dest[fuzzoffset[fuzzpos]]]; 
+	*dest = colormaps[6*256+dest[fuzzoffset[data->fuzzpos]]]; 
 
 	// Clamp table lookup index.
-	if (++fuzzpos == FUZZTABLE) 
-	    fuzzpos = 0;
+	if (++data->fuzzpos == FUZZTABLE) 
+	    data->fuzzpos = 0;
 	
 	dest += SCREENWIDTH;
 
@@ -346,8 +334,8 @@ void R_DrawFuzzColumnLow (data_t* data)
 	data->dc_yl = 1;
 
     // .. and high.
-    if (data->dc_yh == viewheight-1) 
-	data->dc_yh = viewheight - 2; 
+    if (data->dc_yh == data->viewheight-1) 
+	data->dc_yh = data->viewheight - 2; 
 		 
     count = data->dc_yh - data->dc_yl; 
 
@@ -368,8 +356,8 @@ void R_DrawFuzzColumnLow (data_t* data)
     }
 #endif
     
-    dest = ylookup[data->dc_yl] + columnofs[x];
-    dest2 = ylookup[data->dc_yl] + columnofs[x+1];
+    dest = data->ylookup[data->dc_yl] + data->columnofs[x];
+    dest2 = data->ylookup[data->dc_yl] + data->columnofs[x+1];
 
     // Looks familiar.
     fracstep = data->dc_iscale; 
@@ -384,12 +372,12 @@ void R_DrawFuzzColumnLow (data_t* data)
 	//  a pixel that is either one column
 	//  left or right of the current one.
 	// Add index from colormap to index.
-	*dest = colormaps[6*256+dest[fuzzoffset[fuzzpos]]]; 
-	*dest2 = colormaps[6*256+dest2[fuzzoffset[fuzzpos]]]; 
+	*dest = colormaps[6*256+dest[fuzzoffset[data->fuzzpos]]]; 
+	*dest2 = colormaps[6*256+dest2[fuzzoffset[data->fuzzpos]]]; 
 
 	// Clamp table lookup index.
-	if (++fuzzpos == FUZZTABLE) 
-	    fuzzpos = 0;
+	if (++data->fuzzpos == FUZZTABLE) 
+	    data->fuzzpos = 0;
 	
 	dest += SCREENWIDTH;
 	dest2 += SCREENWIDTH;
@@ -411,7 +399,6 @@ void R_DrawFuzzColumnLow (data_t* data)
 //  of the BaronOfHell, the HellKnight, uses
 //  identical sprites, kinda brightened up.
 //
-byte*	translationtables;
 
 void R_DrawTranslatedColumn (data_t* data) 
 { 
@@ -436,7 +423,7 @@ void R_DrawTranslatedColumn (data_t* data)
 #endif 
 
 
-    dest = ylookup[data->dc_yl] + columnofs[data->dc_x]; 
+    dest = data->ylookup[data->dc_yl] + data->columnofs[data->dc_x]; 
 
     // Looks familiar.
     fracstep = data->dc_iscale; 
@@ -485,8 +472,8 @@ void R_DrawTranslatedColumnLow (data_t* data)
 #endif 
 
 
-    dest = ylookup[data->dc_yl] + columnofs[x]; 
-    dest2 = ylookup[data->dc_yl] + columnofs[x+1]; 
+    dest = data->ylookup[data->dc_yl] + data->columnofs[x]; 
+    dest2 = data->ylookup[data->dc_yl] + data->columnofs[x+1]; 
 
     // Looks familiar.
     fracstep = data->dc_iscale; 
@@ -523,7 +510,7 @@ void R_InitTranslationTables (data_t* data)
 {
     int		i;
 	
-    translationtables = Z_Malloc (256*3, PU_STATIC, 0);
+    data->translationtables = Z_Malloc (256*3, PU_STATIC, 0);
     
     // translate just the 16 green colors
     for (i=0 ; i<256 ; i++)
@@ -531,15 +518,15 @@ void R_InitTranslationTables (data_t* data)
 	if (i >= 0x70 && i<= 0x7f)
 	{
 	    // map green ramp to gray, brown, red
-	    translationtables[i] = 0x60 + (i&0xf);
-	    translationtables [i+256] = 0x40 + (i&0xf);
-	    translationtables [i+512] = 0x20 + (i&0xf);
+	    data->translationtables[i] = 0x60 + (i&0xf);
+	    data->translationtables [i+256] = 0x40 + (i&0xf);
+	    data->translationtables [i+512] = 0x20 + (i&0xf);
 	}
 	else
 	{
 	    // Keep all other colors as is.
-	    translationtables[i] = translationtables[i+256] 
-		= translationtables[i+512] = i;
+	    data->translationtables[i] = data->translationtables[i+256] 
+		= data->translationtables[i+512] = i;
 	}
     }
 }
@@ -565,7 +552,6 @@ void R_InitTranslationTables (data_t* data)
 // start of a 64*64 tile image 
 
 // just for profiling
-int			dscount;
 
 
 //
@@ -587,7 +573,7 @@ void R_DrawSpan (data_t* data)
 	I_Error( NULL, "R_DrawSpan: %i to %i at %i",
 		 data->ds_x1,data->ds_x2,data->ds_y);
     }
-//	dscount++;
+//	data->dscount++;
 #endif
 
     // Pack position and step variables into a single 32-bit integer,
@@ -600,7 +586,7 @@ void R_DrawSpan (data_t* data)
     step = ((data->ds_xstep << 10) & 0xffff0000)
          | ((data->ds_ystep >> 6)  & 0x0000ffff);
 
-    dest = ylookup[data->ds_y] + columnofs[data->ds_x1];
+    dest = data->ylookup[data->ds_y] + data->columnofs[data->ds_x1];
 
     // We do not check for zero spans here?
     count = data->ds_x2 - data->ds_x1;
@@ -646,7 +632,7 @@ void R_DrawSpan (data_t* data)
 		
     source = data->ds_source;
     colormap = data->ds_colormap;
-    dest = ylookup[data->ds_y] + columnofs[data->ds_x1];	 
+    dest = data->ylookup[data->ds_y] + data->columnofs[data->ds_x1];	 
     count = data->ds_x2 - data->ds_x1 + 1; 
 	
     while (count >= 4) 
@@ -716,7 +702,7 @@ void R_DrawSpanLow (data_t* data)
 	I_Error( NULL, "R_DrawSpan: %i to %i at %i",
 		 data->ds_x1,data->ds_x2,data->ds_y);
     }
-//	dscount++; 
+//	data->dscount++; 
 #endif
 
     position = ((data->ds_xfrac << 10) & 0xffff0000)
@@ -730,7 +716,7 @@ void R_DrawSpanLow (data_t* data)
     data->ds_x1 <<= 1;
     data->ds_x2 <<= 1;
 
-    dest = ylookup[data->ds_y] + columnofs[data->ds_x1];
+    dest = data->ylookup[data->ds_y] + data->columnofs[data->ds_x1];
 
     do
     {
@@ -767,21 +753,21 @@ R_InitBuffer
     // Handle resize,
     //  e.g. smaller view windows
     //  with border and/or status bar.
-    viewwindowx = (SCREENWIDTH-width) >> 1; 
+    data->viewwindowx = (SCREENWIDTH-width) >> 1; 
 
     // Column offset. For windows.
     for (i=0 ; i<width ; i++) 
-	columnofs[i] = viewwindowx + i;
+	data->columnofs[i] = data->viewwindowx + i;
 
     // Samw with base row offset.
     if (width == SCREENWIDTH) 
-	viewwindowy = 0; 
+	data->viewwindowy = 0; 
     else 
-	viewwindowy = (SCREENHEIGHT-SBARHEIGHT-height) >> 1; 
+	data->viewwindowy = (SCREENHEIGHT-SBARHEIGHT-height) >> 1; 
 
     // Preclaculate all row offsets.
     for (i=0 ; i<height ; i++) 
-	ylookup[i] = data->I_VideoBuffer + (i+viewwindowy)*SCREENWIDTH; 
+	data->ylookup[i] = data->I_VideoBuffer + (i+data->viewwindowy)*SCREENWIDTH; 
 } 
  
  
@@ -812,12 +798,12 @@ void R_FillBackScreen (data_t* data)
     // If we are running full screen, there is no need to do any of this,
     // and the background buffer can be freed if it was previously in use.
 
-    if (scaledviewwidth == SCREENWIDTH)
+    if (data->scaledviewwidth == SCREENWIDTH)
     {
-        if (background_buffer != NULL)
+        if (data->background_buffer != NULL)
         {
-            Z_Free(background_buffer);
-            background_buffer = NULL;
+            Z_Free(data->background_buffer);
+            data->background_buffer = NULL;
         }
 
 	return;
@@ -825,9 +811,9 @@ void R_FillBackScreen (data_t* data)
 
     // Allocate the background buffer if necessary
 	
-    if (background_buffer == NULL)
+    if (data->background_buffer == NULL)
     {
-        background_buffer = Z_Malloc(SCREENWIDTH * (SCREENHEIGHT - SBARHEIGHT),
+        data->background_buffer = Z_Malloc(SCREENWIDTH * (SCREENHEIGHT - SBARHEIGHT),
                                      PU_STATIC, NULL);
     }
 
@@ -837,7 +823,7 @@ void R_FillBackScreen (data_t* data)
 	name = name1;
     
     src = W_CacheLumpName(name, PU_CACHE); 
-    dest = background_buffer;
+    dest = data->background_buffer;
 	 
     for (y=0 ; y<SCREENHEIGHT-SBARHEIGHT ; y++) 
     { 
@@ -856,40 +842,40 @@ void R_FillBackScreen (data_t* data)
      
     // Draw screen and bezel; this is done to a separate screen buffer.
 
-    V_UseBuffer(data, background_buffer);
+    V_UseBuffer(data, data->background_buffer);
 
     patch = W_CacheLumpName(DEH_String("brdr_t"),PU_CACHE);
 
-    for (x=0 ; x<scaledviewwidth ; x+=8)
-	V_DrawPatch(data, viewwindowx+x, viewwindowy-8, patch);
+    for (x=0 ; x<data->scaledviewwidth ; x+=8)
+	V_DrawPatch(data, data->viewwindowx+x, data->viewwindowy-8, patch);
     patch = W_CacheLumpName(DEH_String("brdr_b"),PU_CACHE);
 
-    for (x=0 ; x<scaledviewwidth ; x+=8)
-	V_DrawPatch(data, viewwindowx+x, viewwindowy+viewheight, patch);
+    for (x=0 ; x<data->scaledviewwidth ; x+=8)
+	V_DrawPatch(data, data->viewwindowx+x, data->viewwindowy+data->viewheight, patch);
     patch = W_CacheLumpName(DEH_String("brdr_l"),PU_CACHE);
 
-    for (y=0 ; y<viewheight ; y+=8)
-	V_DrawPatch(data, viewwindowx-8, viewwindowy+y, patch);
+    for (y=0 ; y<data->viewheight ; y+=8)
+	V_DrawPatch(data, data->viewwindowx-8, data->viewwindowy+y, patch);
     patch = W_CacheLumpName(DEH_String("brdr_r"),PU_CACHE);
 
-    for (y=0 ; y<viewheight ; y+=8)
-	V_DrawPatch(data, viewwindowx+scaledviewwidth, viewwindowy+y, patch);
+    for (y=0 ; y<data->viewheight ; y+=8)
+	V_DrawPatch(data, data->viewwindowx+data->scaledviewwidth, data->viewwindowy+y, patch);
 
     // Draw beveled edge. 
-    V_DrawPatch(data, viewwindowx-8,
-                viewwindowy-8,
+    V_DrawPatch(data, data->viewwindowx-8,
+                data->viewwindowy-8,
                 W_CacheLumpName(DEH_String("brdr_tl"),PU_CACHE));
     
-    V_DrawPatch(data, viewwindowx+scaledviewwidth,
-                viewwindowy-8,
+    V_DrawPatch(data, data->viewwindowx+data->scaledviewwidth,
+                data->viewwindowy-8,
                 W_CacheLumpName(DEH_String("brdr_tr"),PU_CACHE));
     
-    V_DrawPatch(data, viewwindowx-8,
-                viewwindowy+viewheight,
+    V_DrawPatch(data, data->viewwindowx-8,
+                data->viewwindowy+data->viewheight,
                 W_CacheLumpName(DEH_String("brdr_bl"),PU_CACHE));
     
-    V_DrawPatch(data, viewwindowx+scaledviewwidth,
-                viewwindowy+viewheight,
+    V_DrawPatch(data, data->viewwindowx+data->scaledviewwidth,
+                data->viewwindowy+data->viewheight,
                 W_CacheLumpName(DEH_String("brdr_br"),PU_CACHE));
 
     V_RestoreBuffer(data);
@@ -911,9 +897,9 @@ R_VideoErase
   //  a 32bit CPU, as GNU GCC/Linux libc did
   //  at one point.
 
-    if (background_buffer != NULL)
+    if (data->background_buffer != NULL)
     {
-        memcpy(data->I_VideoBuffer + ofs, background_buffer + ofs, count); 
+        memcpy(data->I_VideoBuffer + ofs, data->background_buffer + ofs, count); 
     }
 } 
 
@@ -930,24 +916,24 @@ void R_DrawViewBorder (data_t* data)
     int		ofs;
     int		i; 
  
-    if (scaledviewwidth == SCREENWIDTH) 
+    if (data->scaledviewwidth == SCREENWIDTH) 
 	return; 
   
-    top = ((SCREENHEIGHT-SBARHEIGHT)-viewheight)/2; 
-    side = (SCREENWIDTH-scaledviewwidth)/2; 
+    top = ((SCREENHEIGHT-SBARHEIGHT)-data->viewheight)/2; 
+    side = (SCREENWIDTH-data->scaledviewwidth)/2; 
  
     // copy top and one line of left side 
     R_VideoErase (data, 0, top*SCREENWIDTH+side); 
  
     // copy one line of right side and bottom 
-    ofs = (viewheight+top)*SCREENWIDTH-side; 
+    ofs = (data->viewheight+top)*SCREENWIDTH-side; 
     R_VideoErase (data, ofs, top*SCREENWIDTH+side); 
  
     // copy data->sides using wraparound 
     ofs = top*SCREENWIDTH + SCREENWIDTH-side; 
     side <<= 1;
     
-    for (i=1 ; i<viewheight ; i++) 
+    for (i=1 ; i<data->viewheight ; i++) 
     { 
 	R_VideoErase (data, ofs, side); 
 	ofs += SCREENWIDTH; 

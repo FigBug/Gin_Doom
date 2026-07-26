@@ -125,8 +125,8 @@ R_MapPlane
 #ifdef RANGECHECK
     if (x2 < x1
      || x1 < 0
-     || x2 >= viewwidth
-     || y > viewheight)
+     || x2 >= data->viewwidth
+     || y > data->viewheight)
     {
 	I_Error (NULL, "R_MapPlane: %i, %i at %i",x1,x2,y);
     }
@@ -182,9 +182,9 @@ void R_ClearPlanes (data_t* data)
     angle_t	angle;
     
     // opening / clipping determination
-    for (i=0 ; i<viewwidth ; i++)
+    for (i=0 ; i<data->viewwidth ; i++)
     {
-	floorclip[i] = viewheight;
+	floorclip[i] = data->viewheight;
 	ceilingclip[i] = -1;
     }
 
@@ -370,9 +370,9 @@ void R_DrawPlanes (data_t* data)
     int                 lumpnum;
 				
 #ifdef RANGECHECK
-    if (ds_p - drawsegs > MAXDRAWSEGS)
-	I_Error (NULL, "R_DrawPlanes: drawsegs overflow (%i)",
-		 ds_p - drawsegs);
+    if (data->ds_p - data->drawsegs > MAXDRAWSEGS)
+	I_Error (NULL, "R_DrawPlanes: data->drawsegs overflow (%i)",
+		 data->ds_p - data->drawsegs);
     
     if (lastvisplane - visplanes > MAXVISPLANES)
 	I_Error (NULL, "R_DrawPlanes: visplane overflow (%i)",

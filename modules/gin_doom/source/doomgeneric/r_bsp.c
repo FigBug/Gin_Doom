@@ -43,8 +43,6 @@ line_t*		linedef;
 sector_t*	frontsector;
 sector_t*	backsector;
 
-drawseg_t	drawsegs[MAXDRAWSEGS];
-drawseg_t*	ds_p;
 
 
 void
@@ -59,9 +57,9 @@ R_StoreWallRange
 //
 // R_ClearDrawSegs
 //
-void R_ClearDrawSegs (void)
+void R_ClearDrawSegs (data_t* data)
 {
-    ds_p = drawsegs;
+    data->ds_p = data->drawsegs;
 }
 
 
@@ -71,19 +69,11 @@ void R_ClearDrawSegs (void)
 // Clips the given range of columns
 // and includes it in the new clip list.
 //
-typedef	struct
-{
-    int	first;
-    int last;
-    
-} cliprange_t;
 
 
 #define MAXSEGS		32
 
-// newend is one past the last valid seg
-cliprange_t*	newend;
-cliprange_t	solidsegs[MAXSEGS];
+// data->newend is one past the last valid seg
 
 
 
@@ -105,7 +95,7 @@ R_ClipSolidWallSegment
 
     // Find the first range that touches the range
     //  (adjacent pixels are touching).
-    start = solidsegs;
+    start = data->solidsegs;
     while (start->last < first-1)
 	start++;
 
@@ -116,8 +106,8 @@ R_ClipSolidWallSegment
 	    // Post is entirely visible (above start),
 	    //  so insert a new clippost.
 	    R_StoreWallRange (data, first, last);
-	    next = newend;
-	    newend++;
+	    next = data->newend;
+	    data->newend++;
 	    
 	    while (next != start)
 	    {
@@ -170,13 +160,13 @@ R_ClipSolidWallSegment
     }
     
 
-    while (next++ != newend)
+    while (next++ != data->newend)
     {
 	// Remove a post.
 	*++start = *next;
     }
 
-    newend = start+1;
+    data->newend = start+1;
 }
 
 
@@ -198,7 +188,7 @@ R_ClipPassWallSegment
 
     // Find the first range that touches the range
     //  (adjacent pixels are touching).
-    start = solidsegs;
+    start = data->solidsegs;
     while (start->last < first-1)
 	start++;
 
@@ -238,13 +228,13 @@ R_ClipPassWallSegment
 //
 // R_ClearClipSegs
 //
-void R_ClearClipSegs (void)
+void R_ClearClipSegs (data_t* data)
 {
-    solidsegs[0].first = -0x7fffffff;
-    solidsegs[0].last = -1;
-    solidsegs[1].first = viewwidth;
-    solidsegs[1].last = 0x7fffffff;
-    newend = solidsegs+2;
+    data->solidsegs[0].first = -0x7fffffff;
+    data->solidsegs[0].last = -1;
+    data->solidsegs[1].first = data->viewwidth;
+    data->solidsegs[1].last = 0x7fffffff;
+    data->newend = data->solidsegs+2;
 }
 
 //
@@ -468,7 +458,7 @@ boolean R_CheckBBox (data_t* data, fixed_t* bspcoord)
 	return false;			
     sx2--;
 	
-    start = solidsegs;
+    start = data->solidsegs;
     while (start->last < sx2)
 	start++;
     

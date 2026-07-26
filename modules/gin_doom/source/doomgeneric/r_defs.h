@@ -20,6 +20,12 @@
 #ifndef __R_DEFS__
 #define __R_DEFS__
 
+typedef struct
+{
+    int	first;
+    int last;
+} cliprange_t;
+
 
 // Screenwidth.
 #include "doomdef.h"

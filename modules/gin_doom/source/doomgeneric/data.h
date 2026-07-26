@@ -208,6 +208,27 @@ struct data_s
 	int             setblocks;
 	int             setdetail;
 
+	// r_bsp.c
+	drawseg_t       drawsegs[MAXDRAWSEGS];
+	drawseg_t*      ds_p;
+	cliprange_t*    newend;
+	cliprange_t     solidsegs[32];   // MAXSEGS
+	// r_draw.c
+	byte*           viewimage;
+	int             viewwidth;
+	int             scaledviewwidth;
+	int             viewheight;
+	int             viewwindowx;
+	int             viewwindowy;
+	byte*           ylookup[832];    // MAXHEIGHT
+	int             columnofs[1120]; // MAXWIDTH
+	byte            translations[3][256];
+	byte*           background_buffer;
+	int             dccount;
+	int             fuzzpos;
+	byte*           translationtables;
+	int             dscount;
+
 	// level geometry (p_setup.c)
 	int             numvertexes;
 	vertex_t*       vertexes;

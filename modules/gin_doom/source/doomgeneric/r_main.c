@@ -534,7 +534,7 @@ void R_InitTextureMapping (data_t* data)
 	if (finetangent[i] > FRACUNIT*2)
 	    t = -1;
 	else if (finetangent[i] < -FRACUNIT*2)
-	    t = viewwidth+1;
+	    t = data->viewwidth+1;
 	else
 	{
 	    t = FixedMul (finetangent[i], focallength);
@@ -542,8 +542,8 @@ void R_InitTextureMapping (data_t* data)
 
 	    if (t < -1)
 		t = -1;
-	    else if (t>viewwidth+1)
-		t = viewwidth+1;
+	    else if (t>data->viewwidth+1)
+		t = data->viewwidth+1;
 	}
 	data->viewangletox[i] = t;
     }
@@ -551,7 +551,7 @@ void R_InitTextureMapping (data_t* data)
     // Scan data->viewangletox[] to generate data->xtoviewangle[]:
     //  data->xtoviewangle will give the smallest view angle
     //  that maps to x.	
-    for (x=0;x<=viewwidth;x++)
+    for (x=0;x<=data->viewwidth;x++)
     {
 	i = 0;
 	while (data->viewangletox[i]>x)
@@ -567,8 +567,8 @@ void R_InitTextureMapping (data_t* data)
 	
 	if (data->viewangletox[i] == -1)
 	    data->viewangletox[i] = 0;
-	else if (data->viewangletox[i] == viewwidth+1)
-	    data->viewangletox[i]  = viewwidth;
+	else if (data->viewangletox[i] == data->viewwidth+1)
+	    data->viewangletox[i]  = data->viewwidth;
     }
 	
     data->clipangle = data->xtoviewangle[0];
@@ -651,20 +651,20 @@ void R_ExecuteSetViewSize (data_t* data)
 
     if (data->setblocks == 11)
     {
-	scaledviewwidth = SCREENWIDTH;
-	viewheight = SCREENHEIGHT;
+	data->scaledviewwidth = SCREENWIDTH;
+	data->viewheight = SCREENHEIGHT;
     }
     else
     {
-	scaledviewwidth = data->setblocks*32;
-	viewheight = (data->setblocks*168/10)&~7;
+	data->scaledviewwidth = data->setblocks*32;
+	data->viewheight = (data->setblocks*168/10)&~7;
     }
     
     data->detailshift = data->setdetail;
-    viewwidth = scaledviewwidth>>data->detailshift;
+    data->viewwidth = data->scaledviewwidth>>data->detailshift;
 	
-    data->centery = viewheight/2;
-    data->centerx = viewwidth/2;
+    data->centery = data->viewheight/2;
+    data->centerx = data->viewwidth/2;
     data->centerxfrac = data->centerx<<FRACBITS;
     data->centeryfrac = data->centery<<FRACBITS;
     data->projection = data->centerxfrac;
@@ -684,27 +684,27 @@ void R_ExecuteSetViewSize (data_t* data)
 	spanfunc = R_DrawSpanLow;
     }
 
-    R_InitBuffer (data, scaledviewwidth, viewheight);
+    R_InitBuffer (data, data->scaledviewwidth, data->viewheight);
 	
     R_InitTextureMapping (data);
     
     // psprite scales
-    pspritescale = FRACUNIT*viewwidth/SCREENWIDTH;
-    pspriteiscale = FRACUNIT*SCREENWIDTH/viewwidth;
+    pspritescale = FRACUNIT*data->viewwidth/SCREENWIDTH;
+    pspriteiscale = FRACUNIT*SCREENWIDTH/data->viewwidth;
     
     // thing clipping
-    for (i=0 ; i<viewwidth ; i++)
-	screenheightarray[i] = viewheight;
+    for (i=0 ; i<data->viewwidth ; i++)
+	screenheightarray[i] = data->viewheight;
     
     // planes
-    for (i=0 ; i<viewheight ; i++)
+    for (i=0 ; i<data->viewheight ; i++)
     {
-	dy = ((i-viewheight/2)<<FRACBITS)+FRACUNIT/2;
+	dy = ((i-data->viewheight/2)<<FRACBITS)+FRACUNIT/2;
 	dy = abs(dy);
-	yslope[i] = FixedDiv ( (viewwidth<<data->detailshift)/2*FRACUNIT, dy);
+	yslope[i] = FixedDiv ( (data->viewwidth<<data->detailshift)/2*FRACUNIT, dy);
     }
 	
-    for (i=0 ; i<viewwidth ; i++)
+    for (i=0 ; i<data->viewwidth ; i++)
     {
 	cosadj = abs(finecosine[data->xtoviewangle[i]>>ANGLETOFINESHIFT]);
 	distscale[i] = FixedDiv (FRACUNIT,cosadj);
@@ -717,7 +717,7 @@ void R_ExecuteSetViewSize (data_t* data)
 	startmap = ((LIGHTLEVELS-1-i)*2)*NUMCOLORMAPS/LIGHTLEVELS;
 	for (j=0 ; j<MAXLIGHTSCALE ; j++)
 	{
-	    level = startmap - j*SCREENWIDTH/(viewwidth<<data->detailshift)/DISTMAP;
+	    level = startmap - j*SCREENWIDTH/(data->viewwidth<<data->detailshift)/DISTMAP;
 	    
 	    if (level < 0)
 		level = 0;
@@ -745,7 +745,7 @@ void R_Init (data_t* data)
     R_InitPointToAngle ();
     printf (".");
     R_InitTables ();
-    // viewwidth / viewheight / detailLevel are set by the defaults
+    // data->viewwidth / data->viewheight / detailLevel are set by the defaults
     printf (".");
 
     R_SetViewSize(data, screenblocks, detailLevel);
@@ -840,8 +840,8 @@ void R_RenderPlayerView (data_t* data, player_t* player)
     R_SetupFrame (data, player);
 
     // Clear buffers.
-    R_ClearClipSegs ();
-    R_ClearDrawSegs ();
+    R_ClearClipSegs (data);
+    R_ClearDrawSegs (data);
     R_ClearPlanes (data);
     R_ClearSprites ();
     

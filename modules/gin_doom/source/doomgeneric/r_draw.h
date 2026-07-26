@@ -54,7 +54,6 @@ R_VideoErase
 
 // start of a 64*64 tile image
 
-extern byte*		translationtables;
 
 
 // Span blitting for rows, floor/ceiling.

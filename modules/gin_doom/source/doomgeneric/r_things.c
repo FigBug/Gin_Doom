@@ -410,7 +410,7 @@ R_DrawVisSprite
     else if (vis->mobjflags & MF_TRANSLATION)
     {
 	colfunc = transcolfunc;
-	data->dc_translation = translationtables - 256 +
+	data->dc_translation = data->translationtables - 256 +
 	    ( (vis->mobjflags & MF_TRANSLATION) >> (MF_TRANSSHIFT-8) );
     }
 	
@@ -529,7 +529,7 @@ void R_ProjectSprite (data_t* data, mobj_t* thing)
     x1 = (data->centerxfrac + FixedMul (tx,xscale) ) >>FRACBITS;
 
     // off the right side?
-    if (x1 > viewwidth)
+    if (x1 > data->viewwidth)
 	return;
     
     tx +=  spritewidth[lump];
@@ -549,7 +549,7 @@ void R_ProjectSprite (data_t* data, mobj_t* thing)
     vis->gzt = thing->z + spritetopoffset[lump];
     vis->texturemid = vis->gzt - data->viewz;
     vis->x1 = x1 < 0 ? 0 : x1;
-    vis->x2 = x2 >= viewwidth ? viewwidth-1 : x2;	
+    vis->x2 = x2 >= data->viewwidth ? data->viewwidth-1 : x2;	
     iscale = FixedDiv (FRACUNIT, xscale);
 
     if (flip)
@@ -672,7 +672,7 @@ void R_DrawPSprite (data_t* data, pspdef_t* psp)
     x1 = (data->centerxfrac + FixedMul (tx,pspritescale) ) >>FRACBITS;
 
     // off the right side
-    if (x1 > viewwidth)
+    if (x1 > data->viewwidth)
 	return;		
 
     tx +=  spritewidth[lump];
@@ -687,7 +687,7 @@ void R_DrawPSprite (data_t* data, pspdef_t* psp)
     vis->mobjflags = 0;
     vis->texturemid = (BASEYCENTER<<FRACBITS)+FRACUNIT/2-(psp->sy-spritetopoffset[lump]);
     vis->x1 = x1 < 0 ? 0 : x1;
-    vis->x2 = x2 >= viewwidth ? viewwidth-1 : x2;	
+    vis->x2 = x2 >= data->viewwidth ? data->viewwidth-1 : x2;	
     vis->scale = pspritescale<<data->detailshift;
     
     if (flip)
@@ -848,10 +848,10 @@ void R_DrawSprite (data_t* data, vissprite_t* spr)
     for (x = spr->x1 ; x<=spr->x2 ; x++)
 	clipbot[x] = cliptop[x] = -2;
     
-    // Scan drawsegs from end to start for obscuring data->segs.
+    // Scan data->drawsegs from end to start for obscuring data->segs.
     // The first drawseg that has a greater scale
     //  is the clip seg.
-    for (ds=ds_p-1 ; ds >= drawsegs ; ds--)
+    for (ds=data->ds_p-1 ; ds >= data->drawsegs ; ds--)
     {
 	// determine if the drawseg obscures the sprite
 	if (ds->x1 > spr->x2
@@ -932,7 +932,7 @@ void R_DrawSprite (data_t* data, vissprite_t* spr)
     for (x = spr->x1 ; x<=spr->x2 ; x++)
     {
 	if (clipbot[x] == -2)		
-	    clipbot[x] = viewheight;
+	    clipbot[x] = data->viewheight;
 
 	if (cliptop[x] == -2)
 	    cliptop[x] = -1;
@@ -969,7 +969,7 @@ void R_DrawMasked (data_t* data)
     }
     
     // render any remaining masked mid textures
-    for (ds=ds_p-1 ; ds >= drawsegs ; ds--)
+    for (ds=data->ds_p-1 ; ds >= data->drawsegs ; ds--)
 	if (ds->maskedtexturecol)
 	    R_RenderMaskedSegRange (data, ds, ds->x1, ds->x2);
     

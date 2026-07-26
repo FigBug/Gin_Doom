@@ -29,7 +29,7 @@
 #include "r_draw.h"
 
 // boolean : whether the screen is always erased
-#define noterased viewwindowx
+#define noterased data->viewwindowx
 
 
 void HUlib_init(void)
@@ -145,17 +145,17 @@ void HUlib_eraseTextLine(data_t* data, hu_textline_t* l)
     // (because of a recent change back from the automap)
 
     if (!data->automapactive &&
-	viewwindowx && l->needsupdate)
+	data->viewwindowx && l->needsupdate)
     {
 	lh = SHORT(l->f[0]->height) + 1;
 	for (y=l->y,yoffset=y*SCREENWIDTH ; y<l->y+lh ; y++,yoffset+=SCREENWIDTH)
 	{
-	    if (y < viewwindowy || y >= viewwindowy + viewheight)
+	    if (y < data->viewwindowy || y >= data->viewwindowy + data->viewheight)
 		R_VideoErase(data, yoffset, SCREENWIDTH); // erase entire line
 	    else
 	    {
-		R_VideoErase(data, yoffset, viewwindowx); // erase left border
-		R_VideoErase(data, yoffset + viewwindowx + viewwidth, viewwindowx);
+		R_VideoErase(data, yoffset, data->viewwindowx); // erase left border
+		R_VideoErase(data, yoffset + data->viewwindowx + data->viewwidth, data->viewwindowx);
 		// erase right border
 	    }
 	}

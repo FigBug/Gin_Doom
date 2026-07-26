@@ -654,7 +654,7 @@ static void saveg_read_player_t(player_t *str)
     // fixed_t data->viewz;
     str->viewz = saveg_read32();
 
-    // fixed_t viewheight;
+    // fixed_t data->viewheight;
     str->viewheight = saveg_read32();
 
     // fixed_t deltaviewheight;
@@ -785,7 +785,7 @@ static void saveg_write_player_t(player_t *str)
     // fixed_t data->viewz;
     saveg_write32(str->viewz);
 
-    // fixed_t viewheight;
+    // fixed_t data->viewheight;
     saveg_write32(str->viewheight);
 
     // fixed_t deltaviewheight;

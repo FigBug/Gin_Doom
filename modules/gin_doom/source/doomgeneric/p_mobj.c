@@ -313,7 +313,7 @@ void P_ZMovement (data_t* data, mobj_t* mo)
 		&& mo->momz < -GRAVITY*8)	
 	    {
 		// Squat down.
-		// Decrease viewheight for a moment
+		// Decrease data->viewheight for a moment
 		// after hitting the ground (hard),
 		// and utter appropriate sound.
 		mo->player->deltaviewheight = mo->momz>>3;
@@ -693,7 +693,7 @@ void P_SpawnPlayer (data_t* data, mapthing_t* mthing)
     z		= ONFLOORZ;
     mobj	= P_SpawnMobj (data, x,y,z, MT_PLAYER);
 
-    // set color translations for player sprites
+    // set color data->translations for player sprites
     if (mthing->type > 1)		
 	mobj->flags |= (mthing->type-1)<<MF_TRANSSHIFT;
 		

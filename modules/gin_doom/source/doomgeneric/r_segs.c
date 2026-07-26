@@ -283,7 +283,7 @@ void R_RenderSegLoop (data_t* data)
 	    data->dc_texturemid = rw_midtexturemid;
 	    data->dc_source = R_GetColumn(midtexture,texturecolumn);
 	    colfunc (data);
-	    ceilingclip[rw_x] = viewheight;
+	    ceilingclip[rw_x] = data->viewheight;
 	    floorclip[rw_x] = -1;
 	}
 	else
@@ -382,11 +382,11 @@ R_StoreWallRange
     int			lightnum;
 
     // don't overflow and crash
-    if (ds_p == &drawsegs[MAXDRAWSEGS])
+    if (data->ds_p == &data->drawsegs[MAXDRAWSEGS])
 	return;		
 		
 #ifdef RANGECHECK
-    if (start >=viewwidth || start > stop)
+    if (start >=data->viewwidth || start > stop)
 	I_Error (NULL, "Bad R_RenderWallRange: %i to %i", start , stop);
 #endif
     
@@ -409,20 +409,20 @@ R_StoreWallRange
     rw_distance = FixedMul (hyp, sineval);
 		
 	
-    ds_p->x1 = rw_x = start;
-    ds_p->x2 = stop;
-    ds_p->curline = curline;
+    data->ds_p->x1 = rw_x = start;
+    data->ds_p->x2 = stop;
+    data->ds_p->curline = curline;
     rw_stopx = stop+1;
     
     // calculate scale at both ends and step
-    ds_p->scale1 = rw_scale = 
+    data->ds_p->scale1 = rw_scale = 
 	R_ScaleFromGlobalAngle (data, data->viewangle + data->xtoviewangle[start]);
     
     if (stop > start )
     {
-	ds_p->scale2 = R_ScaleFromGlobalAngle (data, data->viewangle + data->xtoviewangle[stop]);
-	ds_p->scalestep = rw_scalestep = 
-	    (ds_p->scale2 - rw_scale) / (stop-start);
+	data->ds_p->scale2 = R_ScaleFromGlobalAngle (data, data->viewangle + data->xtoviewangle[stop]);
+	data->ds_p->scalestep = rw_scalestep = 
+	    (data->ds_p->scale2 - rw_scale) / (stop-start);
     }
     else
     {
@@ -438,10 +438,10 @@ R_StoreWallRange
 			
 	    gxt = FixedMul(trx,data->viewcos); 
 	    gyt = -FixedMul(try,data->viewsin); 
-	    ds_p->scale1 = FixedDiv(data->projection, gxt-gyt)<<data->detailshift;
+	    data->ds_p->scale1 = FixedDiv(data->projection, gxt-gyt)<<data->detailshift;
 	}
 #endif
-	ds_p->scale2 = ds_p->scale1;
+	data->ds_p->scale2 = data->ds_p->scale1;
     }
     
     // calculate texture boundaries
@@ -450,7 +450,7 @@ R_StoreWallRange
     worldbottom = frontsector->floorheight - data->viewz;
 	
     midtexture = toptexture = bottomtexture = maskedtexture = 0;
-    ds_p->maskedtexturecol = NULL;
+    data->ds_p->maskedtexturecol = NULL;
 	
     if (!backsector)
     {
@@ -472,54 +472,54 @@ R_StoreWallRange
 	}
 	rw_midtexturemid += sidedef->rowoffset;
 
-	ds_p->silhouette = SIL_BOTH;
-	ds_p->sprtopclip = screenheightarray;
-	ds_p->sprbottomclip = negonearray;
-	ds_p->bsilheight = INT_MAX;
-	ds_p->tsilheight = INT_MIN;
+	data->ds_p->silhouette = SIL_BOTH;
+	data->ds_p->sprtopclip = screenheightarray;
+	data->ds_p->sprbottomclip = negonearray;
+	data->ds_p->bsilheight = INT_MAX;
+	data->ds_p->tsilheight = INT_MIN;
     }
     else
     {
 	// two sided line
-	ds_p->sprtopclip = ds_p->sprbottomclip = NULL;
-	ds_p->silhouette = 0;
+	data->ds_p->sprtopclip = data->ds_p->sprbottomclip = NULL;
+	data->ds_p->silhouette = 0;
 	
 	if (frontsector->floorheight > backsector->floorheight)
 	{
-	    ds_p->silhouette = SIL_BOTTOM;
-	    ds_p->bsilheight = frontsector->floorheight;
+	    data->ds_p->silhouette = SIL_BOTTOM;
+	    data->ds_p->bsilheight = frontsector->floorheight;
 	}
 	else if (backsector->floorheight > data->viewz)
 	{
-	    ds_p->silhouette = SIL_BOTTOM;
-	    ds_p->bsilheight = INT_MAX;
-	    // ds_p->sprbottomclip = negonearray;
+	    data->ds_p->silhouette = SIL_BOTTOM;
+	    data->ds_p->bsilheight = INT_MAX;
+	    // data->ds_p->sprbottomclip = negonearray;
 	}
 	
 	if (frontsector->ceilingheight < backsector->ceilingheight)
 	{
-	    ds_p->silhouette |= SIL_TOP;
-	    ds_p->tsilheight = frontsector->ceilingheight;
+	    data->ds_p->silhouette |= SIL_TOP;
+	    data->ds_p->tsilheight = frontsector->ceilingheight;
 	}
 	else if (backsector->ceilingheight < data->viewz)
 	{
-	    ds_p->silhouette |= SIL_TOP;
-	    ds_p->tsilheight = INT_MIN;
-	    // ds_p->sprtopclip = screenheightarray;
+	    data->ds_p->silhouette |= SIL_TOP;
+	    data->ds_p->tsilheight = INT_MIN;
+	    // data->ds_p->sprtopclip = screenheightarray;
 	}
 		
 	if (backsector->ceilingheight <= frontsector->floorheight)
 	{
-	    ds_p->sprbottomclip = negonearray;
-	    ds_p->bsilheight = INT_MAX;
-	    ds_p->silhouette |= SIL_BOTTOM;
+	    data->ds_p->sprbottomclip = negonearray;
+	    data->ds_p->bsilheight = INT_MAX;
+	    data->ds_p->silhouette |= SIL_BOTTOM;
 	}
 	
 	if (backsector->floorheight >= frontsector->ceilingheight)
 	{
-	    ds_p->sprtopclip = screenheightarray;
-	    ds_p->tsilheight = INT_MIN;
-	    ds_p->silhouette |= SIL_TOP;
+	    data->ds_p->sprtopclip = screenheightarray;
+	    data->ds_p->tsilheight = INT_MIN;
+	    data->ds_p->silhouette |= SIL_TOP;
 	}
 	
 	worldhigh = backsector->ceilingheight - data->viewz;
@@ -607,7 +607,7 @@ R_StoreWallRange
 	{
 	    // masked midtexture
 	    maskedtexture = true;
-	    ds_p->maskedtexturecol = maskedtexturecol = lastopening - rw_x;
+	    data->ds_p->maskedtexturecol = maskedtexturecol = lastopening - rw_x;
 	    lastopening += rw_stopx - rw_x;
 	}
     }
@@ -714,32 +714,32 @@ R_StoreWallRange
 
     
     // save sprite clipping info
-    if ( ((ds_p->silhouette & SIL_TOP) || maskedtexture)
-	 && !ds_p->sprtopclip)
+    if ( ((data->ds_p->silhouette & SIL_TOP) || maskedtexture)
+	 && !data->ds_p->sprtopclip)
     {
 	memcpy (lastopening, ceilingclip+start, 2*(rw_stopx-start));
-	ds_p->sprtopclip = lastopening - start;
+	data->ds_p->sprtopclip = lastopening - start;
 	lastopening += rw_stopx - start;
     }
     
-    if ( ((ds_p->silhouette & SIL_BOTTOM) || maskedtexture)
-	 && !ds_p->sprbottomclip)
+    if ( ((data->ds_p->silhouette & SIL_BOTTOM) || maskedtexture)
+	 && !data->ds_p->sprbottomclip)
     {
 	memcpy (lastopening, floorclip+start, 2*(rw_stopx-start));
-	ds_p->sprbottomclip = lastopening - start;
+	data->ds_p->sprbottomclip = lastopening - start;
 	lastopening += rw_stopx - start;	
     }
 
-    if (maskedtexture && !(ds_p->silhouette&SIL_TOP))
+    if (maskedtexture && !(data->ds_p->silhouette&SIL_TOP))
     {
-	ds_p->silhouette |= SIL_TOP;
-	ds_p->tsilheight = INT_MIN;
+	data->ds_p->silhouette |= SIL_TOP;
+	data->ds_p->tsilheight = INT_MIN;
     }
-    if (maskedtexture && !(ds_p->silhouette&SIL_BOTTOM))
+    if (maskedtexture && !(data->ds_p->silhouette&SIL_BOTTOM))
     {
-	ds_p->silhouette |= SIL_BOTTOM;
-	ds_p->bsilheight = INT_MAX;
+	data->ds_p->silhouette |= SIL_BOTTOM;
+	data->ds_p->bsilheight = INT_MAX;
     }
-    ds_p++;
+    data->ds_p++;
 }
 

@@ -102,7 +102,7 @@ void P_CalcHeight (data_t* data, player_t* player)
     bob = FixedMul ( player->bob/2, finesine[angle]);
 
     
-    // move viewheight
+    // move data->viewheight
     if (player->playerstate == PST_LIVE)
     {
 	player->viewheight += player->deltaviewheight;
