@@ -84,7 +84,7 @@ void P_ExplodeMissile (data_t* data, mobj_t* mo)
 
     P_SetMobjState (data, mo, mobjinfo[mo->type].deathstate);
 
-    mo->tics -= P_Random()&3;
+    mo->tics -= P_Random (data)&3;
 
     if (mo->tics < 1)
 	mo->tics = 1;
@@ -487,7 +487,7 @@ void P_MobjThinker (data_t* data, mobj_t* mobj)
 	if ( leveltime&31 )
 	    return;
 
-	if (P_Random () > 4)
+	if (P_Random (data) > 4)
 	    return;
 
 	P_NightmareRespawn (data, mobj);
@@ -527,7 +527,7 @@ P_SpawnMobj
     if (gameskill != sk_nightmare)
 	mobj->reactiontime = info->reactiontime;
     
-    mobj->lastlook = P_Random () % MAXPLAYERS;
+    mobj->lastlook = P_Random (data) % MAXPLAYERS;
     // do not set the state with P_SetMobjState,
     // because action routines can not be called yet
     st = &states[info->spawnstate];
@@ -822,7 +822,7 @@ void P_SpawnMapThing (data_t* data, mapthing_t* mthing)
     mobj->spawnpoint = *mthing;
 
     if (mobj->tics > 0)
-	mobj->tics = 1 + (P_Random () % mobj->tics);
+	mobj->tics = 1 + (P_Random (data) % mobj->tics);
     if (mobj->flags & MF_COUNTKILL)
 	totalkills++;
     if (mobj->flags & MF_COUNTITEM)
@@ -854,11 +854,11 @@ P_SpawnPuff
 {
     mobj_t*	th;
 	
-    z += ((P_Random()-P_Random())<<10);
+    z += ((P_Random (data)-P_Random (data))<<10);
 
     th = P_SpawnMobj (data, x,y,z, MT_PUFF);
     th->momz = FRACUNIT;
-    th->tics -= P_Random()&3;
+    th->tics -= P_Random (data)&3;
 
     if (th->tics < 1)
 	th->tics = 1;
@@ -883,10 +883,10 @@ P_SpawnBlood
 {
     mobj_t*	th;
 	
-    z += ((P_Random()-P_Random())<<10);
+    z += ((P_Random (data)-P_Random (data))<<10);
     th = P_SpawnMobj (data, x,y,z, MT_BLOOD);
     th->momz = FRACUNIT*2;
-    th->tics -= P_Random()&3;
+    th->tics -= P_Random (data)&3;
 
     if (th->tics < 1)
 	th->tics = 1;
@@ -906,7 +906,7 @@ P_SpawnBlood
 //
 void P_CheckMissileSpawn (data_t* data, mobj_t* th)
 {
-    th->tics -= P_Random()&3;
+    th->tics -= P_Random (data)&3;
     if (th->tics < 1)
 	th->tics = 1;
     
@@ -970,7 +970,7 @@ P_SpawnMissile
 
     // fuzzy player
     if (dest->flags & MF_SHADOW)
-	an += (P_Random()-P_Random())<<20;	
+	an += (P_Random (data)-P_Random (data))<<20;	
 
     th->angle = an;
     an >>= ANGLETOFINESHIFT;

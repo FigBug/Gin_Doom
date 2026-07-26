@@ -724,7 +724,7 @@ P_KillMobj
     }
     else
 	P_SetMobjState (data, target, target->info->deathstate);
-    target->tics -= P_Random()&3;
+    target->tics -= P_Random (data)&3;
 
     if (target->tics < 1)
 	target->tics = 1;
@@ -829,7 +829,7 @@ P_DamageMobj
 	if ( damage < 40
 	     && damage > target->health
 	     && target->z - inflictor->z > 64*FRACUNIT
-	     && (P_Random ()&1) )
+	     && (P_Random (data)&1) )
 	{
 	    ang += ANG180;
 	    thrust *= 4;
@@ -900,7 +900,7 @@ P_DamageMobj
 	return;
     }
 
-    if ( (P_Random () < target->info->painchance)
+    if ( (P_Random (data) < target->info->painchance)
 	 && !(target->flags&MF_SKULLFLY) )
     {
 	target->flags |= MF_JUSTHIT;	// fight back!

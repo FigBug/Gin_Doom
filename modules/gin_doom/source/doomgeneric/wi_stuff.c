@@ -516,7 +516,7 @@ WI_drawOnLnode
 
 
 
-void WI_initAnimatedBack(void)
+void WI_initAnimatedBack(data_t* data)
 {
     int		i;
     anim_t*	a;
@@ -536,16 +536,16 @@ void WI_initAnimatedBack(void)
 
 	// specify the next time to draw it
 	if (a->type == ANIM_ALWAYS)
-	    a->nexttic = bcnt + 1 + (M_Random()%a->period);
+	    a->nexttic = bcnt + 1 + (M_Random (data)%a->period);
 	else if (a->type == ANIM_RANDOM)
-	    a->nexttic = bcnt + 1 + a->data2+(M_Random()%a->data1);
+	    a->nexttic = bcnt + 1 + a->data2+(M_Random (data)%a->data1);
 	else if (a->type == ANIM_LEVEL)
 	    a->nexttic = bcnt + 1;
     }
 
 }
 
-void WI_updateAnimatedBack(void)
+void WI_updateAnimatedBack(data_t* data)
 {
     int		i;
     anim_t*	a;
@@ -574,7 +574,7 @@ void WI_updateAnimatedBack(void)
 		if (a->ctr == a->nanims)
 		{
 		    a->ctr = -1;
-		    a->nexttic = bcnt+a->data2+(M_Random()%a->data1);
+		    a->nexttic = bcnt+a->data2+(M_Random (data)%a->data1);
 		}
 		else a->nexttic = bcnt + a->period;
 		break;
@@ -743,16 +743,16 @@ void WI_End(void)
     WI_unloadData();
 }
 
-void WI_initNoState(void)
+void WI_initNoState(data_t* data)
 {
     state = NoState;
     acceleratestage = 0;
     cnt = 10;
 }
 
-void WI_updateNoState(void) {
+void WI_updateNoState(data_t* data) {
 
-    WI_updateAnimatedBack();
+    WI_updateAnimatedBack(data);
 
     if (!--cnt)
     {
@@ -769,21 +769,21 @@ void WI_updateNoState(void) {
 static boolean		snl_pointeron = false;
 
 
-void WI_initShowNextLoc(void)
+void WI_initShowNextLoc(data_t* data)
 {
     state = ShowNextLoc;
     acceleratestage = 0;
     cnt = SHOWNEXTLOCDELAY * TICRATE;
 
-    WI_initAnimatedBack();
+    WI_initAnimatedBack(data);
 }
 
-void WI_updateShowNextLoc(void)
+void WI_updateShowNextLoc(data_t* data)
 {
-    WI_updateAnimatedBack();
+    WI_updateAnimatedBack(data);
 
     if (!--cnt || acceleratestage)
-	WI_initNoState();
+	WI_initNoState(data);
     else
 	snl_pointeron = (cnt & 31) < 20;
 }
@@ -866,7 +866,7 @@ static int		dm_totals[MAXPLAYERS];
 
 
 
-void WI_initDeathmatchStats(void)
+void WI_initDeathmatchStats(data_t* data)
 {
 
     int		i;
@@ -890,12 +890,12 @@ void WI_initDeathmatchStats(void)
 	}
     }
     
-    WI_initAnimatedBack();
+    WI_initAnimatedBack(data);
 }
 
 
 
-void WI_updateDeathmatchStats(void)
+void WI_updateDeathmatchStats(data_t* data)
 {
 
     int		i;
@@ -903,7 +903,7 @@ void WI_updateDeathmatchStats(void)
     
     boolean	stillticking;
 
-    WI_updateAnimatedBack();
+    WI_updateAnimatedBack(data);
 
     if (acceleratestage && dm_state != 4)
     {
@@ -981,9 +981,9 @@ void WI_updateDeathmatchStats(void)
 	    S_StartSound(0, sfx_slop);
 
 	    if ( gamemode == commercial)
-		WI_initNoState();
+		WI_initNoState(data);
 	    else
-		WI_initShowNextLoc();
+		WI_initShowNextLoc(data);
 	}
     }
     else if (dm_state & 1)
@@ -1086,7 +1086,7 @@ static int	cnt_frags[MAXPLAYERS];
 static int	dofrags;
 static int	ng_state;
 
-void WI_initNetgameStats(void)
+void WI_initNetgameStats(data_t* data)
 {
 
     int i;
@@ -1109,12 +1109,12 @@ void WI_initNetgameStats(void)
 
     dofrags = !!dofrags;
 
-    WI_initAnimatedBack();
+    WI_initAnimatedBack(data);
 }
 
 
 
-void WI_updateNetgameStats(void)
+void WI_updateNetgameStats(data_t* data)
 {
 
     int		i;
@@ -1122,7 +1122,7 @@ void WI_updateNetgameStats(void)
     
     boolean	stillticking;
 
-    WI_updateAnimatedBack();
+    WI_updateAnimatedBack(data);
 
     if (acceleratestage && ng_state != 10)
     {
@@ -1252,9 +1252,9 @@ void WI_updateNetgameStats(void)
 	{
 	    S_StartSound(0, sfx_sgcock);
 	    if ( gamemode == commercial )
-		WI_initNoState();
+		WI_initNoState(data);
 	    else
-		WI_initShowNextLoc();
+		WI_initShowNextLoc(data);
 	}
     }
     else if (ng_state & 1)
@@ -1326,7 +1326,7 @@ void WI_drawNetgameStats(void)
 
 static int	sp_state;
 
-void WI_initStats(void)
+void WI_initStats(data_t* data)
 {
     state = StatCount;
     acceleratestage = 0;
@@ -1335,13 +1335,13 @@ void WI_initStats(void)
     cnt_time = cnt_par = -1;
     cnt_pause = TICRATE;
 
-    WI_initAnimatedBack();
+    WI_initAnimatedBack(data);
 }
 
-void WI_updateStats(void)
+void WI_updateStats(data_t* data)
 {
 
-    WI_updateAnimatedBack();
+    WI_updateAnimatedBack(data);
 
     if (acceleratestage && sp_state != 10)
     {
@@ -1428,9 +1428,9 @@ void WI_updateStats(void)
 	    S_StartSound(0, sfx_sgcock);
 
 	    if (gamemode == commercial)
-		WI_initNoState();
+		WI_initNoState(data);
 	    else
-		WI_initShowNextLoc();
+		WI_initShowNextLoc(data);
 	}
     }
     else if (sp_state & 1)
@@ -1511,7 +1511,7 @@ void WI_checkForAccelerate(void)
 
 
 // Updates stuff each tick
-void WI_Ticker(void)
+void WI_Ticker(data_t* data)
 {
     // counter for general background animation
     bcnt++;  
@@ -1530,17 +1530,17 @@ void WI_Ticker(void)
     switch (state)
     {
       case StatCount:
-	if (deathmatch) WI_updateDeathmatchStats();
-	else if (netgame) WI_updateNetgameStats();
-	else WI_updateStats();
+	if (deathmatch) WI_updateDeathmatchStats(data);
+	else if (netgame) WI_updateNetgameStats(data);
+	else WI_updateStats(data);
 	break;
 	
       case ShowNextLoc:
-	WI_updateShowNextLoc();
+	WI_updateShowNextLoc(data);
 	break;
 	
       case NoState:
-	WI_updateNoState();
+	WI_updateNoState(data);
 	break;
     }
 
@@ -1815,15 +1815,15 @@ void WI_initVariables(wbstartstruct_t* wbstartstruct)
 	wbs->epsd -= 3;
 }
 
-void WI_Start(wbstartstruct_t* wbstartstruct)
+void WI_Start(data_t* data, wbstartstruct_t* wbstartstruct)
 {
     WI_initVariables(wbstartstruct);
     WI_loadData();
 
     if (deathmatch)
-	WI_initDeathmatchStats();
+	WI_initDeathmatchStats(data);
     else if (netgame)
-	WI_initNetgameStats();
+	WI_initNetgameStats(data);
     else
-	WI_initStats();
+	WI_initStats(data);
 }

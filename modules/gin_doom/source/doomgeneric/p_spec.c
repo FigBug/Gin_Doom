@@ -596,13 +596,13 @@ P_CrossSpecialLine
 	
       case 12:
 	// Light Turn On - brightest near
-	EV_LightTurnOn(line,0);
+	EV_LightTurnOn(data, line,0);
 	line->special = 0;
 	break;
 	
       case 13:
 	// Light Turn On 255
-	EV_LightTurnOn(line,255);
+	EV_LightTurnOn(data, line,255);
 	line->special = 0;
 	break;
 	
@@ -614,7 +614,7 @@ P_CrossSpecialLine
 	
       case 17:
 	// Start Light Strobing
-	EV_StartLightStrobing(line);
+	EV_StartLightStrobing(data, line);
 	line->special = 0;
 	break;
 	
@@ -645,7 +645,7 @@ P_CrossSpecialLine
 	
       case 35:
 	// Lights Very Dark
-	EV_LightTurnOn(line,35);
+	EV_LightTurnOn(data, line,35);
 	line->special = 0;
 	break;
 	
@@ -729,7 +729,7 @@ P_CrossSpecialLine
 	
       case 104:
 	// Turn lights off in sector(tag)
-	EV_TurnTagLightsOff(line);
+	EV_TurnTagLightsOff(data, line);
 	line->special = 0;
 	break;
 	
@@ -828,17 +828,17 @@ P_CrossSpecialLine
 	
       case 79:
 	// Lights Very Dark
-	EV_LightTurnOn(line,35);
+	EV_LightTurnOn(data, line,35);
 	break;
 	
       case 80:
 	// Light Turn On - brightest near
-	EV_LightTurnOn(line,0);
+	EV_LightTurnOn(data, line,0);
 	break;
 	
       case 81:
 	// Light Turn On 255
-	EV_LightTurnOn(line,255);
+	EV_LightTurnOn(data, line,255);
 	break;
 	
       case 82:
@@ -1051,7 +1051,7 @@ void P_PlayerInSpecialSector (data_t* data, player_t* player)
       case 4:
 	// STROBE HURT
 	if (!player->powers[pw_ironfeet]
-	    || (P_Random()<5) )
+	    || (P_Random (data)<5) )
 	{
 	    if (!(leveltime&0x1f))
 		P_DamageMobj (data, player->mo, NULL, NULL, 20);
@@ -1402,28 +1402,28 @@ void P_SpawnSpecials (data_t* data)
 	{
 	  case 1:
 	    // FLICKERING LIGHTS
-	    P_SpawnLightFlash (sector);
+	    P_SpawnLightFlash (data, sector);
 	    break;
 
 	  case 2:
 	    // STROBE FAST
-	    P_SpawnStrobeFlash(sector,FASTDARK,0);
+	    P_SpawnStrobeFlash(data, sector,FASTDARK,0);
 	    break;
 	    
 	  case 3:
 	    // STROBE SLOW
-	    P_SpawnStrobeFlash(sector,SLOWDARK,0);
+	    P_SpawnStrobeFlash(data, sector,SLOWDARK,0);
 	    break;
 	    
 	  case 4:
 	    // STROBE FAST/DEATH SLIME
-	    P_SpawnStrobeFlash(sector,FASTDARK,0);
+	    P_SpawnStrobeFlash(data, sector,FASTDARK,0);
 	    sector->special = 4;
 	    break;
 	    
 	  case 8:
 	    // GLOWING LIGHT
-	    P_SpawnGlowingLight(sector);
+	    P_SpawnGlowingLight(data, sector);
 	    break;
 	  case 9:
 	    // SECRET SECTOR
@@ -1437,12 +1437,12 @@ void P_SpawnSpecials (data_t* data)
 	    
 	  case 12:
 	    // SYNC STROBE SLOW
-	    P_SpawnStrobeFlash (sector, SLOWDARK, 1);
+	    P_SpawnStrobeFlash(data, sector, SLOWDARK, 1);
 	    break;
 
 	  case 13:
 	    // SYNC STROBE FAST
-	    P_SpawnStrobeFlash (sector, FASTDARK, 1);
+	    P_SpawnStrobeFlash(data, sector, FASTDARK, 1);
 	    break;
 
 	  case 14:
@@ -1451,7 +1451,7 @@ void P_SpawnSpecials (data_t* data)
 	    break;
 	    
 	  case 17:
-	    P_SpawnFireFlicker(sector);
+	    P_SpawnFireFlicker(data, sector);
 	    break;
 	}
     }

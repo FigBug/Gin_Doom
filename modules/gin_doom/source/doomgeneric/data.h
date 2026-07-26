@@ -47,6 +47,17 @@ typedef struct
 
 	int             show_endoom;
 
+	// m_random.c
+	int             rndindex;
+	int             prndindex;
+
+	// f_wipe.c
+	boolean         wipe_go;
+	byte*           wipe_scr_start;
+	byte*           wipe_scr_end;
+	byte*           wipe_scr;
+	int*            wipe_y;
+
 
 } data_t;
 

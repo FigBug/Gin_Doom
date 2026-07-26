@@ -21,6 +21,8 @@
 #ifndef __STSTUFF_H__
 #define __STSTUFF_H__
 
+#include "data.h"
+
 #include "doomtype.h"
 #include "d_event.h"
 #include "m_cheat.h"
@@ -40,7 +42,7 @@
 boolean ST_Responder (event_t* ev);
 
 // Called by main loop.
-void ST_Ticker (void);
+void ST_Ticker (data_t* data);
 
 // Called by main loop.
 void ST_Drawer (boolean fullscreen, boolean refresh);

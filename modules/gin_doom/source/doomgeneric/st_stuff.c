@@ -921,11 +921,11 @@ void ST_updateWidgets(void)
 
 }
 
-void ST_Ticker (void)
+void ST_Ticker (data_t* data)
 {
 
     st_clock++;
-    st_randomnumber = M_Random();
+    st_randomnumber = M_Random (data);
     ST_updateWidgets();
     st_oldhealth = plyr->health;
 

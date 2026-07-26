@@ -1006,13 +1006,13 @@ void G_Ticker (data_t* data)
     { 
       case GS_LEVEL: 
 	P_Ticker (data);
-	ST_Ticker (); 
+	ST_Ticker (data); 
 	AM_Ticker (); 
 	HU_Ticker ();            
 	break; 
 	 
       case GS_INTERMISSION: 
-	WI_Ticker (); 
+	WI_Ticker (data); 
 	break; 
 			 
       case GS_FINALE: 
@@ -1232,7 +1232,7 @@ void G_DeathMatchSpawnPlayer (data_t* data, int playernum)
  
     for (j=0 ; j<20 ; j++) 
     { 
-	i = P_Random() % selections; 
+	i = P_Random (data) % selections; 
 	if (G_CheckSpot (data, playernum, &deathmatchstarts[i]) )
 	{ 
 	    deathmatchstarts[i].type = playernum+1; 
@@ -1485,7 +1485,7 @@ void G_DoCompleted (data_t* data)
 
     StatCopy(data, &wminfo);
  
-    WI_Start (&wminfo); 
+    WI_Start (data, &wminfo); 
 } 
 
 
@@ -1805,7 +1805,7 @@ G_InitNew
 	 && ( gamemode != commercial) )
       map = 9;
 
-    M_ClearRandom ();
+    M_ClearRandom (data);
 
     if (skill == sk_nightmare || data->respawnparm )
 	respawnmonsters = true;

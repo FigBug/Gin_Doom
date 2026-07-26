@@ -19,6 +19,8 @@
 #ifndef __WI_STUFF__
 #define __WI_STUFF__
 
+#include "data.h"
+
 //#include "v_video.h"
 
 #include "doomdef.h"
@@ -33,14 +35,14 @@ typedef enum
 } stateenum_t;
 
 // Called by main loop, animate the intermission.
-void WI_Ticker (void);
+void WI_Ticker (data_t* data);
 
 // Called by main loop,
 // draws the intermission directly into the screen buffer.
 void WI_Drawer (void);
 
 // Setup for an intermission screen.
-void WI_Start(wbstartstruct_t*	 wbstartstruct);
+void WI_Start(data_t* data, wbstartstruct_t* wbstartstruct);
 
 // Shut down the intermission screen
 void WI_End(void);

@@ -36,14 +36,14 @@
 //
 // T_FireFlicker
 //
-void T_FireFlicker (fireflicker_t* flick)
+void T_FireFlicker (data_t* data, fireflicker_t* flick)
 {
     int	amount;
 	
     if (--flick->count)
 	return;
 	
-    amount = (P_Random()&3)*16;
+    amount = (P_Random (data)&3)*16;
     
     if (flick->sector->lightlevel - amount < flick->minlight)
 	flick->sector->lightlevel = flick->minlight;
@@ -58,7 +58,7 @@ void T_FireFlicker (fireflicker_t* flick)
 //
 // P_SpawnFireFlicker
 //
-void P_SpawnFireFlicker (sector_t*	sector)
+void P_SpawnFireFlicker (data_t* data, sector_t* sector)
 {
     fireflicker_t*	flick;
 	
@@ -88,7 +88,7 @@ void P_SpawnFireFlicker (sector_t*	sector)
 // T_LightFlash
 // Do flashing lights.
 //
-void T_LightFlash (lightflash_t* flash)
+void T_LightFlash (data_t* data, lightflash_t* flash)
 {
     if (--flash->count)
 	return;
@@ -96,12 +96,12 @@ void T_LightFlash (lightflash_t* flash)
     if (flash->sector->lightlevel == flash->maxlight)
     {
 	flash-> sector->lightlevel = flash->minlight;
-	flash->count = (P_Random()&flash->mintime)+1;
+	flash->count = (P_Random (data)&flash->mintime)+1;
     }
     else
     {
 	flash-> sector->lightlevel = flash->maxlight;
-	flash->count = (P_Random()&flash->maxtime)+1;
+	flash->count = (P_Random (data)&flash->maxtime)+1;
     }
 
 }
@@ -114,7 +114,7 @@ void T_LightFlash (lightflash_t* flash)
 // After the map has been loaded, scan each sector
 // for specials that spawn thinkers
 //
-void P_SpawnLightFlash (sector_t*	sector)
+void P_SpawnLightFlash (data_t* data, sector_t* sector)
 {
     lightflash_t*	flash;
 
@@ -132,7 +132,7 @@ void P_SpawnLightFlash (sector_t*	sector)
     flash->minlight = P_FindMinSurroundingLight(sector,sector->lightlevel);
     flash->maxtime = 64;
     flash->mintime = 7;
-    flash->count = (P_Random()&flash->maxtime)+1;
+    flash->count = (P_Random (data)&flash->maxtime)+1;
 }
 
 
@@ -145,7 +145,7 @@ void P_SpawnLightFlash (sector_t*	sector)
 //
 // T_StrobeFlash
 //
-void T_StrobeFlash (strobe_t*		flash)
+void T_StrobeFlash (data_t* data, strobe_t* flash)
 {
     if (--flash->count)
 	return;
@@ -172,7 +172,8 @@ void T_StrobeFlash (strobe_t*		flash)
 //
 void
 P_SpawnStrobeFlash
-( sector_t*	sector,
+( data_t* data,
+  sector_t*	sector,
   int		fastOrSlow,
   int		inSync )
 {
@@ -196,7 +197,7 @@ P_SpawnStrobeFlash
     sector->special = 0;	
 
     if (!inSync)
-	flash->count = (P_Random()&7)+1;
+	flash->count = (P_Random (data)&7)+1;
     else
 	flash->count = 1;
 }
@@ -205,7 +206,7 @@ P_SpawnStrobeFlash
 //
 // Start strobing lights (usually from a trigger)
 //
-void EV_StartLightStrobing(line_t*	line)
+void EV_StartLightStrobing(data_t* data, line_t* line)
 {
     int		secnum;
     sector_t*	sec;
@@ -217,7 +218,7 @@ void EV_StartLightStrobing(line_t*	line)
 	if (sec->specialdata)
 	    continue;
 	
-	P_SpawnStrobeFlash (sec,SLOWDARK, 0);
+	P_SpawnStrobeFlash (data, sec,SLOWDARK, 0);
     }
 }
 
@@ -226,7 +227,7 @@ void EV_StartLightStrobing(line_t*	line)
 //
 // TURN LINE'S TAG LIGHTS OFF
 //
-void EV_TurnTagLightsOff(line_t* line)
+void EV_TurnTagLightsOff(data_t* data, line_t* line)
 {
     int			i;
     int			j;
@@ -262,7 +263,8 @@ void EV_TurnTagLightsOff(line_t* line)
 //
 void
 EV_LightTurnOn
-( line_t*	line,
+( data_t* data,
+  line_t*	line,
   int		bright )
 {
     int		i;
@@ -304,7 +306,7 @@ EV_LightTurnOn
 // Spawn glowing light
 //
 
-void T_Glow(glow_t*	g)
+void T_Glow(data_t* data, glow_t* g)
 {
     switch(g->direction)
     {
@@ -331,7 +333,7 @@ void T_Glow(glow_t*	g)
 }
 
 
-void P_SpawnGlowingLight(sector_t*	sector)
+void P_SpawnGlowingLight(data_t* data, sector_t* sector)
 {
     glow_t*	g;
 	

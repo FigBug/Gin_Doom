@@ -31,12 +31,7 @@
 //                       SCREEN WIPE PACKAGE
 //
 
-// when zero, stop the wipe
-static boolean	go = 0;
-
-static byte*	wipe_scr_start;
-static byte*	wipe_scr_end;
-static byte*	wipe_scr;
+// State (go, wipe_scr_start, wipe_scr_end, wipe_scr, wipe_y) lives in data_t.
 
 
 void
@@ -63,17 +58,19 @@ wipe_shittyColMajorXform
 
 int
 wipe_initColorXForm
-( int	width,
+( data_t*	data,
+  int	width,
   int	height,
   int	ticks )
 {
-    memcpy(wipe_scr, wipe_scr_start, width*height);
+    memcpy(data->wipe_scr, data->wipe_scr_start, width*height);
     return 0;
 }
 
 int
 wipe_doColorXForm
-( int	width,
+( data_t*	data,
+  int	width,
   int	height,
   int	ticks )
 {
@@ -83,10 +80,10 @@ wipe_doColorXForm
     int		newval;
 
     changed = false;
-    w = wipe_scr;
-    e = wipe_scr_end;
-    
-    while (w!=wipe_scr+width*height)
+    w = data->wipe_scr;
+    e = data->wipe_scr_end;
+
+    while (w!=data->wipe_scr+width*height)
     {
 	if (*w != *e)
 	{
@@ -119,7 +116,8 @@ wipe_doColorXForm
 
 int
 wipe_exitColorXForm
-( int	width,
+( data_t*	data,
+  int	width,
   int	height,
   int	ticks )
 {
@@ -127,34 +125,33 @@ wipe_exitColorXForm
 }
 
 
-static int*	y;
-
 int
 wipe_initMelt
-( int	width,
+( data_t*	data,
+  int	width,
   int	height,
   int	ticks )
 {
     int i, r;
-    
+
     // copy start screen to main screen
-    memcpy(wipe_scr, wipe_scr_start, width*height);
-    
+    memcpy(data->wipe_scr, data->wipe_scr_start, width*height);
+
     // makes this wipe faster (in theory)
     // to have stuff in column-major format
-    wipe_shittyColMajorXform((short*)wipe_scr_start, width/2, height);
-    wipe_shittyColMajorXform((short*)wipe_scr_end, width/2, height);
-    
+    wipe_shittyColMajorXform((short*)data->wipe_scr_start, width/2, height);
+    wipe_shittyColMajorXform((short*)data->wipe_scr_end, width/2, height);
+
     // setup initial column positions
     // (y<0 => not ready to scroll yet)
-    y = (int *) Z_Malloc(width*sizeof(int), PU_STATIC, 0);
-    y[0] = -(M_Random()%16);
+    data->wipe_y = (int *) Z_Malloc(width*sizeof(int), PU_STATIC, 0);
+    data->wipe_y[0] = -(M_Random (data)%16);
     for (i=1;i<width;i++)
     {
-	r = (M_Random()%3) - 1;
-	y[i] = y[i-1] + r;
-	if (y[i] > 0) y[i] = 0;
-	else if (y[i] == -16) y[i] = -15;
+	r = (M_Random (data)%3) - 1;
+	data->wipe_y[i] = data->wipe_y[i-1] + r;
+	if (data->wipe_y[i] > 0) data->wipe_y[i] = 0;
+	else if (data->wipe_y[i] == -16) data->wipe_y[i] = -15;
     }
 
     return 0;
@@ -162,7 +159,8 @@ wipe_initMelt
 
 int
 wipe_doMelt
-( int	width,
+( data_t*	data,
+  int	width,
   int	height,
   int	ticks )
 {
@@ -170,7 +168,7 @@ wipe_doMelt
     int		j;
     int		dy;
     int		idx;
-    
+
     short*	s;
     short*	d;
     boolean	done = true;
@@ -181,27 +179,27 @@ wipe_doMelt
     {
 	for (i=0;i<width;i++)
 	{
-	    if (y[i]<0)
+	    if (data->wipe_y[i]<0)
 	    {
-		y[i]++; done = false;
+		data->wipe_y[i]++; done = false;
 	    }
-	    else if (y[i] < height)
+	    else if (data->wipe_y[i] < height)
 	    {
-		dy = (y[i] < 16) ? y[i]+1 : 8;
-		if (y[i]+dy >= height) dy = height - y[i];
-		s = &((short *)wipe_scr_end)[i*height+y[i]];
-		d = &((short *)wipe_scr)[y[i]*width+i];
+		dy = (data->wipe_y[i] < 16) ? data->wipe_y[i]+1 : 8;
+		if (data->wipe_y[i]+dy >= height) dy = height - data->wipe_y[i];
+		s = &((short *)data->wipe_scr_end)[i*height+data->wipe_y[i]];
+		d = &((short *)data->wipe_scr)[data->wipe_y[i]*width+i];
 		idx = 0;
 		for (j=dy;j;j--)
 		{
 		    d[idx] = *(s++);
 		    idx += width;
 		}
-		y[i] += dy;
-		s = &((short *)wipe_scr_start)[i*height];
-		d = &((short *)wipe_scr)[y[i]*width+i];
+		data->wipe_y[i] += dy;
+		s = &((short *)data->wipe_scr_start)[i*height];
+		d = &((short *)data->wipe_scr)[data->wipe_y[i]*width+i];
 		idx = 0;
-		for (j=height-y[i];j;j--)
+		for (j=height-data->wipe_y[i];j;j--)
 		{
 		    d[idx] = *(s++);
 		    idx += width;
@@ -217,44 +215,48 @@ wipe_doMelt
 
 int
 wipe_exitMelt
-( int	width,
+( data_t*	data,
+  int	width,
   int	height,
   int	ticks )
 {
-    Z_Free(y);
-    Z_Free(wipe_scr_start);
-    Z_Free(wipe_scr_end);
+    Z_Free(data->wipe_y);
+    Z_Free(data->wipe_scr_start);
+    Z_Free(data->wipe_scr_end);
     return 0;
 }
 
 int
 wipe_StartScreen
-( int	x,
+( data_t*	data,
+  int	x,
   int	y,
   int	width,
   int	height )
 {
-    wipe_scr_start = Z_Malloc(SCREENWIDTH * SCREENHEIGHT, PU_STATIC, NULL);
-    I_ReadScreen(wipe_scr_start);
+    data->wipe_scr_start = Z_Malloc(SCREENWIDTH * SCREENHEIGHT, PU_STATIC, NULL);
+    I_ReadScreen(data->wipe_scr_start);
     return 0;
 }
 
 int
 wipe_EndScreen
-( int	x,
+( data_t*	data,
+  int	x,
   int	y,
   int	width,
   int	height )
 {
-    wipe_scr_end = Z_Malloc(SCREENWIDTH * SCREENHEIGHT, PU_STATIC, NULL);
-    I_ReadScreen(wipe_scr_end);
-    V_DrawBlock(x, y, width, height, wipe_scr_start); // restore start scr.
+    data->wipe_scr_end = Z_Malloc(SCREENWIDTH * SCREENHEIGHT, PU_STATIC, NULL);
+    I_ReadScreen(data->wipe_scr_end);
+    V_DrawBlock(x, y, width, height, data->wipe_scr_start); // restore start scr.
     return 0;
 }
 
 int
 wipe_ScreenWipe
-( int	wipeno,
+( data_t*	data,
+  int	wipeno,
   int	x,
   int	y,
   int	width,
@@ -262,33 +264,32 @@ wipe_ScreenWipe
   int	ticks )
 {
     int rc;
-    static int (*wipes[])(int, int, int) =
+    static int (*wipes[])(data_t*, int, int, int) =
     {
 	wipe_initColorXForm, wipe_doColorXForm, wipe_exitColorXForm,
 	wipe_initMelt, wipe_doMelt, wipe_exitMelt
     };
 
     // initial stuff
-    if (!go)
+    if (!data->wipe_go)
     {
-	go = 1;
+	data->wipe_go = 1;
 	// wipe_scr = (byte *) Z_Malloc(width*height, PU_STATIC, 0); // DEBUG
-	wipe_scr = I_VideoBuffer;
-	(*wipes[wipeno*3])(width, height, ticks);
+	data->wipe_scr = I_VideoBuffer;
+	(*wipes[wipeno*3])(data, width, height, ticks);
     }
 
     // do a piece of wipe-in
     V_MarkRect(0, 0, width, height);
-    rc = (*wipes[wipeno*3+1])(width, height, ticks);
+    rc = (*wipes[wipeno*3+1])(data, width, height, ticks);
     //  V_DrawBlock(x, y, 0, width, height, wipe_scr); // DEBUG
 
     // final stuff
     if (rc)
     {
-	go = 0;
-	(*wipes[wipeno*3+2])(width, height, ticks);
+	data->wipe_go = 0;
+	(*wipes[wipeno*3+2])(data, width, height, ticks);
     }
 
-    return !go;
+    return !data->wipe_go;
 }
-

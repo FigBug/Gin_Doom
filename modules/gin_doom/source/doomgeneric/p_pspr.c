@@ -472,13 +472,13 @@ A_Punch
     int		damage;
     int		slope;
 	
-    damage = (P_Random ()%10+1)<<1;
+    damage = (P_Random (data)%10+1)<<1;
 
     if (player->powers[pw_strength])	
 	damage *= 10;
 
     angle = player->mo->angle;
-    angle += (P_Random()-P_Random())<<18;
+    angle += (P_Random (data)-P_Random (data))<<18;
     slope = P_AimLineAttack (data, player->mo, angle, MELEERANGE);
     P_LineAttack (data, player->mo, angle, MELEERANGE, slope, damage);
 
@@ -507,9 +507,9 @@ A_Saw
     int		damage;
     int		slope;
 
-    damage = 2*(P_Random ()%10+1);
+    damage = 2*(P_Random (data)%10+1);
     angle = player->mo->angle;
-    angle += (P_Random()-P_Random())<<18;
+    angle += (P_Random (data)-P_Random (data))<<18;
     
     // use meleerange + 1 se the puff doesn't skip the flash
     slope = P_AimLineAttack (data, player->mo, angle, MELEERANGE+1);
@@ -601,7 +601,7 @@ A_FirePlasma
 
     P_SetPsprite (data, player,
 		  ps_flash,
-		  weaponinfo[player->readyweapon].flashstate+(P_Random ()&1) );
+		  weaponinfo[player->readyweapon].flashstate+(P_Random (data)&1) );
 
     P_SpawnPlayerMissile (data, player->mo, MT_PLASMA);
 }
@@ -649,11 +649,11 @@ P_GunShot
     angle_t	angle;
     int		damage;
 	
-    damage = 5*(P_Random ()%3+1);
+    damage = 5*(P_Random (data)%3+1);
     angle = mo->angle;
 
     if (!accurate)
-	angle += (P_Random()-P_Random())<<18;
+	angle += (P_Random (data)-P_Random (data))<<18;
 
     P_LineAttack (data, mo, angle, MISSILERANGE, bulletslope, damage);
 }
@@ -737,13 +737,13 @@ A_FireShotgun2
 	
     for (i=0 ; i<20 ; i++)
     {
-	damage = 5*(P_Random ()%3+1);
+	damage = 5*(P_Random (data)%3+1);
 	angle = player->mo->angle;
-	angle += (P_Random()-P_Random())<<19;
+	angle += (P_Random (data)-P_Random (data))<<19;
 	P_LineAttack (data, player->mo,
 		      angle,
 		      MISSILERANGE,
-		      bulletslope + ((P_Random()-P_Random())<<5), damage);
+		      bulletslope + ((P_Random (data)-P_Random (data))<<5), damage);
     }
 }
 
@@ -827,7 +827,7 @@ void A_BFGSpray (data_t* data, mobj_t* mo)
 	
 	damage = 0;
 	for (j=0;j<15;j++)
-	    damage += (P_Random()&7) + 1;
+	    damage += (P_Random (data)&7) + 1;
 
 	P_DamageMobj (data, linetarget, mo->target,mo->target, damage);
     }
