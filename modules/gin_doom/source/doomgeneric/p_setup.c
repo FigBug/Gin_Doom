@@ -835,7 +835,7 @@ void P_Init (data_t* data)
 {
     P_InitSwitchList ();
     P_InitPicAnims (data);
-    R_InitSprites (sprnames);
+    R_InitSprites (data, sprnames);
 }
 
 

@@ -229,6 +229,81 @@ struct data_s
 	byte*           translationtables;
 	int             dscount;
 
+	// r_plane.c
+	visplane_t      visplanes[128];          // MAXVISPLANES
+	visplane_t*     lastvisplane;
+	visplane_t*     floorplane;
+	visplane_t*     ceilingplane;
+	short           openings[SCREENWIDTH*64];  // MAXOPENINGS
+	short*          lastopening;
+	short           floorclip[SCREENWIDTH];
+	short           ceilingclip[SCREENWIDTH];
+	int             spanstart[SCREENHEIGHT];
+	int             spanstop[SCREENHEIGHT];
+	byte**          planezlight;             // lighttable_t**
+	fixed_t         planeheight;
+	fixed_t         yslope[SCREENHEIGHT];
+	fixed_t         distscale[SCREENWIDTH];
+	fixed_t         basexscale;
+	fixed_t         baseyscale;
+	fixed_t         cachedheight[SCREENHEIGHT];
+	fixed_t         cacheddistance[SCREENHEIGHT];
+	fixed_t         cachedxstep[SCREENHEIGHT];
+	fixed_t         cachedystep[SCREENHEIGHT];
+	// r_things.c
+	fixed_t         pspritescale;
+	fixed_t         pspriteiscale;
+	byte**          spritelights;            // lighttable_t**
+	short           negonearray[SCREENWIDTH];
+	short           screenheightarray[SCREENWIDTH];
+	int             numsprites;
+	int             maxframe;
+	vissprite_t     vissprites[128];         // MAXVISSPRITES
+	vissprite_t*    vissprite_p;
+	int             newvissprite;
+	vissprite_t     overflowsprite;
+	short*          mfloorclip;
+	short*          mceilingclip;
+	fixed_t         spryscale;
+	fixed_t         sprtopscreen;
+	vissprite_t     vsprsortedhead;
+	short           clipbot[SCREENWIDTH];
+	short           cliptop[SCREENWIDTH];
+	// r_segs.c
+	boolean         segtextured;
+	boolean         markfloor;
+	boolean         markceiling;
+	boolean         maskedtexture;
+	int             toptexture;
+	int             bottomtexture;
+	int             midtexture;
+	angle_t         rw_normalangle;
+	int             rw_angle1;
+	int             rw_x;
+	int             rw_stopx;
+	angle_t         rw_centerangle;
+	fixed_t         rw_offset;
+	fixed_t         rw_distance;
+	fixed_t         rw_scale;
+	fixed_t         rw_scalestep;
+	fixed_t         rw_midtexturemid;
+	fixed_t         rw_toptexturemid;
+	fixed_t         rw_bottomtexturemid;
+	int             worldtop;
+	int             worldbottom;
+	int             worldhigh;
+	int             worldlow;
+	fixed_t         pixhigh;
+	fixed_t         pixlow;
+	fixed_t         pixhighstep;
+	fixed_t         pixlowstep;
+	fixed_t         topfrac;
+	fixed_t         topstep;
+	fixed_t         bottomfrac;
+	fixed_t         bottomstep;
+	byte**          walllights;              // lighttable_t**
+	short*          maskedtexturecol;
+
 	// level geometry (p_setup.c)
 	int             numvertexes;
 	vertex_t*       vertexes;

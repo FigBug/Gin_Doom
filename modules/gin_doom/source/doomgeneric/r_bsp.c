@@ -266,7 +266,7 @@ void R_AddLine (data_t* data, seg_t* line)
 	return;		
 
     // Global angle needed by segcalc.
-    rw_angle1 = angle1;
+    data->rw_angle1 = angle1;
     angle1 -= data->viewangle;
     angle2 -= data->viewangle;
 	
@@ -501,22 +501,22 @@ void R_Subsector (data_t* data, int num)
 
     if (frontsector->floorheight < data->viewz)
     {
-	floorplane = R_FindPlane (data, frontsector->floorheight,
+	data->floorplane = R_FindPlane (data, frontsector->floorheight,
 				  frontsector->floorpic,
 				  frontsector->lightlevel);
     }
     else
-	floorplane = NULL;
+	data->floorplane = NULL;
     
     if (frontsector->ceilingheight > data->viewz 
 	|| frontsector->ceilingpic == skyflatnum)
     {
-	ceilingplane = R_FindPlane (data, frontsector->ceilingheight,
+	data->ceilingplane = R_FindPlane (data, frontsector->ceilingheight,
 				    frontsector->ceilingpic,
 				    frontsector->lightlevel);
     }
     else
-	ceilingplane = NULL;
+	data->ceilingplane = NULL;
 		
     R_AddSprites (data, frontsector);	
 

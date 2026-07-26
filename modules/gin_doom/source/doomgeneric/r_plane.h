@@ -70,7 +70,8 @@ R_FindPlane
 
 visplane_t*
 R_CheckPlane
-( visplane_t*	pl,
+( data_t* data,
+  visplane_t*	pl,
   int		start,
   int		stop );
 

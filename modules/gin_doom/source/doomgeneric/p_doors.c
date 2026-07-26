@@ -574,7 +574,7 @@ P_SpawnDoorRaiseIn5Mins
 #if 0		// ABANDONED TO THE MISTS OF TIME!!!
 //
 // EV_SlidingDoor : slide a door horizontally
-// (animate midtexture, then set noblocking line)
+// (animate data->midtexture, then set noblocking line)
 //
 
 

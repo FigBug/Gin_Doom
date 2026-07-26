@@ -877,8 +877,8 @@ void R_PrecacheLevel (data_t* data)
     Z_Free(texturepresent);
     
     // Precache sprites.
-    spritepresent = Z_Malloc(numsprites, PU_STATIC, NULL);
-    memset (spritepresent,0, numsprites);
+    spritepresent = Z_Malloc(data->numsprites, PU_STATIC, NULL);
+    memset (spritepresent,0, data->numsprites);
 	
     for (th = thinkercap.next ; th != &thinkercap ; th=th->next)
     {
@@ -887,7 +887,7 @@ void R_PrecacheLevel (data_t* data)
     }
 	
     spritememory = 0;
-    for (i=0 ; i<numsprites ; i++)
+    for (i=0 ; i<data->numsprites ; i++)
     {
 	if (!spritepresent[i])
 	    continue;

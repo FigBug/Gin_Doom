@@ -46,13 +46,13 @@ extern fixed_t		pspriteiscale;
 void R_DrawMaskedColumn (data_t* data, column_t* column);
 
 
-void R_SortVisSprites (void);
+void R_SortVisSprites (data_t* data);
 
 void R_AddSprites (data_t* data, sector_t* sec);
 void R_AddPSprites (void);
 void R_DrawSprites (void);
-void R_InitSprites (char** namelist);
-void R_ClearSprites (void);
+void R_InitSprites (data_t* data, char** namelist);
+void R_ClearSprites (data_t* data);
 void R_DrawMasked (data_t* data);
 
 void

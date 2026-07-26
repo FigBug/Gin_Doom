@@ -43,47 +43,27 @@ planefunction_t		ceilingfunc;
 
 // Here comes the obnoxious "visplane".
 #define MAXVISPLANES	128
-visplane_t		visplanes[MAXVISPLANES];
-visplane_t*		lastvisplane;
-visplane_t*		floorplane;
-visplane_t*		ceilingplane;
 
 // ?
 #define MAXOPENINGS	SCREENWIDTH*64
-short			openings[MAXOPENINGS];
-short*			lastopening;
 
 
 //
 // Clip values are the solid pixel bounding the range.
-//  floorclip starts out SCREENHEIGHT
-//  ceilingclip starts out -1
+//  data->floorclip starts out SCREENHEIGHT
+//  data->ceilingclip starts out -1
 //
-short			floorclip[SCREENWIDTH];
-short			ceilingclip[SCREENWIDTH];
 
 //
-// spanstart holds the start of a plane span
+// data->spanstart holds the start of a plane span
 // initialized to 0 at start
 //
-int			spanstart[SCREENHEIGHT];
-int			spanstop[SCREENHEIGHT];
 
 //
 // texture mapping
 //
-lighttable_t**		planezlight;
-fixed_t			planeheight;
 
-fixed_t			yslope[SCREENHEIGHT];
-fixed_t			distscale[SCREENWIDTH];
-fixed_t			basexscale;
-fixed_t			baseyscale;
 
-fixed_t			cachedheight[SCREENHEIGHT];
-fixed_t			cacheddistance[SCREENHEIGHT];
-fixed_t			cachedxstep[SCREENHEIGHT];
-fixed_t			cachedystep[SCREENHEIGHT];
 
 
 
@@ -101,10 +81,10 @@ void R_InitPlanes (void)
 // R_MapPlane
 //
 // Uses global vars:
-//  planeheight
+//  data->planeheight
 //  data->ds_source
-//  basexscale
-//  baseyscale
+//  data->basexscale
+//  data->baseyscale
 //  data->viewx
 //  data->viewy
 //
@@ -132,21 +112,21 @@ R_MapPlane
     }
 #endif
 
-    if (planeheight != cachedheight[y])
+    if (data->planeheight != data->cachedheight[y])
     {
-	cachedheight[y] = planeheight;
-	distance = cacheddistance[y] = FixedMul (planeheight, yslope[y]);
-	data->ds_xstep = cachedxstep[y] = FixedMul (distance,basexscale);
-	data->ds_ystep = cachedystep[y] = FixedMul (distance,baseyscale);
+	data->cachedheight[y] = data->planeheight;
+	distance = data->cacheddistance[y] = FixedMul (data->planeheight, data->yslope[y]);
+	data->ds_xstep = data->cachedxstep[y] = FixedMul (distance,data->basexscale);
+	data->ds_ystep = data->cachedystep[y] = FixedMul (distance,data->baseyscale);
     }
     else
     {
-	distance = cacheddistance[y];
-	data->ds_xstep = cachedxstep[y];
-	data->ds_ystep = cachedystep[y];
+	distance = data->cacheddistance[y];
+	data->ds_xstep = data->cachedxstep[y];
+	data->ds_ystep = data->cachedystep[y];
     }
 	
-    length = FixedMul (distance,distscale[x1]);
+    length = FixedMul (distance,data->distscale[x1]);
     angle = (data->viewangle + data->xtoviewangle[x1])>>ANGLETOFINESHIFT;
     data->ds_xfrac = data->viewx + FixedMul(finecosine[angle], length);
     data->ds_yfrac = -data->viewy - FixedMul(finesine[angle], length);
@@ -160,7 +140,7 @@ R_MapPlane
 	if (index >= MAXLIGHTZ )
 	    index = MAXLIGHTZ-1;
 
-	data->ds_colormap = planezlight[index];
+	data->ds_colormap = data->planezlight[index];
     }
 	
     data->ds_y = y;
@@ -184,22 +164,22 @@ void R_ClearPlanes (data_t* data)
     // opening / clipping determination
     for (i=0 ; i<data->viewwidth ; i++)
     {
-	floorclip[i] = data->viewheight;
-	ceilingclip[i] = -1;
+	data->floorclip[i] = data->viewheight;
+	data->ceilingclip[i] = -1;
     }
 
-    lastvisplane = visplanes;
-    lastopening = openings;
+    data->lastvisplane = data->visplanes;
+    data->lastopening = data->openings;
     
     // texture calculation
-    memset (cachedheight, 0, sizeof(cachedheight));
+    memset (data->cachedheight, 0, sizeof(data->cachedheight));
 
     // left to right mapping
     angle = (data->viewangle-ANG90)>>ANGLETOFINESHIFT;
 	
     // scale will be unit scale at SCREENWIDTH/2 distance
-    basexscale = FixedDiv (finecosine[angle],data->centerxfrac);
-    baseyscale = -FixedDiv (finesine[angle],data->centerxfrac);
+    data->basexscale = FixedDiv (finecosine[angle],data->centerxfrac);
+    data->baseyscale = -FixedDiv (finesine[angle],data->centerxfrac);
 }
 
 
@@ -223,7 +203,7 @@ R_FindPlane
 	lightlevel = 0;
     }
 	
-    for (check=visplanes; check<lastvisplane; check++)
+    for (check=data->visplanes; check<data->lastvisplane; check++)
     {
 	if (height == check->height
 	    && picnum == check->picnum
@@ -234,13 +214,13 @@ R_FindPlane
     }
     
 			
-    if (check < lastvisplane)
+    if (check < data->lastvisplane)
 	return check;
 		
-    if (lastvisplane - visplanes == MAXVISPLANES)
-	I_Error (data, "R_FindPlane: no more visplanes");
+    if (data->lastvisplane - data->visplanes == MAXVISPLANES)
+	I_Error (data, "R_FindPlane: no more data->visplanes");
 		
-    lastvisplane++;
+    data->lastvisplane++;
 
     check->height = height;
     check->picnum = picnum;
@@ -259,7 +239,8 @@ R_FindPlane
 //
 visplane_t*
 R_CheckPlane
-( visplane_t*	pl,
+( data_t* data,
+  visplane_t*	pl,
   int		start,
   int		stop )
 {
@@ -305,11 +286,11 @@ R_CheckPlane
     }
 	
     // make a new visplane
-    lastvisplane->height = pl->height;
-    lastvisplane->picnum = pl->picnum;
-    lastvisplane->lightlevel = pl->lightlevel;
+    data->lastvisplane->height = pl->height;
+    data->lastvisplane->picnum = pl->picnum;
+    data->lastvisplane->lightlevel = pl->lightlevel;
     
-    pl = lastvisplane++;
+    pl = data->lastvisplane++;
     pl->minx = start;
     pl->maxx = stop;
 
@@ -333,23 +314,23 @@ R_MakeSpans
 {
     while (t1 < t2 && t1<=b1)
     {
-	R_MapPlane (data, t1,spanstart[t1],x-1);
+	R_MapPlane (data, t1,data->spanstart[t1],x-1);
 	t1++;
     }
     while (b1 > b2 && b1>=t1)
     {
-	R_MapPlane (data, b1,spanstart[b1],x-1);
+	R_MapPlane (data, b1,data->spanstart[b1],x-1);
 	b1--;
     }
 	
     while (t2 < t1 && t2<=b2)
     {
-	spanstart[t2] = x;
+	data->spanstart[t2] = x;
 	t2++;
     }
     while (b2 > b1 && b2>=t2)
     {
-	spanstart[b2] = x;
+	data->spanstart[b2] = x;
 	b2--;
     }
 }
@@ -374,16 +355,16 @@ void R_DrawPlanes (data_t* data)
 	I_Error (NULL, "R_DrawPlanes: data->drawsegs overflow (%i)",
 		 data->ds_p - data->drawsegs);
     
-    if (lastvisplane - visplanes > MAXVISPLANES)
+    if (data->lastvisplane - data->visplanes > MAXVISPLANES)
 	I_Error (NULL, "R_DrawPlanes: visplane overflow (%i)",
-		 lastvisplane - visplanes);
+		 data->lastvisplane - data->visplanes);
     
-    if (lastopening - openings > MAXOPENINGS)
+    if (data->lastopening - data->openings > MAXOPENINGS)
 	I_Error (NULL, "R_DrawPlanes: opening overflow (%i)",
-		 lastopening - openings);
+		 data->lastopening - data->openings);
 #endif
 
-    for (pl = visplanes ; pl < lastvisplane ; pl++)
+    for (pl = data->visplanes ; pl < data->lastvisplane ; pl++)
     {
 	if (pl->minx > pl->maxx)
 	    continue;
@@ -392,7 +373,7 @@ void R_DrawPlanes (data_t* data)
 	// sky flat
 	if (pl->picnum == skyflatnum)
 	{
-	    data->dc_iscale = pspriteiscale>>data->detailshift;
+	    data->dc_iscale = data->pspriteiscale>>data->detailshift;
 	    
 	    // Sky is allways drawn full bright,
 	    //  i.e. colormaps[0] is used.
@@ -420,7 +401,7 @@ void R_DrawPlanes (data_t* data)
         lumpnum = firstflat + flattranslation[pl->picnum];
 	data->ds_source = W_CacheLumpNum(lumpnum, PU_STATIC);
 	
-	planeheight = abs(pl->height-data->viewz);
+	data->planeheight = abs(pl->height-data->viewz);
 	light = (pl->lightlevel >> LIGHTSEGSHIFT)+data->extralight;
 
 	if (light >= LIGHTLEVELS)
@@ -429,7 +410,7 @@ void R_DrawPlanes (data_t* data)
 	if (light < 0)
 	    light = 0;
 
-	planezlight = data->zlight[light];
+	data->planezlight = data->zlight[light];
 
 	pl->top[pl->maxx+1] = 0xff;
 	pl->top[pl->minx-1] = 0xff;

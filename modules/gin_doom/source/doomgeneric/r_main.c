@@ -48,7 +48,6 @@
 // increment every time a check is made
 
 
-extern lighttable_t**	walllights;
 
 
 
@@ -420,7 +419,7 @@ void R_InitPointToAngle (void)
 // Returns the texture mapping scale
 //  for the current line (horizontal span)
 //  at the given angle.
-// rw_distance must be calculated first.
+// data->rw_distance must be calculated first.
 //
 fixed_t R_ScaleFromGlobalAngle (data_t* data, angle_t visangle)
 {
@@ -440,8 +439,8 @@ fixed_t R_ScaleFromGlobalAngle (data_t* data, angle_t visangle)
     fixed_t		sinv;
     fixed_t		cosv;
 	
-    sinv = finesine[(visangle-rw_normalangle)>>ANGLETOFINESHIFT];	
-    dist = FixedDiv (rw_distance, sinv);
+    sinv = finesine[(visangle-data->rw_normalangle)>>ANGLETOFINESHIFT];	
+    dist = FixedDiv (data->rw_distance, sinv);
     cosv = finecosine[(data->viewangle-visangle)>>ANGLETOFINESHIFT];
     z = abs(FixedMul (dist, cosv));
     scale = FixedDiv(data->projection, z);
@@ -450,13 +449,13 @@ fixed_t R_ScaleFromGlobalAngle (data_t* data, angle_t visangle)
 #endif
 
     anglea = ANG90 + (visangle-data->viewangle);
-    angleb = ANG90 + (visangle-rw_normalangle);
+    angleb = ANG90 + (visangle-data->rw_normalangle);
 
     // both sines are allways positive
     sinea = finesine[anglea>>ANGLETOFINESHIFT];	
     sineb = finesine[angleb>>ANGLETOFINESHIFT];
     num = FixedMul(data->projection,sineb)<<data->detailshift;
-    den = FixedMul(rw_distance,sinea);
+    den = FixedMul(data->rw_distance,sinea);
 
     if (den > num>>16)
     {
@@ -689,25 +688,25 @@ void R_ExecuteSetViewSize (data_t* data)
     R_InitTextureMapping (data);
     
     // psprite scales
-    pspritescale = FRACUNIT*data->viewwidth/SCREENWIDTH;
-    pspriteiscale = FRACUNIT*SCREENWIDTH/data->viewwidth;
+    data->pspritescale = FRACUNIT*data->viewwidth/SCREENWIDTH;
+    data->pspriteiscale = FRACUNIT*SCREENWIDTH/data->viewwidth;
     
     // thing clipping
     for (i=0 ; i<data->viewwidth ; i++)
-	screenheightarray[i] = data->viewheight;
+	data->screenheightarray[i] = data->viewheight;
     
     // planes
     for (i=0 ; i<data->viewheight ; i++)
     {
 	dy = ((i-data->viewheight/2)<<FRACBITS)+FRACUNIT/2;
 	dy = abs(dy);
-	yslope[i] = FixedDiv ( (data->viewwidth<<data->detailshift)/2*FRACUNIT, dy);
+	data->yslope[i] = FixedDiv ( (data->viewwidth<<data->detailshift)/2*FRACUNIT, dy);
     }
 	
     for (i=0 ; i<data->viewwidth ; i++)
     {
 	cosadj = abs(finecosine[data->xtoviewangle[i]>>ANGLETOFINESHIFT]);
-	distscale[i] = FixedDiv (FRACUNIT,cosadj);
+	data->distscale[i] = FixedDiv (FRACUNIT,cosadj);
     }
     
     // Calculate the light levels to use
@@ -818,7 +817,7 @@ void R_SetupFrame (data_t* data, player_t* player)
 	    colormaps
 	    + player->fixedcolormap*256*sizeof(lighttable_t);
 	
-	walllights = data->scalelightfixed;
+	data->walllights = data->scalelightfixed;
 
 	for (i=0 ; i<MAXLIGHTSCALE ; i++)
 	    data->scalelightfixed[i] = data->fixedcolormap;
@@ -843,7 +842,7 @@ void R_RenderPlayerView (data_t* data, player_t* player)
     R_ClearClipSegs (data);
     R_ClearDrawSegs (data);
     R_ClearPlanes (data);
-    R_ClearSprites ();
+    R_ClearSprites (data);
     
     // check for new console commands.
     NetUpdate (data);
