@@ -399,7 +399,7 @@ void HU_Erase(void)
 
 }
 
-void HU_Ticker(void)
+void HU_Ticker(data_t* data)
 {
 
     int i, rc;
@@ -458,9 +458,9 @@ void HU_Ticker(void)
 			    message_on = true;
 			    message_counter = HU_MSGTIMEOUT;
 			    if ( gamemode == commercial )
-			      S_StartSound(0, sfx_radio);
+			      S_StartSound(data, 0, sfx_radio);
 			    else
-			      S_StartSound(0, sfx_tink);
+			      S_StartSound(data, 0, sfx_tink);
 			}
 			HUlib_resetIText(&w_inputbuffer[i]);
 		    }
@@ -509,7 +509,7 @@ char HU_dequeueChatChar(void)
     return c;
 }
 
-boolean HU_Responder(event_t *ev)
+boolean HU_Responder(data_t* data, event_t *ev)
 {
 
     static char		lastmessage[HU_MAXLINELENGTH+1];

@@ -108,7 +108,7 @@ void D_ProcessEvents (data_t* data)
     {
 		if (M_Responder (data, ev))
 			continue;               // menu ate the event
-		G_Responder (ev);
+		G_Responder (data, ev);
     }
 }
 
@@ -174,7 +174,7 @@ void D_Display (data_t* data)
 		if (!gametic)
 			break;
 		if (automapactive)
-			AM_Drawer ();
+			AM_Drawer (data);
 		if (wipe || (viewheight != 200 && fullscreen) )
 			redrawsbar = true;
 		if (inhelpscreensstate && !inhelpscreens)
@@ -188,7 +188,7 @@ void D_Display (data_t* data)
 		break;
 
       case GS_FINALE:
-		F_Drawer ();
+		F_Drawer (data);
 		break;
 
       case GS_DEMOSCREEN:
@@ -407,7 +407,7 @@ void D_DoomLoop (data_t* data)
 
 		TryRunTics (data); // will run at least one tic
 
-		S_UpdateSounds (players[consoleplayer].mo);// move positional sounds
+		S_UpdateSounds(data, players[consoleplayer].mo);// move positional sounds
 
 		// Update display, next frame, with current state.
 		if (screenvisible)
@@ -494,9 +494,9 @@ void D_DoAdvanceDemo (data_t* data)
 	gamestate = GS_DEMOSCREEN;
 	pagename = DEH_String("TITLEPIC");
 	if ( gamemode == commercial )
-	  S_StartMusic(mus_dm2ttl);
+	  S_StartMusic(data, mus_dm2ttl);
 	else
-	  S_StartMusic (mus_intro);
+	  S_StartMusic(data, mus_intro);
 	break;
       case 1:
 	G_DeferedPlayDemo(DEH_String("demo1"));
@@ -515,7 +515,7 @@ void D_DoAdvanceDemo (data_t* data)
 	{
 	    pagetic = TICRATE * 11;
 	    pagename = DEH_String("TITLEPIC");
-	    S_StartMusic(mus_dm2ttl);
+	    S_StartMusic(data, mus_dm2ttl);
 	}
 	else
 	{
@@ -1728,7 +1728,7 @@ void D_DoomMain (data_t* data)
     P_Init (data);
 
     DEH_printf("S_Init: Setting up sound.\n");
-    S_Init (sfxVolume * 8, musicVolume * 8);
+    S_Init(data, sfxVolume * 8, musicVolume * 8);
 
     DEH_printf("D_CheckNetGame: Checking network game status.\n");
     D_CheckNetGame (data);

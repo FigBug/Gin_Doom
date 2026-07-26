@@ -111,14 +111,14 @@ int snd_channels = 8;
 //  allocates channel buffer, sets S_sfx lookup.
 //
 
-void S_Init(int sfxVolume, int musicVolume)
+void S_Init(data_t* data, int sfxVolume, int musicVolume)
 {  
     int i;
 
     I_PrecacheSounds(S_sfx, NUMSFX);
 
-    S_SetSfxVolume(sfxVolume);
-    S_SetMusicVolume(musicVolume);
+    S_SetSfxVolume(data, sfxVolume);
+    S_SetMusicVolume(data, musicVolume);
 
     // Allocating the internal channels for mixing
     // (the maximum numer of sounds rendered
@@ -149,7 +149,7 @@ void S_Shutdown(data_t* data)
     I_ShutdownMusic();
 }
 
-static void S_StopChannel(int cnum)
+static void S_StopChannel(data_t* data, int cnum)
 {
     int i;
     channel_t *c;
@@ -188,7 +188,7 @@ static void S_StopChannel(int cnum)
 //  determines music if any, changes music.
 //
 
-void S_Start(void)
+void S_Start(data_t* data)
 {
     int cnum;
     int mnum;
@@ -199,7 +199,7 @@ void S_Start(void)
     {
         if (channels[cnum].sfxinfo)
         {
-            S_StopChannel(cnum);
+            S_StopChannel(data, cnum);
         }
     }
 
@@ -237,10 +237,10 @@ void S_Start(void)
         }
     }        
 
-    S_ChangeMusic(mnum, true);
+    S_ChangeMusic(data, mnum, true);
 }        
 
-void S_StopSound(mobj_t *origin)
+void S_StopSound(data_t* data, mobj_t *origin)
 {
     int cnum;
 
@@ -248,7 +248,7 @@ void S_StopSound(mobj_t *origin)
     {
         if (channels[cnum].sfxinfo && channels[cnum].origin == origin)
         {
-            S_StopChannel(cnum);
+            S_StopChannel(data, cnum);
             break;
         }
     }
@@ -259,7 +259,7 @@ void S_StopSound(mobj_t *origin)
 //   If none available, return -1.  Otherwise channel #.
 //
 
-static int S_GetChannel(mobj_t *origin, sfxinfo_t *sfxinfo)
+static int S_GetChannel(data_t* data, mobj_t *origin, sfxinfo_t *sfxinfo)
 {
     // channel number to use
     int                cnum;
@@ -275,7 +275,7 @@ static int S_GetChannel(mobj_t *origin, sfxinfo_t *sfxinfo)
         }
         else if (origin && channels[cnum].origin == origin)
         {
-            S_StopChannel(cnum);
+            S_StopChannel(data, cnum);
             break;
         }
     }
@@ -300,7 +300,7 @@ static int S_GetChannel(mobj_t *origin, sfxinfo_t *sfxinfo)
         else
         {
             // Otherwise, kick out lower priority.
-            S_StopChannel(cnum);
+            S_StopChannel(data, cnum);
         }
     }
 
@@ -320,7 +320,7 @@ static int S_GetChannel(mobj_t *origin, sfxinfo_t *sfxinfo)
 // Otherwise, modifies parameters and returns 1.
 //
 
-static int S_AdjustSoundParams(mobj_t *listener, mobj_t *source,
+static int S_AdjustSoundParams(data_t* data, mobj_t *listener, mobj_t *source,
                                int *vol, int *sep)
 {
     fixed_t        approx_dist;
@@ -388,7 +388,7 @@ static int S_AdjustSoundParams(mobj_t *listener, mobj_t *source,
     return (*vol > 0);
 }
 
-void S_StartSound(void *origin_p, int sfx_id)
+void S_StartSound(data_t* data, void *origin_p, int sfx_id)
 {
     sfxinfo_t *sfx;
     mobj_t *origin;
@@ -429,7 +429,7 @@ void S_StartSound(void *origin_p, int sfx_id)
     //  and if not, modify the params
     if (origin && origin != players[consoleplayer].mo)
     {
-        rc = S_AdjustSoundParams(players[consoleplayer].mo,
+        rc = S_AdjustSoundParams(data, players[consoleplayer].mo,
                                  origin,
                                  &volume,
                                  &sep);
@@ -451,10 +451,10 @@ void S_StartSound(void *origin_p, int sfx_id)
     }
 
     // kill old sound
-    S_StopSound(origin);
+    S_StopSound(data, origin);
 
     // try to find a channel
-    cnum = S_GetChannel(origin, sfx);
+    cnum = S_GetChannel(data, origin, sfx);
 
     if (cnum < 0)
     {
@@ -479,7 +479,7 @@ void S_StartSound(void *origin_p, int sfx_id)
 // Stop and resume music, during game PAUSE.
 //
 
-void S_PauseSound(void)
+void S_PauseSound(data_t* data)
 {
     if (mus_playing && !mus_paused)
     {
@@ -488,7 +488,7 @@ void S_PauseSound(void)
     }
 }
 
-void S_ResumeSound(void)
+void S_ResumeSound(data_t* data)
 {
     if (mus_playing && mus_paused)
     {
@@ -501,7 +501,7 @@ void S_ResumeSound(void)
 // Updates music & sounds
 //
 
-void S_UpdateSounds(mobj_t *listener)
+void S_UpdateSounds(data_t* data, mobj_t *listener)
 {
     int                audible;
     int                cnum;
@@ -530,7 +530,7 @@ void S_UpdateSounds(mobj_t *listener)
                     volume += sfx->volume;
                     if (volume < 1)
                     {
-                        S_StopChannel(cnum);
+                        S_StopChannel(data, cnum);
                         continue;
                     }
                     else if (volume > snd_SfxVolume)
@@ -543,14 +543,14 @@ void S_UpdateSounds(mobj_t *listener)
                 //  or modify their params
                 if (c->origin && listener != c->origin)
                 {
-                    audible = S_AdjustSoundParams(listener,
+                    audible = S_AdjustSoundParams(data, listener,
                                                   c->origin,
                                                   &volume,
                                                   &sep);
                     
                     if (!audible)
                     {
-                        S_StopChannel(cnum);
+                        S_StopChannel(data, cnum);
                     }
                     else
                     {
@@ -562,13 +562,13 @@ void S_UpdateSounds(mobj_t *listener)
             {
                 // if channel is allocated but sound has stopped,
                 //  free it
-                S_StopChannel(cnum);
+                S_StopChannel(data, cnum);
             }
         }
     }
 }
 
-void S_SetMusicVolume(int volume)
+void S_SetMusicVolume(data_t* data, int volume)
 {
     if (volume < 0 || volume > 127)
     {
@@ -579,7 +579,7 @@ void S_SetMusicVolume(int volume)
     I_SetMusicVolume(volume);
 }
 
-void S_SetSfxVolume(int volume)
+void S_SetSfxVolume(data_t* data, int volume)
 {
     if (volume < 0 || volume > 127)
     {
@@ -593,12 +593,12 @@ void S_SetSfxVolume(int volume)
 // Starts some music with the music id found in sounds.h.
 //
 
-void S_StartMusic(int m_id)
+void S_StartMusic(data_t* data, int m_id)
 {
-    S_ChangeMusic(m_id, false);
+    S_ChangeMusic(data, m_id, false);
 }
 
-void S_ChangeMusic(int musicnum, int looping)
+void S_ChangeMusic(data_t* data, int musicnum, int looping)
 {
     musicinfo_t *music = NULL;
     char namebuf[9];
@@ -628,7 +628,7 @@ void S_ChangeMusic(int musicnum, int looping)
     }
 
     // shutdown old music
-    S_StopMusic();
+    S_StopMusic(data);
 
     // get lumpnum if neccessary
     if (!music->lumpnum)
@@ -646,12 +646,12 @@ void S_ChangeMusic(int musicnum, int looping)
     mus_playing = music;
 }
 
-boolean S_MusicPlaying(void)
+boolean S_MusicPlaying(data_t* data)
 {
     return I_MusicIsPlaying();
 }
 
-void S_StopMusic(void)
+void S_StopMusic(data_t* data)
 {
     if (mus_playing)
     {

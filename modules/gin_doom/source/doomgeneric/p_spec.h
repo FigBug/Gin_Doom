@@ -371,17 +371,20 @@ typedef struct
 
 void
 EV_VerticalDoor
-( line_t*	line,
+( data_t*	data,
+  line_t*	line,
   mobj_t*	thing );
 
 int
 EV_DoDoor
-( line_t*	line,
+( data_t*	data,
+  line_t*	line,
   vldoor_e	type );
 
 int
 EV_DoLockedDoor
-( line_t*	line,
+( data_t*	data,
+  line_t*	line,
   vldoor_e	type,
   mobj_t*	thing );
 

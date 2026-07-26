@@ -765,7 +765,7 @@ P_SetupLevel
     players[consoleplayer].viewz = 1; 
 
     // Make sure all sounds are stopped before Z_FreeTags.
-    S_Start ();			
+    S_Start(data);			
 
     Z_FreeTags (PU_LEVEL, PU_PURGELEVEL-1);
 

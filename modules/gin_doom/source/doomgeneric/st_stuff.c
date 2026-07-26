@@ -436,7 +436,7 @@ void ST_refreshBackground(void)
 // Respond to keyboard input events,
 //  intercept cheats.
 boolean
-ST_Responder (event_t* ev)
+ST_Responder (data_t* data, event_t* ev)
 {
   int		i;
     
@@ -531,7 +531,7 @@ ST_Responder (event_t* ev)
 	  if (((buf[0]-'0')*10 + buf[1]-'0') > 35)
 	    plyr->message = DEH_String(STSTR_NOMUS);
 	  else
-	    S_ChangeMusic(musnum, 1);
+	    S_ChangeMusic(data, musnum, 1);
 	}
 	else
 	{
@@ -540,7 +540,7 @@ ST_Responder (event_t* ev)
 	  if (((buf[0]-'1')*9 + buf[1]-'1') > 31)
 	    plyr->message = DEH_String(STSTR_NOMUS);
 	  else
-	    S_ChangeMusic(musnum, 1);
+	    S_ChangeMusic(data, musnum, 1);
 	}
       }
       else if ( (logical_gamemission == doom 

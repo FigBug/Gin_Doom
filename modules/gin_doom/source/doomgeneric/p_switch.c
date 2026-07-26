@@ -221,7 +221,7 @@ P_ChangeSwitchTexture
     {
 	if (switchlist[i] == texTop)
 	{
-	    S_StartSound(buttonlist->soundorg,sound);
+	    S_StartSound(data, buttonlist->soundorg,sound);
 	    sides[line->sidenum[0]].toptexture = switchlist[i^1];
 
 	    if (useAgain)
@@ -233,7 +233,7 @@ P_ChangeSwitchTexture
 	{
 	    if (switchlist[i] == texMid)
 	    {
-		S_StartSound(buttonlist->soundorg,sound);
+		S_StartSound(data, buttonlist->soundorg,sound);
 		sides[line->sidenum[0]].midtexture = switchlist[i^1];
 
 		if (useAgain)
@@ -245,7 +245,7 @@ P_ChangeSwitchTexture
 	    {
 		if (switchlist[i] == texBot)
 		{
-		    S_StartSound(buttonlist->soundorg,sound);
+		    S_StartSound(data, buttonlist->soundorg,sound);
 		    sides[line->sidenum[0]].bottomtexture = switchlist[i^1];
 
 		    if (useAgain)
@@ -332,7 +332,7 @@ P_UseSpecialLine
 
       case 117:		// Blazing door raise
       case 118:		// Blazing door open
-	EV_VerticalDoor (line, thing);
+	EV_VerticalDoor (data, line, thing);
 	break;
 	
 	//UNUSED - Door Slide Open&Close
@@ -397,7 +397,7 @@ P_UseSpecialLine
 	
       case 29:
 	// Raise Door
-	if (EV_DoDoor(line,vld_normal))
+	if (EV_DoDoor (data, line,vld_normal))
 		P_ChangeSwitchTexture(data, line,0);
 	break;
 	
@@ -421,7 +421,7 @@ P_UseSpecialLine
 	
       case 50:
 	// Close Door
-	if (EV_DoDoor(line,vld_close))
+	if (EV_DoDoor (data, line,vld_close))
 		P_ChangeSwitchTexture(data, line,0);
 	break;
 	
@@ -451,25 +451,25 @@ P_UseSpecialLine
 	
       case 103:
 	// Open Door
-	if (EV_DoDoor(line,vld_open))
+	if (EV_DoDoor (data, line,vld_open))
 		P_ChangeSwitchTexture(data, line,0);
 	break;
 	
       case 111:
 	// Blazing Door Raise (faster than TURBO!)
-	if (EV_DoDoor (line,vld_blazeRaise))
+	if (EV_DoDoor (data, line,vld_blazeRaise))
 		P_ChangeSwitchTexture(data, line,0);
 	break;
 	
       case 112:
 	// Blazing Door Open (faster than TURBO!)
-	if (EV_DoDoor (line,vld_blazeOpen))
+	if (EV_DoDoor (data, line,vld_blazeOpen))
 		P_ChangeSwitchTexture(data, line,0);
 	break;
 	
       case 113:
 	// Blazing Door Close (faster than TURBO!)
-	if (EV_DoDoor (line,vld_blazeClose))
+	if (EV_DoDoor (data, line,vld_blazeClose))
 		P_ChangeSwitchTexture(data, line,0);
 	break;
 	
@@ -497,7 +497,7 @@ P_UseSpecialLine
 	// BlzOpenDoor RED
       case 137:
 	// BlzOpenDoor YELLOW
-	if (EV_DoLockedDoor (line,vld_blazeOpen,thing))
+	if (EV_DoLockedDoor (data, line,vld_blazeOpen,thing))
 		P_ChangeSwitchTexture(data, line,0);
 	break;
 	
@@ -510,7 +510,7 @@ P_UseSpecialLine
 	// BUTTONS
       case 42:
 	// Close Door
-	if (EV_DoDoor(line,vld_close))
+	if (EV_DoDoor (data, line,vld_close))
 		P_ChangeSwitchTexture(data, line,1);
 	break;
 	
@@ -534,7 +534,7 @@ P_UseSpecialLine
 	
       case 61:
 	// Open Door
-	if (EV_DoDoor(line,vld_open))
+	if (EV_DoDoor (data, line,vld_open))
 		P_ChangeSwitchTexture(data, line,1);
 	break;
 	
@@ -546,7 +546,7 @@ P_UseSpecialLine
 	
       case 63:
 	// Raise Door
-	if (EV_DoDoor(line,vld_normal))
+	if (EV_DoDoor (data, line,vld_normal))
 		P_ChangeSwitchTexture(data, line,1);
 	break;
 	
@@ -594,19 +594,19 @@ P_UseSpecialLine
 	
       case 114:
 	// Blazing Door Raise (faster than TURBO!)
-	if (EV_DoDoor (line,vld_blazeRaise))
+	if (EV_DoDoor (data, line,vld_blazeRaise))
 		P_ChangeSwitchTexture(data, line,1);
 	break;
 	
       case 115:
 	// Blazing Door Open (faster than TURBO!)
-	if (EV_DoDoor (line,vld_blazeOpen))
+	if (EV_DoDoor (data, line,vld_blazeOpen))
 		P_ChangeSwitchTexture(data, line,1);
 	break;
 	
       case 116:
 	// Blazing Door Close (faster than TURBO!)
-	if (EV_DoDoor (line,vld_blazeClose))
+	if (EV_DoDoor (data, line,vld_blazeClose))
 		P_ChangeSwitchTexture(data, line,1);
 	break;
 	
@@ -628,7 +628,7 @@ P_UseSpecialLine
 	// BlzOpenDoor RED
       case 136:
 	// BlzOpenDoor YELLOW
-	if (EV_DoLockedDoor (line,vld_blazeOpen,thing))
+	if (EV_DoLockedDoor (data, line,vld_blazeOpen,thing))
 		P_ChangeSwitchTexture(data, line,1);
 	break;
 	

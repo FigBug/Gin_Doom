@@ -158,7 +158,8 @@ P_GiveAmmo
 //
 boolean
 P_GiveWeapon
-( player_t*	player,
+( data_t* data,
+  player_t*	player,
   weapontype_t	weapon,
   boolean	dropped )
 {
@@ -181,7 +182,7 @@ P_GiveWeapon
 		player->pendingweapon = weapon;
 
 		if (player == &players[consoleplayer])
-			S_StartSound (NULL, sfx_wpnup);
+			S_StartSound(data, NULL, sfx_wpnup);
 		return false;
     }
 	
@@ -599,49 +600,49 @@ P_TouchSpecialThing
 	
 	// weapons
       case SPR_BFUG:
-	if (!P_GiveWeapon (player, wp_bfg, false) )
+	if (!P_GiveWeapon (data, player, wp_bfg, false) )
 	    return;
 	player->message = DEH_String(GOTBFG9000);
 	sound = sfx_wpnup;	
 	break;
 	
       case SPR_MGUN:
-	if (!P_GiveWeapon (player, wp_chaingun, (special->flags&MF_DROPPED) != 0) )
+	if (!P_GiveWeapon (data, player, wp_chaingun, (special->flags&MF_DROPPED) != 0) )
 	    return;
 	player->message = DEH_String(GOTCHAINGUN);
 	sound = sfx_wpnup;	
 	break;
 	
       case SPR_CSAW:
-	if (!P_GiveWeapon (player, wp_chainsaw, false) )
+	if (!P_GiveWeapon (data, player, wp_chainsaw, false) )
 	    return;
 	player->message = DEH_String(GOTCHAINSAW);
 	sound = sfx_wpnup;	
 	break;
 	
       case SPR_LAUN:
-	if (!P_GiveWeapon (player, wp_missile, false) )
+	if (!P_GiveWeapon (data, player, wp_missile, false) )
 	    return;
 	player->message = DEH_String(GOTLAUNCHER);
 	sound = sfx_wpnup;	
 	break;
 	
       case SPR_PLAS:
-	if (!P_GiveWeapon (player, wp_plasma, false) )
+	if (!P_GiveWeapon (data, player, wp_plasma, false) )
 	    return;
 	player->message = DEH_String(GOTPLASMA);
 	sound = sfx_wpnup;	
 	break;
 	
       case SPR_SHOT:
-	if (!P_GiveWeapon (player, wp_shotgun, (special->flags&MF_DROPPED) != 0 ) )
+	if (!P_GiveWeapon (data, player, wp_shotgun, (special->flags&MF_DROPPED) != 0 ) )
 	    return;
 	player->message = DEH_String(GOTSHOTGUN);
 	sound = sfx_wpnup;	
 	break;
 		
       case SPR_SGN2:
-	if (!P_GiveWeapon (player, wp_supershotgun, (special->flags&MF_DROPPED) != 0 ) )
+	if (!P_GiveWeapon (data, player, wp_supershotgun, (special->flags&MF_DROPPED) != 0 ) )
 	    return;
 	player->message = DEH_String(GOTSHOTGUN2);
 	sound = sfx_wpnup;	
@@ -656,7 +657,7 @@ P_TouchSpecialThing
     P_RemoveMobj (data, special);
     player->bonuscount += BONUSADD;
     if (player == &players[consoleplayer])
-	S_StartSound (NULL, sound);
+	S_StartSound(data, NULL, sound);
 }
 
 
@@ -712,7 +713,7 @@ P_KillMobj
 	{
 	    // don't die in auto map,
 	    // switch view prior to dying
-	    AM_Stop ();
+	    AM_Stop (data);
 	}
 	
     }

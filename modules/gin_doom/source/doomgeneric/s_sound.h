@@ -29,7 +29,7 @@
 //  allocates channel buffer, sets S_sfx lookup.
 //
 
-void S_Init(int sfxVolume, int musicVolume);
+void S_Init(data_t* data, int sfxVolume, int musicVolume);
 
 
 // Shut down sound 
@@ -44,44 +44,44 @@ void S_Shutdown(data_t* data);
 //  determines music if any, changes music.
 //
 
-void S_Start(void);
+void S_Start(data_t* data);
 
 //
 // Start sound for thing at <origin>
 //  using <sound_id> from sounds.h
 //
 
-void S_StartSound(void *origin, int sound_id);
+void S_StartSound(data_t* data, void *origin, int sound_id);
 
 // Stop sound for thing at <origin>
-void S_StopSound(mobj_t *origin);
+void S_StopSound(data_t* data, mobj_t *origin);
 
 
 // Start music using <music_id> from sounds.h
-void S_StartMusic(int music_id);
+void S_StartMusic(data_t* data, int music_id);
 
 // Start music using <music_id> from sounds.h,
 //  and set whether looping
-void S_ChangeMusic(int music_id, int looping);
+void S_ChangeMusic(data_t* data, int music_id, int looping);
 
 // query if music is playing
-boolean S_MusicPlaying(void);
+boolean S_MusicPlaying(data_t* data);
 
 // Stops the music fer sure.
-void S_StopMusic(void);
+void S_StopMusic(data_t* data);
 
 // Stop and resume music, during game PAUSE.
-void S_PauseSound(void);
-void S_ResumeSound(void);
+void S_PauseSound(data_t* data);
+void S_ResumeSound(data_t* data);
 
 
 //
 // Updates music & sounds
 //
-void S_UpdateSounds(mobj_t *listener);
+void S_UpdateSounds(data_t* data, mobj_t *listener);
 
-void S_SetMusicVolume(int volume);
-void S_SetSfxVolume(int volume);
+void S_SetMusicVolume(data_t* data, int volume);
+void S_SetSfxVolume(data_t* data, int volume);
 
 extern int snd_channels;
 

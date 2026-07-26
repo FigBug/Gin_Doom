@@ -730,7 +730,7 @@ static void SetMouseButtons(unsigned int buttons_mask)
 // G_Responder  
 // Get info needed to make ticcmd_ts for the players.
 // 
-boolean G_Responder (event_t* ev) 
+boolean G_Responder (data_t* data, event_t* ev) 
 { 
     // allow spy mode changes even during the demo
     if (gamestate == GS_LEVEL && ev->type == ev_keydown 
@@ -770,17 +770,17 @@ boolean G_Responder (event_t* ev)
 	    return true; 
 	} 
 #endif 
-	if (HU_Responder (ev)) 
+	if (HU_Responder (data, ev)) 
 	    return true;	// chat ate the event 
-	if (ST_Responder (ev)) 
+	if (ST_Responder (data, ev)) 
 	    return true;	// status window ate it 
-	if (AM_Responder (ev)) 
+	if (AM_Responder (data, ev)) 
 	    return true;	// automap ate it 
     } 
 	 
     if (gamestate == GS_FINALE) 
     { 
-	if (F_Responder (ev)) 
+	if (F_Responder (data, ev)) 
 	    return true;	// finale ate the event 
     } 
 
@@ -886,7 +886,7 @@ void G_Ticker (data_t* data)
 	    G_DoCompleted (data);
 	    break; 
 	  case ga_victory: 
-	    F_StartFinale (); 
+	    F_StartFinale (data); 
 	    break; 
 	  case ga_worlddone: 
 	    G_DoWorldDone (data);
@@ -971,9 +971,9 @@ void G_Ticker (data_t* data)
 		  case BTS_PAUSE: 
 		    paused ^= 1; 
 		    if (paused) 
-			S_PauseSound (); 
+			S_PauseSound(data); 
 		    else 
-			S_ResumeSound (); 
+			S_ResumeSound(data); 
 		    break; 
 					 
 		  case BTS_SAVEGAME:
@@ -1007,8 +1007,8 @@ void G_Ticker (data_t* data)
       case GS_LEVEL: 
 	P_Ticker (data);
 	ST_Ticker (data); 
-	AM_Ticker (); 
-	HU_Ticker ();            
+	AM_Ticker (data); 
+	HU_Ticker (data);            
 	break; 
 	 
       case GS_INTERMISSION: 
@@ -1016,7 +1016,7 @@ void G_Ticker (data_t* data)
 	break; 
 			 
       case GS_FINALE: 
-	F_Ticker (); 
+	F_Ticker (data); 
 	break; 
  
       case GS_DEMOSCREEN: 
@@ -1210,7 +1210,7 @@ G_CheckSpot
     }
 
     if (players[consoleplayer].viewz != 1) 
-	S_StartSound (mo, sfx_telept);	// don't start sound on first frame 
+	S_StartSound(data, mo, sfx_telept);	// don't start sound on first frame 
  
     return true; 
 } 
@@ -1355,7 +1355,7 @@ void G_DoCompleted (data_t* data)
 	    G_PlayerFinishLevel (i);        // take away cards and stuff 
 	 
     if (automapactive) 
-	AM_Stop (); 
+	AM_Stop (data); 
 	
     if (gamemode != commercial)
     {
@@ -1492,7 +1492,7 @@ void G_DoCompleted (data_t* data)
 //
 // G_WorldDone 
 //
-void G_WorldDone (void) 
+void G_WorldDone (data_t* data) 
 { 
     gameaction = ga_worlddone; 
 
@@ -1511,7 +1511,7 @@ void G_WorldDone (void)
 	  case 11:
 	  case 20:
 	  case 30:
-	    F_StartFinale ();
+	    F_StartFinale (data);
 	    break;
 	}
     }
@@ -1738,7 +1738,7 @@ G_InitNew
     if (paused)
     {
 	paused = false;
-	S_ResumeSound ();
+	S_ResumeSound(data);
     }
 
     /*

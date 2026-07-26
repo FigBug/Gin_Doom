@@ -195,7 +195,7 @@ mline_t thintriangle_guy[] = {
 static int 	cheating = 0;
 static int 	grid = 0;
 
-static int 	leveljuststarted = 1; 	// kluge until AM_LevelInit() is called
+static int 	leveljuststarted = 1; 	// kluge until AM_LevelInit(data) is called
 
 boolean    	automapactive = false;
 static int 	finit_width = SCREENWIDTH;
@@ -290,7 +290,7 @@ AM_getIslope
 //
 //
 //
-void AM_activateNewScale(void)
+void AM_activateNewScale(data_t* data)
 {
     m_x += m_w/2;
     m_y += m_h/2;
@@ -305,7 +305,7 @@ void AM_activateNewScale(void)
 //
 //
 //
-void AM_saveScaleAndLoc(void)
+void AM_saveScaleAndLoc(data_t* data)
 {
     old_m_x = m_x;
     old_m_y = m_y;
@@ -316,7 +316,7 @@ void AM_saveScaleAndLoc(void)
 //
 //
 //
-void AM_restoreScaleAndLoc(void)
+void AM_restoreScaleAndLoc(data_t* data)
 {
 
     m_w = old_m_w;
@@ -340,7 +340,7 @@ void AM_restoreScaleAndLoc(void)
 //
 // adds a marker at the current location
 //
-void AM_addMark(void)
+void AM_addMark(data_t* data)
 {
     markpoints[markpointnum].x = m_x + m_w/2;
     markpoints[markpointnum].y = m_y + m_h/2;
@@ -352,7 +352,7 @@ void AM_addMark(void)
 // Determines bounding box of all vertices,
 // sets global variables controlling zoom range.
 //
-void AM_findMinMaxBoundaries(void)
+void AM_findMinMaxBoundaries(data_t* data)
 {
     int i;
     fixed_t a;
@@ -392,7 +392,7 @@ void AM_findMinMaxBoundaries(void)
 //
 //
 //
-void AM_changeWindowLoc(void)
+void AM_changeWindowLoc(data_t* data)
 {
     if (m_paninc.x || m_paninc.y)
     {
@@ -421,7 +421,7 @@ void AM_changeWindowLoc(void)
 //
 //
 //
-void AM_initVariables(void)
+void AM_initVariables(data_t* data)
 {
     int pnum;
     static event_t st_notify = { ev_keyup, AM_MSGENTERED, 0, 0 };
@@ -461,7 +461,7 @@ void AM_initVariables(void)
 
     m_x = plr->mo->x - m_w/2;
     m_y = plr->mo->y - m_h/2;
-    AM_changeWindowLoc();
+    AM_changeWindowLoc(data);
 
     // for saving & restoring
     old_m_x = m_x;
@@ -470,14 +470,14 @@ void AM_initVariables(void)
     old_m_h = m_h;
 
     // inform the status bar of the change
-    ST_Responder(&st_notify);
+    ST_Responder(data, &st_notify);
 
 }
 
 //
 // 
 //
-void AM_loadPics(void)
+void AM_loadPics(data_t* data)
 {
     int i;
     char namebuf[9];
@@ -490,7 +490,7 @@ void AM_loadPics(void)
 
 }
 
-void AM_unloadPics(void)
+void AM_unloadPics(data_t* data)
 {
     int i;
     char namebuf[9];
@@ -502,7 +502,7 @@ void AM_unloadPics(void)
     }
 }
 
-void AM_clearMarks(void)
+void AM_clearMarks(data_t* data)
 {
     int i;
 
@@ -515,7 +515,7 @@ void AM_clearMarks(void)
 // should be called at the start of every level
 // right now, i figure it out myself
 //
-void AM_LevelInit(void)
+void AM_LevelInit(data_t* data)
 {
     leveljuststarted = 0;
 
@@ -523,9 +523,9 @@ void AM_LevelInit(void)
     f_w = finit_width;
     f_h = finit_height;
 
-    AM_clearMarks();
+    AM_clearMarks(data);
 
-    AM_findMinMaxBoundaries();
+    AM_findMinMaxBoundaries(data);
     scale_mtof = FixedDiv(min_scale_mtof, (int) (0.7*FRACUNIT));
     if (scale_mtof > max_scale_mtof)
 	scale_mtof = min_scale_mtof;
@@ -538,53 +538,53 @@ void AM_LevelInit(void)
 //
 //
 //
-void AM_Stop (void)
+void AM_Stop(data_t* data)
 {
     static event_t st_notify = { 0, ev_keyup, AM_MSGEXITED, 0 };
 
-    AM_unloadPics();
+    AM_unloadPics(data);
     automapactive = false;
-    ST_Responder(&st_notify);
+    ST_Responder(data, &st_notify);
     stopped = true;
 }
 
 //
 //
 //
-void AM_Start (void)
+void AM_Start(data_t* data)
 {
     static int lastlevel = -1, lastepisode = -1;
 
-    if (!stopped) AM_Stop();
+    if (!stopped) AM_Stop(data);
     stopped = false;
     if (lastlevel != gamemap || lastepisode != gameepisode)
     {
-	AM_LevelInit();
+	AM_LevelInit(data);
 	lastlevel = gamemap;
 	lastepisode = gameepisode;
     }
-    AM_initVariables();
-    AM_loadPics();
+    AM_initVariables(data);
+    AM_loadPics(data);
 }
 
 //
 // set the window scale to the maximum size
 //
-void AM_minOutWindowScale(void)
+void AM_minOutWindowScale(data_t* data)
 {
     scale_mtof = min_scale_mtof;
     scale_ftom = FixedDiv(FRACUNIT, scale_mtof);
-    AM_activateNewScale();
+    AM_activateNewScale(data);
 }
 
 //
 // set the window scale to the minimum size
 //
-void AM_maxOutWindowScale(void)
+void AM_maxOutWindowScale(data_t* data)
 {
     scale_mtof = max_scale_mtof;
     scale_ftom = FixedDiv(FRACUNIT, scale_mtof);
-    AM_activateNewScale();
+    AM_activateNewScale(data);
 }
 
 
@@ -593,7 +593,7 @@ void AM_maxOutWindowScale(void)
 //
 boolean
 AM_Responder
-( event_t*	ev )
+( data_t* data, event_t* ev )
 {
 
     int rc;
@@ -607,7 +607,7 @@ AM_Responder
     {
 	if (ev->type == ev_keydown && ev->data1 == key_map_toggle)
 	{
-	    AM_Start ();
+	    AM_Start(data);
 	    viewactive = false;
 	    rc = true;
 	}
@@ -651,17 +651,17 @@ AM_Responder
         {
             bigstate = 0;
             viewactive = true;
-            AM_Stop ();
+            AM_Stop(data);
         }
         else if (key == key_map_maxzoom)
         {
             bigstate = !bigstate;
             if (bigstate)
             {
-                AM_saveScaleAndLoc();
-                AM_minOutWindowScale();
+                AM_saveScaleAndLoc(data);
+                AM_minOutWindowScale(data);
             }
-            else AM_restoreScaleAndLoc();
+            else AM_restoreScaleAndLoc(data);
         }
         else if (key == key_map_follow)
         {
@@ -685,11 +685,11 @@ AM_Responder
             M_snprintf(buffer, sizeof(buffer), "%s %d",
                        DEH_String(AMSTR_MARKEDSPOT), markpointnum);
             plr->message = buffer;
-            AM_addMark();
+            AM_addMark(data);
         }
         else if (key == key_map_clearmark)
         {
-            AM_clearMarks();
+            AM_clearMarks(data);
             plr->message = DEH_String(AMSTR_MARKSCLEARED);
         }
         else
@@ -739,7 +739,7 @@ AM_Responder
 //
 // Zooming
 //
-void AM_changeWindowScale(void)
+void AM_changeWindowScale(data_t* data)
 {
 
     // Change the scaling multipliers
@@ -747,18 +747,18 @@ void AM_changeWindowScale(void)
     scale_ftom = FixedDiv(FRACUNIT, scale_mtof);
 
     if (scale_mtof < min_scale_mtof)
-	AM_minOutWindowScale();
+	AM_minOutWindowScale(data);
     else if (scale_mtof > max_scale_mtof)
-	AM_maxOutWindowScale();
+	AM_maxOutWindowScale(data);
     else
-	AM_activateNewScale();
+	AM_activateNewScale(data);
 }
 
 
 //
 //
 //
-void AM_doFollowPlayer(void)
+void AM_doFollowPlayer(data_t* data)
 {
 
     if (f_oldloc.x != plr->mo->x || f_oldloc.y != plr->mo->y)
@@ -782,7 +782,7 @@ void AM_doFollowPlayer(void)
 //
 //
 //
-void AM_updateLightLev(void)
+void AM_updateLightLev(data_t* data)
 {
     static int nexttic = 0;
     //static int litelevels[] = { 0, 3, 5, 6, 6, 7, 7, 7 };
@@ -803,7 +803,7 @@ void AM_updateLightLev(void)
 //
 // Updates on Game Tick
 //
-void AM_Ticker (void)
+void AM_Ticker(data_t* data)
 {
 
     if (!automapactive)
@@ -812,18 +812,18 @@ void AM_Ticker (void)
     amclock++;
 
     if (followplayer)
-	AM_doFollowPlayer();
+	AM_doFollowPlayer(data);
 
     // Change the zoom if necessary
     if (ftom_zoommul != FRACUNIT)
-	AM_changeWindowScale();
+	AM_changeWindowScale(data);
 
     // Change x,y location
     if (m_paninc.x || m_paninc.y)
-	AM_changeWindowLoc();
+	AM_changeWindowLoc(data);
 
     // Update light level
-    // AM_updateLightLev();
+    // AM_updateLightLev(data);
 
 }
 
@@ -831,7 +831,7 @@ void AM_Ticker (void)
 //
 // Clear automap frame buffer.
 //
-void AM_clearFB(int color)
+void AM_clearFB(data_t* data, int color)
 {
     memset(fb, color, f_w*f_h);
 }
@@ -1074,7 +1074,7 @@ AM_drawMline
 //
 // Draws flat (floor/ceiling tile) aligned grid lines.
 //
-void AM_drawGrid(int color)
+void AM_drawGrid(data_t* data, int color)
 {
     fixed_t x, y;
     fixed_t start, end;
@@ -1120,7 +1120,7 @@ void AM_drawGrid(int color)
 // Determines visible lines, draws them.
 // This is LineDef based, not LineSeg based.
 //
-void AM_drawWalls(void)
+void AM_drawWalls(data_t* data)
 {
     int i;
     static mline_t l;
@@ -1243,7 +1243,7 @@ AM_drawLineCharacter
     }
 }
 
-void AM_drawPlayers(void)
+void AM_drawPlayers(data_t* data)
 {
     int		i;
     player_t*	p;
@@ -1308,7 +1308,7 @@ AM_drawThings
     }
 }
 
-void AM_drawMarks(void)
+void AM_drawMarks(data_t* data)
 {
     int i, fx, fy, w, h;
 
@@ -1329,26 +1329,26 @@ void AM_drawMarks(void)
 
 }
 
-void AM_drawCrosshair(int color)
+void AM_drawCrosshair(data_t* data, int color)
 {
     fb[(f_w*(f_h+1))/2] = color; // single point for now
 
 }
 
-void AM_Drawer (void)
+void AM_Drawer(data_t* data)
 {
     if (!automapactive) return;
 
-    AM_clearFB(BACKGROUND);
+    AM_clearFB(data, BACKGROUND);
     if (grid)
-	AM_drawGrid(GRIDCOLORS);
-    AM_drawWalls();
-    AM_drawPlayers();
+	AM_drawGrid(data, GRIDCOLORS);
+    AM_drawWalls(data);
+    AM_drawPlayers(data);
     if (cheating==2)
 	AM_drawThings(THINGCOLORS, THINGRANGE);
-    AM_drawCrosshair(XHAIRCOLORS);
+    AM_drawCrosshair(data, XHAIRCOLORS);
 
-    AM_drawMarks();
+    AM_drawMarks(data);
 
     V_MarkRect(f_x, f_y, f_w, f_h);
 

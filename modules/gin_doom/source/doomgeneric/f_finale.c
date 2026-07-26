@@ -97,15 +97,15 @@ static textscreen_t textscreens[] =
 char*	finaletext;
 char*	finaleflat;
 
-void	F_StartCast (void);
-void	F_CastTicker (void);
-boolean F_CastResponder (event_t *ev);
-void	F_CastDrawer (void);
+void	F_StartCast (data_t* data);
+void	F_CastTicker (data_t* data);
+boolean F_CastResponder (data_t* data, event_t *ev);
+void	F_CastDrawer (data_t* data);
 
 //
 // F_StartFinale
 //
-void F_StartFinale (void)
+void F_StartFinale (data_t* data)
 {
     size_t i;
 
@@ -116,11 +116,11 @@ void F_StartFinale (void)
 
     if (logical_gamemission == doom)
     {
-        S_ChangeMusic(mus_victor, true);
+        S_ChangeMusic(data, mus_victor, true);
     }
     else
     {
-        S_ChangeMusic(mus_read_m, true);
+        S_ChangeMusic(data, mus_read_m, true);
     }
 
     // Find the right screen and set the text and background
@@ -157,10 +157,10 @@ void F_StartFinale (void)
 
 
 
-boolean F_Responder (event_t *event)
+boolean F_Responder (data_t* data, event_t *event)
 {
     if (finalestage == F_STAGE_CAST)
-	return F_CastResponder (event);
+	return F_CastResponder (data, event);
 	
     return false;
 }
@@ -169,7 +169,7 @@ boolean F_Responder (event_t *event)
 //
 // F_Ticker
 //
-void F_Ticker (void)
+void F_Ticker (data_t* data)
 {
     size_t		i;
     
@@ -185,7 +185,7 @@ void F_Ticker (void)
       if (i < MAXPLAYERS)
       {	
 	if (gamemap == 30)
-	  F_StartCast ();
+	  F_StartCast (data);
 	else
 	  gameaction = ga_worlddone;
       }
@@ -196,7 +196,7 @@ void F_Ticker (void)
 	
     if (finalestage == F_STAGE_CAST)
     {
-	F_CastTicker ();
+	F_CastTicker (data);
 	return;
     }
 	
@@ -210,7 +210,7 @@ void F_Ticker (void)
 	finalestage = F_STAGE_ARTSCREEN;
 	wipegamestate = -1;		// force a wipe
 	if (gameepisode == 3)
-	    S_StartMusic (mus_bunny);
+	    S_StartMusic(data, mus_bunny);
     }
 }
 
@@ -224,7 +224,7 @@ void F_Ticker (void)
 extern	patch_t *hu_font[HU_FONTSIZE];
 
 
-void F_TextWrite (void)
+void F_TextWrite (data_t* data)
 {
     byte*	src;
     byte*	dest;
@@ -337,7 +337,7 @@ boolean		castattacking;
 //
 // F_StartCast
 //
-void F_StartCast (void)
+void F_StartCast (data_t* data)
 {
     wipegamestate = -1;		// force a screen wipe
     castnum = 0;
@@ -348,14 +348,14 @@ void F_StartCast (void)
     castframes = 0;
     castonmelee = 0;
     castattacking = false;
-    S_ChangeMusic(mus_evil, true);
+    S_ChangeMusic(data, mus_evil, true);
 }
 
 
 //
 // F_CastTicker
 //
-void F_CastTicker (void)
+void F_CastTicker (data_t* data)
 {
     int		st;
     int		sfx;
@@ -371,7 +371,7 @@ void F_CastTicker (void)
 	if (castorder[castnum].name == NULL)
 	    castnum = 0;
 	if (mobjinfo[castorder[castnum].type].seesound)
-	    S_StartSound (NULL, mobjinfo[castorder[castnum].type].seesound);
+	    S_StartSound(data, NULL, mobjinfo[castorder[castnum].type].seesound);
 	caststate = &states[mobjinfo[castorder[castnum].type].seestate];
 	castframes = 0;
     }
@@ -417,7 +417,7 @@ void F_CastTicker (void)
 	}
 		
 	if (sfx)
-	    S_StartSound (NULL, sfx);
+	    S_StartSound(data, NULL, sfx);
     }
 	
     if (castframes == 12)
@@ -462,7 +462,7 @@ void F_CastTicker (void)
 // F_CastResponder
 //
 
-boolean F_CastResponder (event_t* ev)
+boolean F_CastResponder (data_t* data, event_t* ev)
 {
     if (ev->type != ev_keydown)
 	return false;
@@ -477,7 +477,7 @@ boolean F_CastResponder (event_t* ev)
     castframes = 0;
     castattacking = false;
     if (mobjinfo[castorder[castnum].type].deathsound)
-	S_StartSound (NULL, mobjinfo[castorder[castnum].type].deathsound);
+	S_StartSound(data, NULL, mobjinfo[castorder[castnum].type].deathsound);
 	
     return true;
 }
@@ -538,7 +538,7 @@ void F_CastPrint (char* text)
 // F_CastDrawer
 //
 
-void F_CastDrawer (void)
+void F_CastDrawer (data_t* data)
 {
     spritedef_t*	sprdef;
     spriteframe_t*	sprframe;
@@ -603,7 +603,7 @@ F_DrawPatchCol
 //
 // F_BunnyScroll
 //
-void F_BunnyScroll (void)
+void F_BunnyScroll (data_t* data)
 {
     signed int  scrolled;
     int		x;
@@ -648,7 +648,7 @@ void F_BunnyScroll (void)
 	stage = 6;
     if (stage > laststage)
     {
-	S_StartSound (NULL, sfx_pistol);
+	S_StartSound(data, NULL, sfx_pistol);
 	laststage = stage;
     }
 	
@@ -658,13 +658,13 @@ void F_BunnyScroll (void)
                 W_CacheLumpName (name,PU_CACHE));
 }
 
-static void F_ArtScreenDrawer(void)
+static void F_ArtScreenDrawer(data_t* data)
 {
     char *lumpname;
     
     if (gameepisode == 3)
     {
-        F_BunnyScroll();
+        F_BunnyScroll(data);
     }
     else
     {
@@ -699,18 +699,18 @@ static void F_ArtScreenDrawer(void)
 //
 // F_Drawer
 //
-void F_Drawer (void)
+void F_Drawer (data_t* data)
 {
     switch (finalestage)
     {
         case F_STAGE_CAST:
-            F_CastDrawer();
+            F_CastDrawer(data);
             break;
         case F_STAGE_TEXT:
-            F_TextWrite();
+            F_TextWrite(data);
             break;
         case F_STAGE_ARTSCREEN:
-            F_ArtScreenDrawer();
+            F_ArtScreenDrawer(data);
             break;
     }
 }
