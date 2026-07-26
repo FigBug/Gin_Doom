@@ -129,7 +129,7 @@ void P_Ticker (data_t* data)
 		
     // pause if in menu and at least one tic has been run
     if ( !data->netgame
-	 && menuactive
+	 && data->menuactive
 	 && !data->demoplayback
 	 && data->players[data->consoleplayer].viewz != 1)
     {

@@ -164,7 +164,7 @@ void D_Display (data_t* data)
     	wipe = false;
 
     if (data->gamestate == GS_LEVEL && data->gametic)
-    	HU_Erase();
+    	HU_Erase(data);
     
     // do buffered drawing
     switch (data->gamestate)
@@ -172,7 +172,7 @@ void D_Display (data_t* data)
       case GS_LEVEL:
 		if (!data->gametic)
 			break;
-		if (automapactive)
+		if (data->automapactive)
 			AM_Drawer (data);
 		if (wipe || (viewheight != 200 && fullscreen) )
 			redrawsbar = true;
@@ -199,11 +199,11 @@ void D_Display (data_t* data)
     I_UpdateNoBlit ();
     
     // draw the view directly
-    if (data->gamestate == GS_LEVEL && !automapactive && data->gametic)
+    if (data->gamestate == GS_LEVEL && !data->automapactive && data->gametic)
     	R_RenderPlayerView (data, &data->players[data->displayplayer]);
 
     if (data->gamestate == GS_LEVEL && data->gametic)
-    	HU_Drawer ();
+    	HU_Drawer (data);
     
     // clean up border stuff
     if (data->gamestate != oldgamestate && data->gamestate != GS_LEVEL)
@@ -217,9 +217,9 @@ void D_Display (data_t* data)
     }
 
     // see if the border needs to be updated to the screen
-    if (data->gamestate == GS_LEVEL && !automapactive && scaledviewwidth != 320)
+    if (data->gamestate == GS_LEVEL && !data->automapactive && scaledviewwidth != 320)
     {
-		if (menuactive || menuactivestate || !viewactivestate)
+		if (data->menuactive || menuactivestate || !viewactivestate)
 			borderdrawcount = 3;
 		if (borderdrawcount)
 		{
@@ -235,7 +235,7 @@ void D_Display (data_t* data)
         V_DrawMouseSpeedBox(testcontrols_mousespeed);
     }
 
-    menuactivestate = menuactive;
+    menuactivestate = data->menuactive;
     viewactivestate = data->viewactive;
     inhelpscreensstate = inhelpscreens;
     oldgamestate = data->wipegamestate = data->gamestate;
@@ -243,7 +243,7 @@ void D_Display (data_t* data)
     // draw pause pic
     if (data->paused)
     {
-		if (automapactive)
+		if (data->automapactive)
 			y = 4;
 		else
 			y = viewwindowy+4;
@@ -353,7 +353,7 @@ boolean D_GrabMouseCallback(data_t* data)
 
     // when menu is active or game is data->paused, release the mouse 
  
-    if (menuactive || data->paused)
+    if (data->menuactive || data->paused)
         return false;
 
     // only grab mouse when playing levels (but not demos)
@@ -1718,7 +1718,7 @@ void D_DoomMain (data_t* data)
     }
 
     DEH_printf("M_Init: Init miscellaneous info.\n");
-    M_Init ();
+    M_Init (data);
 
     DEH_printf("R_Init: Init DOOM refresh daemon - ");
     R_Init (data);

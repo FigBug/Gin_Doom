@@ -49,9 +49,9 @@ void HU_Start(data_t* data);
 boolean HU_Responder(data_t* data, event_t* ev);
 
 void HU_Ticker(data_t* data);
-void HU_Drawer(void);
+void HU_Drawer(data_t* data);
 char HU_dequeueChatChar(void);
-void HU_Erase(void);
+void HU_Erase(data_t* data);
 
 extern char *chat_macros[10];
 

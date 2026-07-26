@@ -197,7 +197,6 @@ static int 	grid = 0;
 
 static int 	leveljuststarted = 1; 	// kluge until AM_LevelInit(data) is called
 
-boolean    	automapactive = false;
 static int 	finit_width = SCREENWIDTH;
 static int 	finit_height = SCREENHEIGHT - 32;
 
@@ -426,7 +425,7 @@ void AM_initVariables(data_t* data)
     int pnum;
     static event_t st_notify = { ev_keyup, AM_MSGENTERED, 0, 0 };
 
-    automapactive = true;
+    data->automapactive = true;
     fb = I_VideoBuffer;
 
     f_oldloc.x = INT_MAX;
@@ -543,7 +542,7 @@ void AM_Stop(data_t* data)
     static event_t st_notify = { 0, ev_keyup, AM_MSGEXITED, 0 };
 
     AM_unloadPics(data);
-    automapactive = false;
+    data->automapactive = false;
     ST_Responder(data, &st_notify);
     stopped = true;
 }
@@ -603,7 +602,7 @@ AM_Responder
 
     rc = false;
 
-    if (!automapactive)
+    if (!data->automapactive)
     {
 	if (ev->type == ev_keydown && ev->data1 == key_map_toggle)
 	{
@@ -806,7 +805,7 @@ void AM_updateLightLev(data_t* data)
 void AM_Ticker(data_t* data)
 {
 
-    if (!automapactive)
+    if (!data->automapactive)
 	return;
 
     amclock++;
@@ -1337,7 +1336,7 @@ void AM_drawCrosshair(data_t* data, int color)
 
 void AM_Drawer(data_t* data)
 {
-    if (!automapactive) return;
+    if (!data->automapactive) return;
 
     AM_clearFB(data, BACKGROUND);
     if (grid)

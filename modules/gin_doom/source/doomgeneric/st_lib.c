@@ -37,7 +37,6 @@
 
 
 // in AM_map.c
-extern boolean		automapactive; 
 
 
 

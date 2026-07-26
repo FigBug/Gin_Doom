@@ -1055,7 +1055,7 @@ void ST_diffDraw(data_t* data)
 void ST_Drawer (data_t* data, boolean fullscreen, boolean refresh)
 {
   
-    st_statusbaron = (!fullscreen) || automapactive;
+    st_statusbaron = (!fullscreen) || data->automapactive;
     st_firsttime = st_firsttime || refresh;
 
     // Do red-/gold-shifts from damage/items

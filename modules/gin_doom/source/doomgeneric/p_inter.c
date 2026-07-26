@@ -710,7 +710,7 @@ P_KillMobj
 	P_DropWeapon (data, target->player);
 
 	if (target->player == &data->players[data->consoleplayer]
-	    && automapactive)
+	    && data->automapactive)
 	{
 	    // don't die in auto map,
 	    // switch view prior to dying

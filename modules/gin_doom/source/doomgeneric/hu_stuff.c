@@ -380,22 +380,22 @@ void HU_Start(data_t* data)
 
 }
 
-void HU_Drawer(void)
+void HU_Drawer(data_t* data)
 {
 
     HUlib_drawSText(&w_message);
     HUlib_drawIText(&w_chat);
-    if (automapactive)
+    if (data->automapactive)
 	HUlib_drawTextLine(&w_title, false);
 
 }
 
-void HU_Erase(void)
+void HU_Erase(data_t* data)
 {
 
-    HUlib_eraseSText(&w_message);
-    HUlib_eraseIText(&w_chat);
-    HUlib_eraseTextLine(&w_title);
+    HUlib_eraseSText(data, &w_message);
+    HUlib_eraseIText(data, &w_chat);
+    HUlib_eraseTextLine(data, &w_title);
 
 }
 

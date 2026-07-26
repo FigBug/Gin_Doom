@@ -112,7 +112,7 @@ void F_StartFinale (data_t* data)
     data->gameaction = ga_nothing;
     data->gamestate = GS_FINALE;
     data->viewactive = false;
-    automapactive = false;
+    data->automapactive = false;
 
     if (logical_gamemission == doom)
     {

@@ -104,6 +104,10 @@ struct data_s
 	gamestate_t     wipegamestate;
 	ticcmd_t*       netcmds;
 
+	boolean         automapactive;
+	boolean         menuactive;
+	int             bodyqueslot;
+
 
 };
 

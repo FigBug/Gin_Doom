@@ -45,11 +45,11 @@ void M_Drawer (data_t* data);
 
 // Called by D_DoomMain,
 // loads the config file.
-void M_Init (void);
+void M_Init (data_t* data);
 
 // Called by intro code to force menu up upon a keypress,
 // does nothing if menu is already up.
-void M_StartControlPanel (void);
+void M_StartControlPanel (data_t* data);
 
 
 

@@ -807,7 +807,7 @@ P_SetupLevel
     P_GroupLines ();
     P_LoadReject (data, lumpnum+ML_REJECT);
 
-    bodyqueslot = 0;
+    data->bodyqueslot = 0;
     deathmatch_p = deathmatchstarts;
     P_LoadThings (data, lumpnum+ML_THINGS);
     

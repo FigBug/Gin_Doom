@@ -199,7 +199,6 @@ static char     savedescription[32];
 #define	BODYQUESIZE	32
 
 mobj_t*		bodyque[BODYQUESIZE]; 
-int		bodyqueslot; 
  
 int             vanilla_savegame_limit = 1;
 int             vanilla_demo_limit = 1;
@@ -729,7 +728,7 @@ boolean G_Responder (data_t* data, event_t* ev)
 	    (ev->type == ev_mouse && ev->data1) || 
 	    (ev->type == ev_joystick && ev->data1) ) 
 	{ 
-	    M_StartControlPanel (); 
+	    M_StartControlPanel (data); 
 	    return true; 
 	} 
 	return false; 
@@ -1115,10 +1114,10 @@ G_CheckSpot
 	return false; 
  
     // flush an old corpse if needed 
-    if (bodyqueslot >= BODYQUESIZE) 
-	P_RemoveMobj (data, bodyque[bodyqueslot%BODYQUESIZE]);
-    bodyque[bodyqueslot%BODYQUESIZE] = data->players[playernum].mo; 
-    bodyqueslot++; 
+    if (data->bodyqueslot >= BODYQUESIZE) 
+	P_RemoveMobj (data, bodyque[data->bodyqueslot%BODYQUESIZE]);
+    bodyque[data->bodyqueslot%BODYQUESIZE] = data->players[playernum].mo; 
+    data->bodyqueslot++; 
 
     // spawn a teleport fog
     ss = R_PointInSubsector (x,y);
@@ -1328,7 +1327,7 @@ void G_DoCompleted (data_t* data)
 	if (data->playeringame[i]) 
 	    G_PlayerFinishLevel (data, i);        // take away cards and stuff 
 	 
-    if (automapactive) 
+    if (data->automapactive) 
 	AM_Stop (data); 
 	
     if (gamemode != commercial)
@@ -1455,7 +1454,7 @@ void G_DoCompleted (data_t* data)
  
     data->gamestate = GS_INTERMISSION; 
     data->viewactive = false; 
-    automapactive = false; 
+    data->automapactive = false; 
 
     StatCopy(data, &data->wminfo);
  
@@ -1812,7 +1811,7 @@ G_InitNew
     data->usergame = true;                // will be set false if a demo
     data->paused = false;
     data->demoplayback = false;
-    automapactive = false;
+    data->automapactive = false;
     data->viewactive = true;
     data->gameepisode = episode;
     data->gamemap = map;
