@@ -1,9 +1,12 @@
 #ifndef DATA
 #define DATA
 
-#include "d_mode.h"
+typedef struct data_s data_t;
 
-typedef struct
+#include "d_mode.h"
+#include "d_event.h"
+
+struct data_s
 {
 	void*		user_data;
 
@@ -58,7 +61,12 @@ typedef struct
 	byte*           wipe_scr;
 	int*            wipe_y;
 
+	// d_event.c
+	event_t         d_events[64];
+	int             d_eventhead;
+	int             d_eventtail;
 
-} data_t;
+
+};
 
 #endif //DOOM_GENERIC

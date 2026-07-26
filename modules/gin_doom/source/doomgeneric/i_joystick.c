@@ -318,7 +318,7 @@ static int GetAxisState(int axis, int invert)
     return result;
 }
 #endif
-void I_UpdateJoystick(void)
+void I_UpdateJoystick(data_t* data)
 {
 #ifdef ORIGCODE
     if (joystick != NULL)
@@ -331,7 +331,7 @@ void I_UpdateJoystick(void)
         ev.data3 = GetAxisState(joystick_y_axis, joystick_y_invert);
         ev.data4 = GetAxisState(joystick_strafe_axis, joystick_strafe_invert);
 
-        D_PostEvent(&ev);
+        D_PostEvent(data, &ev);
     }
 #endif
 }

@@ -23,6 +23,8 @@
 
 #include "doomtype.h"
 
+typedef struct data_s data_t;
+
 
 //
 // Event handling.
@@ -126,11 +128,11 @@ typedef enum
 
 
 // Called by IO functions when input is detected.
-void D_PostEvent (event_t *ev);
+void D_PostEvent (data_t* data, event_t *ev);
 
 // Read an event from the event queue
 
-event_t *D_PopEvent(void);
+event_t *D_PopEvent(data_t* data);
 
 
 #endif
