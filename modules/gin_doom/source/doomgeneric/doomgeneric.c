@@ -12,6 +12,8 @@ data_t* DG_Alloc()
 	data->show_endoom = 1;
 	data->precache = true;
 	data->wipegamestate = GS_DEMOSCREEN;
+	data->sfxVolume = 8;
+	data->musicVolume = 8;
 
 	return data;
 }

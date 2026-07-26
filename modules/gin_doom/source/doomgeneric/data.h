@@ -2,6 +2,8 @@
 #define DATA
 
 typedef struct data_s data_t;
+struct channel_s;
+struct musicinfo_s;
 
 #include "d_mode.h"
 #include "d_event.h"
@@ -107,6 +109,14 @@ struct data_s
 	boolean         automapactive;
 	boolean         menuactive;
 	int             bodyqueslot;
+
+	// s_sound.c
+	int             sfxVolume;
+	int             musicVolume;
+	int             snd_SfxVolume;
+	boolean         mus_paused;
+	struct channel_s* channels;
+	struct musicinfo_s* mus_playing;
 
 
 };

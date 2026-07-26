@@ -29,7 +29,7 @@
 //  allocates channel buffer, sets S_sfx lookup.
 //
 
-void S_Init(data_t* data, int sfxVolume, int musicVolume);
+void S_Init(data_t* data, int sfxVol, int musVol);
 
 
 // Shut down sound 

@@ -317,8 +317,8 @@ void D_BindVariables(data_t* data)
 #endif
 
     M_BindVariable("mouse_sensitivity",      &mouseSensitivity);
-    M_BindVariable("sfx_volume",             &sfxVolume);
-    M_BindVariable("music_volume",           &musicVolume);
+    M_BindVariable("sfx_volume",             &data->sfxVolume);
+    M_BindVariable("music_volume",           &data->musicVolume);
     M_BindVariable("show_messages",          &showMessages);
     M_BindVariable("screenblocks",           &screenblocks);
     M_BindVariable("detaillevel",            &detailLevel);
@@ -1727,7 +1727,7 @@ void D_DoomMain (data_t* data)
     P_Init (data);
 
     DEH_printf("S_Init: Setting up sound.\n");
-    S_Init(data, sfxVolume * 8, musicVolume * 8);
+    S_Init(data, data->sfxVolume * 8, data->musicVolume * 8);
 
     DEH_printf("D_CheckNetGame: Checking network game status.\n");
     D_CheckNetGame (data);
