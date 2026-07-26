@@ -147,6 +147,25 @@ struct data_s
 	int             mousex;
 	int             mousey;
 
+	// r_draw.c render params
+	byte*           dc_colormap;   // lighttable_t*
+	int             dc_x;
+	int             dc_yl;
+	int             dc_yh;
+	fixed_t         dc_iscale;
+	fixed_t         dc_texturemid;
+	byte*           dc_source;
+	byte*           dc_translation;
+	int             ds_y;
+	int             ds_x1;
+	int             ds_x2;
+	byte*           ds_colormap;   // lighttable_t*
+	fixed_t         ds_xfrac;
+	fixed_t         ds_yfrac;
+	fixed_t         ds_xstep;
+	fixed_t         ds_ystep;
+	byte*           ds_source;
+
 
 };
 

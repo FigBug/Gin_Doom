@@ -137,26 +137,26 @@ R_RenderMaskedSegRange
     // find positioning
     if (curline->linedef->flags & ML_DONTPEGBOTTOM)
     {
-	dc_texturemid = frontsector->floorheight > backsector->floorheight
+	data->dc_texturemid = frontsector->floorheight > backsector->floorheight
 	    ? frontsector->floorheight : backsector->floorheight;
-	dc_texturemid = dc_texturemid + textureheight[texnum] - viewz;
+	data->dc_texturemid = data->dc_texturemid + textureheight[texnum] - viewz;
     }
     else
     {
-	dc_texturemid =frontsector->ceilingheight<backsector->ceilingheight
+	data->dc_texturemid =frontsector->ceilingheight<backsector->ceilingheight
 	    ? frontsector->ceilingheight : backsector->ceilingheight;
-	dc_texturemid = dc_texturemid - viewz;
+	data->dc_texturemid = data->dc_texturemid - viewz;
     }
-    dc_texturemid += curline->sidedef->rowoffset;
+    data->dc_texturemid += curline->sidedef->rowoffset;
 			
     if (fixedcolormap)
-	dc_colormap = fixedcolormap;
+	data->dc_colormap = fixedcolormap;
     
     // draw the columns
-    for (dc_x = x1 ; dc_x <= x2 ; dc_x++)
+    for (data->dc_x = x1 ; data->dc_x <= x2 ; data->dc_x++)
     {
 	// calculate lighting
-	if (maskedtexturecol[dc_x] != SHRT_MAX)
+	if (maskedtexturecol[data->dc_x] != SHRT_MAX)
 	{
 	    if (!fixedcolormap)
 	    {
@@ -165,18 +165,18 @@ R_RenderMaskedSegRange
 		if (index >=  MAXLIGHTSCALE )
 		    index = MAXLIGHTSCALE-1;
 
-		dc_colormap = walllights[index];
+		data->dc_colormap = walllights[index];
 	    }
 			
-	    sprtopscreen = centeryfrac - FixedMul(dc_texturemid, spryscale);
-	    dc_iscale = 0xffffffffu / (unsigned)spryscale;
+	    sprtopscreen = centeryfrac - FixedMul(data->dc_texturemid, spryscale);
+	    data->dc_iscale = 0xffffffffu / (unsigned)spryscale;
 	    
 	    // draw the texture
 	    col = (column_t *)( 
-		(byte *)R_GetColumn(texnum,maskedtexturecol[dc_x]) -3);
+		(byte *)R_GetColumn(texnum,maskedtexturecol[data->dc_x]) -3);
 			
 	    R_DrawMaskedColumn (data, col);
-	    maskedtexturecol[dc_x] = SHRT_MAX;
+	    maskedtexturecol[data->dc_x] = SHRT_MAX;
 	}
 	spryscale += rw_scalestep;
     }
@@ -263,9 +263,9 @@ void R_RenderSegLoop (data_t* data)
 	    if (index >=  MAXLIGHTSCALE )
 		index = MAXLIGHTSCALE-1;
 
-	    dc_colormap = walllights[index];
-	    dc_x = rw_x;
-	    dc_iscale = 0xffffffffu / (unsigned)rw_scale;
+	    data->dc_colormap = walllights[index];
+	    data->dc_x = rw_x;
+	    data->dc_iscale = 0xffffffffu / (unsigned)rw_scale;
 	}
         else
         {
@@ -278,10 +278,10 @@ void R_RenderSegLoop (data_t* data)
 	if (midtexture)
 	{
 	    // single sided line
-	    dc_yl = yl;
-	    dc_yh = yh;
-	    dc_texturemid = rw_midtexturemid;
-	    dc_source = R_GetColumn(midtexture,texturecolumn);
+	    data->dc_yl = yl;
+	    data->dc_yh = yh;
+	    data->dc_texturemid = rw_midtexturemid;
+	    data->dc_source = R_GetColumn(midtexture,texturecolumn);
 	    colfunc (data);
 	    ceilingclip[rw_x] = viewheight;
 	    floorclip[rw_x] = -1;
@@ -300,10 +300,10 @@ void R_RenderSegLoop (data_t* data)
 
 		if (mid >= yl)
 		{
-		    dc_yl = yl;
-		    dc_yh = mid;
-		    dc_texturemid = rw_toptexturemid;
-		    dc_source = R_GetColumn(toptexture,texturecolumn);
+		    data->dc_yl = yl;
+		    data->dc_yh = mid;
+		    data->dc_texturemid = rw_toptexturemid;
+		    data->dc_source = R_GetColumn(toptexture,texturecolumn);
 		    colfunc (data);
 		    ceilingclip[rw_x] = mid;
 		}
@@ -329,10 +329,10 @@ void R_RenderSegLoop (data_t* data)
 		
 		if (mid <= yh)
 		{
-		    dc_yl = mid;
-		    dc_yh = yh;
-		    dc_texturemid = rw_bottomtexturemid;
-		    dc_source = R_GetColumn(bottomtexture,
+		    data->dc_yl = mid;
+		    data->dc_yh = yh;
+		    data->dc_texturemid = rw_bottomtexturemid;
+		    data->dc_source = R_GetColumn(bottomtexture,
 					    texturecolumn);
 		    colfunc (data);
 		    floorclip[rw_x] = mid;

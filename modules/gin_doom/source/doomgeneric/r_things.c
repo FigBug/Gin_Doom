@@ -346,7 +346,7 @@ void R_DrawMaskedColumn (data_t* data, column_t* column)
     int 	bottomscreen;
     fixed_t	basetexturemid;
 	
-    basetexturemid = dc_texturemid;
+    basetexturemid = data->dc_texturemid;
 	
     for ( ; column->topdelta != 0xff ; ) 
     {
@@ -355,19 +355,19 @@ void R_DrawMaskedColumn (data_t* data, column_t* column)
 	topscreen = sprtopscreen + spryscale*column->topdelta;
 	bottomscreen = topscreen + spryscale*column->length;
 
-	dc_yl = (topscreen+FRACUNIT-1)>>FRACBITS;
-	dc_yh = (bottomscreen-1)>>FRACBITS;
+	data->dc_yl = (topscreen+FRACUNIT-1)>>FRACBITS;
+	data->dc_yh = (bottomscreen-1)>>FRACBITS;
 		
-	if (dc_yh >= mfloorclip[dc_x])
-	    dc_yh = mfloorclip[dc_x]-1;
-	if (dc_yl <= mceilingclip[dc_x])
-	    dc_yl = mceilingclip[dc_x]+1;
+	if (data->dc_yh >= mfloorclip[data->dc_x])
+	    data->dc_yh = mfloorclip[data->dc_x]-1;
+	if (data->dc_yl <= mceilingclip[data->dc_x])
+	    data->dc_yl = mceilingclip[data->dc_x]+1;
 
-	if (dc_yl <= dc_yh)
+	if (data->dc_yl <= data->dc_yh)
 	{
-	    dc_source = (byte *)column + 3;
-	    dc_texturemid = basetexturemid - (column->topdelta<<FRACBITS);
-	    // dc_source = (byte *)column + 3 - column->topdelta;
+	    data->dc_source = (byte *)column + 3;
+	    data->dc_texturemid = basetexturemid - (column->topdelta<<FRACBITS);
+	    // data->dc_source = (byte *)column + 3 - column->topdelta;
 
 	    // Drawn by either R_DrawColumn
 	    //  or (SHADOW) R_DrawFuzzColumn.
@@ -376,7 +376,7 @@ void R_DrawMaskedColumn (data_t* data, column_t* column)
 	column = (column_t *)(  (byte *)column + column->length + 4);
     }
 	
-    dc_texturemid = basetexturemid;
+    data->dc_texturemid = basetexturemid;
 }
 
 
@@ -400,9 +400,9 @@ R_DrawVisSprite
 	
     patch = W_CacheLumpNum (vis->patch+firstspritelump, PU_CACHE);
 
-    dc_colormap = vis->colormap;
+    data->dc_colormap = vis->colormap;
     
-    if (!dc_colormap)
+    if (!data->dc_colormap)
     {
 	// NULL colormap = shadow draw
 	colfunc = fuzzcolfunc;
@@ -410,17 +410,17 @@ R_DrawVisSprite
     else if (vis->mobjflags & MF_TRANSLATION)
     {
 	colfunc = transcolfunc;
-	dc_translation = translationtables - 256 +
+	data->dc_translation = translationtables - 256 +
 	    ( (vis->mobjflags & MF_TRANSLATION) >> (MF_TRANSSHIFT-8) );
     }
 	
-    dc_iscale = abs(vis->xiscale)>>detailshift;
-    dc_texturemid = vis->texturemid;
+    data->dc_iscale = abs(vis->xiscale)>>detailshift;
+    data->dc_texturemid = vis->texturemid;
     frac = vis->startfrac;
     spryscale = vis->scale;
-    sprtopscreen = centeryfrac - FixedMul(dc_texturemid,spryscale);
+    sprtopscreen = centeryfrac - FixedMul(data->dc_texturemid,spryscale);
 	
-    for (dc_x=vis->x1 ; dc_x<=vis->x2 ; dc_x++, frac += vis->xiscale)
+    for (data->dc_x=vis->x1 ; data->dc_x<=vis->x2 ; data->dc_x++, frac += vis->xiscale)
     {
 	texturecolumn = frac>>FRACBITS;
 #ifdef RANGECHECK

@@ -102,7 +102,7 @@ void R_InitPlanes (void)
 //
 // Uses global vars:
 //  planeheight
-//  ds_source
+//  data->ds_source
 //  basexscale
 //  baseyscale
 //  viewx
@@ -136,23 +136,23 @@ R_MapPlane
     {
 	cachedheight[y] = planeheight;
 	distance = cacheddistance[y] = FixedMul (planeheight, yslope[y]);
-	ds_xstep = cachedxstep[y] = FixedMul (distance,basexscale);
-	ds_ystep = cachedystep[y] = FixedMul (distance,baseyscale);
+	data->ds_xstep = cachedxstep[y] = FixedMul (distance,basexscale);
+	data->ds_ystep = cachedystep[y] = FixedMul (distance,baseyscale);
     }
     else
     {
 	distance = cacheddistance[y];
-	ds_xstep = cachedxstep[y];
-	ds_ystep = cachedystep[y];
+	data->ds_xstep = cachedxstep[y];
+	data->ds_ystep = cachedystep[y];
     }
 	
     length = FixedMul (distance,distscale[x1]);
     angle = (viewangle + xtoviewangle[x1])>>ANGLETOFINESHIFT;
-    ds_xfrac = viewx + FixedMul(finecosine[angle], length);
-    ds_yfrac = -viewy - FixedMul(finesine[angle], length);
+    data->ds_xfrac = viewx + FixedMul(finecosine[angle], length);
+    data->ds_yfrac = -viewy - FixedMul(finesine[angle], length);
 
     if (fixedcolormap)
-	ds_colormap = fixedcolormap;
+	data->ds_colormap = fixedcolormap;
     else
     {
 	index = distance >> LIGHTZSHIFT;
@@ -160,12 +160,12 @@ R_MapPlane
 	if (index >= MAXLIGHTZ )
 	    index = MAXLIGHTZ-1;
 
-	ds_colormap = planezlight[index];
+	data->ds_colormap = planezlight[index];
     }
 	
-    ds_y = y;
-    ds_x1 = x1;
-    ds_x2 = x2;
+    data->ds_y = y;
+    data->ds_x1 = x1;
+    data->ds_x2 = x2;
 
     // high or low detail
     spanfunc (data);	
@@ -392,24 +392,24 @@ void R_DrawPlanes (data_t* data)
 	// sky flat
 	if (pl->picnum == skyflatnum)
 	{
-	    dc_iscale = pspriteiscale>>detailshift;
+	    data->dc_iscale = pspriteiscale>>detailshift;
 	    
 	    // Sky is allways drawn full bright,
 	    //  i.e. colormaps[0] is used.
 	    // Because of this hack, sky is not affected
 	    //  by INVUL inverse mapping.
-	    dc_colormap = colormaps;
-	    dc_texturemid = skytexturemid;
+	    data->dc_colormap = colormaps;
+	    data->dc_texturemid = skytexturemid;
 	    for (x=pl->minx ; x <= pl->maxx ; x++)
 	    {
-		dc_yl = pl->top[x];
-		dc_yh = pl->bottom[x];
+		data->dc_yl = pl->top[x];
+		data->dc_yh = pl->bottom[x];
 
-		if (dc_yl <= dc_yh)
+		if (data->dc_yl <= data->dc_yh)
 		{
 		    angle = (viewangle + xtoviewangle[x])>>ANGLETOSKYSHIFT;
-		    dc_x = x;
-		    dc_source = R_GetColumn(skytexture, angle);
+		    data->dc_x = x;
+		    data->dc_source = R_GetColumn(skytexture, angle);
 		    colfunc (data);
 		}
 	    }
@@ -418,7 +418,7 @@ void R_DrawPlanes (data_t* data)
 	
 	// regular flat
         lumpnum = firstflat + flattranslation[pl->picnum];
-	ds_source = W_CacheLumpNum(lumpnum, PU_STATIC);
+	data->ds_source = W_CacheLumpNum(lumpnum, PU_STATIC);
 	
 	planeheight = abs(pl->height-viewz);
 	light = (pl->lightlevel >> LIGHTSEGSHIFT)+extralight;

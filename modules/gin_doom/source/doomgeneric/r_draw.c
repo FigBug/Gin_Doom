@@ -79,15 +79,8 @@ static byte *background_buffer = NULL;
 // R_DrawColumn
 // Source is the top of the column to scale.
 //
-lighttable_t*		dc_colormap; 
-int			dc_x; 
-int			dc_yl; 
-int			dc_yh; 
-fixed_t			dc_iscale; 
-fixed_t			dc_texturemid;
 
 // first pixel in a column (possibly virtual) 
-byte*			dc_source;		
 
 // just for profiling 
 int			dccount;
@@ -106,28 +99,28 @@ void R_DrawColumn (data_t* data)
     fixed_t		frac;
     fixed_t		fracstep;	 
  
-    count = dc_yh - dc_yl; 
+    count = data->dc_yh - data->dc_yl; 
 
     // Zero length, column does not exceed a pixel.
     if (count < 0) 
 	return; 
 				 
 #ifdef RANGECHECK 
-    if ((unsigned)dc_x >= SCREENWIDTH
-	|| dc_yl < 0
-	|| dc_yh >= SCREENHEIGHT) 
-	I_Error (NULL, "R_DrawColumn: %i to %i at %i", dc_yl, dc_yh, dc_x); 
+    if ((unsigned)data->dc_x >= SCREENWIDTH
+	|| data->dc_yl < 0
+	|| data->dc_yh >= SCREENHEIGHT) 
+	I_Error (NULL, "R_DrawColumn: %i to %i at %i", data->dc_yl, data->dc_yh, data->dc_x); 
 #endif 
 
     // Framebuffer destination address.
     // Use ylookup LUT to avoid multiply with ScreenWidth.
     // Use columnofs LUT for subwindows? 
-    dest = ylookup[dc_yl] + columnofs[dc_x];  
+    dest = ylookup[data->dc_yl] + columnofs[data->dc_x];  
 
     // Determine scaling,
     //  which is the only mapping to be done.
-    fracstep = dc_iscale; 
-    frac = dc_texturemid + (dc_yl-centery)*fracstep; 
+    fracstep = data->dc_iscale; 
+    frac = data->dc_texturemid + (data->dc_yl-centery)*fracstep; 
 
     // Inner loop that does the actual texture mapping,
     //  e.g. a DDA-lile scaling.
@@ -136,7 +129,7 @@ void R_DrawColumn (data_t* data)
     {
 	// Re-map color indices from wall texture column
 	//  using a lighting/special effects LUT.
-	*dest = dc_colormap[dc_source[(frac>>FRACBITS)&127]];
+	*dest = data->dc_colormap[data->dc_source[(frac>>FRACBITS)&127]];
 	
 	dest += SCREENWIDTH; 
 	frac += fracstep;
@@ -162,14 +155,14 @@ void R_DrawColumn (data_t* data)
     unsigned		fracstep3;
     unsigned		fracstep4;	 
  
-    count = dc_yh - dc_yl + 1; 
+    count = data->dc_yh - data->dc_yl + 1; 
 
-    source = dc_source;
-    colormap = dc_colormap;		 
-    dest = ylookup[dc_yl] + columnofs[dc_x];  
+    source = data->dc_source;
+    colormap = data->dc_colormap;		 
+    dest = ylookup[data->dc_yl] + columnofs[data->dc_x];  
 	 
-    fracstep = dc_iscale<<9; 
-    frac = (dc_texturemid + (dc_yl-centery)*dc_iscale)<<9; 
+    fracstep = data->dc_iscale<<9; 
+    frac = (data->dc_texturemid + (data->dc_yl-centery)*data->dc_iscale)<<9; 
  
     fracstep2 = fracstep+fracstep;
     fracstep3 = fracstep2+fracstep;
@@ -214,35 +207,35 @@ void R_DrawColumnLow (data_t* data)
     fixed_t		fracstep;	 
     int                 x;
  
-    count = dc_yh - dc_yl; 
+    count = data->dc_yh - data->dc_yl; 
 
     // Zero length.
     if (count < 0) 
 	return; 
 				 
 #ifdef RANGECHECK 
-    if ((unsigned)dc_x >= SCREENWIDTH
-	|| dc_yl < 0
-	|| dc_yh >= SCREENHEIGHT)
+    if ((unsigned)data->dc_x >= SCREENWIDTH
+	|| data->dc_yl < 0
+	|| data->dc_yh >= SCREENHEIGHT)
     {
 	
-	I_Error (NULL, "R_DrawColumn: %i to %i at %i", dc_yl, dc_yh, dc_x);
+	I_Error (NULL, "R_DrawColumn: %i to %i at %i", data->dc_yl, data->dc_yh, data->dc_x);
     }
     //	dccount++; 
 #endif 
     // Blocky mode, need to multiply by 2.
-    x = dc_x << 1;
+    x = data->dc_x << 1;
     
-    dest = ylookup[dc_yl] + columnofs[x];
-    dest2 = ylookup[dc_yl] + columnofs[x+1];
+    dest = ylookup[data->dc_yl] + columnofs[x];
+    dest2 = ylookup[data->dc_yl] + columnofs[x+1];
     
-    fracstep = dc_iscale; 
-    frac = dc_texturemid + (dc_yl-centery)*fracstep;
+    fracstep = data->dc_iscale; 
+    frac = data->dc_texturemid + (data->dc_yl-centery)*fracstep;
     
     do 
     {
 	// Hack. Does not work corretly.
-	*dest2 = *dest = dc_colormap[dc_source[(frac>>FRACBITS)&127]];
+	*dest2 = *dest = data->dc_colormap[data->dc_source[(frac>>FRACBITS)&127]];
 	dest += SCREENWIDTH;
 	dest2 += SCREENWIDTH;
 	frac += fracstep; 
@@ -288,33 +281,33 @@ void R_DrawFuzzColumn (data_t* data)
     fixed_t		fracstep;	 
 
     // Adjust borders. Low... 
-    if (!dc_yl) 
-	dc_yl = 1;
+    if (!data->dc_yl) 
+	data->dc_yl = 1;
 
     // .. and high.
-    if (dc_yh == viewheight-1) 
-	dc_yh = viewheight - 2; 
+    if (data->dc_yh == viewheight-1) 
+	data->dc_yh = viewheight - 2; 
 		 
-    count = dc_yh - dc_yl; 
+    count = data->dc_yh - data->dc_yl; 
 
     // Zero length.
     if (count < 0) 
 	return; 
 
 #ifdef RANGECHECK 
-    if ((unsigned)dc_x >= SCREENWIDTH
-	|| dc_yl < 0 || dc_yh >= SCREENHEIGHT)
+    if ((unsigned)data->dc_x >= SCREENWIDTH
+	|| data->dc_yl < 0 || data->dc_yh >= SCREENHEIGHT)
     {
 	I_Error (NULL, "R_DrawFuzzColumn: %i to %i at %i",
-		 dc_yl, dc_yh, dc_x);
+		 data->dc_yl, data->dc_yh, data->dc_x);
     }
 #endif
     
-    dest = ylookup[dc_yl] + columnofs[dc_x];
+    dest = ylookup[data->dc_yl] + columnofs[data->dc_x];
 
     // Looks familiar.
-    fracstep = dc_iscale; 
-    frac = dc_texturemid + (dc_yl-centery)*fracstep; 
+    fracstep = data->dc_iscale; 
+    frac = data->dc_texturemid + (data->dc_yl-centery)*fracstep; 
 
     // Looks like an attempt at dithering,
     //  using the colormap #6 (of 0-31, a bit
@@ -349,14 +342,14 @@ void R_DrawFuzzColumnLow (data_t* data)
     int x;
 
     // Adjust borders. Low... 
-    if (!dc_yl) 
-	dc_yl = 1;
+    if (!data->dc_yl) 
+	data->dc_yl = 1;
 
     // .. and high.
-    if (dc_yh == viewheight-1) 
-	dc_yh = viewheight - 2; 
+    if (data->dc_yh == viewheight-1) 
+	data->dc_yh = viewheight - 2; 
 		 
-    count = dc_yh - dc_yl; 
+    count = data->dc_yh - data->dc_yl; 
 
     // Zero length.
     if (count < 0) 
@@ -364,23 +357,23 @@ void R_DrawFuzzColumnLow (data_t* data)
 
     // low detail mode, need to multiply by 2
     
-    x = dc_x << 1;
+    x = data->dc_x << 1;
     
 #ifdef RANGECHECK 
     if ((unsigned)x >= SCREENWIDTH
-	|| dc_yl < 0 || dc_yh >= SCREENHEIGHT)
+	|| data->dc_yl < 0 || data->dc_yh >= SCREENHEIGHT)
     {
 	I_Error (NULL, "R_DrawFuzzColumn: %i to %i at %i",
-		 dc_yl, dc_yh, dc_x);
+		 data->dc_yl, data->dc_yh, data->dc_x);
     }
 #endif
     
-    dest = ylookup[dc_yl] + columnofs[x];
-    dest2 = ylookup[dc_yl] + columnofs[x+1];
+    dest = ylookup[data->dc_yl] + columnofs[x];
+    dest2 = ylookup[data->dc_yl] + columnofs[x+1];
 
     // Looks familiar.
-    fracstep = dc_iscale; 
-    frac = dc_texturemid + (dc_yl-centery)*fracstep; 
+    fracstep = data->dc_iscale; 
+    frac = data->dc_texturemid + (data->dc_yl-centery)*fracstep; 
 
     // Looks like an attempt at dithering,
     //  using the colormap #6 (of 0-31, a bit
@@ -418,7 +411,6 @@ void R_DrawFuzzColumnLow (data_t* data)
 //  of the BaronOfHell, the HellKnight, uses
 //  identical sprites, kinda brightened up.
 //
-byte*	dc_translation;
 byte*	translationtables;
 
 void R_DrawTranslatedColumn (data_t* data) 
@@ -428,27 +420,27 @@ void R_DrawTranslatedColumn (data_t* data)
     fixed_t		frac;
     fixed_t		fracstep;	 
  
-    count = dc_yh - dc_yl; 
+    count = data->dc_yh - data->dc_yl; 
     if (count < 0) 
 	return; 
 				 
 #ifdef RANGECHECK 
-    if ((unsigned)dc_x >= SCREENWIDTH
-	|| dc_yl < 0
-	|| dc_yh >= SCREENHEIGHT)
+    if ((unsigned)data->dc_x >= SCREENWIDTH
+	|| data->dc_yl < 0
+	|| data->dc_yh >= SCREENHEIGHT)
     {
 	I_Error ( NULL, "R_DrawColumn: %i to %i at %i",
-		  dc_yl, dc_yh, dc_x);
+		  data->dc_yl, data->dc_yh, data->dc_x);
     }
     
 #endif 
 
 
-    dest = ylookup[dc_yl] + columnofs[dc_x]; 
+    dest = ylookup[data->dc_yl] + columnofs[data->dc_x]; 
 
     // Looks familiar.
-    fracstep = dc_iscale; 
-    frac = dc_texturemid + (dc_yl-centery)*fracstep; 
+    fracstep = data->dc_iscale; 
+    frac = data->dc_texturemid + (data->dc_yl-centery)*fracstep; 
 
     // Here we do an additional index re-mapping.
     do 
@@ -458,7 +450,7 @@ void R_DrawTranslatedColumn (data_t* data)
 	//  used with PLAY sprites.
 	// Thus the "green" ramp of the player 0 sprite
 	//  is mapped to gray, red, black/indigo. 
-	*dest = dc_colormap[dc_translation[dc_source[frac>>FRACBITS]]];
+	*dest = data->dc_colormap[data->dc_translation[data->dc_source[frac>>FRACBITS]]];
 	dest += SCREENWIDTH;
 	
 	frac += fracstep; 
@@ -474,31 +466,31 @@ void R_DrawTranslatedColumnLow (data_t* data)
     fixed_t		fracstep;	 
     int                 x;
  
-    count = dc_yh - dc_yl; 
+    count = data->dc_yh - data->dc_yl; 
     if (count < 0) 
 	return; 
 
     // low detail, need to scale by 2
-    x = dc_x << 1;
+    x = data->dc_x << 1;
 				 
 #ifdef RANGECHECK 
     if ((unsigned)x >= SCREENWIDTH
-	|| dc_yl < 0
-	|| dc_yh >= SCREENHEIGHT)
+	|| data->dc_yl < 0
+	|| data->dc_yh >= SCREENHEIGHT)
     {
 	I_Error ( NULL, "R_DrawColumn: %i to %i at %i",
-		  dc_yl, dc_yh, x);
+		  data->dc_yl, data->dc_yh, x);
     }
     
 #endif 
 
 
-    dest = ylookup[dc_yl] + columnofs[x]; 
-    dest2 = ylookup[dc_yl] + columnofs[x+1]; 
+    dest = ylookup[data->dc_yl] + columnofs[x]; 
+    dest2 = ylookup[data->dc_yl] + columnofs[x+1]; 
 
     // Looks familiar.
-    fracstep = dc_iscale; 
-    frac = dc_texturemid + (dc_yl-centery)*fracstep; 
+    fracstep = data->dc_iscale; 
+    frac = data->dc_texturemid + (data->dc_yl-centery)*fracstep; 
 
     // Here we do an additional index re-mapping.
     do 
@@ -508,8 +500,8 @@ void R_DrawTranslatedColumnLow (data_t* data)
 	//  used with PLAY sprites.
 	// Thus the "green" ramp of the player 0 sprite
 	//  is mapped to gray, red, black/indigo. 
-	*dest = dc_colormap[dc_translation[dc_source[frac>>FRACBITS]]];
-	*dest2 = dc_colormap[dc_translation[dc_source[frac>>FRACBITS]]];
+	*dest = data->dc_colormap[data->dc_translation[data->dc_source[frac>>FRACBITS]]];
+	*dest2 = data->dc_colormap[data->dc_translation[data->dc_source[frac>>FRACBITS]]];
 	dest += SCREENWIDTH;
 	dest2 += SCREENWIDTH;
 	
@@ -567,19 +559,10 @@ void R_InitTranslationTables (data_t* data)
 // In consequence, flats are not stored by column (like walls),
 //  and the inner loop has to step in texture space u and v.
 //
-int			ds_y; 
-int			ds_x1; 
-int			ds_x2;
 
-lighttable_t*		ds_colormap; 
 
-fixed_t			ds_xfrac; 
-fixed_t			ds_yfrac; 
-fixed_t			ds_xstep; 
-fixed_t			ds_ystep;
 
 // start of a 64*64 tile image 
-byte*			ds_source;	
 
 // just for profiling
 int			dscount;
@@ -596,13 +579,13 @@ void R_DrawSpan (data_t* data)
     unsigned int xtemp, ytemp;
 
 #ifdef RANGECHECK
-    if (ds_x2 < ds_x1
-	|| ds_x1<0
-	|| ds_x2>=SCREENWIDTH
-	|| (unsigned)ds_y>SCREENHEIGHT)
+    if (data->ds_x2 < data->ds_x1
+	|| data->ds_x1<0
+	|| data->ds_x2>=SCREENWIDTH
+	|| (unsigned)data->ds_y>SCREENHEIGHT)
     {
 	I_Error( NULL, "R_DrawSpan: %i to %i at %i",
-		 ds_x1,ds_x2,ds_y);
+		 data->ds_x1,data->ds_x2,data->ds_y);
     }
 //	dscount++;
 #endif
@@ -612,15 +595,15 @@ void R_DrawSpan (data_t* data)
     // each 16-bit part, the top 6 bits are the integer part and the
     // bottom 10 bits are the fractional part of the pixel position.
 
-    position = ((ds_xfrac << 10) & 0xffff0000)
-             | ((ds_yfrac >> 6)  & 0x0000ffff);
-    step = ((ds_xstep << 10) & 0xffff0000)
-         | ((ds_ystep >> 6)  & 0x0000ffff);
+    position = ((data->ds_xfrac << 10) & 0xffff0000)
+             | ((data->ds_yfrac >> 6)  & 0x0000ffff);
+    step = ((data->ds_xstep << 10) & 0xffff0000)
+         | ((data->ds_ystep >> 6)  & 0x0000ffff);
 
-    dest = ylookup[ds_y] + columnofs[ds_x1];
+    dest = ylookup[data->ds_y] + columnofs[data->ds_x1];
 
     // We do not check for zero spans here?
-    count = ds_x2 - ds_x1;
+    count = data->ds_x2 - data->ds_x1;
 
     do
     {
@@ -631,7 +614,7 @@ void R_DrawSpan (data_t* data)
 
 	// Lookup pixel from flat texture tile,
 	//  re-index using light/colormap.
-	*dest++ = ds_colormap[ds_source[spot]];
+	*dest++ = data->ds_colormap[data->ds_source[spot]];
 
         position += step;
 
@@ -658,13 +641,13 @@ void R_DrawSpan (data_t* data)
     unsigned	xtemp;
     unsigned	ytemp;
 		
-    position = ((ds_xfrac<<10)&0xffff0000) | ((ds_yfrac>>6)&0xffff);
-    step = ((ds_xstep<<10)&0xffff0000) | ((ds_ystep>>6)&0xffff);
+    position = ((data->ds_xfrac<<10)&0xffff0000) | ((data->ds_yfrac>>6)&0xffff);
+    step = ((data->ds_xstep<<10)&0xffff0000) | ((data->ds_ystep>>6)&0xffff);
 		
-    source = ds_source;
-    colormap = ds_colormap;
-    dest = ylookup[ds_y] + columnofs[ds_x1];	 
-    count = ds_x2 - ds_x1 + 1; 
+    source = data->ds_source;
+    colormap = data->ds_colormap;
+    dest = ylookup[data->ds_y] + columnofs[data->ds_x1];	 
+    count = data->ds_x2 - data->ds_x1 + 1; 
 	
     while (count >= 4) 
     { 
@@ -725,29 +708,29 @@ void R_DrawSpanLow (data_t* data)
     int spot;
 
 #ifdef RANGECHECK
-    if (ds_x2 < ds_x1
-	|| ds_x1<0
-	|| ds_x2>=SCREENWIDTH
-	|| (unsigned)ds_y>SCREENHEIGHT)
+    if (data->ds_x2 < data->ds_x1
+	|| data->ds_x1<0
+	|| data->ds_x2>=SCREENWIDTH
+	|| (unsigned)data->ds_y>SCREENHEIGHT)
     {
 	I_Error( NULL, "R_DrawSpan: %i to %i at %i",
-		 ds_x1,ds_x2,ds_y);
+		 data->ds_x1,data->ds_x2,data->ds_y);
     }
 //	dscount++; 
 #endif
 
-    position = ((ds_xfrac << 10) & 0xffff0000)
-             | ((ds_yfrac >> 6)  & 0x0000ffff);
-    step = ((ds_xstep << 10) & 0xffff0000)
-         | ((ds_ystep >> 6)  & 0x0000ffff);
+    position = ((data->ds_xfrac << 10) & 0xffff0000)
+             | ((data->ds_yfrac >> 6)  & 0x0000ffff);
+    step = ((data->ds_xstep << 10) & 0xffff0000)
+         | ((data->ds_ystep >> 6)  & 0x0000ffff);
 
-    count = (ds_x2 - ds_x1);
+    count = (data->ds_x2 - data->ds_x1);
 
     // Blocky mode, need to multiply by 2.
-    ds_x1 <<= 1;
-    ds_x2 <<= 1;
+    data->ds_x1 <<= 1;
+    data->ds_x2 <<= 1;
 
-    dest = ylookup[ds_y] + columnofs[ds_x1];
+    dest = ylookup[data->ds_y] + columnofs[data->ds_x1];
 
     do
     {
@@ -758,8 +741,8 @@ void R_DrawSpanLow (data_t* data)
 
 	// Lowres/blocky mode does it twice,
 	//  while scale is adjusted appropriately.
-	*dest++ = ds_colormap[ds_source[spot]];
-	*dest++ = ds_colormap[ds_source[spot]];
+	*dest++ = data->ds_colormap[data->ds_source[spot]];
+	*dest++ = data->ds_colormap[data->ds_source[spot]];
 
 	position += step;
 
