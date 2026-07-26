@@ -118,7 +118,7 @@ static boolean I_SDL_InitMusic(void)
 
 //
 // SDL_mixer's native MIDI music playing does not pause properly.
-// As a workaround, set the volume to 0 when paused.
+// As a workaround, set the volume to 0 when data->paused.
 //
 
 // Set music volume (0 - 127)

@@ -737,10 +737,10 @@ WI_drawTime
 }
 
 
-void WI_End(void)
+void WI_End(data_t* data)
 {
-    void WI_unloadData(void);
-    WI_unloadData();
+    void WI_unloadData(data_t* data);
+    WI_unloadData(data);
 }
 
 void WI_initNoState(data_t* data)
@@ -757,7 +757,7 @@ void WI_updateNoState(data_t* data) {
     if (!--cnt)
     {
         // Don't call WI_End yet.  G_WorldDone doesnt immediately 
-        // change gamestate, so WI_Drawer is still going to get
+        // change data->gamestate, so WI_Drawer is still going to get
         // run until that happens.  If we do that after WI_End
         // (which unloads all the graphics), we're in trouble.
 	//WI_End();
@@ -1530,8 +1530,8 @@ void WI_Ticker(data_t* data)
     switch (state)
     {
       case StatCount:
-	if (deathmatch) WI_updateDeathmatchStats(data);
-	else if (netgame) WI_updateNetgameStats(data);
+	if (data->deathmatch) WI_updateDeathmatchStats(data);
+	else if (data->netgame) WI_updateNetgameStats(data);
 	else WI_updateStats(data);
 	break;
 	
@@ -1551,7 +1551,7 @@ typedef void (*load_callback_t)(char *lumpname, patch_t **variable);
 // Common load/unload function.  Iterates over all the graphics
 // lumps to be loaded/unloaded into memory.
 
-static void WI_loadUnloadData(load_callback_t callback)
+static void WI_loadUnloadData(data_t* data, load_callback_t callback)
 {
     int i, j;
     char name[9];
@@ -1638,7 +1638,7 @@ static void WI_loadUnloadData(load_callback_t callback)
     if (W_CheckNumForName(DEH_String("WIOBJ")) >= 0)
     {
     	// "items"
-    	if (netgame && !deathmatch)
+    	if (data->netgame && !data->deathmatch)
             callback(DEH_String("WIOBJ"), &items);
     	else
             callback(DEH_String("WIOSTI"), &items);
@@ -1706,7 +1706,7 @@ static void WI_loadCallback(char *name, patch_t **variable)
     *variable = W_CacheLumpName(name, PU_STATIC);
 }
 
-void WI_loadData(void)
+void WI_loadData(data_t* data)
 {
     if (gamemode == commercial)
     {
@@ -1720,7 +1720,7 @@ void WI_loadData(void)
 				       PU_STATIC, NULL);
     }
 
-    WI_loadUnloadData(WI_loadCallback);
+    WI_loadUnloadData(data, WI_loadCallback);
 
     // These two graphics are special cased because we're sharing
     // them with the status bar code
@@ -1738,9 +1738,9 @@ static void WI_unloadCallback(char *name, patch_t **variable)
     *variable = NULL;
 }
 
-void WI_unloadData(void)
+void WI_unloadData(data_t* data)
 {
-    WI_loadUnloadData(WI_unloadCallback);
+    WI_loadUnloadData(data, WI_unloadCallback);
 
     // We do not free these lumps as they are shared with the status
     // bar code.
@@ -1749,14 +1749,14 @@ void WI_unloadData(void)
     // W_ReleaseLumpName("STFDEAD0");
 }
 
-void WI_Drawer (void)
+void WI_Drawer (data_t* data)
 {
     switch (state)
     {
       case StatCount:
-	if (deathmatch)
+	if (data->deathmatch)
 	    WI_drawDeathmatchStats();
-	else if (netgame)
+	else if (data->netgame)
 	    WI_drawNetgameStats();
 	else
 	    WI_drawStats();
@@ -1818,11 +1818,11 @@ void WI_initVariables(wbstartstruct_t* wbstartstruct)
 void WI_Start(data_t* data, wbstartstruct_t* wbstartstruct)
 {
     WI_initVariables(wbstartstruct);
-    WI_loadData();
+    WI_loadData(data);
 
-    if (deathmatch)
+    if (data->deathmatch)
 	WI_initDeathmatchStats(data);
-    else if (netgame)
+    else if (data->netgame)
 	WI_initNetgameStats(data);
     else
 	WI_initStats(data);

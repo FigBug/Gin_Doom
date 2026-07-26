@@ -67,7 +67,7 @@ P_Thrust
 // P_CalcHeight
 // Calculate the walking / running height adjustment
 //
-void P_CalcHeight (player_t* player) 
+void P_CalcHeight (data_t* data, player_t* player) 
 {
     int		angle;
     fixed_t	bob;
@@ -98,7 +98,7 @@ void P_CalcHeight (player_t* player)
 	return;
     }
 		
-    angle = (FINEANGLES/20*leveltime)&FINEMASK;
+    angle = (FINEANGLES/20*data->leveltime)&FINEMASK;
     bob = FixedMul ( player->bob/2, finesine[angle]);
 
     
@@ -188,7 +188,7 @@ void P_DeathThink (data_t* data, player_t* player)
 
     player->deltaviewheight = 0;
     onground = (player->mo->z <= player->mo->floorz);
-    P_CalcHeight (player);
+    P_CalcHeight (data, player);
 	
     if (player->attacker && player->attacker != player->mo)
     {
@@ -262,7 +262,7 @@ void P_PlayerThink (data_t* data, player_t* player)
     else
 	P_MovePlayer (data, player);
     
-    P_CalcHeight (player);
+    P_CalcHeight (data, player);
 
     if (player->mo->subsector->sector->special)
 	P_PlayerInSpecialSector (data, player);

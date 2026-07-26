@@ -142,7 +142,7 @@ void D_Display (data_t* data)
     boolean			wipe;
     boolean			redrawsbar;
 
-    if (nodrawers)
+    if (data->nodrawers)
     	return;                    // for comparative timing / profiling
 		
     redrawsbar = false;
@@ -156,7 +156,7 @@ void D_Display (data_t* data)
     }
 
     // save the current screen if about to wipe
-    if (gamestate != wipegamestate)
+    if (data->gamestate != wipegamestate)
 		{
 		wipe = true;
 		wipe_StartScreen(data, 0, 0, SCREENWIDTH, SCREENHEIGHT);
@@ -164,14 +164,14 @@ void D_Display (data_t* data)
     else
     	wipe = false;
 
-    if (gamestate == GS_LEVEL && gametic)
+    if (data->gamestate == GS_LEVEL && data->gametic)
     	HU_Erase();
     
     // do buffered drawing
-    switch (gamestate)
+    switch (data->gamestate)
     {
       case GS_LEVEL:
-		if (!gametic)
+		if (!data->gametic)
 			break;
 		if (automapactive)
 			AM_Drawer (data);
@@ -179,12 +179,12 @@ void D_Display (data_t* data)
 			redrawsbar = true;
 		if (inhelpscreensstate && !inhelpscreens)
 			redrawsbar = true;              // just put away the help screen
-		ST_Drawer (viewheight == 200, redrawsbar );
+		ST_Drawer (data, viewheight == 200, redrawsbar );
 		fullscreen = viewheight == 200;
 		break;
 
       case GS_INTERMISSION:
-		WI_Drawer ();
+		WI_Drawer (data);
 		break;
 
       case GS_FINALE:
@@ -200,25 +200,25 @@ void D_Display (data_t* data)
     I_UpdateNoBlit ();
     
     // draw the view directly
-    if (gamestate == GS_LEVEL && !automapactive && gametic)
-    	R_RenderPlayerView (data, &players[displayplayer]);
+    if (data->gamestate == GS_LEVEL && !automapactive && data->gametic)
+    	R_RenderPlayerView (data, &players[data->displayplayer]);
 
-    if (gamestate == GS_LEVEL && gametic)
+    if (data->gamestate == GS_LEVEL && data->gametic)
     	HU_Drawer ();
     
     // clean up border stuff
-    if (gamestate != oldgamestate && gamestate != GS_LEVEL)
+    if (data->gamestate != oldgamestate && data->gamestate != GS_LEVEL)
     	I_SetPalette (W_CacheLumpName (DEH_String("PLAYPAL"),PU_CACHE));
 
     // see if the border needs to be initially drawn
-    if (gamestate == GS_LEVEL && oldgamestate != GS_LEVEL)
+    if (data->gamestate == GS_LEVEL && oldgamestate != GS_LEVEL)
     {
 		viewactivestate = false;        // view was not active
 		R_FillBackScreen ();    // draw the pattern into the back screen
     }
 
     // see if the border needs to be updated to the screen
-    if (gamestate == GS_LEVEL && !automapactive && scaledviewwidth != 320)
+    if (data->gamestate == GS_LEVEL && !automapactive && scaledviewwidth != 320)
     {
 		if (menuactive || menuactivestate || !viewactivestate)
 			borderdrawcount = 3;
@@ -237,12 +237,12 @@ void D_Display (data_t* data)
     }
 
     menuactivestate = menuactive;
-    viewactivestate = viewactive;
+    viewactivestate = data->viewactive;
     inhelpscreensstate = inhelpscreens;
-    oldgamestate = wipegamestate = gamestate;
+    oldgamestate = wipegamestate = data->gamestate;
     
     // draw pause pic
-    if (paused)
+    if (data->paused)
     {
 		if (automapactive)
 			y = 4;
@@ -352,14 +352,14 @@ boolean D_GrabMouseCallback(data_t* data)
     if (drone)
         return false;
 
-    // when menu is active or game is paused, release the mouse 
+    // when menu is active or game is data->paused, release the mouse 
  
-    if (menuactive || paused)
+    if (menuactive || data->paused)
         return false;
 
     // only grab mouse when playing levels (but not demos)
 
-    return (gamestate == GS_LEVEL) && !demoplayback && !data->advancedemo;
+    return (data->gamestate == GS_LEVEL) && !data->demoplayback && !data->advancedemo;
 }
 
 //
@@ -368,7 +368,7 @@ boolean D_GrabMouseCallback(data_t* data)
 void D_DoomLoop (data_t* data)
 {
     if (data->bfgedition &&
-        (demorecording || (gameaction == ga_playdemo) || netgame))
+        (data->demorecording || (gameaction == ga_playdemo) || data->netgame))
     {
         printf(" WARNING: You are playing using one of the Doom Classic\n"
                " IWAD files shipped with the Doom 3: BFG Edition. These are\n"
@@ -376,7 +376,7 @@ void D_DoomLoop (data_t* data)
                " may cause demos and network games to get out of sync.\n");
     }
 
-    if (demorecording)
+    if (data->demorecording)
     	G_BeginRecording (data);
 
 	data->main_loop_started = true;
@@ -396,7 +396,7 @@ void D_DoomLoop (data_t* data)
 
     if (testcontrols)
     {
-        wipegamestate = gamestate;
+        wipegamestate = data->gamestate;
     }
 
 	data->runloop = 1;
@@ -407,7 +407,7 @@ void D_DoomLoop (data_t* data)
 
 		TryRunTics (data); // will run at least one tic
 
-		S_UpdateSounds(data, players[consoleplayer].mo);// move positional sounds
+		S_UpdateSounds(data, players[data->consoleplayer].mo);// move positional sounds
 
 		// Update display, next frame, with current state.
 		if (screenvisible)
@@ -464,10 +464,10 @@ void D_AdvanceDemo (data_t* data)
 //
 void D_DoAdvanceDemo (data_t* data)
 {
-    players[consoleplayer].playerstate = PST_LIVE;  // not reborn
+    players[data->consoleplayer].playerstate = PST_LIVE;  // not reborn
 	data->advancedemo = false;
-    usergame = false;               // no save / end game here
-    paused = false;
+    data->usergame = false;               // no save / end game here
+    data->paused = false;
     gameaction = ga_nothing;
 
     // The Ultimate Doom executable changed the demo sequence to add
@@ -491,7 +491,7 @@ void D_DoAdvanceDemo (data_t* data)
 	    pagetic = TICRATE * 11;
 	else
 	    pagetic = 170;
-	gamestate = GS_DEMOSCREEN;
+	data->gamestate = GS_DEMOSCREEN;
 	pagename = DEH_String("TITLEPIC");
 	if ( gamemode == commercial )
 	  S_StartMusic(data, mus_dm2ttl);
@@ -503,14 +503,14 @@ void D_DoAdvanceDemo (data_t* data)
 	break;
       case 2:
 	pagetic = 200;
-	gamestate = GS_DEMOSCREEN;
+	data->gamestate = GS_DEMOSCREEN;
 	pagename = DEH_String("CREDIT");
 	break;
       case 3:
 	G_DeferedPlayDemo(DEH_String("demo2"));
 	break;
       case 4:
-	gamestate = GS_DEMOSCREEN;
+	data->gamestate = GS_DEMOSCREEN;
 	if ( gamemode == commercial)
 	{
 	    pagetic = TICRATE * 11;
@@ -1235,22 +1235,22 @@ void D_DoomMain (data_t* data)
     // @category net
     // @vanilla
     //
-    // Start a deathmatch game.
+    // Start a data->deathmatch game.
     //
 
-    if (M_CheckParm(data, "-deathmatch"))
-	deathmatch = 1;
+    if (M_CheckParm(data, "-data->deathmatch"))
+	data->deathmatch = 1;
 
     //!
     // @category net
     // @vanilla
     //
-    // Start a deathmatch 2.0 game.  Weapons do not stay in place and
+    // Start a data->deathmatch 2.0 game.  Weapons do not stay in place and
     // all items respawn after 30 seconds.
     //
 
     if (M_CheckParm(data, "-altdeath"))
-	deathmatch = 2;
+	data->deathmatch = 2;
 
     if (data->devparm)
 	DEH_printf(D_DEVSTR);
@@ -1578,7 +1578,7 @@ void D_DoomMain (data_t* data)
     NET_Init ();
 #endif
 
-    // Initial netgame startup. Connect to server etc.
+    // Initial data->netgame startup. Connect to server etc.
     D_ConnectNetGame(data);
 
     // get skill / episode / map from parms
@@ -1619,7 +1619,7 @@ void D_DoomMain (data_t* data)
 		data->autostart = true;
     }
 	
-    timelimit = 0;
+    data->timelimit = 0;
 
     //! 
     // @arg <n>
@@ -1633,7 +1633,7 @@ void D_DoomMain (data_t* data)
 
     if (p)
     {
-	timelimit = atoi(data->myargv[p+1]);
+	data->timelimit = atoi(data->myargv[p+1]);
     }
 
     //!
@@ -1647,7 +1647,7 @@ void D_DoomMain (data_t* data)
 
     if (p)
     {
-	timelimit = 20;
+	data->timelimit = 20;
     }
 
     //!
@@ -1739,7 +1739,7 @@ void D_DoomMain (data_t* data)
     HU_Init ();
 
     DEH_printf("ST_Init: Init status bar.\n");
-    ST_Init ();
+    ST_Init (data);
 
     // If Doom II without a MAP01 lump, this is a store demo.
     // Moved this here so that MAP01 isn't constantly looked up
@@ -1773,7 +1773,7 @@ void D_DoomMain (data_t* data)
     p = M_CheckParmWithArgs(data, "-playdemo", 1);
     if (p)
     {
-		singledemo = true;              // quit after one demo
+		data->singledemo = true;              // quit after one demo
 		G_DeferedPlayDemo (demolumpname);
 		D_DoomLoop (data);  // never returns
     }
@@ -1793,7 +1793,7 @@ void D_DoomMain (data_t* data)
 
     if (gameaction != ga_loadgame )
     {
-		if (data->autostart || netgame)
+		if (data->autostart || data->netgame)
 			G_InitNew (data, data->startskill, data->startepisode, data->startmap);
 		else
 			D_StartTitle (data);                // start up intro loop

@@ -702,7 +702,7 @@ void A_Chase (data_t* data, mobj_t*	actor)
     if (actor->flags & MF_JUSTATTACKED)
     {
 	actor->flags &= ~MF_JUSTATTACKED;
-	if (gameskill != sk_nightmare && !data->fastparm)
+	if (data->gameskill != sk_nightmare && !data->fastparm)
 	    P_NewChaseDir (data, actor);
 	return;
     }
@@ -721,7 +721,7 @@ void A_Chase (data_t* data, mobj_t*	actor)
     // check for missile attack
     if (actor->info->missilestate)
     {
-	if (gameskill < sk_nightmare
+	if (data->gameskill < sk_nightmare
 	    && !data->fastparm && actor->movecount)
 	{
 	    goto nomissile;
@@ -738,7 +738,7 @@ void A_Chase (data_t* data, mobj_t*	actor)
     // ?
   nomissile:
     // possibly choose another target
-    if (netgame
+    if (data->netgame
 	&& !actor->threshold
 	&& !P_CheckSight (data, actor, actor->target) )
     {
@@ -1012,7 +1012,7 @@ void A_Tracer (data_t* data, mobj_t* actor)
     mobj_t*	dest;
     mobj_t*	th;
 		
-    if (gametic & 3)
+    if (data->gametic & 3)
 	return;
     
     // spawn a puff of smoke behind the rocket		
@@ -1606,18 +1606,18 @@ void A_Explode (data_t* data, mobj_t* thingy)
 // This behavior changed in v1.9, the most notable effect of which
 // was to break uac_dead.wad
 
-static boolean CheckBossEnd(mobjtype_t motype)
+static boolean CheckBossEnd(data_t* data, mobjtype_t motype)
 {
     if (gameversion < exe_ultimate)
     {
-        if (gamemap != 8)
+        if (data->gamemap != 8)
         {
             return false;
         }
 
         // Baron death on later episodes is nothing special.
 
-        if (motype == MT_BRUISER && gameepisode != 1)
+        if (motype == MT_BRUISER && data->gameepisode != 1)
         {
             return false;
         }
@@ -1631,23 +1631,23 @@ static boolean CheckBossEnd(mobjtype_t motype)
         // episode 4 support.  Now bosses only trigger on their
         // specific episode.
 
-	switch(gameepisode)
+	switch(data->gameepisode)
 	{
             case 1:
-                return gamemap == 8 && motype == MT_BRUISER;
+                return data->gamemap == 8 && motype == MT_BRUISER;
 
             case 2:
-                return gamemap == 8 && motype == MT_CYBORG;
+                return data->gamemap == 8 && motype == MT_CYBORG;
 
             case 3:
-                return gamemap == 8 && motype == MT_SPIDER;
+                return data->gamemap == 8 && motype == MT_SPIDER;
 
 	    case 4:
-                return (gamemap == 6 && motype == MT_CYBORG)
-                    || (gamemap == 8 && motype == MT_SPIDER);
+                return (data->gamemap == 6 && motype == MT_CYBORG)
+                    || (data->gamemap == 8 && motype == MT_SPIDER);
 
             default:
-                return gamemap == 8;
+                return data->gamemap == 8;
 	}
     }
 }
@@ -1666,7 +1666,7 @@ void A_BossDeath (data_t* data, mobj_t* mo)
 		
     if ( gamemode == commercial)
     {
-	if (gamemap != 7)
+	if (data->gamemap != 7)
 	    return;
 		
 	if ((mo->type != MT_FATSO)
@@ -1675,7 +1675,7 @@ void A_BossDeath (data_t* data, mobj_t* mo)
     }
     else
     {
-        if (!CheckBossEnd(mo->type))
+        if (!CheckBossEnd(data, mo->type))
         {
             return;
         }
@@ -1709,7 +1709,7 @@ void A_BossDeath (data_t* data, mobj_t* mo)
     // victory!
     if ( gamemode == commercial)
     {
-	if (gamemap == 7)
+	if (data->gamemap == 7)
 	{
 	    if (mo->type == MT_FATSO)
 	    {
@@ -1728,7 +1728,7 @@ void A_BossDeath (data_t* data, mobj_t* mo)
     }
     else
     {
-	switch(gameepisode)
+	switch(data->gameepisode)
 	{
 	  case 1:
 	    junk.tag = 666;
@@ -1737,7 +1737,7 @@ void A_BossDeath (data_t* data, mobj_t* mo)
 	    break;
 	    
 	  case 4:
-	    switch(gamemap)
+	    switch(data->gamemap)
 	    {
 	      case 6:
 		junk.tag = 666;
@@ -1912,7 +1912,7 @@ void A_BrainSpit (data_t* data, mobj_t*	mo)
     static int	easy = 0;
 	
     easy ^= 1;
-    if (gameskill <= sk_easy && (!easy))
+    if (data->gameskill <= sk_easy && (!easy))
 	return;
 		
     // shoot a cube at current target

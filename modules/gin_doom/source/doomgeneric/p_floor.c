@@ -209,7 +209,7 @@ void T_MoveFloor(data_t* data, floormove_t* floor)
 		      floor->floordestheight,
 		      floor->crush,0,floor->direction);
     
-    if (!(leveltime&7))
+    if (!(data->leveltime&7))
 	S_StartSound(data, &floor->sector->soundorg, sfx_stnmov);
     
     if (res == pastdest)

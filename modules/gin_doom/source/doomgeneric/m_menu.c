@@ -584,7 +584,7 @@ void M_LoadSelect(data_t* data, int choice)
 //
 void M_LoadGame (data_t* data, int choice)
 {
-    if (netgame)
+    if (data->netgame)
     {
 	M_StartMessage(DEH_String(LOADNET),NULL,false);
 	return;
@@ -649,13 +649,13 @@ void M_SaveSelect(data_t* data, int choice)
 //
 void M_SaveGame (data_t* data, int choice)
 {
-    if (!usergame)
+    if (!data->usergame)
     {
 	M_StartMessage(DEH_String(SAVEDEAD),NULL,false);
 	return;
     }
 	
-    if (gamestate != GS_LEVEL)
+    if (data->gamestate != GS_LEVEL)
 	return;
 	
     M_SetupNextMenu(&SaveDef);
@@ -680,13 +680,13 @@ void M_QuickSaveResponse(data_t* data, int key)
 
 void M_QuickSave(data_t* data)
 {
-    if (!usergame)
+    if (!data->usergame)
     {
 	S_StartSound(data, NULL,sfx_oof);
 	return;
     }
 
-    if (gamestate != GS_LEVEL)
+    if (data->gamestate != GS_LEVEL)
 	return;
 	
     if (quickSaveSlot < 0)
@@ -718,7 +718,7 @@ void M_QuickLoadResponse(data_t* data, int key)
 
 void M_QuickLoad(data_t* data)
 {
-    if (netgame)
+    if (data->netgame)
     {
 	M_StartMessage(DEH_String(QLOADNET),NULL,false);
 	return;
@@ -907,7 +907,7 @@ void M_DrawNewGame(data_t* data)
 
 void M_NewGame(data_t* data, int choice)
 {
-    if (netgame && !demoplayback)
+    if (data->netgame && !data->demoplayback)
     {
 	M_StartMessage(DEH_String(NEWGAME),NULL,false);
 	return;
@@ -1021,9 +1021,9 @@ void M_ChangeMessages(data_t* data, int choice)
     showMessages = 1 - showMessages;
 	
     if (!showMessages)
-	players[consoleplayer].message = DEH_String(MSGOFF);
+	players[data->consoleplayer].message = DEH_String(MSGOFF);
     else
-	players[consoleplayer].message = DEH_String(MSGON);
+	players[data->consoleplayer].message = DEH_String(MSGON);
 
     message_dontfuckwithme = true;
 }
@@ -1045,13 +1045,13 @@ void M_EndGameResponse (data_t* data, int key)
 void M_EndGame(data_t* data, int choice)
 {
     choice = 0;
-    if (!usergame)
+    if (!data->usergame)
     {
 	S_StartSound(data, NULL,sfx_oof);
 	return;
     }
 	
-    if (netgame)
+    if (data->netgame)
     {
 	M_StartMessage(DEH_String(NETEND),NULL,false);
 	return;
@@ -1132,19 +1132,19 @@ void M_QuitResponse(data_t* data, int key)
 {
     if (key != key_menu_confirm)
 	return;
-    if (!netgame)
+    if (!data->netgame)
     {
 	if (gamemode == commercial)
-	    S_StartSound(data, NULL,quitsounds2[(gametic>>2)&7]);
+	    S_StartSound(data, NULL,quitsounds2[(data->gametic>>2)&7]);
 	else
-	    S_StartSound(data, NULL,quitsounds[(gametic>>2)&7]);
+	    S_StartSound(data, NULL,quitsounds[(data->gametic>>2)&7]);
 	I_WaitVBL(105);
     }
     I_Quit (data);
 }
 
 
-static char *M_SelectEndMessage(void)
+static char *M_SelectEndMessage(data_t* data)
 {
     char **endmsg;
 
@@ -1161,14 +1161,14 @@ static char *M_SelectEndMessage(void)
         endmsg = doom2_endmsg;
     }
 
-    return endmsg[gametic % NUM_QUITMESSAGES];
+    return endmsg[data->gametic % NUM_QUITMESSAGES];
 }
 
 
 void M_QuitDOOM(data_t* data, int choice)
 {
     DEH_snprintf(endstring, sizeof(endstring), "%s\n\n" DOSY,
-                 DEH_String(M_SelectEndMessage()));
+                 DEH_String(M_SelectEndMessage(data)));
 
     M_StartMessage(endstring,M_QuitResponse,true);
 }
@@ -1202,9 +1202,9 @@ void M_ChangeDetail(data_t* data, int choice)
     R_SetViewSize (screenblocks, detailLevel);
 
     if (!detailLevel)
-	players[consoleplayer].message = DEH_String(DETAILHI);
+	players[data->consoleplayer].message = DEH_String(DETAILHI);
     else
-	players[consoleplayer].message = DEH_String(DETAILLO);
+	players[data->consoleplayer].message = DEH_String(DETAILLO);
 }
 
 
@@ -1745,7 +1745,7 @@ boolean M_Responder (data_t* data, event_t* ev)
 	    usegamma++;
 	    if (usegamma > 4)
 		usegamma = 0;
-	    players[consoleplayer].message = DEH_String(gammamsg[usegamma]);
+	    players[data->consoleplayer].message = DEH_String(gammamsg[usegamma]);
             I_SetPalette (W_CacheLumpName (DEH_String("PLAYPAL"),PU_CACHE));
 	    return true;
 	}
@@ -2041,7 +2041,7 @@ void M_Drawer (data_t* data)
 void M_ClearMenus (void)
 {
     menuactive = 0;
-    // if (!netgame && usergame && paused)
+    // if (!data->netgame && data->usergame && data->paused)
     //       sendpause = true;
 }
 

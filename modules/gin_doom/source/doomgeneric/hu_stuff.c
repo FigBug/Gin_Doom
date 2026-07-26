@@ -44,11 +44,11 @@
 //
 // Locally used constants, shortcuts.
 //
-#define HU_TITLE	(mapnames[(gameepisode-1)*9+gamemap-1])
-#define HU_TITLE2	(mapnames_commercial[gamemap-1])
-#define HU_TITLEP	(mapnames_commercial[gamemap-1 + 32])
-#define HU_TITLET	(mapnames_commercial[gamemap-1 + 64])
-#define HU_TITLE_CHEX   (mapnames[gamemap - 1])
+#define HU_TITLE	(mapnames[(data->gameepisode-1)*9+data->gamemap-1])
+#define HU_TITLE2	(mapnames_commercial[data->gamemap-1])
+#define HU_TITLEP	(mapnames_commercial[data->gamemap-1 + 32])
+#define HU_TITLET	(mapnames_commercial[data->gamemap-1 + 64])
+#define HU_TITLE_CHEX   (mapnames[data->gamemap - 1])
 #define HU_TITLEHEIGHT	1
 #define HU_TITLEX	0
 #define HU_TITLEY	(167 - SHORT(hu_font[0]->height))
@@ -305,7 +305,7 @@ void HU_Stop(void)
     headsupactive = false;
 }
 
-void HU_Start(void)
+void HU_Start(data_t* data)
 {
 
     int		i;
@@ -314,7 +314,7 @@ void HU_Start(void)
     if (headsupactive)
 	HU_Stop();
 
-    plr = &players[consoleplayer];
+    plr = &players[data->consoleplayer];
     message_on = false;
     message_dontfuckwithme = false;
     message_nottobefuckedwith = false;
@@ -430,13 +430,13 @@ void HU_Ticker(data_t* data)
     } // else message_on = false;
 
     // check for incoming chat characters
-    if (netgame)
+    if (data->netgame)
     {
 	for (i=0 ; i<MAXPLAYERS; i++)
 	{
 	    if (!playeringame[i])
 		continue;
-	    if (i != consoleplayer
+	    if (i != data->consoleplayer
 		&& (c = players[i].cmd.chatchar))
 	    {
 		if (c <= HU_BROADCAST)
@@ -447,7 +447,7 @@ void HU_Ticker(data_t* data)
 		    if (rc && c == KEY_ENTER)
 		    {
 			if (w_inputbuffer[i].l.len
-			    && (chat_dest[i] == consoleplayer+1
+			    && (chat_dest[i] == data->consoleplayer+1
 				|| chat_dest[i] == HU_BROADCAST))
 			{
 			    HUlib_addMessageToSText(&w_message,
@@ -547,26 +547,26 @@ boolean HU_Responder(data_t* data, event_t *ev)
 	    message_counter = HU_MSGTIMEOUT;
 	    eatkey = true;
 	}
-	else if (netgame && ev->data2 == key_multi_msg)
+	else if (data->netgame && ev->data2 == key_multi_msg)
 	{
 	    eatkey = chat_on = true;
 	    HUlib_resetIText(&w_chat);
 	    HU_queueChatChar(HU_BROADCAST);
 	}
-	else if (netgame && numplayers > 2)
+	else if (data->netgame && numplayers > 2)
 	{
 	    for (i=0; i<MAXPLAYERS ; i++)
 	    {
 		if (ev->data2 == key_multi_msgplayer[i])
 		{
-		    if (playeringame[i] && i!=consoleplayer)
+		    if (playeringame[i] && i!=data->consoleplayer)
 		    {
 			eatkey = chat_on = true;
 			HUlib_resetIText(&w_chat);
 			HU_queueChatChar(i+1);
 			break;
 		    }
-		    else if (i == consoleplayer)
+		    else if (i == data->consoleplayer)
 		    {
 			num_nobrainers++;
 			if (num_nobrainers < 3)

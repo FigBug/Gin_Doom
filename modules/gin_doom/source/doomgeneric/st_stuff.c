@@ -295,13 +295,13 @@ static boolean		st_oldchat;
 // whether chat window has the cursor on
 static boolean		st_cursoron;
 
-// !deathmatch
+// !data->deathmatch
 static boolean		st_notdeathmatch; 
 
-// !deathmatch && st_statusbaron
+// !data->deathmatch && st_statusbaron
 static boolean		st_armson;
 
-// !deathmatch
+// !data->deathmatch
 static boolean		st_fragson; 
 
 // main bar left
@@ -334,7 +334,7 @@ static patch_t*		arms[6][2];
 // ready-weapon widget
 static st_number_t	w_ready;
 
- // in deathmatch only, summary of frags stats
+ // in data->deathmatch only, summary of frags stats
 static st_number_t	w_frags;
 
 // health widget
@@ -364,7 +364,7 @@ static st_number_t	w_maxammo[4];
 
 
 
- // number of frags so far in deathmatch
+ // number of frags so far in data->deathmatch
 static int	st_fragscount;
 
 // used to use appopriately pained face
@@ -411,9 +411,9 @@ cheatseq_t cheat_mypos = CHEAT("idmypos", 0);
 //
 // STATUS BAR CODE
 //
-void ST_Stop(void);
+void ST_Stop(data_t* data);
 
-void ST_refreshBackground(void)
+void ST_refreshBackground(data_t* data)
 {
 
     if (st_statusbaron)
@@ -422,7 +422,7 @@ void ST_refreshBackground(void)
 
 	V_DrawPatch(ST_X, 0, sbar);
 
-	if (netgame)
+	if (data->netgame)
 	    V_DrawPatch(ST_FX, 0, faceback);
 
         V_RestoreBuffer();
@@ -461,7 +461,7 @@ ST_Responder (data_t* data, event_t* ev)
   // if a user keypress...
   else if (ev->type == ev_keydown)
   {
-    if (!netgame && gameskill != sk_nightmare)
+    if (!data->netgame && data->gameskill != sk_nightmare)
     {
       // 'dqd' cheat for toggleable god mode
       if (cht_CheckCheat(&cheat_god, ev->data2))
@@ -592,15 +592,15 @@ ST_Responder (data_t* data, event_t* ev)
       {
         static char buf[ST_MSGWIDTH];
         M_snprintf(buf, sizeof(buf), "ang=0x%x;x,y=(0x%x,0x%x)",
-                   players[consoleplayer].mo->angle,
-                   players[consoleplayer].mo->x,
-                   players[consoleplayer].mo->y);
+                   players[data->consoleplayer].mo->angle,
+                   players[data->consoleplayer].mo->x,
+                   players[data->consoleplayer].mo->y);
         plyr->message = buf;
       }
     }
     
     // 'clev' change-level cheat
-    if (!netgame && cht_CheckCheat(&cheat_clev, ev->data2))
+    if (!data->netgame && cht_CheckCheat(&cheat_clev, ev->data2))
     {
       char		buf[3];
       int		epsd;
@@ -654,7 +654,7 @@ ST_Responder (data_t* data, event_t* ev)
 
       // So be it.
       plyr->message = DEH_String(STSTR_CLEV);
-      G_DeferedInitNew(gameskill, epsd, map);
+      G_DeferedInitNew(data->gameskill, epsd, map);
     }
   }
   return false;
@@ -685,7 +685,7 @@ int ST_calcPainOffset(void)
 // the precedence of expressions is:
 //  dead > evil grin > turned head > straight ahead
 //
-void ST_updateFaceWidget(void)
+void ST_updateFaceWidget(data_t* data)
 {
     int		i;
     angle_t	badguyangle;
@@ -857,7 +857,7 @@ void ST_updateFaceWidget(void)
 
 }
 
-void ST_updateWidgets(void)
+void ST_updateWidgets(data_t* data)
 {
     static int	largeammo = 1994; // means "n/a"
     int		i;
@@ -895,21 +895,21 @@ void ST_updateWidgets(void)
     }
 
     // refresh everything if this is him coming back to life
-    ST_updateFaceWidget();
+    ST_updateFaceWidget(data);
 
     // used by the w_armsbg widget
-    st_notdeathmatch = !deathmatch;
+    st_notdeathmatch = !data->deathmatch;
     
     // used by w_arms[] widgets
-    st_armson = st_statusbaron && !deathmatch; 
+    st_armson = st_statusbaron && !data->deathmatch; 
 
     // used by w_frags widget
-    st_fragson = deathmatch && st_statusbaron; 
+    st_fragson = data->deathmatch && st_statusbaron; 
     st_fragscount = 0;
 
     for (i=0 ; i<MAXPLAYERS ; i++)
     {
-	if (i != consoleplayer)
+	if (i != data->consoleplayer)
 	    st_fragscount += plyr->frags[i];
 	else
 	    st_fragscount -= plyr->frags[i];
@@ -926,14 +926,14 @@ void ST_Ticker (data_t* data)
 
     st_clock++;
     st_randomnumber = M_Random (data);
-    ST_updateWidgets();
+    ST_updateWidgets(data);
     st_oldhealth = plyr->health;
 
 }
 
 static int st_palette = 0;
 
-void ST_doPaletteStuff(void)
+void ST_doPaletteStuff(data_t* data)
 {
 
     int		palette;
@@ -998,15 +998,15 @@ void ST_doPaletteStuff(void)
 
 }
 
-void ST_drawWidgets(boolean refresh)
+void ST_drawWidgets(data_t* data, boolean refresh)
 {
     int		i;
 
     // used by w_arms[] widgets
-    st_armson = st_statusbaron && !deathmatch;
+    st_armson = st_statusbaron && !data->deathmatch;
 
     // used by w_frags widget
-    st_fragson = deathmatch && st_statusbaron; 
+    st_fragson = data->deathmatch && st_statusbaron; 
 
     STlib_updateNum(&w_ready, refresh);
 
@@ -1033,38 +1033,38 @@ void ST_drawWidgets(boolean refresh)
 
 }
 
-void ST_doRefresh(void)
+void ST_doRefresh(data_t* data)
 {
 
     st_firsttime = false;
 
     // draw status bar background to off-screen buff
-    ST_refreshBackground();
+    ST_refreshBackground(data);
 
     // and refresh all widgets
-    ST_drawWidgets(true);
+    ST_drawWidgets(data, true);
 
 }
 
-void ST_diffDraw(void)
+void ST_diffDraw(data_t* data)
 {
     // update all widgets
-    ST_drawWidgets(false);
+    ST_drawWidgets(data, false);
 }
 
-void ST_Drawer (boolean fullscreen, boolean refresh)
+void ST_Drawer (data_t* data, boolean fullscreen, boolean refresh)
 {
   
     st_statusbaron = (!fullscreen) || automapactive;
     st_firsttime = st_firsttime || refresh;
 
     // Do red-/gold-shifts from damage/items
-    ST_doPaletteStuff();
+    ST_doPaletteStuff(data);
 
     // If just after ST_Start(), refresh all
-    if (st_firsttime) ST_doRefresh();
+    if (st_firsttime) ST_doRefresh(data);
     // Otherwise, update as little as possible
-    else ST_diffDraw();
+    else ST_diffDraw(data);
 
 }
 
@@ -1073,7 +1073,7 @@ typedef void (*load_callback_t)(char *lumpname, patch_t **variable);
 // Iterates through all graphics to be loaded or unloaded, along with
 // the variable they use, invoking the specified callback function.
 
-static void ST_loadUnloadGraphics(load_callback_t callback)
+static void ST_loadUnloadGraphics(data_t* data, load_callback_t callback)
 {
 
     int		i;
@@ -1120,7 +1120,7 @@ static void ST_loadUnloadGraphics(load_callback_t callback)
     }
 
     // face backgrounds for different color players
-    DEH_snprintf(namebuf, 9, "STFB%d", consoleplayer);
+    DEH_snprintf(namebuf, 9, "STFB%d", data->consoleplayer);
     callback(namebuf, &faceback);
 
     // status bar background bits
@@ -1164,15 +1164,15 @@ static void ST_loadCallback(char *lumpname, patch_t **variable)
     *variable = W_CacheLumpName(lumpname, PU_STATIC);
 }
 
-void ST_loadGraphics(void)
+void ST_loadGraphics(data_t* data)
 {
-    ST_loadUnloadGraphics(ST_loadCallback);
+    ST_loadUnloadGraphics(data, ST_loadCallback);
 }
 
-void ST_loadData(void)
+void ST_loadData(data_t* data)
 {
     lu_palette = W_GetNumForName (DEH_String("PLAYPAL"));
-    ST_loadGraphics();
+    ST_loadGraphics(data);
 }
 
 static void ST_unloadCallback(char *lumpname, patch_t **variable)
@@ -1181,23 +1181,23 @@ static void ST_unloadCallback(char *lumpname, patch_t **variable)
     *variable = NULL;
 }
 
-void ST_unloadGraphics(void)
+void ST_unloadGraphics(data_t* data)
 {
-    ST_loadUnloadGraphics(ST_unloadCallback);
+    ST_loadUnloadGraphics(data, ST_unloadCallback);
 }
 
-void ST_unloadData(void)
+void ST_unloadData(data_t* data)
 {
-    ST_unloadGraphics();
+    ST_unloadGraphics(data);
 }
 
-void ST_initData(void)
+void ST_initData(data_t* data)
 {
 
     int		i;
 
     st_firsttime = true;
-    plyr = &players[consoleplayer];
+    plyr = &players[data->consoleplayer];
 
     st_clock = 0;
     st_chatstate = StartChatState;
@@ -1224,7 +1224,7 @@ void ST_initData(void)
 
 
 
-void ST_createWidgets(void)
+void ST_createWidgets(data_t* data)
 {
 
     int i;
@@ -1386,19 +1386,19 @@ void ST_createWidgets(void)
 static boolean	st_stopped = true;
 
 
-void ST_Start (void)
+void ST_Start(data_t* data)
 {
 
     if (!st_stopped)
-	ST_Stop();
+	ST_Stop(data);
 
-    ST_initData();
-    ST_createWidgets();
+    ST_initData(data);
+    ST_createWidgets(data);
     st_stopped = false;
 
 }
 
-void ST_Stop (void)
+void ST_Stop(data_t* data)
 {
     if (st_stopped)
 	return;
@@ -1408,9 +1408,9 @@ void ST_Stop (void)
     st_stopped = true;
 }
 
-void ST_Init (void)
+void ST_Init(data_t* data)
 {
-    ST_loadData();
+    ST_loadData(data);
     st_backing_screen = (byte *) Z_Malloc(ST_WIDTH * ST_HEIGHT, PU_STATIC, 0);
 }
 

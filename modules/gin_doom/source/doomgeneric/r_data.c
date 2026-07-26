@@ -797,7 +797,7 @@ int		flatmemory;
 int		texturememory;
 int		spritememory;
 
-void R_PrecacheLevel (void)
+void R_PrecacheLevel (data_t* data)
 {
     char*		flatpresent;
     char*		texturepresent;
@@ -812,7 +812,7 @@ void R_PrecacheLevel (void)
     thinker_t*		th;
     spriteframe_t*	sf;
 
-    if (demoplayback)
+    if (data->demoplayback)
 	return;
     
     // Precache flats.

@@ -115,7 +115,7 @@ boolean PIT_StompThing (data_t* data, mobj_t* thing)
 	return true;
     
     // monsters don't stomp things except on boss level
-    if ( !tmthing->player && gamemap != 30)
+    if ( !tmthing->player && data->gamemap != 30)
 	return false;	
 		
     P_DamageMobj (data, thing, tmthing, tmthing, 10000);
@@ -1349,7 +1349,7 @@ boolean PIT_ChangeSector (data_t* data, mobj_t*	thing)
     
     nofit = true;
 
-    if (crushchange && !(leveltime&3) )
+    if (crushchange && !(data->leveltime&3) )
     {
 	P_DamageMobj(data, thing,NULL,NULL,10);
 

@@ -441,9 +441,9 @@ void AM_initVariables(data_t* data)
     m_h = FTOM(f_h);
 
     // find player to center on initially
-    if (playeringame[consoleplayer])
+    if (playeringame[data->consoleplayer])
     {
-        plr = &players[consoleplayer];
+        plr = &players[data->consoleplayer];
     }
     else
     {
@@ -557,11 +557,11 @@ void AM_Start(data_t* data)
 
     if (!stopped) AM_Stop(data);
     stopped = false;
-    if (lastlevel != gamemap || lastepisode != gameepisode)
+    if (lastlevel != data->gamemap || lastepisode != data->gameepisode)
     {
 	AM_LevelInit(data);
-	lastlevel = gamemap;
-	lastepisode = gameepisode;
+	lastlevel = data->gamemap;
+	lastepisode = data->gameepisode;
     }
     AM_initVariables(data);
     AM_loadPics(data);
@@ -608,7 +608,7 @@ AM_Responder
 	if (ev->type == ev_keydown && ev->data1 == key_map_toggle)
 	{
 	    AM_Start(data);
-	    viewactive = false;
+	    data->viewactive = false;
 	    rc = true;
 	}
     }
@@ -650,7 +650,7 @@ AM_Responder
         else if (key == key_map_toggle)
         {
             bigstate = 0;
-            viewactive = true;
+            data->viewactive = true;
             AM_Stop(data);
         }
         else if (key == key_map_maxzoom)
@@ -697,7 +697,7 @@ AM_Responder
             rc = false;
         }
 
-	if (!deathmatch && cht_CheckCheat(&cheat_amap, ev->data2))
+	if (!data->deathmatch && cht_CheckCheat(&cheat_amap, ev->data2))
 	{
 	    rc = false;
 	    cheating = (cheating+1) % 3;
@@ -1251,7 +1251,7 @@ void AM_drawPlayers(data_t* data)
     int		their_color = -1;
     int		color;
 
-    if (!netgame)
+    if (!data->netgame)
     {
 	if (cheating)
 	    AM_drawLineCharacter
@@ -1269,7 +1269,7 @@ void AM_drawPlayers(data_t* data)
 	their_color++;
 	p = &players[i];
 
-	if ( (deathmatch && !singledemo) && p != plr)
+	if ( (data->deathmatch && !data->singledemo) && p != plr)
 	    continue;
 
 	if (!playeringame[i])

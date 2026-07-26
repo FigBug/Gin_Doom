@@ -58,7 +58,7 @@ void T_MoveCeiling (data_t* data, ceiling_t* ceiling)
 			  ceiling->topheight,
 			  false,1,ceiling->direction);
 	
-	if (!(leveltime&7))
+	if (!(data->leveltime&7))
 	{
 	    switch(ceiling->type)
 	    {
@@ -100,7 +100,7 @@ void T_MoveCeiling (data_t* data, ceiling_t* ceiling)
 			  ceiling->bottomheight,
 			  ceiling->crush,1,ceiling->direction);
 	
-	if (!(leveltime&7))
+	if (!(data->leveltime&7))
 	{
 	    switch(ceiling->type)
 	    {

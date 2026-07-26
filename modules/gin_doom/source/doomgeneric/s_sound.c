@@ -208,7 +208,7 @@ void S_Start(data_t* data)
 
     if (gamemode == commercial)
     {
-        mnum = mus_runnin + gamemap - 1;
+        mnum = mus_runnin + data->gamemap - 1;
     }
     else
     {
@@ -227,13 +227,13 @@ void S_Start(data_t* data)
             mus_e1m9,        // Tim          e4m9
         };
 
-        if (gameepisode < 4)
+        if (data->gameepisode < 4)
         {
-            mnum = mus_e1m1 + (gameepisode-1)*9 + gamemap-1;
+            mnum = mus_e1m1 + (data->gameepisode-1)*9 + data->gamemap-1;
         }
         else
         {
-            mnum = spmus[gamemap-1];
+            mnum = spmus[data->gamemap-1];
         }
     }        
 
@@ -336,7 +336,7 @@ static int S_AdjustSoundParams(data_t* data, mobj_t *listener, mobj_t *source,
     // From _GG1_ p.428. Appox. eucledian distance fast.
     approx_dist = adx + ady - ((adx < ady ? adx : ady)>>1);
     
-    if (gamemap != 8 && approx_dist > S_CLIPPING_DIST)
+    if (data->gamemap != 8 && approx_dist > S_CLIPPING_DIST)
     {
         return 0;
     }
@@ -366,7 +366,7 @@ static int S_AdjustSoundParams(data_t* data, mobj_t *listener, mobj_t *source,
     {
         *vol = snd_SfxVolume;
     }
-    else if (gamemap == 8)
+    else if (data->gamemap == 8)
     {
         if (approx_dist > S_CLIPPING_DIST)
         {
@@ -427,15 +427,15 @@ void S_StartSound(data_t* data, void *origin_p, int sfx_id)
 
     // Check to see if it is audible,
     //  and if not, modify the params
-    if (origin && origin != players[consoleplayer].mo)
+    if (origin && origin != players[data->consoleplayer].mo)
     {
-        rc = S_AdjustSoundParams(data, players[consoleplayer].mo,
+        rc = S_AdjustSoundParams(data, players[data->consoleplayer].mo,
                                  origin,
                                  &volume,
                                  &sep);
 
-        if (origin->x == players[consoleplayer].mo->x
-         && origin->y == players[consoleplayer].mo->y)
+        if (origin->x == players[data->consoleplayer].mo->x
+         && origin->y == players[data->consoleplayer].mo->y)
         {        
             sep = NORM_SEP;
         }

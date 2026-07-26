@@ -1035,14 +1035,14 @@ void P_PlayerInSpecialSector (data_t* data, player_t* player)
       case 5:
 	// HELLSLIME DAMAGE
 	if (!player->powers[pw_ironfeet])
-	    if (!(leveltime&0x1f))
+	    if (!(data->leveltime&0x1f))
 		P_DamageMobj (data, player->mo, NULL, NULL, 10);
 	break;
 	
       case 7:
 	// NUKAGE DAMAGE
 	if (!player->powers[pw_ironfeet])
-	    if (!(leveltime&0x1f))
+	    if (!(data->leveltime&0x1f))
 		P_DamageMobj (data, player->mo, NULL, NULL, 5);
 	break;
 	
@@ -1053,7 +1053,7 @@ void P_PlayerInSpecialSector (data_t* data, player_t* player)
 	if (!player->powers[pw_ironfeet]
 	    || (P_Random (data)<5) )
 	{
-	    if (!(leveltime&0x1f))
+	    if (!(data->leveltime&0x1f))
 		P_DamageMobj (data, player->mo, NULL, NULL, 20);
 	}
 	break;
@@ -1068,7 +1068,7 @@ void P_PlayerInSpecialSector (data_t* data, player_t* player)
 	// EXIT SUPER DAMAGE! (for E1M8 finale)
 	player->cheats &= ~CF_GODMODE;
 
-	if (!(leveltime&0x1f))
+	if (!(data->leveltime&0x1f))
 	    P_DamageMobj (data, player->mo, NULL, NULL, 20);
 
 	if (player->health <= 10)
@@ -1114,7 +1114,7 @@ void P_UpdateSpecials (data_t* data)
     {
 	for (i=anim->basepic ; i<anim->basepic+anim->numpics ; i++)
 	{
-	    pic = anim->basepic + ( (leveltime/anim->speed + i)%anim->numpics );
+	    pic = anim->basepic + ( (data->leveltime/anim->speed + i)%anim->numpics );
 	    if (anim->istexture)
 		texturetranslation[i] = pic;
 	    else
@@ -1381,10 +1381,10 @@ void P_SpawnSpecials (data_t* data)
 
     // See if -TIMER was specified.
 
-    if (timelimit > 0 && deathmatch)
+    if (data->timelimit > 0 && data->deathmatch)
     {
         levelTimer = true;
-        levelTimeCount = timelimit * 60 * TICRATE;
+        levelTimeCount = data->timelimit * 60 * TICRATE;
     }
     else
     {
@@ -1427,7 +1427,7 @@ void P_SpawnSpecials (data_t* data)
 	    break;
 	  case 9:
 	    // SECRET SECTOR
-	    totalsecret++;
+	    data->totalsecret++;
 	    break;
 	    
 	  case 10:

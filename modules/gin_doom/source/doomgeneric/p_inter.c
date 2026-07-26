@@ -64,7 +64,8 @@ int	clipammo[NUMAMMO] = {10, 4, 20, 1};
 
 boolean
 P_GiveAmmo
-( player_t*	player,
+( data_t* data,
+  player_t*	player,
   ammotype_t	ammo,
   int		num )
 {
@@ -84,8 +85,8 @@ P_GiveAmmo
     else
 	num = clipammo[ammo]/2;
     
-    if (gameskill == sk_baby
-	|| gameskill == sk_nightmare)
+    if (data->gameskill == sk_baby
+	|| data->gameskill == sk_nightmare)
     {
 	// give double ammo in trainer mode,
 	// you'll need in nightmare
@@ -166,7 +167,7 @@ P_GiveWeapon
     boolean	gaveammo;
     boolean	gaveweapon;
 
-    if (netgame && (deathmatch!=2) && !dropped )
+    if (data->netgame && (data->deathmatch!=2) && !dropped )
 	{
 		// leave placed weapons forever on net games
 		if (player->weaponowned[weapon])
@@ -175,13 +176,13 @@ P_GiveWeapon
 		player->bonuscount += BONUSADD;
 		player->weaponowned[weapon] = true;
 	
-		if (deathmatch)
-			P_GiveAmmo (player, weaponinfo[weapon].ammo, 5);
+		if (data->deathmatch)
+			P_GiveAmmo (data, player, weaponinfo[weapon].ammo, 5);
 		else
-			P_GiveAmmo (player, weaponinfo[weapon].ammo, 2);
+			P_GiveAmmo (data, player, weaponinfo[weapon].ammo, 2);
 		player->pendingweapon = weapon;
 
-		if (player == &players[consoleplayer])
+		if (player == &players[data->consoleplayer])
 			S_StartSound(data, NULL, sfx_wpnup);
 		return false;
     }
@@ -191,9 +192,9 @@ P_GiveWeapon
 		// give one clip with a dropped weapon,
 		// two clips with a found weapon
 		if (dropped)
-			gaveammo = P_GiveAmmo (player, weaponinfo[weapon].ammo, 1);
+			gaveammo = P_GiveAmmo (data, player, weaponinfo[weapon].ammo, 1);
 		else
-			gaveammo = P_GiveAmmo (player, weaponinfo[weapon].ammo, 2);
+			gaveammo = P_GiveAmmo (data, player, weaponinfo[weapon].ammo, 2);
     }
     else
     {
@@ -422,7 +423,7 @@ P_TouchSpecialThing
 	if (!player->cards[it_bluecard])
 	    player->message = DEH_String(GOTBLUECARD);
 	P_GiveCard (player, it_bluecard);
-	if (!netgame)
+	if (!data->netgame)
 	    break;
 	return;
 	
@@ -430,7 +431,7 @@ P_TouchSpecialThing
 	if (!player->cards[it_yellowcard])
 	    player->message = DEH_String(GOTYELWCARD);
 	P_GiveCard (player, it_yellowcard);
-	if (!netgame)
+	if (!data->netgame)
 	    break;
 	return;
 	
@@ -438,7 +439,7 @@ P_TouchSpecialThing
 	if (!player->cards[it_redcard])
 	    player->message = DEH_String(GOTREDCARD);
 	P_GiveCard (player, it_redcard);
-	if (!netgame)
+	if (!data->netgame)
 	    break;
 	return;
 	
@@ -446,7 +447,7 @@ P_TouchSpecialThing
 	if (!player->cards[it_blueskull])
 	    player->message = DEH_String(GOTBLUESKUL);
 	P_GiveCard (player, it_blueskull);
-	if (!netgame)
+	if (!data->netgame)
 	    break;
 	return;
 	
@@ -454,7 +455,7 @@ P_TouchSpecialThing
 	if (!player->cards[it_yellowskull])
 	    player->message = DEH_String(GOTYELWSKUL);
 	P_GiveCard (player, it_yellowskull);
-	if (!netgame)
+	if (!data->netgame)
 	    break;
 	return;
 	
@@ -462,7 +463,7 @@ P_TouchSpecialThing
 	if (!player->cards[it_redskull])
 	    player->message = DEH_String(GOTREDSKULL);
 	P_GiveCard (player, it_redskull);
-	if (!netgame)
+	if (!data->netgame)
 	    break;
 	return;
 	
@@ -533,55 +534,55 @@ P_TouchSpecialThing
       case SPR_CLIP:
 	if (special->flags & MF_DROPPED)
 	{
-	    if (!P_GiveAmmo (player,am_clip,0))
+	    if (!P_GiveAmmo (data, player,am_clip,0))
 		return;
 	}
 	else
 	{
-	    if (!P_GiveAmmo (player,am_clip,1))
+	    if (!P_GiveAmmo (data, player,am_clip,1))
 		return;
 	}
 	player->message = DEH_String(GOTCLIP);
 	break;
 	
       case SPR_AMMO:
-	if (!P_GiveAmmo (player, am_clip,5))
+	if (!P_GiveAmmo (data, player, am_clip,5))
 	    return;
 	player->message = DEH_String(GOTCLIPBOX);
 	break;
 	
       case SPR_ROCK:
-	if (!P_GiveAmmo (player, am_misl,1))
+	if (!P_GiveAmmo (data, player, am_misl,1))
 	    return;
 	player->message = DEH_String(GOTROCKET);
 	break;
 	
       case SPR_BROK:
-	if (!P_GiveAmmo (player, am_misl,5))
+	if (!P_GiveAmmo (data, player, am_misl,5))
 	    return;
 	player->message = DEH_String(GOTROCKBOX);
 	break;
 	
       case SPR_CELL:
-	if (!P_GiveAmmo (player, am_cell,1))
+	if (!P_GiveAmmo (data, player, am_cell,1))
 	    return;
 	player->message = DEH_String(GOTCELL);
 	break;
 	
       case SPR_CELP:
-	if (!P_GiveAmmo (player, am_cell,5))
+	if (!P_GiveAmmo (data, player, am_cell,5))
 	    return;
 	player->message = DEH_String(GOTCELLBOX);
 	break;
 	
       case SPR_SHEL:
-	if (!P_GiveAmmo (player, am_shell,1))
+	if (!P_GiveAmmo (data, player, am_shell,1))
 	    return;
 	player->message = DEH_String(GOTSHELLS);
 	break;
 	
       case SPR_SBOX:
-	if (!P_GiveAmmo (player, am_shell,5))
+	if (!P_GiveAmmo (data, player, am_shell,5))
 	    return;
 	player->message = DEH_String(GOTSHELLBOX);
 	break;
@@ -594,7 +595,7 @@ P_TouchSpecialThing
 	    player->backpack = true;
 	}
 	for (i=0 ; i<NUMAMMO ; i++)
-	    P_GiveAmmo (player, i, 1);
+	    P_GiveAmmo (data, player, i, 1);
 	player->message = DEH_String(GOTBACKPACK);
 	break;
 	
@@ -656,7 +657,7 @@ P_TouchSpecialThing
 	player->itemcount++;
     P_RemoveMobj (data, special);
     player->bonuscount += BONUSADD;
-    if (player == &players[consoleplayer])
+    if (player == &players[data->consoleplayer])
 	S_StartSound(data, NULL, sound);
 }
 
@@ -691,7 +692,7 @@ P_KillMobj
 	if (target->player)
 	    source->player->frags[target->player-players]++;
     }
-    else if (!netgame && (target->flags & MF_COUNTKILL) )
+    else if (!data->netgame && (target->flags & MF_COUNTKILL) )
     {
 	// count all monster deaths,
 	// even those caused by other monsters
@@ -708,7 +709,7 @@ P_KillMobj
 	target->player->playerstate = PST_DEAD;
 	P_DropWeapon (data, target->player);
 
-	if (target->player == &players[consoleplayer]
+	if (target->player == &players[data->consoleplayer]
 	    && automapactive)
 	{
 	    // don't die in auto map,
@@ -806,7 +807,7 @@ P_DamageMobj
     }
 	
     player = target->player;
-    if (player && gameskill == sk_baby)
+    if (player && data->gameskill == sk_baby)
 	damage >>= 1; 	// take half damage in trainer mode
 		
 
@@ -889,7 +890,7 @@ P_DamageMobj
 	
 	temp = damage < 100 ? damage : 100;
 
-	if (player == &players[consoleplayer])
+	if (player == &players[data->consoleplayer])
 	    I_Tactile (40,10,40+temp*2);
     }
     

@@ -44,7 +44,7 @@
 //
 
 void HU_Init(void);
-void HU_Start(void);
+void HU_Start(data_t* data);
 
 boolean HU_Responder(data_t* data, event_t* ev);
 

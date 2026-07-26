@@ -58,11 +58,11 @@ static void PlayerQuitGame(data_t* data, player_t *player)
     exitmsg[7] += player_num;
 
     playeringame[player_num] = false;
-    players[consoleplayer].message = exitmsg;
+    players[data->consoleplayer].message = exitmsg;
 
     // TODO: check if it is sensible to do this:
 
-    if (demorecording) 
+    if (data->demorecording) 
     {
         G_CheckDemoStatus (data);
     }
@@ -76,7 +76,7 @@ static void RunTic(data_t* data, ticcmd_t *cmds, boolean *ingame)
 
     for (i = 0; i < MAXPLAYERS; ++i)
     {
-        if (!demoplayback && playeringame[i] && !ingame[i])
+        if (!data->demoplayback && playeringame[i] && !ingame[i])
         {
             PlayerQuitGame(data, &players[i]);
         }
@@ -108,7 +108,7 @@ static void LoadGameSettings(data_t* data, net_gamesettings_t *settings)
 {
     unsigned int i;
 
-    deathmatch = settings->deathmatch;
+    data->deathmatch = settings->deathmatch;
     data->startepisode = settings->episode;
 	data->startmap = settings->map;
     data->startskill = settings->skill;
@@ -117,8 +117,8 @@ static void LoadGameSettings(data_t* data, net_gamesettings_t *settings)
 	data->nomonsters = settings->nomonsters;
 	data->fastparm = settings->fast_monsters;
 	data->respawnparm = settings->respawn_monsters;
-    timelimit = settings->timelimit;
-    consoleplayer = settings->consoleplayer;
+    data->timelimit = settings->timelimit;
+    data->consoleplayer = settings->consoleplayer;
 
     if (lowres_turn)
     {
@@ -140,7 +140,7 @@ static void SaveGameSettings(data_t* data, net_gamesettings_t *settings)
     // Fill in game settings structure with appropriate parameters
     // for the new game
 
-    settings->deathmatch = deathmatch;
+    settings->deathmatch = data->deathmatch;
     settings->episode = data->startepisode;
     settings->map = data->startmap;
     settings->skill = data->startskill;
@@ -149,7 +149,7 @@ static void SaveGameSettings(data_t* data, net_gamesettings_t *settings)
     settings->nomonsters = data->nomonsters;
     settings->fast_monsters = data->fastparm;
     settings->respawn_monsters = data->respawnparm;
-    settings->timelimit = timelimit;
+    settings->timelimit = data->timelimit;
 
     settings->lowres_turn = M_CheckParm(data, "-record") > 0
                          && M_CheckParm(data, "-longtics") == 0;
@@ -216,19 +216,19 @@ void D_ConnectNetGame(data_t* data)
     net_connect_data_t connect_data;
 
     InitConnectData(data, &connect_data);
-    netgame = D_InitNetGame(&connect_data);
+    data->netgame = D_InitNetGame(&connect_data);
 
     //!
     // @category net
     //
-    // Start the game playing as though in a netgame with a single
-    // player.  This can also be used to play back single player netgame
+    // Start the game playing as though in a data->netgame with a single
+    // player.  This can also be used to play back single player data->netgame
     // demos.
     //
 
     if (M_CheckParm(data, "-solo-net") > 0)
     {
-        netgame = true;
+        data->netgame = true;
     }
 }
 
@@ -240,7 +240,7 @@ void D_CheckNetGame (data_t* data)
 {
     net_gamesettings_t settings;
 
-    if (netgame)
+    if (data->netgame)
     {
 		data->autostart = true;
     }
@@ -251,27 +251,27 @@ void D_CheckNetGame (data_t* data)
     D_StartNetGame(&settings, NULL);
     LoadGameSettings(data, &settings);
 
-    DEH_printf("startskill %i  deathmatch: %i  startmap: %i  startepisode: %i\n",
-			   data->startskill, deathmatch, data->startmap, data->startepisode);
+    DEH_printf("startskill %i  data->deathmatch: %i  startmap: %i  startepisode: %i\n",
+			   data->startskill, data->deathmatch, data->startmap, data->startepisode);
 
     DEH_printf("player %i of %i (%i nodes)\n",
-               consoleplayer+1, settings.num_players, settings.num_players);
+               data->consoleplayer+1, settings.num_players, settings.num_players);
 
     // Show players here; the server might have specified a time limit
 
-    if (timelimit > 0 && deathmatch)
+    if (data->timelimit > 0 && data->deathmatch)
     {
         // Gross hack to work like Vanilla:
 
-        if (timelimit == 20 && M_CheckParm(data, "-avg"))
+        if (data->timelimit == 20 && M_CheckParm(data, "-avg"))
         {
             DEH_printf("Austin Virtual Gaming: Levels will end "
                            "after 20 minutes\n");
         }
         else
         {
-            DEH_printf("Levels will end after %d minute", timelimit);
-            if (timelimit > 1)
+            DEH_printf("Levels will end after %d minute", data->timelimit);
+            if (data->timelimit > 1)
                 printf("s");
             printf(".\n");
         }

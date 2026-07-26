@@ -1360,16 +1360,16 @@ void P_WriteSaveGameHeader(data_t* data, char *description)
     for (i=0; i<VERSIONSIZE; ++i)
         saveg_write8(name[i]);
 	 
-    saveg_write8(gameskill);
-    saveg_write8(gameepisode);
-    saveg_write8(gamemap);
+    saveg_write8(data->gameskill);
+    saveg_write8(data->gameepisode);
+    saveg_write8(data->gamemap);
 
     for (i=0 ; i<MAXPLAYERS ; i++) 
         saveg_write8(playeringame[i]);
 
-    saveg_write8((leveltime >> 16) & 0xff);
-    saveg_write8((leveltime >> 8) & 0xff);
-    saveg_write8(leveltime & 0xff);
+    saveg_write8((data->leveltime >> 16) & 0xff);
+    saveg_write8((data->leveltime >> 8) & 0xff);
+    saveg_write8(data->leveltime & 0xff);
 }
 
 // 
@@ -1396,9 +1396,9 @@ boolean P_ReadSaveGameHeader(data_t* data)
     if (strcmp(read_vcheck, vcheck) != 0)
 	return false;				// bad version 
 
-    gameskill = saveg_read8();
-    gameepisode = saveg_read8();
-    gamemap = saveg_read8();
+    data->gameskill = saveg_read8();
+    data->gameepisode = saveg_read8();
+    data->gamemap = saveg_read8();
 
     for (i=0 ; i<MAXPLAYERS ; i++) 
 	playeringame[i] = saveg_read8();
@@ -1407,7 +1407,7 @@ boolean P_ReadSaveGameHeader(data_t* data)
     a = saveg_read8();
     b = saveg_read8();
     c = saveg_read8();
-    leveltime = (a<<16) + (b<<8) + c; 
+    data->leveltime = (a<<16) + (b<<8) + c; 
 
     return true;
 }

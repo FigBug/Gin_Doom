@@ -10,6 +10,7 @@ data_t* DG_Alloc()
 	// d_main.c
 	data->main_loop_started = false;
 	data->show_endoom = 1;
+	data->precache = true;
 
 	return data;
 }

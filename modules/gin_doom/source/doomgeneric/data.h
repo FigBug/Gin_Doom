@@ -5,6 +5,7 @@ typedef struct data_s data_t;
 
 #include "d_mode.h"
 #include "d_event.h"
+#include "doomdef.h"
 
 struct data_s
 {
@@ -65,6 +66,32 @@ struct data_s
 	event_t         d_events[64];
 	int             d_eventhead;
 	int             d_eventtail;
+
+	// core game state (doomstat.h / g_game.c / d_loop.c / p_tick.c)
+	int             leveltime;
+	int             gametic;
+	gamestate_t     gamestate;
+	skill_t         gameskill;
+	boolean         respawnmonsters;
+	int             gameepisode;
+	int             gamemap;
+	int             timelimit;
+	boolean         paused;
+	boolean         usergame;
+	boolean         nodrawers;
+	boolean         viewactive;
+	int             deathmatch;
+	boolean         netgame;
+	int             consoleplayer;
+	int             displayplayer;
+	int             levelstarttic;
+	int             totalkills;
+	int             totalitems;
+	int             totalsecret;
+	boolean         demorecording;
+	boolean         demoplayback;
+	boolean         singledemo;
+	boolean         precache;
 
 
 };

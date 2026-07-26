@@ -24,7 +24,6 @@
 #include "doomstat.h"
 
 
-int	leveltime;
 
 //
 // THINKERS
@@ -125,14 +124,14 @@ void P_Ticker (data_t* data)
     int		i;
     
     // run the tic
-    if (paused)
+    if (data->paused)
 	return;
 		
     // pause if in menu and at least one tic has been run
-    if ( !netgame
+    if ( !data->netgame
 	 && menuactive
-	 && !demoplayback
-	 && players[consoleplayer].viewz != 1)
+	 && !data->demoplayback
+	 && players[data->consoleplayer].viewz != 1)
     {
 	return;
     }
@@ -147,5 +146,5 @@ void P_Ticker (data_t* data)
     P_RespawnSpecials (data);
 
     // for par times
-    leveltime++;	
+    data->leveltime++;	
 }

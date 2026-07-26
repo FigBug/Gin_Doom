@@ -34,7 +34,7 @@ R_GetColumn
 
 // I/O, setting up the stuff.
 void R_InitData (data_t* data);
-void R_PrecacheLevel (void);
+void R_PrecacheLevel (data_t* data);
 
 
 // Retrieval.

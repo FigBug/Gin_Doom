@@ -49,11 +49,11 @@ typedef struct
 } ticcmd_set_t;
 
 //
-// gametic is the tic about to (or currently being) run
+// data->gametic is the tic about to (or currently being) run
 // maketic is the tic that hasn't had control made for it yet
 // recvtic is the latest tic received from the server.
 //
-// a gametic cannot be run until ticcmds are received for it
+// a data->gametic cannot be run until ticcmds are received for it
 // from all players.
 //
 
@@ -69,7 +69,6 @@ static int recvtic;
 
 // The number of tics that have been run (using RunTic) so far.
 
-int gametic;
 
 // When set to true, a single tic is run each time TryRunTics() is called.
 // This is used for -timedemo mode.
@@ -138,7 +137,7 @@ static boolean BuildNewTic (data_t* data)
     int	gameticdiv;
     ticcmd_t cmd;
 
-    gameticdiv = gametic/ticdup;
+    gameticdiv = data->gametic/ticdup;
 
     I_StartTic (data);
     loop_interface->ProcessEvents (data);
@@ -732,7 +731,7 @@ void TryRunTics (data_t* data)
 
     lowtic = GetLowTic();
 
-    availabletics = lowtic - gametic/ticdup;
+    availabletics = lowtic - data->gametic/ticdup;
 
     // decide how many tics to run
 
@@ -764,14 +763,14 @@ void TryRunTics (data_t* data)
 
     // wait for new tics if needed
 
-    while (!PlayersInGame() || lowtic < gametic/ticdup + counts)
+    while (!PlayersInGame() || lowtic < data->gametic/ticdup + counts)
     {
 	NetUpdate (data);
 
         lowtic = GetLowTic();
 
-	if (lowtic < gametic/ticdup)
-	    I_Error (data, "TryRunTics: lowtic < gametic");
+	if (lowtic < data->gametic/ticdup)
+	    I_Error (data, "TryRunTics: lowtic < data->gametic");
 
         // Don't stay in this loop forever.  The menu is still running,
         // so return to update the screen
@@ -794,7 +793,7 @@ void TryRunTics (data_t* data)
             return;
         }
 
-        set = &ticdata[(gametic / ticdup) % BACKUPTICS];
+        set = &ticdata[(data->gametic / ticdup) % BACKUPTICS];
 
         if (!net_client_connected)
         {
@@ -803,13 +802,13 @@ void TryRunTics (data_t* data)
 
 	for (i=0 ; i<ticdup ; i++)
 	{
-            if (gametic/ticdup > lowtic)
-                I_Error (data, "gametic>lowtic");
+            if (data->gametic/ticdup > lowtic)
+                I_Error (data, "data->gametic>lowtic");
 
             memcpy(local_playeringame, set->ingame, sizeof(local_playeringame));
 
             loop_interface->RunTic (data, set->cmds, set->ingame);
-	    gametic++;
+	    data->gametic++;
 
 	    // modify command for duplicated tics
 

@@ -73,21 +73,17 @@ extern  boolean	modifiedgame;
 
 
 // Selected by user. 
-extern  skill_t         gameskill;
 extern  int		gameepisode;
 extern  int		gamemap;
 
 // If non-zero, exit the level after this number of minutes
-extern  int             timelimit;
 
 // Nightmare mode flag, single player.
-extern  boolean         respawnmonsters;
 
 // Netgame? Only true if >1 player.
 extern  boolean	netgame;
 
 // 0=Cooperative; 1=Deathmatch; 2=Altdeath
-extern int deathmatch;
 
 // -------------------------
 // Internal parameters for sound rendering.
@@ -183,7 +179,6 @@ extern  boolean		singledemo;
 
 
 //?
-extern  gamestate_t     gamestate;
 
 
 
@@ -231,7 +226,6 @@ extern  wbstartstruct_t		wminfo;
 extern	char		basedefault[1024];
 
 // if true, load all graphics at level load
-extern  boolean         precache;
 
 
 // wipegamestate can be set to -1

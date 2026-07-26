@@ -752,7 +752,7 @@ P_SetupLevel
     char	lumpname[9];
     int		lumpnum;
 	
-    totalkills = totalitems = totalsecret = wminfo.maxfrags = 0;
+    data->totalkills = data->totalitems = data->totalsecret = wminfo.maxfrags = 0;
     wminfo.partime = 180;
     for (i=0 ; i<MAXPLAYERS ; i++)
     {
@@ -762,7 +762,7 @@ P_SetupLevel
 
     // Initial height of PointOfView
     // will be set by player think.
-    players[consoleplayer].viewz = 1; 
+    players[data->consoleplayer].viewz = 1; 
 
     // Make sure all sounds are stopped before Z_FreeTags.
     S_Start(data);			
@@ -791,7 +791,7 @@ P_SetupLevel
 
     lumpnum = W_GetNumForName (lumpname);
 	
-    leveltime = 0;
+    data->leveltime = 0;
 	
     // note: most of this ordering is important	
     P_LoadBlockMap (lumpnum+ML_BLOCKMAP);
@@ -811,8 +811,8 @@ P_SetupLevel
     deathmatch_p = deathmatchstarts;
     P_LoadThings (data, lumpnum+ML_THINGS);
     
-    // if deathmatch, randomly spawn the active players
-    if (deathmatch)
+    // if data->deathmatch, randomly spawn the active players
+    if (data->deathmatch)
     {
 	for (i=0 ; i<MAXPLAYERS ; i++)
 	    if (playeringame[i])
@@ -833,8 +833,8 @@ P_SetupLevel
     //	UNUSED P_ConnectSubsectors ();
 
     // preload graphics
-    if (precache)
-	R_PrecacheLevel ();
+    if (data->precache)
+	R_PrecacheLevel (data);
 
     //printf ("free memory: 0x%x\n", Z_FreeMemory());
 

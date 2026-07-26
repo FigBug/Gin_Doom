@@ -300,15 +300,15 @@ static void PrintLevelName(FILE *stream, int episode, int level)
 
 static void PrintStats(FILE *stream, wbstartstruct_t *stats)
 {
-    int leveltime, partime;
+    int data->leveltime, partime;
     int i;
 
     PrintLevelName(stream, stats->epsd, stats->last);
     fprintf(stream, "\n");
 
-    leveltime = stats->plyr[0].stime / TICRATE;
+    data->leveltime = stats->plyr[0].stime / TICRATE;
     partime = stats->partime / TICRATE;
-    fprintf(stream, "Time: %i:%02i", leveltime / 60, leveltime % 60);
+    fprintf(stream, "Time: %i:%02i", data->leveltime / 60, data->leveltime % 60);
     fprintf(stream, " (par: %i:%02i)\n", partime / 60, partime % 60);
     fprintf(stream, "\n");
 

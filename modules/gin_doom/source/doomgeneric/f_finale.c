@@ -110,8 +110,8 @@ void F_StartFinale (data_t* data)
     size_t i;
 
     gameaction = ga_nothing;
-    gamestate = GS_FINALE;
-    viewactive = false;
+    data->gamestate = GS_FINALE;
+    data->viewactive = false;
     automapactive = false;
 
     if (logical_gamemission == doom)
@@ -137,8 +137,8 @@ void F_StartFinale (data_t* data)
         }
 
         if (logical_gamemission == screen->mission
-         && (logical_gamemission != doom || gameepisode == screen->episode)
-         && gamemap == screen->level)
+         && (logical_gamemission != doom || data->gameepisode == screen->episode)
+         && data->gamemap == screen->level)
         {
             finaletext = screen->text;
             finaleflat = screen->background;
@@ -184,7 +184,7 @@ void F_Ticker (data_t* data)
 				
       if (i < MAXPLAYERS)
       {	
-	if (gamemap == 30)
+	if (data->gamemap == 30)
 	  F_StartCast (data);
 	else
 	  gameaction = ga_worlddone;
@@ -209,7 +209,7 @@ void F_Ticker (data_t* data)
 	finalecount = 0;
 	finalestage = F_STAGE_ARTSCREEN;
 	wipegamestate = -1;		// force a wipe
-	if (gameepisode == 3)
+	if (data->gameepisode == 3)
 	    S_StartMusic(data, mus_bunny);
     }
 }
@@ -662,13 +662,13 @@ static void F_ArtScreenDrawer(data_t* data)
 {
     char *lumpname;
     
-    if (gameepisode == 3)
+    if (data->gameepisode == 3)
     {
         F_BunnyScroll(data);
     }
     else
     {
-        switch (gameepisode)
+        switch (data->gameepisode)
         {
             case 1:
                 if (gamemode == retail)

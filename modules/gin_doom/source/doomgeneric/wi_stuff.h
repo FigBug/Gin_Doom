@@ -39,12 +39,12 @@ void WI_Ticker (data_t* data);
 
 // Called by main loop,
 // draws the intermission directly into the screen buffer.
-void WI_Drawer (void);
+void WI_Drawer (data_t* data);
 
 // Setup for an intermission screen.
 void WI_Start(data_t* data, wbstartstruct_t* wbstartstruct);
 
 // Shut down the intermission screen
-void WI_End(void);
+void WI_End(data_t* data);
 
 #endif
