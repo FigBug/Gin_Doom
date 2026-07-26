@@ -1535,7 +1535,7 @@ void G_DoLoadGame (data_t* data)
     	R_ExecuteSetViewSize ();
     
     // draw the pattern into the back screen
-    R_FillBackScreen (); 
+    R_FillBackScreen(data); 
 } 
  
 
@@ -1629,7 +1629,7 @@ void G_DoSaveGame (data_t* data)
     data->players[data->consoleplayer].message = DEH_String(GGSAVED);
 
     // draw the pattern into the back screen
-    R_FillBackScreen ();	
+    R_FillBackScreen(data);	
 } 
  
 

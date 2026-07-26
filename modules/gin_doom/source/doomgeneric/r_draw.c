@@ -99,7 +99,7 @@ int			dccount;
 // Thus a special case loop for very fast rendering can
 //  be used. It has also been used with Wolfenstein 3D.
 // 
-void R_DrawColumn (void) 
+void R_DrawColumn (data_t* data) 
 { 
     int			count; 
     byte*		dest; 
@@ -149,7 +149,7 @@ void R_DrawColumn (void)
 // UNUSED.
 // Loop unrolled.
 #if 0
-void R_DrawColumn (void) 
+void R_DrawColumn (data_t* data) 
 { 
     int			count; 
     byte*		source;
@@ -205,7 +205,7 @@ void R_DrawColumn (void)
 #endif
 
 
-void R_DrawColumnLow (void) 
+void R_DrawColumnLow (data_t* data) 
 { 
     int			count; 
     byte*		dest; 
@@ -280,7 +280,7 @@ int	fuzzpos = 0;
 //  could create the SHADOW effect,
 //  i.e. spectres and invisible players.
 //
-void R_DrawFuzzColumn (void) 
+void R_DrawFuzzColumn (data_t* data) 
 { 
     int			count; 
     byte*		dest; 
@@ -339,7 +339,7 @@ void R_DrawFuzzColumn (void)
 
 // low detail mode version
  
-void R_DrawFuzzColumnLow (void) 
+void R_DrawFuzzColumnLow (data_t* data) 
 { 
     int			count; 
     byte*		dest; 
@@ -421,7 +421,7 @@ void R_DrawFuzzColumnLow (void)
 byte*	dc_translation;
 byte*	translationtables;
 
-void R_DrawTranslatedColumn (void) 
+void R_DrawTranslatedColumn (data_t* data) 
 { 
     int			count; 
     byte*		dest; 
@@ -465,7 +465,7 @@ void R_DrawTranslatedColumn (void)
     } while (count--); 
 } 
 
-void R_DrawTranslatedColumnLow (void) 
+void R_DrawTranslatedColumnLow (data_t* data) 
 { 
     int			count; 
     byte*		dest; 
@@ -527,7 +527,7 @@ void R_DrawTranslatedColumnLow (void)
 // Assumes a given structure of the PLAYPAL.
 // Could be read from a lump instead.
 //
-void R_InitTranslationTables (void)
+void R_InitTranslationTables (data_t* data)
 {
     int		i;
 	
@@ -587,7 +587,7 @@ int			dscount;
 
 //
 // Draws the actual span.
-void R_DrawSpan (void) 
+void R_DrawSpan (data_t* data) 
 { 
     unsigned int position, step;
     byte *dest;
@@ -643,7 +643,7 @@ void R_DrawSpan (void)
 // UNUSED.
 // Loop unrolled by 4.
 #if 0
-void R_DrawSpan (void) 
+void R_DrawSpan (data_t* data) 
 { 
     unsigned	position, step;
 
@@ -716,7 +716,7 @@ void R_DrawSpan (void)
 //
 // Again..
 //
-void R_DrawSpanLow (void)
+void R_DrawSpanLow (data_t* data)
 {
     unsigned int position, step;
     unsigned int xtemp, ytemp;
@@ -809,7 +809,7 @@ R_InitBuffer
 //  for variable screen sizes
 // Also draws a beveled edge.
 //
-void R_FillBackScreen (void) 
+void R_FillBackScreen (data_t* data) 
 { 
     byte*	src;
     byte*	dest; 
@@ -938,7 +938,7 @@ R_VideoErase
 // Draws the border around the view
 //  for different size windows?
 //
-void R_DrawViewBorder (void) 
+void R_DrawViewBorder (data_t* data) 
 { 
     int		top;
     int		side;

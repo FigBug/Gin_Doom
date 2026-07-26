@@ -340,7 +340,7 @@ short*		mceilingclip;
 fixed_t		spryscale;
 fixed_t		sprtopscreen;
 
-void R_DrawMaskedColumn (column_t* column)
+void R_DrawMaskedColumn (data_t* data, column_t* column)
 {
     int		topscreen;
     int 	bottomscreen;
@@ -371,7 +371,7 @@ void R_DrawMaskedColumn (column_t* column)
 
 	    // Drawn by either R_DrawColumn
 	    //  or (SHADOW) R_DrawFuzzColumn.
-	    colfunc ();	
+	    colfunc (data);	
 	}
 	column = (column_t *)(  (byte *)column + column->length + 4);
     }
@@ -387,7 +387,8 @@ void R_DrawMaskedColumn (column_t* column)
 //
 void
 R_DrawVisSprite
-( vissprite_t*	vis,
+( data_t* data,
+  vissprite_t*	vis,
   int			x1,
   int			x2 )
 {
@@ -428,7 +429,7 @@ R_DrawVisSprite
 #endif
 	column = (column_t *) ((byte *)patch +
 			       LONG(patch->columnofs[texturecolumn]));
-	R_DrawMaskedColumn (column);
+	R_DrawMaskedColumn (data, column);
     }
 
     colfunc = basecolfunc;
@@ -635,7 +636,7 @@ void R_AddSprites (sector_t* sec)
 //
 // R_DrawPSprite
 //
-void R_DrawPSprite (pspdef_t* psp)
+void R_DrawPSprite (data_t* data, pspdef_t* psp)
 {
     fixed_t		tx;
     int			x1;
@@ -727,7 +728,7 @@ void R_DrawPSprite (pspdef_t* psp)
 	vis->colormap = spritelights[MAXLIGHTSCALE-1];
     }
 	
-    R_DrawVisSprite (vis, vis->x1, vis->x2);
+    R_DrawVisSprite (data, vis, vis->x1, vis->x2);
 }
 
 
@@ -735,7 +736,7 @@ void R_DrawPSprite (pspdef_t* psp)
 //
 // R_DrawPlayerSprites
 //
-void R_DrawPlayerSprites (void)
+void R_DrawPlayerSprites (data_t* data)
 {
     int		i;
     int		lightnum;
@@ -763,7 +764,7 @@ void R_DrawPlayerSprites (void)
 	 i++,psp++)
     {
 	if (psp->state)
-	    R_DrawPSprite (psp);
+	    R_DrawPSprite (data, psp);
     }
 }
 
@@ -834,7 +835,7 @@ void R_SortVisSprites (void)
 //
 static short		clipbot[SCREENWIDTH];
 static short		cliptop[SCREENWIDTH];
-void R_DrawSprite (vissprite_t* spr)
+void R_DrawSprite (data_t* data, vissprite_t* spr)
 {
     drawseg_t*		ds;
     int			x;
@@ -882,7 +883,7 @@ void R_DrawSprite (vissprite_t* spr)
 	{
 	    // masked mid texture?
 	    if (ds->maskedtexturecol)	
-		R_RenderMaskedSegRange (ds, r1, r2);
+		R_RenderMaskedSegRange (data, ds, r1, r2);
 	    // seg is behind sprite
 	    continue;			
 	}
@@ -939,7 +940,7 @@ void R_DrawSprite (vissprite_t* spr)
 		
     mfloorclip = clipbot;
     mceilingclip = cliptop;
-    R_DrawVisSprite (spr, spr->x1, spr->x2);
+    R_DrawVisSprite (data, spr, spr->x1, spr->x2);
 }
 
 
@@ -948,7 +949,7 @@ void R_DrawSprite (vissprite_t* spr)
 //
 // R_DrawMasked
 //
-void R_DrawMasked (void)
+void R_DrawMasked (data_t* data)
 {
     vissprite_t*	spr;
     drawseg_t*		ds;
@@ -963,19 +964,19 @@ void R_DrawMasked (void)
 	     spr=spr->next)
 	{
 	    
-	    R_DrawSprite (spr);
+	    R_DrawSprite (data, spr);
 	}
     }
     
     // render any remaining masked mid textures
     for (ds=ds_p-1 ; ds >= drawsegs ; ds--)
 	if (ds->maskedtexturecol)
-	    R_RenderMaskedSegRange (ds, ds->x1, ds->x2);
+	    R_RenderMaskedSegRange (data, ds, ds->x1, ds->x2);
     
     // draw the psprites on top of everything
     //  but does not draw on side views
     if (!viewangleoffset)		
-	R_DrawPlayerSprites ();
+	R_DrawPlayerSprites (data);
 }
 
 

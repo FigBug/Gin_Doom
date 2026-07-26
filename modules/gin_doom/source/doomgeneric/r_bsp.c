@@ -49,7 +49,8 @@ drawseg_t*	ds_p;
 
 void
 R_StoreWallRange
-( int	start,
+( data_t* data,
+  int	start,
   int	stop );
 
 
@@ -95,7 +96,8 @@ cliprange_t	solidsegs[MAXSEGS];
 // 
 void
 R_ClipSolidWallSegment
-( int			first,
+( data_t* data,
+  int			first,
   int			last )
 {
     cliprange_t*	next;
@@ -113,7 +115,7 @@ R_ClipSolidWallSegment
 	{
 	    // Post is entirely visible (above start),
 	    //  so insert a new clippost.
-	    R_StoreWallRange (first, last);
+	    R_StoreWallRange (data, first, last);
 	    next = newend;
 	    newend++;
 	    
@@ -128,7 +130,7 @@ R_ClipSolidWallSegment
 	}
 		
 	// There is a fragment above *start.
-	R_StoreWallRange (first, start->first - 1);
+	R_StoreWallRange (data, first, start->first - 1);
 	// Now adjust the clip size.
 	start->first = first;	
     }
@@ -141,7 +143,7 @@ R_ClipSolidWallSegment
     while (last >= (next+1)->first-1)
     {
 	// There is a fragment between two posts.
-	R_StoreWallRange (next->last + 1, (next+1)->first - 1);
+	R_StoreWallRange (data, next->last + 1, (next+1)->first - 1);
 	next++;
 	
 	if (last <= next->last)
@@ -154,7 +156,7 @@ R_ClipSolidWallSegment
     }
 	
     // There is a fragment after *next.
-    R_StoreWallRange (next->last + 1, last);
+    R_StoreWallRange (data, next->last + 1, last);
     // Adjust the clip size.
     start->last = last;
 	
@@ -188,7 +190,8 @@ R_ClipSolidWallSegment
 //
 void
 R_ClipPassWallSegment
-( int	first,
+( data_t* data,
+  int	first,
   int	last )
 {
     cliprange_t*	start;
@@ -204,12 +207,12 @@ R_ClipPassWallSegment
 	if (last < start->first-1)
 	{
 	    // Post is entirely visible (above start).
-	    R_StoreWallRange (first, last);
+	    R_StoreWallRange (data, first, last);
 	    return;
 	}
 		
 	// There is a fragment above *start.
-	R_StoreWallRange (first, start->first - 1);
+	R_StoreWallRange (data, first, start->first - 1);
     }
 
     // Bottom contained in start?
@@ -219,7 +222,7 @@ R_ClipPassWallSegment
     while (last >= (start+1)->first-1)
     {
 	// There is a fragment between two posts.
-	R_StoreWallRange (start->last + 1, (start+1)->first - 1);
+	R_StoreWallRange (data, start->last + 1, (start+1)->first - 1);
 	start++;
 	
 	if (last <= start->last)
@@ -227,7 +230,7 @@ R_ClipPassWallSegment
     }
 	
     // There is a fragment after *next.
-    R_StoreWallRange (start->last + 1, last);
+    R_StoreWallRange (data, start->last + 1, last);
 }
 
 
@@ -249,7 +252,7 @@ void R_ClearClipSegs (void)
 // Clips the given segment
 // and adds any visible pieces to the line list.
 //
-void R_AddLine (seg_t*	line)
+void R_AddLine (data_t* data, seg_t* line)
 {
     int			x1;
     int			x2;
@@ -341,11 +344,11 @@ void R_AddLine (seg_t*	line)
     
 				
   clippass:
-    R_ClipPassWallSegment (x1, x2-1);	
+    R_ClipPassWallSegment (data, x1, x2-1);	
     return;
 		
   clipsolid:
-    R_ClipSolidWallSegment (x1, x2-1);
+    R_ClipSolidWallSegment (data, x1, x2-1);
 }
 
 
@@ -529,7 +532,7 @@ void R_Subsector (data_t* data, int num)
 
     while (count--)
     {
-	R_AddLine (line);
+	R_AddLine (data, line);
 	line++;
     }
 }

@@ -94,7 +94,8 @@ short*		maskedtexturecol;
 //
 void
 R_RenderMaskedSegRange
-( drawseg_t*	ds,
+( data_t* data,
+  drawseg_t*	ds,
   int		x1,
   int		x2 )
 {
@@ -174,7 +175,7 @@ R_RenderMaskedSegRange
 	    col = (column_t *)( 
 		(byte *)R_GetColumn(texnum,maskedtexturecol[dc_x]) -3);
 			
-	    R_DrawMaskedColumn (col);
+	    R_DrawMaskedColumn (data, col);
 	    maskedtexturecol[dc_x] = SHRT_MAX;
 	}
 	spryscale += rw_scalestep;
@@ -196,7 +197,7 @@ R_RenderMaskedSegRange
 #define HEIGHTBITS		12
 #define HEIGHTUNIT		(1<<HEIGHTBITS)
 
-void R_RenderSegLoop (void)
+void R_RenderSegLoop (data_t* data)
 {
     angle_t		angle;
     unsigned		index;
@@ -281,7 +282,7 @@ void R_RenderSegLoop (void)
 	    dc_yh = yh;
 	    dc_texturemid = rw_midtexturemid;
 	    dc_source = R_GetColumn(midtexture,texturecolumn);
-	    colfunc ();
+	    colfunc (data);
 	    ceilingclip[rw_x] = viewheight;
 	    floorclip[rw_x] = -1;
 	}
@@ -303,7 +304,7 @@ void R_RenderSegLoop (void)
 		    dc_yh = mid;
 		    dc_texturemid = rw_toptexturemid;
 		    dc_source = R_GetColumn(toptexture,texturecolumn);
-		    colfunc ();
+		    colfunc (data);
 		    ceilingclip[rw_x] = mid;
 		}
 		else
@@ -333,7 +334,7 @@ void R_RenderSegLoop (void)
 		    dc_texturemid = rw_bottomtexturemid;
 		    dc_source = R_GetColumn(bottomtexture,
 					    texturecolumn);
-		    colfunc ();
+		    colfunc (data);
 		    floorclip[rw_x] = mid;
 		}
 		else
@@ -370,7 +371,8 @@ void R_RenderSegLoop (void)
 //
 void
 R_StoreWallRange
-( int	start,
+( data_t* data,
+  int	start,
   int	stop )
 {
     fixed_t		hyp;
@@ -708,7 +710,7 @@ R_StoreWallRange
     if (markfloor)
 	floorplane = R_CheckPlane (floorplane, rw_x, rw_stopx-1);
 
-    R_RenderSegLoop ();
+    R_RenderSegLoop (data);
 
     
     // save sprite clipping info

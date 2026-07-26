@@ -112,7 +112,8 @@ void R_InitPlanes (void)
 //
 void
 R_MapPlane
-( int		y,
+( data_t* data,
+  int		y,
   int		x1,
   int		x2 )
 {
@@ -167,7 +168,7 @@ R_MapPlane
     ds_x2 = x2;
 
     // high or low detail
-    spanfunc ();	
+    spanfunc (data);	
 }
 
 
@@ -323,7 +324,8 @@ R_CheckPlane
 //
 void
 R_MakeSpans
-( int		x,
+( data_t* data,
+  int		x,
   int		t1,
   int		b1,
   int		t2,
@@ -331,12 +333,12 @@ R_MakeSpans
 {
     while (t1 < t2 && t1<=b1)
     {
-	R_MapPlane (t1,spanstart[t1],x-1);
+	R_MapPlane (data, t1,spanstart[t1],x-1);
 	t1++;
     }
     while (b1 > b2 && b1>=t1)
     {
-	R_MapPlane (b1,spanstart[b1],x-1);
+	R_MapPlane (data, b1,spanstart[b1],x-1);
 	b1--;
     }
 	
@@ -358,7 +360,7 @@ R_MakeSpans
 // R_DrawPlanes
 // At the end of each frame.
 //
-void R_DrawPlanes (void)
+void R_DrawPlanes (data_t* data)
 {
     visplane_t*		pl;
     int			light;
@@ -408,7 +410,7 @@ void R_DrawPlanes (void)
 		    angle = (viewangle + xtoviewangle[x])>>ANGLETOSKYSHIFT;
 		    dc_x = x;
 		    dc_source = R_GetColumn(skytexture, angle);
-		    colfunc ();
+		    colfunc (data);
 		}
 	    }
 	    continue;
@@ -436,7 +438,7 @@ void R_DrawPlanes (void)
 
 	for (x=pl->minx ; x<= stop ; x++)
 	{
-	    R_MakeSpans(x,pl->top[x-1],
+	    R_MakeSpans(data, x,pl->top[x-1],
 			pl->bottom[x-1],
 			pl->top[x],
 			pl->bottom[x]);

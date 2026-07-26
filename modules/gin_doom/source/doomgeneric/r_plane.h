@@ -45,19 +45,21 @@ void R_ClearPlanes (void);
 
 void
 R_MapPlane
-( int		y,
+( data_t* data,
+  int		y,
   int		x1,
   int		x2 );
 
 void
 R_MakeSpans
-( int		x,
+( data_t* data,
+  int		x,
   int		t1,
   int		b1,
   int		t2,
   int		b2 );
 
-void R_DrawPlanes (void);
+void R_DrawPlanes (data_t* data);
 
 visplane_t*
 R_FindPlane

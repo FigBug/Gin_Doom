@@ -106,11 +106,11 @@ int			extralight;
 
 
 
-void (*colfunc) (void);
-void (*basecolfunc) (void);
-void (*fuzzcolfunc) (void);
-void (*transcolfunc) (void);
-void (*spanfunc) (void);
+void (*colfunc) (data_t*);
+void (*basecolfunc) (data_t*);
+void (*fuzzcolfunc) (data_t*);
+void (*transcolfunc) (data_t*);
+void (*spanfunc) (data_t*);
 
 
 
@@ -780,7 +780,7 @@ void R_Init (data_t* data)
     R_InitLightTables ();
     printf (".");
     R_InitSkyMap ();
-    R_InitTranslationTables ();
+    R_InitTranslationTables (data);
     printf (".");
 	
     framecount = 0;
@@ -879,12 +879,12 @@ void R_RenderPlayerView (data_t* data, player_t* player)
     // Check for new console commands.
     NetUpdate (data);
     
-    R_DrawPlanes ();
+    R_DrawPlanes (data);
     
     // Check for new console commands.
     NetUpdate (data);
     
-    R_DrawMasked ();
+    R_DrawMasked (data);
 
     // Check for new console commands.
     NetUpdate (data);
