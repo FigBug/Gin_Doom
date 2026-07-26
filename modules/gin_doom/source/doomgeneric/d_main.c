@@ -123,7 +123,7 @@ void D_ProcessEvents (data_t* data)
 // data->wipegamestate can be set to -1 to force a wipe on the next draw
 extern  boolean setsizeneeded;
 extern  int             showMessages;
-void R_ExecuteSetViewSize (void);
+void R_ExecuteSetViewSize (data_t* data);
 
 void D_Display (data_t* data)
 {
@@ -149,7 +149,7 @@ void D_Display (data_t* data)
     // change the view size if needed
     if (setsizeneeded)
     {
-		R_ExecuteSetViewSize ();
+		R_ExecuteSetViewSize (data);
 		oldgamestate = -1;                      // force background redraw
 		borderdrawcount = 3;
     }
@@ -191,7 +191,7 @@ void D_Display (data_t* data)
 		break;
 
       case GS_DEMOSCREEN:
-		D_PageDrawer ();
+		D_PageDrawer (data);
 		break;
     }
     
@@ -232,7 +232,7 @@ void D_Display (data_t* data)
     {
         // Box showing current mouse speed
 
-        V_DrawMouseSpeedBox(testcontrols_mousespeed);
+        V_DrawMouseSpeedBox(data, testcontrols_mousespeed);
     }
 
     menuactivestate = data->menuactive;
@@ -247,7 +247,7 @@ void D_Display (data_t* data)
 			y = 4;
 		else
 			y = viewwindowy+4;
-		V_DrawPatchDirect(viewwindowx + (scaledviewwidth - 68) / 2, y,
+		V_DrawPatchDirect(data, viewwindowx + (scaledviewwidth - 68) / 2, y,
 							  W_CacheLumpName (DEH_String("M_PAUSE"), PU_CACHE));
     }
 
@@ -388,8 +388,8 @@ void D_DoomLoop (data_t* data)
     I_InitGraphics(data);
     I_EnableLoadingDisk();
 
-    V_RestoreBuffer();
-    R_ExecuteSetViewSize();
+    V_RestoreBuffer(data);
+    R_ExecuteSetViewSize (data);
 
     D_StartGameLoop (data);
 
@@ -441,9 +441,9 @@ void D_PageTicker (data_t* data)
 //
 // D_PageDrawer
 //
-void D_PageDrawer (void)
+void D_PageDrawer (data_t* data)
 {
-    V_DrawPatch (0, 0, W_CacheLumpName(pagename, PU_CACHE));
+    V_DrawPatch(data, 0, 0, W_CacheLumpName(pagename, PU_CACHE));
 }
 
 
@@ -1309,7 +1309,7 @@ void D_DoomMain (data_t* data)
     
     // init subsystems
     DEH_printf("V_Init: allocate screens.\n");
-    V_Init ();
+    V_Init(data);
 
     // Load configuration files before initialising other subsystems.
     DEH_printf("M_LoadDefaults: Load system defaults.\n");

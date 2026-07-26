@@ -166,6 +166,13 @@ struct data_s
 	fixed_t         ds_ystep;
 	byte*           ds_source;
 
+	// v_video.c
+	byte*           dest_screen;
+	int             dirtybox[4];
+
+	// i_video.c
+	byte*           I_VideoBuffer;
+
 
 };
 

@@ -399,9 +399,9 @@ static patch_t *background;
 //
 
 // slam background
-void WI_slamBackground(void)
+void WI_slamBackground(data_t* data)
 {
-    V_DrawPatch(0, 0, background);
+    V_DrawPatch(data, 0, 0, background);
 }
 
 // The ticker is used to detect keys
@@ -413,20 +413,20 @@ boolean WI_Responder(event_t* ev)
 
 
 // Draws "<Levelname> Finished!"
-void WI_drawLF(void)
+void WI_drawLF(data_t* data)
 {
     int y = WI_TITLEY;
 
     if (gamemode != commercial || wbs->last < NUMCMAPS)
     {
         // draw <LevelName> 
-        V_DrawPatch((SCREENWIDTH - SHORT(lnames[wbs->last]->width))/2,
+        V_DrawPatch(data, (SCREENWIDTH - SHORT(lnames[wbs->last]->width))/2,
                     y, lnames[wbs->last]);
 
         // draw "Finished!"
         y += (5*SHORT(lnames[wbs->last]->height))/4;
 
-        V_DrawPatch((SCREENWIDTH - SHORT(finished->width)) / 2, y, finished);
+        V_DrawPatch(data, (SCREENWIDTH - SHORT(finished->width)) / 2, y, finished);
     }
     else if (wbs->last == NUMCMAPS)
     {
@@ -442,26 +442,26 @@ void WI_drawLF(void)
         patch_t tmp = { SCREENWIDTH, SCREENHEIGHT, 1, 1, 
                         { 0, 0, 0, 0, 0, 0, 0, 0 } };
 
-        V_DrawPatch(0, y, &tmp);
+        V_DrawPatch(data, 0, y, &tmp);
     }
 }
 
 
 
 // Draws "Entering <LevelName>"
-void WI_drawEL(void)
+void WI_drawEL(data_t* data)
 {
     int y = WI_TITLEY;
 
     // draw "Entering"
-    V_DrawPatch((SCREENWIDTH - SHORT(entering->width))/2,
+    V_DrawPatch(data, (SCREENWIDTH - SHORT(entering->width))/2,
 		y,
                 entering);
 
     // draw level
     y += (5*SHORT(lnames[wbs->next]->height))/4;
 
-    V_DrawPatch((SCREENWIDTH - SHORT(lnames[wbs->next]->width))/2,
+    V_DrawPatch(data, (SCREENWIDTH - SHORT(lnames[wbs->next]->width))/2,
 		y, 
                 lnames[wbs->next]);
 
@@ -469,7 +469,8 @@ void WI_drawEL(void)
 
 void
 WI_drawOnLnode
-( int		n,
+( data_t* data,
+  int		n,
   patch_t*	c[] )
 {
 
@@ -503,7 +504,7 @@ WI_drawOnLnode
 
     if (fits && i<2)
     {
-	V_DrawPatch(lnodes[wbs->epsd][n].x,
+	V_DrawPatch(data, lnodes[wbs->epsd][n].x,
                     lnodes[wbs->epsd][n].y,
 		    c[i]);
     }
@@ -596,7 +597,7 @@ void WI_updateAnimatedBack(data_t* data)
 
 }
 
-void WI_drawAnimatedBack(void)
+void WI_drawAnimatedBack(data_t* data)
 {
     int			i;
     anim_t*		a;
@@ -612,7 +613,7 @@ void WI_drawAnimatedBack(void)
 	a = &anims[wbs->epsd][i];
 
 	if (a->ctr >= 0)
-	    V_DrawPatch(a->loc.x, a->loc.y, a->p[a->ctr]);
+	    V_DrawPatch(data, a->loc.x, a->loc.y, a->p[a->ctr]);
     }
 
 }
@@ -626,7 +627,8 @@ void WI_drawAnimatedBack(void)
 
 int
 WI_drawNum
-( int		x,
+( data_t* data,
+  int		x,
   int		y,
   int		n,
   int		digits )
@@ -669,13 +671,13 @@ WI_drawNum
     while (digits--)
     {
 	x -= fontwidth;
-	V_DrawPatch(x, y, num[ n % 10 ]);
+	V_DrawPatch(data, x, y, num[ n % 10 ]);
 	n /= 10;
     }
 
     // draw a minus sign if necessary
     if (neg)
-	V_DrawPatch(x-=8, y, wiminus);
+	V_DrawPatch(data, x-=8, y, wiminus);
 
     return x;
 
@@ -683,15 +685,16 @@ WI_drawNum
 
 void
 WI_drawPercent
-( int		x,
+( data_t* data,
+  int		x,
   int		y,
   int		p )
 {
     if (p < 0)
 	return;
 
-    V_DrawPatch(x, y, percent);
-    WI_drawNum(x, y, p, -1);
+    V_DrawPatch(data, x, y, percent);
+    WI_drawNum(data, x, y, p, -1);
 }
 
 
@@ -702,7 +705,8 @@ WI_drawPercent
 //
 void
 WI_drawTime
-( int		x,
+( data_t* data,
+  int		x,
   int		y,
   int		t )
 {
@@ -720,19 +724,19 @@ WI_drawTime
 	do
 	{
 	    n = (t / div) % 60;
-	    x = WI_drawNum(x, y, n, 2) - SHORT(colon->width);
+	    x = WI_drawNum(data, x, y, n, 2) - SHORT(colon->width);
 	    div *= 60;
 
 	    // draw
 	    if (div==60 || t / div)
-		V_DrawPatch(x, y, colon);
+		V_DrawPatch(data, x, y, colon);
 	    
 	} while (t / div);
     }
     else
     {
 	// "sucks"
-	V_DrawPatch(x - SHORT(sucks->width), y, sucks); 
+	V_DrawPatch(data, x - SHORT(sucks->width), y, sucks); 
     }
 }
 
@@ -788,22 +792,22 @@ void WI_updateShowNextLoc(data_t* data)
 	snl_pointeron = (cnt & 31) < 20;
 }
 
-void WI_drawShowNextLoc(void)
+void WI_drawShowNextLoc(data_t* data)
 {
 
     int		i;
     int		last;
 
-    WI_slamBackground();
+    WI_slamBackground(data);
 
     // draw animated background
-    WI_drawAnimatedBack(); 
+    WI_drawAnimatedBack(data); 
 
     if ( gamemode != commercial)
     {
   	if (wbs->epsd > 2)
 	{
-	    WI_drawEL();
+	    WI_drawEL(data);
 	    return;
 	}
 	
@@ -811,28 +815,28 @@ void WI_drawShowNextLoc(void)
 
 	// draw a splat on taken cities.
 	for (i=0 ; i<=last ; i++)
-	    WI_drawOnLnode(i, splat);
+	    WI_drawOnLnode(data, i, splat);
 
 	// splat the secret level?
 	if (wbs->didsecret)
-	    WI_drawOnLnode(8, splat);
+	    WI_drawOnLnode(data, 8, splat);
 
 	// draw flashing ptr
 	if (snl_pointeron)
-	    WI_drawOnLnode(wbs->next, yah); 
+	    WI_drawOnLnode(data, wbs->next, yah); 
     }
 
     // draws which level you are entering..
     if ( (gamemode != commercial)
 	 || wbs->next != 30)
-	WI_drawEL();  
+	WI_drawEL(data);  
 
 }
 
-void WI_drawNoState(void)
+void WI_drawNoState(data_t* data)
 {
     snl_pointeron = true;
-    WI_drawShowNextLoc();
+    WI_drawShowNextLoc(data);
 }
 
 int WI_fragSum(data_t* data, int playernum)
@@ -1007,19 +1011,19 @@ void WI_drawDeathmatchStats(data_t* data)
     int		y;
     int		w;
 
-    WI_slamBackground();
+    WI_slamBackground(data);
     
     // draw animated background
-    WI_drawAnimatedBack(); 
-    WI_drawLF();
+    WI_drawAnimatedBack(data); 
+    WI_drawLF(data);
 
     // draw stat titles (top line)
-    V_DrawPatch(DM_TOTALSX-SHORT(total->width)/2,
+    V_DrawPatch(data, DM_TOTALSX-SHORT(total->width)/2,
 		DM_MATRIXY-WI_SPACINGY+10,
 		total);
     
-    V_DrawPatch(DM_KILLERSX, DM_KILLERSY, killers);
-    V_DrawPatch(DM_VICTIMSX, DM_VICTIMSY, victims);
+    V_DrawPatch(data, DM_KILLERSX, DM_KILLERSY, killers);
+    V_DrawPatch(data, DM_VICTIMSX, DM_VICTIMSY, victims);
 
     // draw P?
     x = DM_MATRIXX + DM_SPACINGX;
@@ -1029,30 +1033,30 @@ void WI_drawDeathmatchStats(data_t* data)
     {
 	if (data->playeringame[i])
 	{
-	    V_DrawPatch(x-SHORT(p[i]->width)/2,
+	    V_DrawPatch(data, x-SHORT(p[i]->width)/2,
 			DM_MATRIXY - WI_SPACINGY,
 			p[i]);
 	    
-	    V_DrawPatch(DM_MATRIXX-SHORT(p[i]->width)/2,
+	    V_DrawPatch(data, DM_MATRIXX-SHORT(p[i]->width)/2,
 			y,
 			p[i]);
 
 	    if (i == me)
 	    {
-		V_DrawPatch(x-SHORT(p[i]->width)/2,
+		V_DrawPatch(data, x-SHORT(p[i]->width)/2,
 			    DM_MATRIXY - WI_SPACINGY,
 			    bstar);
 
-		V_DrawPatch(DM_MATRIXX-SHORT(p[i]->width)/2,
+		V_DrawPatch(data, DM_MATRIXX-SHORT(p[i]->width)/2,
 			    y,
 			    star);
 	    }
 	}
 	else
 	{
-	    // V_DrawPatch(x-SHORT(bp[i]->width)/2,
+	    // V_DrawPatch(data, x-SHORT(bp[i]->width)/2,
 	    //   DM_MATRIXY - WI_SPACINGY, bp[i]);
-	    // V_DrawPatch(DM_MATRIXX-SHORT(bp[i]->width)/2,
+	    // V_DrawPatch(data, DM_MATRIXX-SHORT(bp[i]->width)/2,
 	    //   y, bp[i]);
 	}
 	x += DM_SPACINGX;
@@ -1072,11 +1076,11 @@ void WI_drawDeathmatchStats(data_t* data)
 	    for (j=0 ; j<MAXPLAYERS ; j++)
 	    {
 		if (data->playeringame[j])
-		    WI_drawNum(x+w, y, dm_frags[i][j], 2);
+		    WI_drawNum(data, x+w, y, dm_frags[i][j], 2);
 
 		x += DM_SPACINGX;
 	    }
-	    WI_drawNum(DM_TOTALSX+w, y, dm_totals[i], 2);
+	    WI_drawNum(data, DM_TOTALSX+w, y, dm_totals[i], 2);
 	}
 	y += WI_SPACINGY;
     }
@@ -1276,25 +1280,25 @@ void WI_drawNetgameStats(data_t* data)
     int		y;
     int		pwidth = SHORT(percent->width);
 
-    WI_slamBackground();
+    WI_slamBackground(data);
     
     // draw animated background
-    WI_drawAnimatedBack(); 
+    WI_drawAnimatedBack(data); 
 
-    WI_drawLF();
+    WI_drawLF(data);
 
     // draw stat titles (top line)
-    V_DrawPatch(NG_STATSX+NG_SPACINGX-SHORT(kills->width),
+    V_DrawPatch(data, NG_STATSX+NG_SPACINGX-SHORT(kills->width),
 		NG_STATSY, kills);
 
-    V_DrawPatch(NG_STATSX+2*NG_SPACINGX-SHORT(items->width),
+    V_DrawPatch(data, NG_STATSX+2*NG_SPACINGX-SHORT(items->width),
 		NG_STATSY, items);
 
-    V_DrawPatch(NG_STATSX+3*NG_SPACINGX-SHORT(secret->width),
+    V_DrawPatch(data, NG_STATSX+3*NG_SPACINGX-SHORT(secret->width),
 		NG_STATSY, secret);
     
     if (dofrags)
-	V_DrawPatch(NG_STATSX+4*NG_SPACINGX-SHORT(frags->width),
+	V_DrawPatch(data, NG_STATSX+4*NG_SPACINGX-SHORT(frags->width),
 		    NG_STATSY, frags);
 
     // draw stats
@@ -1306,18 +1310,18 @@ void WI_drawNetgameStats(data_t* data)
 	    continue;
 
 	x = NG_STATSX;
-	V_DrawPatch(x-SHORT(p[i]->width), y, p[i]);
+	V_DrawPatch(data, x-SHORT(p[i]->width), y, p[i]);
 
 	if (i == me)
-	    V_DrawPatch(x-SHORT(p[i]->width), y, star);
+	    V_DrawPatch(data, x-SHORT(p[i]->width), y, star);
 
 	x += NG_SPACINGX;
-	WI_drawPercent(x-pwidth, y+10, cnt_kills[i]);	x += NG_SPACINGX;
-	WI_drawPercent(x-pwidth, y+10, cnt_items[i]);	x += NG_SPACINGX;
-	WI_drawPercent(x-pwidth, y+10, cnt_secret[i]);	x += NG_SPACINGX;
+	WI_drawPercent(data, x-pwidth, y+10, cnt_kills[i]);	x += NG_SPACINGX;
+	WI_drawPercent(data, x-pwidth, y+10, cnt_items[i]);	x += NG_SPACINGX;
+	WI_drawPercent(data, x-pwidth, y+10, cnt_secret[i]);	x += NG_SPACINGX;
 
 	if (dofrags)
-	    WI_drawNum(x, y+10, cnt_frags[i], -1);
+	    WI_drawNum(data, x, y+10, cnt_frags[i], -1);
 
 	y += WI_SPACINGY;
     }
@@ -1444,36 +1448,36 @@ void WI_updateStats(data_t* data)
 
 }
 
-void WI_drawStats(void)
+void WI_drawStats(data_t* data)
 {
     // line height
     int lh;	
 
     lh = (3*SHORT(num[0]->height))/2;
 
-    WI_slamBackground();
+    WI_slamBackground(data);
 
     // draw animated background
-    WI_drawAnimatedBack();
+    WI_drawAnimatedBack(data);
     
-    WI_drawLF();
+    WI_drawLF(data);
 
-    V_DrawPatch(SP_STATSX, SP_STATSY, kills);
-    WI_drawPercent(SCREENWIDTH - SP_STATSX, SP_STATSY, cnt_kills[0]);
+    V_DrawPatch(data, SP_STATSX, SP_STATSY, kills);
+    WI_drawPercent(data, SCREENWIDTH - SP_STATSX, SP_STATSY, cnt_kills[0]);
 
-    V_DrawPatch(SP_STATSX, SP_STATSY+lh, items);
-    WI_drawPercent(SCREENWIDTH - SP_STATSX, SP_STATSY+lh, cnt_items[0]);
+    V_DrawPatch(data, SP_STATSX, SP_STATSY+lh, items);
+    WI_drawPercent(data, SCREENWIDTH - SP_STATSX, SP_STATSY+lh, cnt_items[0]);
 
-    V_DrawPatch(SP_STATSX, SP_STATSY+2*lh, sp_secret);
-    WI_drawPercent(SCREENWIDTH - SP_STATSX, SP_STATSY+2*lh, cnt_secret[0]);
+    V_DrawPatch(data, SP_STATSX, SP_STATSY+2*lh, sp_secret);
+    WI_drawPercent(data, SCREENWIDTH - SP_STATSX, SP_STATSY+2*lh, cnt_secret[0]);
 
-    V_DrawPatch(SP_TIMEX, SP_TIMEY, timepatch);
-    WI_drawTime(SCREENWIDTH/2 - SP_TIMEX, SP_TIMEY, cnt_time);
+    V_DrawPatch(data, SP_TIMEX, SP_TIMEY, timepatch);
+    WI_drawTime(data, SCREENWIDTH/2 - SP_TIMEX, SP_TIMEY, cnt_time);
 
     if (wbs->epsd < 3)
     {
-	V_DrawPatch(SCREENWIDTH/2 + SP_TIMEX, SP_TIMEY, par);
-	WI_drawTime(SCREENWIDTH - SP_TIMEX, SP_TIMEY, cnt_par);
+	V_DrawPatch(data, SCREENWIDTH/2 + SP_TIMEX, SP_TIMEY, par);
+	WI_drawTime(data, SCREENWIDTH - SP_TIMEX, SP_TIMEY, cnt_par);
     }
 
 }
@@ -1759,15 +1763,15 @@ void WI_Drawer (data_t* data)
 	else if (data->netgame)
 	    WI_drawNetgameStats(data);
 	else
-	    WI_drawStats();
+	    WI_drawStats(data);
 	break;
 	
       case ShowNextLoc:
-	WI_drawShowNextLoc();
+	WI_drawShowNextLoc(data);
 	break;
 	
       case NoState:
-	WI_drawNoState();
+	WI_drawNoState(data);
 	break;
     }
 }

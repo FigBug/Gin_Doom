@@ -106,7 +106,7 @@ boolean HUlib_addCharToTextLine(hu_textline_t *t, char ch);
 boolean HUlib_delCharFromTextLine(hu_textline_t *t);
 
 // draws tline
-void	HUlib_drawTextLine(hu_textline_t *l, boolean drawcursor);
+void	HUlib_drawTextLine(data_t* data, hu_textline_t *l, boolean drawcursor);
 
 // erases text line
 void	HUlib_eraseTextLine(data_t* data, hu_textline_t *l); 
@@ -138,7 +138,7 @@ HUlib_addMessageToSText
   char*		msg );
 
 // draws stext
-void HUlib_drawSText(hu_stext_t* s);
+void HUlib_drawSText(data_t* data, hu_stext_t* s);
 
 // erases all stext lines
 void HUlib_eraseSText(data_t* data, hu_stext_t* s); 
@@ -174,7 +174,7 @@ HUlib_keyInIText
 ( hu_itext_t*	it,
   unsigned char ch );
 
-void HUlib_drawIText(hu_itext_t* it);
+void HUlib_drawIText(data_t* data, hu_itext_t* it);
 
 // erases all itext lines
 void HUlib_eraseIText(data_t* data, hu_itext_t* it); 

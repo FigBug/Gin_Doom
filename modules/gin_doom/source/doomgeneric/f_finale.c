@@ -238,7 +238,7 @@ void F_TextWrite (data_t* data)
     
     // erase the entire screen to a tiled background
     src = W_CacheLumpName ( finaleflat , PU_CACHE);
-    dest = I_VideoBuffer;
+    dest = data->I_VideoBuffer;
 	
     for (y=0 ; y<SCREENHEIGHT ; y++)
     {
@@ -254,7 +254,7 @@ void F_TextWrite (data_t* data)
 	}
     }
 
-    V_MarkRect (0, 0, SCREENWIDTH, SCREENHEIGHT);
+    V_MarkRect(data, 0, 0, SCREENWIDTH, SCREENHEIGHT);
     
     // draw some of the text onto the screen
     cx = 10;
@@ -286,7 +286,7 @@ void F_TextWrite (data_t* data)
 	w = SHORT (hu_font[c]->width);
 	if (cx+w > SCREENWIDTH)
 	    break;
-	V_DrawPatch(cx, cy, hu_font[c]);
+	V_DrawPatch(data, cx, cy, hu_font[c]);
 	cx+=w;
     }
 	
@@ -483,7 +483,7 @@ boolean F_CastResponder (data_t* data, event_t* ev)
 }
 
 
-void F_CastPrint (char* text)
+void F_CastPrint (data_t* data, char* text)
 {
     char*	ch;
     int		c;
@@ -527,7 +527,7 @@ void F_CastPrint (char* text)
 	}
 		
 	w = SHORT (hu_font[c]->width);
-	V_DrawPatch(cx, 180, hu_font[c]);
+	V_DrawPatch(data, cx, 180, hu_font[c]);
 	cx+=w;
     }
 	
@@ -547,9 +547,9 @@ void F_CastDrawer (data_t* data)
     patch_t*		patch;
     
     // erase the entire screen to a background
-    V_DrawPatch (0, 0, W_CacheLumpName (DEH_String("BOSSBACK"), PU_CACHE));
+    V_DrawPatch(data, 0, 0, W_CacheLumpName (DEH_String("BOSSBACK"), PU_CACHE));
 
-    F_CastPrint (DEH_String(castorder[castnum].name));
+    F_CastPrint (data, DEH_String(castorder[castnum].name));
     
     // draw the current frame in the middle of the screen
     sprdef = &sprites[caststate->sprite];
@@ -559,9 +559,9 @@ void F_CastDrawer (data_t* data)
 			
     patch = W_CacheLumpNum (lump+firstspritelump, PU_CACHE);
     if (flip)
-	V_DrawPatchFlipped(160, 170, patch);
+	V_DrawPatchFlipped(data, 160, 170, patch);
     else
-	V_DrawPatch(160, 170, patch);
+	V_DrawPatch(data, 160, 170, patch);
 }
 
 
@@ -570,7 +570,8 @@ void F_CastDrawer (data_t* data)
 //
 void
 F_DrawPatchCol
-( int		x,
+( data_t* data,
+  int		x,
   patch_t*	patch,
   int		col )
 {
@@ -581,7 +582,7 @@ F_DrawPatchCol
     int		count;
 	
     column = (column_t *)((byte *)patch + LONG(patch->columnofs[col]));
-    desttop = I_VideoBuffer + x;
+    desttop = data->I_VideoBuffer + x;
 
     // step through the posts in a column
     while (column->topdelta != 0xff )
@@ -616,7 +617,7 @@ void F_BunnyScroll (data_t* data)
     p1 = W_CacheLumpName (DEH_String("PFUB2"), PU_LEVEL);
     p2 = W_CacheLumpName (DEH_String("PFUB1"), PU_LEVEL);
 
-    V_MarkRect (0, 0, SCREENWIDTH, SCREENHEIGHT);
+    V_MarkRect(data, 0, 0, SCREENWIDTH, SCREENHEIGHT);
 	
     scrolled = (320 - ((signed int) finalecount-230)/2);
     if (scrolled > 320)
@@ -627,16 +628,16 @@ void F_BunnyScroll (data_t* data)
     for ( x=0 ; x<SCREENWIDTH ; x++)
     {
 	if (x+scrolled < 320)
-	    F_DrawPatchCol (x, p1, x+scrolled);
+	    F_DrawPatchCol (data, x, p1, x+scrolled);
 	else
-	    F_DrawPatchCol (x, p2, x+scrolled - 320);		
+	    F_DrawPatchCol (data, x, p2, x+scrolled - 320);		
     }
 	
     if (finalecount < 1130)
 	return;
     if (finalecount < 1180)
     {
-        V_DrawPatch((SCREENWIDTH - 13 * 8) / 2,
+        V_DrawPatch(data, (SCREENWIDTH - 13 * 8) / 2,
                     (SCREENHEIGHT - 8 * 8) / 2, 
                     W_CacheLumpName(DEH_String("END0"), PU_CACHE));
 	laststage = 0;
@@ -653,7 +654,7 @@ void F_BunnyScroll (data_t* data)
     }
 	
     DEH_snprintf(name, 10, "END%i", stage);
-    V_DrawPatch((SCREENWIDTH - 13 * 8) / 2, 
+    V_DrawPatch(data, (SCREENWIDTH - 13 * 8) / 2, 
                 (SCREENHEIGHT - 8 * 8) / 2, 
                 W_CacheLumpName (name,PU_CACHE));
 }
@@ -692,7 +693,7 @@ static void F_ArtScreenDrawer(data_t* data)
 
         lumpname = DEH_String(lumpname);
 
-        V_DrawPatch (0, 0, W_CacheLumpName(lumpname, PU_CACHE));
+        V_DrawPatch(data, 0, 0, W_CacheLumpName(lumpname, PU_CACHE));
     }
 }
 

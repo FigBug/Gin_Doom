@@ -664,7 +664,7 @@ R_SetViewSize
 //
 // R_ExecuteSetViewSize
 //
-void R_ExecuteSetViewSize (void)
+void R_ExecuteSetViewSize (data_t* data)
 {
     fixed_t	cosadj;
     fixed_t	dy;
@@ -710,7 +710,7 @@ void R_ExecuteSetViewSize (void)
 	spanfunc = R_DrawSpanLow;
     }
 
-    R_InitBuffer (scaledviewwidth, viewheight);
+    R_InitBuffer (data, scaledviewwidth, viewheight);
 	
     R_InitTextureMapping ();
     

@@ -99,7 +99,7 @@ void I_InitGraphics (data_t* data);
 
 void I_GraphicsCheckCommandLine(void);
 
-void I_ShutdownGraphics(void);
+void I_ShutdownGraphics(data_t* data);
 
 // Takes full 8 bit values.
 void I_SetPalette (byte* palette);
@@ -108,7 +108,7 @@ int I_GetPaletteIndex(int r, int g, int b);
 void I_UpdateNoBlit (void);
 void I_FinishUpdate (data_t* data);
 
-void I_ReadScreen (byte* scr);
+void I_ReadScreen (data_t* data, byte* scr);
 
 void I_BeginRead (void);
 
@@ -147,7 +147,6 @@ extern int mouse_threshold;
 extern int vanilla_keyboard_mapping;
 extern boolean screensaver_mode;
 extern int usegamma;
-extern byte *I_VideoBuffer;
 
 extern int screen_width;
 extern int screen_height;

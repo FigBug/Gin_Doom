@@ -235,7 +235,7 @@ wipe_StartScreen
   int	height )
 {
     data->wipe_scr_start = Z_Malloc(SCREENWIDTH * SCREENHEIGHT, PU_STATIC, NULL);
-    I_ReadScreen(data->wipe_scr_start);
+    I_ReadScreen(data, data->wipe_scr_start);
     return 0;
 }
 
@@ -248,8 +248,8 @@ wipe_EndScreen
   int	height )
 {
     data->wipe_scr_end = Z_Malloc(SCREENWIDTH * SCREENHEIGHT, PU_STATIC, NULL);
-    I_ReadScreen(data->wipe_scr_end);
-    V_DrawBlock(x, y, width, height, data->wipe_scr_start); // restore start scr.
+    I_ReadScreen(data, data->wipe_scr_end);
+    V_DrawBlock(data, x, y, width, height, data->wipe_scr_start); // restore start scr.
     return 0;
 }
 
@@ -275,14 +275,14 @@ wipe_ScreenWipe
     {
 	data->wipe_go = 1;
 	// wipe_scr = (byte *) Z_Malloc(width*height, PU_STATIC, 0); // DEBUG
-	data->wipe_scr = I_VideoBuffer;
+	data->wipe_scr = data->I_VideoBuffer;
 	(*wipes[wipeno*3])(data, width, height, ticks);
     }
 
     // do a piece of wipe-in
-    V_MarkRect(0, 0, width, height);
+    V_MarkRect(data, 0, 0, width, height);
     rc = (*wipes[wipeno*3+1])(data, width, height, ticks);
-    //  V_DrawBlock(x, y, 0, width, height, wipe_scr); // DEBUG
+    //  V_DrawBlock(data, x, y, 0, width, height, wipe_scr); // DEBUG
 
     // final stuff
     if (rc)

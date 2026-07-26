@@ -45,7 +45,8 @@ void	R_DrawTranslatedColumnLow (data_t* data);
 
 void
 R_VideoErase
-( unsigned	ofs,
+( data_t* data,
+  unsigned	ofs,
   int		count );
 
 
@@ -66,7 +67,8 @@ void	R_DrawSpanLow (data_t* data);
 
 void
 R_InitBuffer
-( int		width,
+( data_t* data,
+  int		width,
   int		height );
 
 

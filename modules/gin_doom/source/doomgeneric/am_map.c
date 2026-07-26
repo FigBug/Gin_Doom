@@ -426,7 +426,7 @@ void AM_initVariables(data_t* data)
     static event_t st_notify = { ev_keyup, AM_MSGENTERED, 0, 0 };
 
     data->automapactive = true;
-    fb = I_VideoBuffer;
+    fb = data->I_VideoBuffer;
 
     f_oldloc.x = INT_MAX;
     amclock = 0;
@@ -1322,7 +1322,7 @@ void AM_drawMarks(data_t* data)
 	    fx = CXMTOF(markpoints[i].x);
 	    fy = CYMTOF(markpoints[i].y);
 	    if (fx >= f_x && fx <= f_w - w && fy >= f_y && fy <= f_h - h)
-		V_DrawPatch(fx, fy, marknums[i]);
+		V_DrawPatch(data, fx, fy, marknums[i]);
 	}
     }
 
@@ -1349,6 +1349,6 @@ void AM_Drawer(data_t* data)
 
     AM_drawMarks(data);
 
-    V_MarkRect(f_x, f_y, f_w, f_h);
+    V_MarkRect(data, f_x, f_y, f_w, f_h);
 
 }

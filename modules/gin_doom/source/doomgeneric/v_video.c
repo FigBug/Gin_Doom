@@ -55,9 +55,7 @@ byte *xlatab = NULL;
 
 // The screen buffer that the v_video.c code draws to.
 
-static byte *dest_screen = NULL;
 
-int dirtybox[4]; 
 
 // haleyjd 08/28/10: clipping callback function for patches.
 // This is needed for Chocolate Strife, which clips patches to the screen.
@@ -66,15 +64,15 @@ static vpatchclipfunc_t patchclip_callback = NULL;
 //
 // V_MarkRect 
 // 
-void V_MarkRect(int x, int y, int width, int height) 
+void V_MarkRect(data_t* data, int x, int y, int width, int height) 
 { 
     // If we are temporarily using an alternate screen, do not 
     // affect the update box.
 
-    if (dest_screen == I_VideoBuffer)
+    if (data->dest_screen == data->I_VideoBuffer)
     {
-        M_AddToBox (dirtybox, x, y); 
-        M_AddToBox (dirtybox, x + width-1, y + height-1); 
+        M_AddToBox (data->dirtybox, x, y); 
+        M_AddToBox (data->dirtybox, x + width-1, y + height-1); 
     }
 } 
  
@@ -82,7 +80,7 @@ void V_MarkRect(int x, int y, int width, int height)
 //
 // V_CopyRect 
 // 
-void V_CopyRect(int srcx, int srcy, byte *source,
+void V_CopyRect(data_t* data, int srcx, int srcy, byte *source,
                 int width, int height,
                 int destx, int desty)
 { 
@@ -103,10 +101,10 @@ void V_CopyRect(int srcx, int srcy, byte *source,
     }
 #endif 
 
-    V_MarkRect(destx, desty, width, height); 
+    V_MarkRect(data, destx, desty, width, height); 
  
     src = source + SCREENWIDTH * srcy + srcx; 
-    dest = dest_screen + SCREENWIDTH * desty + destx; 
+    dest = data->dest_screen + SCREENWIDTH * desty + destx; 
 
     for ( ; height>0 ; height--) 
     { 
@@ -136,7 +134,7 @@ void V_SetPatchClipCallback(vpatchclipfunc_t func)
 // Masks a column based masked pic to the screen. 
 //
 
-void V_DrawPatch(int x, int y, patch_t *patch)
+void V_DrawPatch(data_t* data, int x, int y, patch_t *patch)
 { 
     int count;
     int col;
@@ -166,10 +164,10 @@ void V_DrawPatch(int x, int y, patch_t *patch)
     }
 #endif
 
-    V_MarkRect(x, y, SHORT(patch->width), SHORT(patch->height));
+    V_MarkRect(data, x, y, SHORT(patch->width), SHORT(patch->height));
 
     col = 0;
-    desttop = dest_screen + y * SCREENWIDTH + x;
+    desttop = data->dest_screen + y * SCREENWIDTH + x;
 
     w = SHORT(patch->width);
 
@@ -200,7 +198,7 @@ void V_DrawPatch(int x, int y, patch_t *patch)
 // Flips horizontally, e.g. to mirror face.
 //
 
-void V_DrawPatchFlipped(int x, int y, patch_t *patch)
+void V_DrawPatchFlipped(data_t* data, int x, int y, patch_t *patch)
 {
     int count;
     int col; 
@@ -230,10 +228,10 @@ void V_DrawPatchFlipped(int x, int y, patch_t *patch)
     }
 #endif
 
-    V_MarkRect (x, y, SHORT(patch->width), SHORT(patch->height));
+    V_MarkRect(data, x, y, SHORT(patch->width), SHORT(patch->height));
 
     col = 0;
-    desttop = dest_screen + y * SCREENWIDTH + x;
+    desttop = data->dest_screen + y * SCREENWIDTH + x;
 
     w = SHORT(patch->width);
 
@@ -265,9 +263,9 @@ void V_DrawPatchFlipped(int x, int y, patch_t *patch)
 // Draws directly to the screen on the pc. 
 //
 
-void V_DrawPatchDirect(int x, int y, patch_t *patch)
+void V_DrawPatchDirect(data_t* data, int x, int y, patch_t *patch)
 {
-    V_DrawPatch(x, y, patch); 
+    V_DrawPatch(data, x, y, patch); 
 } 
 
 //
@@ -276,7 +274,7 @@ void V_DrawPatchDirect(int x, int y, patch_t *patch)
 // Masks a column based translucent masked pic to the screen.
 //
 
-void V_DrawTLPatch(int x, int y, patch_t * patch)
+void V_DrawTLPatch(data_t* data, int x, int y, patch_t * patch)
 {
     int count, col;
     column_t *column;
@@ -295,7 +293,7 @@ void V_DrawTLPatch(int x, int y, patch_t * patch)
     }
 
     col = 0;
-    desttop = dest_screen + y * SCREENWIDTH + x;
+    desttop = data->dest_screen + y * SCREENWIDTH + x;
 
     w = SHORT(patch->width);
     for (; col < w; x++, col++, desttop++)
@@ -326,7 +324,7 @@ void V_DrawTLPatch(int x, int y, patch_t * patch)
 // villsa [STRIFE] Masks a column based translucent masked pic to the screen.
 //
 
-void V_DrawXlaPatch(int x, int y, patch_t * patch)
+void V_DrawXlaPatch(data_t* data, int x, int y, patch_t * patch)
 {
     int count, col;
     column_t *column;
@@ -343,7 +341,7 @@ void V_DrawXlaPatch(int x, int y, patch_t * patch)
     }
 
     col = 0;
-    desttop = dest_screen + y * SCREENWIDTH + x;
+    desttop = data->dest_screen + y * SCREENWIDTH + x;
 
     w = SHORT(patch->width);
     for(; col < w; x++, col++, desttop++)
@@ -375,7 +373,7 @@ void V_DrawXlaPatch(int x, int y, patch_t * patch)
 // Masks a column based translucent masked pic to the screen.
 //
 
-void V_DrawAltTLPatch(int x, int y, patch_t * patch)
+void V_DrawAltTLPatch(data_t* data, int x, int y, patch_t * patch)
 {
     int count, col;
     column_t *column;
@@ -394,7 +392,7 @@ void V_DrawAltTLPatch(int x, int y, patch_t * patch)
     }
 
     col = 0;
-    desttop = dest_screen + y * SCREENWIDTH + x;
+    desttop = data->dest_screen + y * SCREENWIDTH + x;
 
     w = SHORT(patch->width);
     for (; col < w; x++, col++, desttop++)
@@ -425,7 +423,7 @@ void V_DrawAltTLPatch(int x, int y, patch_t * patch)
 // Masks a column based masked pic to the screen.
 //
 
-void V_DrawShadowedPatch(int x, int y, patch_t *patch)
+void V_DrawShadowedPatch(data_t* data, int x, int y, patch_t *patch)
 {
     int count, col;
     column_t *column;
@@ -445,8 +443,8 @@ void V_DrawShadowedPatch(int x, int y, patch_t *patch)
     }
 
     col = 0;
-    desttop = dest_screen + y * SCREENWIDTH + x;
-    desttop2 = dest_screen + (y + 2) * SCREENWIDTH + x + 2;
+    desttop = data->dest_screen + y * SCREENWIDTH + x;
+    desttop2 = data->dest_screen + (y + 2) * SCREENWIDTH + x + 2;
 
     w = SHORT(patch->width);
     for (; col < w; x++, col++, desttop++, desttop2++)
@@ -500,7 +498,7 @@ void V_LoadXlaTable(void)
 // Draw a linear block of pixels into the view buffer.
 //
 
-void V_DrawBlock(int x, int y, int width, int height, byte *src) 
+void V_DrawBlock(data_t* data, int x, int y, int width, int height, byte *src) 
 { 
     byte *dest; 
  
@@ -514,9 +512,9 @@ void V_DrawBlock(int x, int y, int width, int height, byte *src)
     }
 #endif 
  
-    V_MarkRect (x, y, width, height); 
+    V_MarkRect(data, x, y, width, height); 
  
-    dest = dest_screen + y * SCREENWIDTH + x; 
+    dest = data->dest_screen + y * SCREENWIDTH + x; 
 
     while (height--) 
     { 
@@ -526,12 +524,12 @@ void V_DrawBlock(int x, int y, int width, int height, byte *src)
     } 
 } 
 
-void V_DrawFilledBox(int x, int y, int w, int h, int c)
+void V_DrawFilledBox(data_t* data, int x, int y, int w, int h, int c)
 {
     uint8_t *buf, *buf1;
     int x1, y1;
 
-    buf = I_VideoBuffer + SCREENWIDTH * y + x;
+    buf = data->I_VideoBuffer + SCREENWIDTH * y + x;
 
     for (y1 = 0; y1 < h; ++y1)
     {
@@ -546,12 +544,12 @@ void V_DrawFilledBox(int x, int y, int w, int h, int c)
     }
 }
 
-void V_DrawHorizLine(int x, int y, int w, int c)
+void V_DrawHorizLine(data_t* data, int x, int y, int w, int c)
 {
     uint8_t *buf;
     int x1;
 
-    buf = I_VideoBuffer + SCREENWIDTH * y + x;
+    buf = data->I_VideoBuffer + SCREENWIDTH * y + x;
 
     for (x1 = 0; x1 < w; ++x1)
     {
@@ -559,12 +557,12 @@ void V_DrawHorizLine(int x, int y, int w, int c)
     }
 }
 
-void V_DrawVertLine(int x, int y, int h, int c)
+void V_DrawVertLine(data_t* data, int x, int y, int h, int c)
 {
     uint8_t *buf;
     int y1;
 
-    buf = I_VideoBuffer + SCREENWIDTH * y + x;
+    buf = data->I_VideoBuffer + SCREENWIDTH * y + x;
 
     for (y1 = 0; y1 < h; ++y1)
     {
@@ -573,12 +571,12 @@ void V_DrawVertLine(int x, int y, int h, int c)
     }
 }
 
-void V_DrawBox(int x, int y, int w, int h, int c)
+void V_DrawBox(data_t* data, int x, int y, int w, int h, int c)
 {
-    V_DrawHorizLine(x, y, w, c);
-    V_DrawHorizLine(x, y+h-1, w, c);
-    V_DrawVertLine(x, y, h, c);
-    V_DrawVertLine(x+w-1, y, h, c);
+    V_DrawHorizLine(data, x, y, w, c);
+    V_DrawHorizLine(data, x, y+h-1, w, c);
+    V_DrawVertLine(data, x, y, h, c);
+    V_DrawVertLine(data, x+w-1, y, h, c);
 }
 
 //
@@ -586,15 +584,15 @@ void V_DrawBox(int x, int y, int w, int h, int c)
 // to the screen)
 //
  
-void V_DrawRawScreen(byte *raw)
+void V_DrawRawScreen(data_t* data, byte *raw)
 {
-    memcpy(dest_screen, raw, SCREENWIDTH * SCREENHEIGHT);
+    memcpy(data->dest_screen, raw, SCREENWIDTH * SCREENHEIGHT);
 }
 
 //
 // V_Init
 // 
-void V_Init (void) 
+void V_Init (data_t* data) 
 { 
     // no-op!
     // There used to be separate screens that could be drawn to; these are
@@ -603,16 +601,16 @@ void V_Init (void)
 
 // Set the buffer that the code draws to.
 
-void V_UseBuffer(byte *buffer)
+void V_UseBuffer(data_t* data, byte *buffer)
 {
-    dest_screen = buffer;
+    data->dest_screen = buffer;
 }
 
 // Restore screen buffer to the i_video screen buffer.
 
-void V_RestoreBuffer(void)
+void V_RestoreBuffer(data_t* data)
 {
-    dest_screen = I_VideoBuffer;
+    data->dest_screen = data->I_VideoBuffer;
 }
 
 //
@@ -788,7 +786,7 @@ void WritePNGfile(char *filename, byte *data,
 // V_ScreenShot
 //
 
-void V_ScreenShot(char *format)
+void V_ScreenShot(data_t* data, char *format)
 {
     int i;
     char lbmname[16]; // haleyjd 20110213: BUG FIX - 12 is too small!
@@ -826,7 +824,7 @@ void V_ScreenShot(char *format)
 #ifdef HAVE_LIBPNG
     if (png_screenshots)
     {
-    WritePNGfile(lbmname, I_VideoBuffer,
+    WritePNGfile(lbmname, data->I_VideoBuffer,
                  SCREENWIDTH, SCREENHEIGHT,
                  W_CacheLumpName (DEH_String("PLAYPAL"), PU_CACHE));
     }
@@ -834,7 +832,7 @@ void V_ScreenShot(char *format)
 #endif
     {
     // save the pcx file
-    WritePCXfile(lbmname, I_VideoBuffer,
+    WritePCXfile(lbmname, data->I_VideoBuffer,
                  SCREENWIDTH, SCREENHEIGHT,
                  W_CacheLumpName (DEH_String("PLAYPAL"), PU_CACHE));
     }
@@ -843,7 +841,7 @@ void V_ScreenShot(char *format)
 #define MOUSE_SPEED_BOX_WIDTH  120
 #define MOUSE_SPEED_BOX_HEIGHT 9
 
-void V_DrawMouseSpeedBox(int speed)
+void V_DrawMouseSpeedBox(data_t* data, int speed)
 {
     extern int usemouse;
     int bgcolor, bordercolor, red, black, white, yellow;
@@ -875,9 +873,9 @@ void V_DrawMouseSpeedBox(int speed)
     box_x = SCREENWIDTH - MOUSE_SPEED_BOX_WIDTH - 10;
     box_y = 15;
 
-    V_DrawFilledBox(box_x, box_y,
+    V_DrawFilledBox(data, box_x, box_y,
                     MOUSE_SPEED_BOX_WIDTH, MOUSE_SPEED_BOX_HEIGHT, bgcolor);
-    V_DrawBox(box_x, box_y,
+    V_DrawBox(data, box_x, box_y,
               MOUSE_SPEED_BOX_WIDTH, MOUSE_SPEED_BOX_HEIGHT, bordercolor);
 
     // Calculate the position of the red line.  This is 1/3 of the way
@@ -909,24 +907,24 @@ void V_DrawMouseSpeedBox(int speed)
         linelen = MOUSE_SPEED_BOX_WIDTH - 1;
     }
 
-    V_DrawHorizLine(box_x + 1, box_y + 4, MOUSE_SPEED_BOX_WIDTH - 2, black);
+    V_DrawHorizLine(data, box_x + 1, box_y + 4, MOUSE_SPEED_BOX_WIDTH - 2, black);
 
     if (linelen < redline_x)
     {
-        V_DrawHorizLine(box_x + 1, box_y + MOUSE_SPEED_BOX_HEIGHT / 2,
+        V_DrawHorizLine(data, box_x + 1, box_y + MOUSE_SPEED_BOX_HEIGHT / 2,
                       linelen, white);
     }
     else
     {
-        V_DrawHorizLine(box_x + 1, box_y + MOUSE_SPEED_BOX_HEIGHT / 2,
+        V_DrawHorizLine(data, box_x + 1, box_y + MOUSE_SPEED_BOX_HEIGHT / 2,
                         redline_x, white);
-        V_DrawHorizLine(box_x + redline_x, box_y + MOUSE_SPEED_BOX_HEIGHT / 2,
+        V_DrawHorizLine(data, box_x + redline_x, box_y + MOUSE_SPEED_BOX_HEIGHT / 2,
                         linelen - redline_x, yellow);
     }
 
     // Draw red line
 
-    V_DrawVertLine(box_x + redline_x, box_y + 1,
+    V_DrawVertLine(data, box_x + redline_x, box_y + 1,
                  MOUSE_SPEED_BOX_HEIGHT - 2, red);
 }
 

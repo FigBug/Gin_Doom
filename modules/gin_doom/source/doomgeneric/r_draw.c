@@ -758,7 +758,8 @@ void R_DrawSpanLow (data_t* data)
 //
 void
 R_InitBuffer
-( int		width,
+( data_t* data,
+  int		width,
   int		height ) 
 { 
     int		i; 
@@ -780,7 +781,7 @@ R_InitBuffer
 
     // Preclaculate all row offsets.
     for (i=0 ; i<height ; i++) 
-	ylookup[i] = I_VideoBuffer + (i+viewwindowy)*SCREENWIDTH; 
+	ylookup[i] = data->I_VideoBuffer + (i+viewwindowy)*SCREENWIDTH; 
 } 
  
  
@@ -855,43 +856,43 @@ void R_FillBackScreen (data_t* data)
      
     // Draw screen and bezel; this is done to a separate screen buffer.
 
-    V_UseBuffer(background_buffer);
+    V_UseBuffer(data, background_buffer);
 
     patch = W_CacheLumpName(DEH_String("brdr_t"),PU_CACHE);
 
     for (x=0 ; x<scaledviewwidth ; x+=8)
-	V_DrawPatch(viewwindowx+x, viewwindowy-8, patch);
+	V_DrawPatch(data, viewwindowx+x, viewwindowy-8, patch);
     patch = W_CacheLumpName(DEH_String("brdr_b"),PU_CACHE);
 
     for (x=0 ; x<scaledviewwidth ; x+=8)
-	V_DrawPatch(viewwindowx+x, viewwindowy+viewheight, patch);
+	V_DrawPatch(data, viewwindowx+x, viewwindowy+viewheight, patch);
     patch = W_CacheLumpName(DEH_String("brdr_l"),PU_CACHE);
 
     for (y=0 ; y<viewheight ; y+=8)
-	V_DrawPatch(viewwindowx-8, viewwindowy+y, patch);
+	V_DrawPatch(data, viewwindowx-8, viewwindowy+y, patch);
     patch = W_CacheLumpName(DEH_String("brdr_r"),PU_CACHE);
 
     for (y=0 ; y<viewheight ; y+=8)
-	V_DrawPatch(viewwindowx+scaledviewwidth, viewwindowy+y, patch);
+	V_DrawPatch(data, viewwindowx+scaledviewwidth, viewwindowy+y, patch);
 
     // Draw beveled edge. 
-    V_DrawPatch(viewwindowx-8,
+    V_DrawPatch(data, viewwindowx-8,
                 viewwindowy-8,
                 W_CacheLumpName(DEH_String("brdr_tl"),PU_CACHE));
     
-    V_DrawPatch(viewwindowx+scaledviewwidth,
+    V_DrawPatch(data, viewwindowx+scaledviewwidth,
                 viewwindowy-8,
                 W_CacheLumpName(DEH_String("brdr_tr"),PU_CACHE));
     
-    V_DrawPatch(viewwindowx-8,
+    V_DrawPatch(data, viewwindowx-8,
                 viewwindowy+viewheight,
                 W_CacheLumpName(DEH_String("brdr_bl"),PU_CACHE));
     
-    V_DrawPatch(viewwindowx+scaledviewwidth,
+    V_DrawPatch(data, viewwindowx+scaledviewwidth,
                 viewwindowy+viewheight,
                 W_CacheLumpName(DEH_String("brdr_br"),PU_CACHE));
 
-    V_RestoreBuffer();
+    V_RestoreBuffer(data);
 } 
  
 
@@ -900,7 +901,8 @@ void R_FillBackScreen (data_t* data)
 //
 void
 R_VideoErase
-( unsigned	ofs,
+( data_t* data,
+  unsigned	ofs,
   int		count ) 
 { 
   // LFB copy.
@@ -911,7 +913,7 @@ R_VideoErase
 
     if (background_buffer != NULL)
     {
-        memcpy(I_VideoBuffer + ofs, background_buffer + ofs, count); 
+        memcpy(data->I_VideoBuffer + ofs, background_buffer + ofs, count); 
     }
 } 
 
@@ -935,11 +937,11 @@ void R_DrawViewBorder (data_t* data)
     side = (SCREENWIDTH-scaledviewwidth)/2; 
  
     // copy top and one line of left side 
-    R_VideoErase (0, top*SCREENWIDTH+side); 
+    R_VideoErase (data, 0, top*SCREENWIDTH+side); 
  
     // copy one line of right side and bottom 
     ofs = (viewheight+top)*SCREENWIDTH-side; 
-    R_VideoErase (ofs, top*SCREENWIDTH+side); 
+    R_VideoErase (data, ofs, top*SCREENWIDTH+side); 
  
     // copy sides using wraparound 
     ofs = top*SCREENWIDTH + SCREENWIDTH-side; 
@@ -947,12 +949,12 @@ void R_DrawViewBorder (data_t* data)
     
     for (i=1 ; i<viewheight ; i++) 
     { 
-	R_VideoErase (ofs, side); 
+	R_VideoErase (data, ofs, side); 
 	ofs += SCREENWIDTH; 
     } 
 
     // ? 
-    V_MarkRect (0,0,SCREENWIDTH, SCREENHEIGHT-SBARHEIGHT); 
+    V_MarkRect(data, 0,0,SCREENWIDTH, SCREENHEIGHT-SBARHEIGHT); 
 } 
  
  

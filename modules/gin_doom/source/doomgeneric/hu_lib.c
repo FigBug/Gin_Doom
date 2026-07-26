@@ -91,7 +91,8 @@ boolean HUlib_delCharFromTextLine(hu_textline_t* t)
 
 void
 HUlib_drawTextLine
-( hu_textline_t*	l,
+( data_t* data,
+  hu_textline_t*	l,
   boolean		drawcursor )
 {
 
@@ -112,7 +113,7 @@ HUlib_drawTextLine
 	    w = SHORT(l->f[c - l->sc]->width);
 	    if (x+w > SCREENWIDTH)
 		break;
-	    V_DrawPatchDirect(x, l->y, l->f[c - l->sc]);
+	    V_DrawPatchDirect(data, x, l->y, l->f[c - l->sc]);
 	    x += w;
 	}
 	else
@@ -127,7 +128,7 @@ HUlib_drawTextLine
     if (drawcursor
 	&& x + SHORT(l->f['_' - l->sc]->width) <= SCREENWIDTH)
     {
-	V_DrawPatchDirect(x, l->y, l->f['_' - l->sc]);
+	V_DrawPatchDirect(data, x, l->y, l->f['_' - l->sc]);
     }
 }
 
@@ -150,11 +151,11 @@ void HUlib_eraseTextLine(data_t* data, hu_textline_t* l)
 	for (y=l->y,yoffset=y*SCREENWIDTH ; y<l->y+lh ; y++,yoffset+=SCREENWIDTH)
 	{
 	    if (y < viewwindowy || y >= viewwindowy + viewheight)
-		R_VideoErase(yoffset, SCREENWIDTH); // erase entire line
+		R_VideoErase(data, yoffset, SCREENWIDTH); // erase entire line
 	    else
 	    {
-		R_VideoErase(yoffset, viewwindowx); // erase left border
-		R_VideoErase(yoffset + viewwindowx + viewwidth, viewwindowx);
+		R_VideoErase(data, yoffset, viewwindowx); // erase left border
+		R_VideoErase(data, yoffset + viewwindowx + viewwidth, viewwindowx);
 		// erase right border
 	    }
 	}
@@ -219,7 +220,7 @@ HUlib_addMessageToSText
 	HUlib_addCharToTextLine(&s->l[s->cl], *(msg++));
 }
 
-void HUlib_drawSText(hu_stext_t* s)
+void HUlib_drawSText(data_t* data, hu_stext_t* s)
 {
     int i, idx;
     hu_textline_t *l;
@@ -237,7 +238,7 @@ void HUlib_drawSText(hu_stext_t* s)
 	l = &s->l[idx];
 
 	// need a decision made here on whether to skip the draw
-	HUlib_drawTextLine(l, false); // no cursor, please
+	HUlib_drawTextLine(data, l, false); // no cursor, please
     }
 
 }
@@ -325,14 +326,14 @@ HUlib_keyInIText
 
 }
 
-void HUlib_drawIText(hu_itext_t* it)
+void HUlib_drawIText(data_t* data, hu_itext_t* it)
 {
 
     hu_textline_t *l = &it->l;
 
     if (!*it->on)
 	return;
-    HUlib_drawTextLine(l, true); // draw the line w/ cursor
+    HUlib_drawTextLine(data, l, true); // draw the line w/ cursor
 
 }
 

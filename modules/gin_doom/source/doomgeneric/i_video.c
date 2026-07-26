@@ -88,7 +88,6 @@ void I_GetEvent(data_t* data);
 
 // The screen buffer; this is modified to draw things to the screen
 
-byte *I_VideoBuffer = NULL;
 
 // If true, game is running as a screensaver
 
@@ -219,7 +218,7 @@ void I_InitGraphics (data_t* data)
 
 
     /* Allocate screen to draw to */
-	I_VideoBuffer = (byte*)Z_Malloc (SCREENWIDTH * SCREENHEIGHT, PU_STATIC, NULL);  // For DOOM to draw on
+	data->I_VideoBuffer = (byte*)Z_Malloc (SCREENWIDTH * SCREENHEIGHT, PU_STATIC, NULL);  // For DOOM to draw on
 
 	screenvisible = true;
 
@@ -227,9 +226,9 @@ void I_InitGraphics (data_t* data)
     I_InitInput();
 }
 
-void I_ShutdownGraphics (void)
+void I_ShutdownGraphics (data_t* data)
 {
-	Z_Free (I_VideoBuffer);
+	Z_Free (data->I_VideoBuffer);
 }
 
 void I_StartFrame (void)
@@ -266,7 +265,7 @@ void I_FinishUpdate (data_t* data)
     x_offset_end = ((s_Fb.xres - (SCREENWIDTH  * fb_scaling)) * s_Fb.bits_per_pixel/8) - x_offset;
 
     /* DRAW SCREEN */
-    line_in  = (unsigned char *) I_VideoBuffer;
+    line_in  = (unsigned char *) data->I_VideoBuffer;
     line_out = (unsigned char *) data->DG_ScreenBuffer;
 
     y = SCREENHEIGHT;
@@ -297,9 +296,9 @@ void I_FinishUpdate (data_t* data)
 //
 // I_ReadScreen
 //
-void I_ReadScreen (byte* scr)
+void I_ReadScreen (data_t* data, byte* scr)
 {
-    memcpy (scr, I_VideoBuffer, SCREENWIDTH * SCREENHEIGHT);
+    memcpy (scr, data->I_VideoBuffer, SCREENWIDTH * SCREENHEIGHT);
 }
 
 //

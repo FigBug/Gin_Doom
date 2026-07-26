@@ -47,7 +47,7 @@
 //
 patch_t*		sttminus;
 
-void STlib_init(void)
+void STlib_init(data_t* data)
 {
     sttminus = (patch_t *) W_CacheLumpName(DEH_String("STTMINUS"), PU_STATIC);
 }
@@ -56,7 +56,8 @@ void STlib_init(void)
 // ?
 void
 STlib_initNum
-( st_number_t*		n,
+( data_t* data,
+  st_number_t*		n,
   int			x,
   int			y,
   patch_t**		pl,
@@ -81,7 +82,8 @@ STlib_initNum
 //
 void
 STlib_drawNum
-( st_number_t*	n,
+( data_t* data,
+  st_number_t*	n,
   boolean	refresh )
 {
 
@@ -114,7 +116,7 @@ STlib_drawNum
     if (n->y - ST_Y < 0)
 	I_Error(NULL, "drawNum: n->y - ST_Y < 0");
 
-    V_CopyRect(x, n->y - ST_Y, st_backing_screen, w*numdigits, h, x, n->y);
+    V_CopyRect(data, x, n->y - ST_Y, st_backing_screen, w*numdigits, h, x, n->y);
 
     // if non-number, do not draw it
     if (num == 1994)
@@ -124,36 +126,38 @@ STlib_drawNum
 
     // in the special case of 0, you draw 0
     if (!num)
-	V_DrawPatch(x - w, n->y, n->p[ 0 ]);
+	V_DrawPatch(data, x - w, n->y, n->p[ 0 ]);
 
     // draw the new number
     while (num && numdigits--)
     {
 	x -= w;
-	V_DrawPatch(x, n->y, n->p[ num % 10 ]);
+	V_DrawPatch(data, x, n->y, n->p[ num % 10 ]);
 	num /= 10;
     }
 
     // draw a minus sign if necessary
     if (neg)
-	V_DrawPatch(x - 8, n->y, sttminus);
+	V_DrawPatch(data, x - 8, n->y, sttminus);
 }
 
 
 //
 void
 STlib_updateNum
-( st_number_t*		n,
+( data_t* data,
+  st_number_t*		n,
   boolean		refresh )
 {
-    if (*n->on) STlib_drawNum(n, refresh);
+    if (*n->on) STlib_drawNum(data, n, refresh);
 }
 
 
 //
 void
 STlib_initPercent
-( st_percent_t*		p,
+( data_t* data,
+  st_percent_t*		p,
   int			x,
   int			y,
   patch_t**		pl,
@@ -161,7 +165,7 @@ STlib_initPercent
   boolean*		on,
   patch_t*		percent )
 {
-    STlib_initNum(&p->n, x, y, pl, num, on, 3);
+    STlib_initNum(data, &p->n, x, y, pl, num, on, 3);
     p->p = percent;
 }
 
@@ -170,20 +174,22 @@ STlib_initPercent
 
 void
 STlib_updatePercent
-( st_percent_t*		per,
+( data_t* data,
+  st_percent_t*		per,
   int			refresh )
 {
     if (refresh && *per->n.on)
-	V_DrawPatch(per->n.x, per->n.y, per->p);
+	V_DrawPatch(data, per->n.x, per->n.y, per->p);
     
-    STlib_updateNum(&per->n, refresh);
+    STlib_updateNum(data, &per->n, refresh);
 }
 
 
 
 void
 STlib_initMultIcon
-( st_multicon_t*	i,
+( data_t* data,
+  st_multicon_t*	i,
   int			x,
   int			y,
   patch_t**		il,
@@ -202,7 +208,8 @@ STlib_initMultIcon
 
 void
 STlib_updateMultIcon
-( st_multicon_t*	mi,
+( data_t* data,
+  st_multicon_t*	mi,
   boolean		refresh )
 {
     int			w;
@@ -222,9 +229,9 @@ STlib_updateMultIcon
 	    if (y - ST_Y < 0)
 		I_Error(NULL, "updateMultIcon: y - ST_Y < 0");
 
-	    V_CopyRect(x, y-ST_Y, st_backing_screen, w, h, x, y);
+	    V_CopyRect(data, x, y-ST_Y, st_backing_screen, w, h, x, y);
 	}
-	V_DrawPatch(mi->x, mi->y, mi->p[*mi->inum]);
+	V_DrawPatch(data, mi->x, mi->y, mi->p[*mi->inum]);
 	mi->oldinum = *mi->inum;
     }
 }
@@ -233,7 +240,8 @@ STlib_updateMultIcon
 
 void
 STlib_initBinIcon
-( st_binicon_t*		b,
+( data_t* data,
+  st_binicon_t*		b,
   int			x,
   int			y,
   patch_t*		i,
@@ -252,7 +260,8 @@ STlib_initBinIcon
 
 void
 STlib_updateBinIcon
-( st_binicon_t*		bi,
+( data_t* data,
+  st_binicon_t*		bi,
   boolean		refresh )
 {
     int			x;
@@ -272,9 +281,9 @@ STlib_updateBinIcon
 	    I_Error(NULL, "updateBinIcon: y - ST_Y < 0");
 
 	if (*bi->val)
-	    V_DrawPatch(bi->x, bi->y, bi->p);
+	    V_DrawPatch(data, bi->x, bi->y, bi->p);
 	else
-	    V_CopyRect(x, y-ST_Y, st_backing_screen, w, h, x, y);
+	    V_CopyRect(data, x, y-ST_Y, st_backing_screen, w, h, x, y);
 
 	bi->oldval = *bi->val;
     }

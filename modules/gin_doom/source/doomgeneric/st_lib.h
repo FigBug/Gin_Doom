@@ -135,14 +135,15 @@ typedef struct
 // More precisely, initialize STMINUS,
 //  everything else is done somewhere else.
 //
-void STlib_init(void);
+void STlib_init(data_t* data);
 
 
 
 // Number widget routines
 void
 STlib_initNum
-( st_number_t*		n,
+( data_t* data,
+  st_number_t*		n,
   int			x,
   int			y,
   patch_t**		pl,
@@ -152,14 +153,16 @@ STlib_initNum
 
 void
 STlib_updateNum
-( st_number_t*		n,
+( data_t* data,
+  st_number_t*		n,
   boolean		refresh );
 
 
 // Percent widget routines
 void
 STlib_initPercent
-( st_percent_t*		p,
+( data_t* data,
+  st_percent_t*		p,
   int			x,
   int			y,
   patch_t**		pl,
@@ -170,14 +173,16 @@ STlib_initPercent
 
 void
 STlib_updatePercent
-( st_percent_t*		per,
+( data_t* data,
+  st_percent_t*		per,
   int			refresh );
 
 
 // Multiple Icon widget routines
 void
 STlib_initMultIcon
-( st_multicon_t*	mi,
+( data_t* data,
+  st_multicon_t*	mi,
   int			x,
   int			y,
   patch_t**		il,
@@ -187,14 +192,16 @@ STlib_initMultIcon
 
 void
 STlib_updateMultIcon
-( st_multicon_t*	mi,
+( data_t* data,
+  st_multicon_t*	mi,
   boolean		refresh );
 
 // Binary Icon widget routines
 
 void
 STlib_initBinIcon
-( st_binicon_t*		b,
+( data_t* data,
+  st_binicon_t*		b,
   int			x,
   int			y,
   patch_t*		i,
@@ -203,7 +210,8 @@ STlib_initBinIcon
 
 void
 STlib_updateBinIcon
-( st_binicon_t*		bi,
+( data_t* data,
+  st_binicon_t*		bi,
   boolean		refresh );
 
 #endif

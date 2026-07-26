@@ -383,10 +383,10 @@ void HU_Start(data_t* data)
 void HU_Drawer(data_t* data)
 {
 
-    HUlib_drawSText(&w_message);
-    HUlib_drawIText(&w_chat);
+    HUlib_drawSText(data, &w_message);
+    HUlib_drawIText(data, &w_chat);
     if (data->automapactive)
-	HUlib_drawTextLine(&w_title, false);
+	HUlib_drawTextLine(data, &w_title, false);
 
 }
 

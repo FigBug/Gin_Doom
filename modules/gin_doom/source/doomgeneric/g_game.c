@@ -838,7 +838,7 @@ void G_Ticker (data_t* data)
 	    G_DoWorldDone (data);
 	    break; 
 	  case ga_screenshot: 
-	    V_ScreenShot("DOOM%02i.%s"); 
+	    V_ScreenShot(data, "DOOM%02i.%s"); 
             data->players[data->consoleplayer].message = DEH_String("screen shot");
 	    data->gameaction = ga_nothing; 
 	    break; 
@@ -1479,7 +1479,7 @@ void G_DoWorldDone (data_t* data)
 // Can be called by the startup code or the menu task. 
 //
 extern boolean setsizeneeded;
-void R_ExecuteSetViewSize (void);
+void R_ExecuteSetViewSize (data_t* data);
 
 char	savename[256];
 
@@ -1532,7 +1532,7 @@ void G_DoLoadGame (data_t* data)
     fclose(save_stream);
     
     if (setsizeneeded)
-    	R_ExecuteSetViewSize ();
+    	R_ExecuteSetViewSize (data);
     
     // draw the pattern into the back screen
     R_FillBackScreen(data); 
