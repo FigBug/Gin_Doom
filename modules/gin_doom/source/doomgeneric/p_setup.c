@@ -756,13 +756,13 @@ P_SetupLevel
     wminfo.partime = 180;
     for (i=0 ; i<MAXPLAYERS ; i++)
     {
-	players[i].killcount = players[i].secretcount 
-	    = players[i].itemcount = 0;
+	data->players[i].killcount = data->players[i].secretcount 
+	    = data->players[i].itemcount = 0;
     }
 
     // Initial height of PointOfView
     // will be set by player think.
-    players[data->consoleplayer].viewz = 1; 
+    data->players[data->consoleplayer].viewz = 1; 
 
     // Make sure all sounds are stopped before Z_FreeTags.
     S_Start(data);			
@@ -811,13 +811,13 @@ P_SetupLevel
     deathmatch_p = deathmatchstarts;
     P_LoadThings (data, lumpnum+ML_THINGS);
     
-    // if data->deathmatch, randomly spawn the active players
+    // if data->deathmatch, randomly spawn the active data->players
     if (data->deathmatch)
     {
 	for (i=0 ; i<MAXPLAYERS ; i++)
-	    if (playeringame[i])
+	    if (data->playeringame[i])
 	    {
-		players[i].mo = NULL;
+		data->players[i].mo = NULL;
 		G_DeathMatchSpawnPlayer (data, i);
 	    }
 			

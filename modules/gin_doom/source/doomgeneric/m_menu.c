@@ -1021,9 +1021,9 @@ void M_ChangeMessages(data_t* data, int choice)
     showMessages = 1 - showMessages;
 	
     if (!showMessages)
-	players[data->consoleplayer].message = DEH_String(MSGOFF);
+	data->players[data->consoleplayer].message = DEH_String(MSGOFF);
     else
-	players[data->consoleplayer].message = DEH_String(MSGON);
+	data->players[data->consoleplayer].message = DEH_String(MSGON);
 
     message_dontfuckwithme = true;
 }
@@ -1202,9 +1202,9 @@ void M_ChangeDetail(data_t* data, int choice)
     R_SetViewSize (screenblocks, detailLevel);
 
     if (!detailLevel)
-	players[data->consoleplayer].message = DEH_String(DETAILHI);
+	data->players[data->consoleplayer].message = DEH_String(DETAILHI);
     else
-	players[data->consoleplayer].message = DEH_String(DETAILLO);
+	data->players[data->consoleplayer].message = DEH_String(DETAILLO);
 }
 
 
@@ -1745,7 +1745,7 @@ boolean M_Responder (data_t* data, event_t* ev)
 	    usegamma++;
 	    if (usegamma > 4)
 		usegamma = 0;
-	    players[data->consoleplayer].message = DEH_String(gammamsg[usegamma]);
+	    data->players[data->consoleplayer].message = DEH_String(gammamsg[usegamma]);
             I_SetPalette (W_CacheLumpName (DEH_String("PLAYPAL"),PU_CACHE));
 	    return true;
 	}

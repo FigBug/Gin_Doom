@@ -592,9 +592,9 @@ ST_Responder (data_t* data, event_t* ev)
       {
         static char buf[ST_MSGWIDTH];
         M_snprintf(buf, sizeof(buf), "ang=0x%x;x,y=(0x%x,0x%x)",
-                   players[data->consoleplayer].mo->angle,
-                   players[data->consoleplayer].mo->x,
-                   players[data->consoleplayer].mo->y);
+                   data->players[data->consoleplayer].mo->angle,
+                   data->players[data->consoleplayer].mo->x,
+                   data->players[data->consoleplayer].mo->y);
         plyr->message = buf;
       }
     }
@@ -1119,7 +1119,7 @@ static void ST_loadUnloadGraphics(data_t* data, load_callback_t callback)
         arms[i][1] = shortnum[i+2];
     }
 
-    // face backgrounds for different color players
+    // face backgrounds for different color data->players
     DEH_snprintf(namebuf, 9, "STFB%d", data->consoleplayer);
     callback(namebuf, &faceback);
 
@@ -1197,7 +1197,7 @@ void ST_initData(data_t* data)
     int		i;
 
     st_firsttime = true;
-    plyr = &players[data->consoleplayer];
+    plyr = &data->players[data->consoleplayer];
 
     st_clock = 0;
     st_chatstate = StartChatState;

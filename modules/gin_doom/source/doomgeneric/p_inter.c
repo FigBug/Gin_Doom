@@ -182,7 +182,7 @@ P_GiveWeapon
 			P_GiveAmmo (data, player, weaponinfo[weapon].ammo, 2);
 		player->pendingweapon = weapon;
 
-		if (player == &players[data->consoleplayer])
+		if (player == &data->players[data->consoleplayer])
 			S_StartSound(data, NULL, sfx_wpnup);
 		return false;
     }
@@ -657,7 +657,7 @@ P_TouchSpecialThing
 	player->itemcount++;
     P_RemoveMobj (data, special);
     player->bonuscount += BONUSADD;
-    if (player == &players[data->consoleplayer])
+    if (player == &data->players[data->consoleplayer])
 	S_StartSound(data, NULL, sound);
 }
 
@@ -690,26 +690,26 @@ P_KillMobj
 	    source->player->killcount++;	
 
 	if (target->player)
-	    source->player->frags[target->player-players]++;
+	    source->player->frags[target->player-data->players]++;
     }
     else if (!data->netgame && (target->flags & MF_COUNTKILL) )
     {
 	// count all monster deaths,
 	// even those caused by other monsters
-	players[0].killcount++;
+	data->players[0].killcount++;
     }
     
     if (target->player)
     {
 	// count environment kills against you
 	if (!source)	
-	    target->player->frags[target->player-players]++;
+	    target->player->frags[target->player-data->players]++;
 			
 	target->flags &= ~MF_SOLID;
 	target->player->playerstate = PST_DEAD;
 	P_DropWeapon (data, target->player);
 
-	if (target->player == &players[data->consoleplayer]
+	if (target->player == &data->players[data->consoleplayer]
 	    && automapactive)
 	{
 	    // don't die in auto map,
@@ -771,7 +771,7 @@ P_KillMobj
 
 //
 // P_DamageMobj
-// Damages both enemies and players
+// Damages both enemies and data->players
 // "inflictor" is the thing that caused the damage
 //  creature or missile, can be NULL (slime, etc)
 // "source" is the thing to target after taking damage
@@ -890,7 +890,7 @@ P_DamageMobj
 	
 	temp = damage < 100 ? damage : 100;
 
-	if (player == &players[data->consoleplayer])
+	if (player == &data->players[data->consoleplayer])
 	    I_Tactile (40,10,40+temp*2);
     }
     

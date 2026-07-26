@@ -179,7 +179,7 @@ void F_Ticker (data_t* data)
     {
       // go on to the next level
       for (i=0 ; i<MAXPLAYERS ; i++)
-	if (players[i].cmd.buttons)
+	if (data->players[i].cmd.buttons)
 	  break;
 				
       if (i < MAXPLAYERS)

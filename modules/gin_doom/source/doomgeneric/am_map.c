@@ -441,19 +441,19 @@ void AM_initVariables(data_t* data)
     m_h = FTOM(f_h);
 
     // find player to center on initially
-    if (playeringame[data->consoleplayer])
+    if (data->playeringame[data->consoleplayer])
     {
-        plr = &players[data->consoleplayer];
+        plr = &data->players[data->consoleplayer];
     }
     else
     {
-        plr = &players[0];
+        plr = &data->players[0];
 
 	for (pnum=0;pnum<MAXPLAYERS;pnum++)
         {
-	    if (playeringame[pnum])
+	    if (data->playeringame[pnum])
             {
-                plr = &players[pnum];
+                plr = &data->players[pnum];
 		break;
             }
         }
@@ -1267,12 +1267,12 @@ void AM_drawPlayers(data_t* data)
     for (i=0;i<MAXPLAYERS;i++)
     {
 	their_color++;
-	p = &players[i];
+	p = &data->players[i];
 
 	if ( (data->deathmatch && !data->singledemo) && p != plr)
 	    continue;
 
-	if (!playeringame[i])
+	if (!data->playeringame[i])
 	    continue;
 
 	if (p->powers[pw_invisibility])

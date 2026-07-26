@@ -201,7 +201,7 @@ void D_Display (data_t* data)
     
     // draw the view directly
     if (data->gamestate == GS_LEVEL && !automapactive && data->gametic)
-    	R_RenderPlayerView (data, &players[data->displayplayer]);
+    	R_RenderPlayerView (data, &data->players[data->displayplayer]);
 
     if (data->gamestate == GS_LEVEL && data->gametic)
     	HU_Drawer ();
@@ -347,7 +347,7 @@ void D_BindVariables(data_t* data)
 
 boolean D_GrabMouseCallback(data_t* data)
 {
-    // Drone players don't need mouse focus
+    // Drone data->players don't need mouse focus
 
     if (drone)
         return false;
@@ -407,7 +407,7 @@ void D_DoomLoop (data_t* data)
 
 		TryRunTics (data); // will run at least one tic
 
-		S_UpdateSounds(data, players[data->consoleplayer].mo);// move positional sounds
+		S_UpdateSounds(data, data->players[data->consoleplayer].mo);// move positional sounds
 
 		// Update display, next frame, with current state.
 		if (screenvisible)
@@ -464,7 +464,7 @@ void D_AdvanceDemo (data_t* data)
 //
 void D_DoAdvanceDemo (data_t* data)
 {
-    players[data->consoleplayer].playerstate = PST_LIVE;  // not reborn
+    data->players[data->consoleplayer].playerstate = PST_LIVE;  // not reborn
 	data->advancedemo = false;
     data->usergame = false;               // no save / end game here
     data->paused = false;
@@ -1697,7 +1697,7 @@ void D_DoomMain (data_t* data)
 
     // Check for load game parameter
     // We do this here and save the slot number, so that the network code
-    // can override it or send the load slot to other players.
+    // can override it or send the load slot to other data->players.
 
     //!
     // @arg <s>

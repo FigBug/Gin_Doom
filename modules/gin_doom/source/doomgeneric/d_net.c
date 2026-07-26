@@ -47,7 +47,7 @@ static void PlayerQuitGame(data_t* data, player_t *player)
     static char exitmsg[80];
     unsigned int player_num;
 
-    player_num = player - players;
+    player_num = player - data->players;
 
     // Do this the same way as Vanilla Doom does, to allow dehacked
     // replacements of this message
@@ -57,8 +57,8 @@ static void PlayerQuitGame(data_t* data, player_t *player)
 
     exitmsg[7] += player_num;
 
-    playeringame[player_num] = false;
-    players[data->consoleplayer].message = exitmsg;
+    data->playeringame[player_num] = false;
+    data->players[data->consoleplayer].message = exitmsg;
 
     // TODO: check if it is sensible to do this:
 
@@ -76,15 +76,15 @@ static void RunTic(data_t* data, ticcmd_t *cmds, boolean *ingame)
 
     for (i = 0; i < MAXPLAYERS; ++i)
     {
-        if (!data->demoplayback && playeringame[i] && !ingame[i])
+        if (!data->demoplayback && data->playeringame[i] && !ingame[i])
         {
-            PlayerQuitGame(data, &players[i]);
+            PlayerQuitGame(data, &data->players[i]);
         }
     }
 
     netcmds = cmds;
 
-    // check that there are players in the game.  if not, we cannot
+    // check that there are data->players in the game.  if not, we cannot
     // run a tic.
 
     if (data->advancedemo)
@@ -128,7 +128,7 @@ static void LoadGameSettings(data_t* data, net_gamesettings_t *settings)
 
     for (i = 0; i < MAXPLAYERS; ++i)
     {
-        playeringame[i] = i < settings->num_players;
+        data->playeringame[i] = i < settings->num_players;
     }
 }
 
@@ -257,7 +257,7 @@ void D_CheckNetGame (data_t* data)
     DEH_printf("player %i of %i (%i nodes)\n",
                data->consoleplayer+1, settings.num_players, settings.num_players);
 
-    // Show players here; the server might have specified a time limit
+    // Show data->players here; the server might have specified a time limit
 
     if (data->timelimit > 0 && data->deathmatch)
     {

@@ -314,7 +314,7 @@ void HU_Start(data_t* data)
     if (headsupactive)
 	HU_Stop();
 
-    plr = &players[data->consoleplayer];
+    plr = &data->players[data->consoleplayer];
     message_on = false;
     message_dontfuckwithme = false;
     message_nottobefuckedwith = false;
@@ -434,10 +434,10 @@ void HU_Ticker(data_t* data)
     {
 	for (i=0 ; i<MAXPLAYERS; i++)
 	{
-	    if (!playeringame[i])
+	    if (!data->playeringame[i])
 		continue;
 	    if (i != data->consoleplayer
-		&& (c = players[i].cmd.chatchar))
+		&& (c = data->players[i].cmd.chatchar))
 	    {
 		if (c <= HU_BROADCAST)
 		    chat_dest[i] = c;
@@ -465,7 +465,7 @@ void HU_Ticker(data_t* data)
 			HUlib_resetIText(&w_inputbuffer[i]);
 		    }
 		}
-		players[i].cmd.chatchar = 0;
+		data->players[i].cmd.chatchar = 0;
 	    }
 	}
     }
@@ -524,7 +524,7 @@ boolean HU_Responder(data_t* data, event_t *ev)
 
     numplayers = 0;
     for (i=0 ; i<MAXPLAYERS ; i++)
-	numplayers += playeringame[i];
+	numplayers += data->playeringame[i];
 
     if (ev->data1 == KEY_RSHIFT)
     {
@@ -559,7 +559,7 @@ boolean HU_Responder(data_t* data, event_t *ev)
 	    {
 		if (ev->data2 == key_multi_msgplayer[i])
 		{
-		    if (playeringame[i] && i!=data->consoleplayer)
+		    if (data->playeringame[i] && i!=data->consoleplayer)
 		    {
 			eatkey = chat_on = true;
 			HUlib_resetIText(&w_chat);

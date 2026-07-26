@@ -336,7 +336,7 @@ boolean PIT_CheckThing (data_t* data, mobj_t* thing)
 	    if (thing->type != MT_PLAYER && !deh_species_infighting)
 	    {
 		// Explode, but do no damage.
-		// Let players missile other players.
+		// Let data->players missile other data->players.
 		return false;
 	    }
 	}

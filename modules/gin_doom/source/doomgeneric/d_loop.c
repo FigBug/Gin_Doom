@@ -54,7 +54,7 @@ typedef struct
 // recvtic is the latest tic received from the server.
 //
 // a data->gametic cannot be run until ticcmds are received for it
-// from all players.
+// from all data->players.
 //
 
 static ticcmd_set_t ticdata[BACKUPTICS];
@@ -100,9 +100,9 @@ static boolean  new_sync = true;
 
 static loop_interface_t *loop_interface = NULL;
 
-// Current players in the multiplayer game.
-// This is distinct from playeringame[] used by the game code, which may
-// modify playeringame[] when playing back multiplayer demos.
+// Current data->players in the multiplayer game.
+// This is distinct from data->playeringame[] used by the game code, which may
+// modify data->playeringame[] when playing back multiplayer demos.
 
 static boolean local_playeringame[NET_MAXPLAYERS];
 
@@ -416,7 +416,7 @@ void D_StartNetGame(net_gamesettings_t *settings,
         settings->consoleplayer = 0;
     }
 
-    // Set the local player and playeringame[] values.
+    // Set the local player and data->playeringame[] values.
 
     localplayer = settings->consoleplayer;
 
@@ -554,7 +554,7 @@ boolean D_InitNetGame(net_connect_data_t *connect_data)
 //
 // D_QuitNetGame
 // Called before quitting to leave a net game
-// without hanging the other players
+// without hanging the other data->players
 //
 void D_QuitNetGame (data_t* data)
 {
@@ -608,7 +608,7 @@ static void OldNetSync(void)
 
     if (keyplayer < 0)
     {
-        // If there are no players, we can never advance anyway
+        // If there are no data->players, we can never advance anyway
 
         return;
     }
@@ -636,14 +636,14 @@ static void OldNetSync(void)
     }
 }
 
-// Returns true if there are players in the game:
+// Returns true if there are data->players in the game:
 
 static boolean PlayersInGame(void)
 {
     boolean result = false;
     unsigned int i;
 
-    // If we are connected to a server, check if there are any players
+    // If we are connected to a server, check if there are any data->players
     // in the game.
 
     if (net_client_connected)

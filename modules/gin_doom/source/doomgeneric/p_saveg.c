@@ -298,7 +298,7 @@ static void saveg_write_thinker_t(thinker_t *str)
 // mobj_t
 //
 
-static void saveg_read_mobj_t(mobj_t *str)
+static void saveg_read_mobj_t(data_t* data, mobj_t *str)
 {
     int pl;
 
@@ -400,7 +400,7 @@ static void saveg_read_mobj_t(mobj_t *str)
 
     if (pl > 0)
     {
-        str->player = &players[pl - 1];
+        str->player = &data->players[pl - 1];
         str->player->mo = str;
     }
     else
@@ -418,7 +418,7 @@ static void saveg_read_mobj_t(mobj_t *str)
     str->tracer = saveg_readp();
 }
 
-static void saveg_write_mobj_t(mobj_t *str)
+static void saveg_write_mobj_t(data_t* data, mobj_t *str)
 {
     // thinker_t thinker;
     saveg_write_thinker_t(&str->thinker);
@@ -516,7 +516,7 @@ static void saveg_write_mobj_t(mobj_t *str)
     // struct player_s* player;
     if (str->player)
     {
-        saveg_write32(str->player - players + 1);
+        saveg_write32(str->player - data->players + 1);
     }
     else
     {
@@ -1365,7 +1365,7 @@ void P_WriteSaveGameHeader(data_t* data, char *description)
     saveg_write8(data->gamemap);
 
     for (i=0 ; i<MAXPLAYERS ; i++) 
-        saveg_write8(playeringame[i]);
+        saveg_write8(data->playeringame[i]);
 
     saveg_write8((data->leveltime >> 16) & 0xff);
     saveg_write8((data->leveltime >> 8) & 0xff);
@@ -1401,7 +1401,7 @@ boolean P_ReadSaveGameHeader(data_t* data)
     data->gamemap = saveg_read8();
 
     for (i=0 ; i<MAXPLAYERS ; i++) 
-	playeringame[i] = saveg_read8();
+	data->playeringame[i] = saveg_read8();
 
     // get the times 
     a = saveg_read8();
@@ -1443,12 +1443,12 @@ void P_ArchivePlayers (data_t* data)
 		
     for (i=0 ; i<MAXPLAYERS ; i++)
     {
-	if (!playeringame[i])
+	if (!data->playeringame[i])
 	    continue;
 	
 	saveg_write_pad();
 
-        saveg_write_player_t(&players[i]);
+        saveg_write_player_t(&data->players[i]);
     }
 }
 
@@ -1463,17 +1463,17 @@ void P_UnArchivePlayers (data_t* data)
 	
     for (i=0 ; i<MAXPLAYERS ; i++)
     {
-	if (!playeringame[i])
+	if (!data->playeringame[i])
 	    continue;
 	
 	saveg_read_pad();
 
-        saveg_read_player_t(&players[i]);
+        saveg_read_player_t(&data->players[i]);
 	
 	// will be set when unarc thinker
-	players[i].mo = NULL;	
-	players[i].message = NULL;
-	players[i].attacker = NULL;
+	data->players[i].mo = NULL;	
+	data->players[i].message = NULL;
+	data->players[i].attacker = NULL;
     }
 }
 
@@ -1600,7 +1600,7 @@ void P_ArchiveThinkers (data_t* data)
 	{
             saveg_write8(tc_mobj);
 	    saveg_write_pad();
-            saveg_write_mobj_t((mobj_t *) th);
+            saveg_write_mobj_t(data, (mobj_t *) th);
 
 	    continue;
 	}
@@ -1651,7 +1651,7 @@ void P_UnArchiveThinkers (data_t* data)
 	  case tc_mobj:
 	    saveg_read_pad();
 	    mobj = Z_Malloc (sizeof(*mobj), PU_LEVEL, NULL);
-            saveg_read_mobj_t(mobj);
+            saveg_read_mobj_t(data, mobj);
 
 	    mobj->target = NULL;
             mobj->tracer = NULL;

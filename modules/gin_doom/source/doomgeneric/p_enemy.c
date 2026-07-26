@@ -82,7 +82,7 @@ void A_Fall (data_t* data, mobj_t *actor);
 // ENEMY THINKING
 // Enemies are allways spawned
 // with targetplayer = -1, threshold = 0
-// Most monsters are spawned unaware of all players,
+// Most monsters are spawned unaware of all data->players,
 // but some can be made preaware
 //
 
@@ -500,7 +500,7 @@ P_LookForPlayers
 	
     for ( ; ; actor->lastlook = (actor->lastlook+1)&3 )
     {
-	if (!playeringame[actor->lastlook])
+	if (!data->playeringame[actor->lastlook])
 	    continue;
 			
 	if (c++ == 2
@@ -510,7 +510,7 @@ P_LookForPlayers
 	    return false;	
 	}
 	
-	player = &players[actor->lastlook];
+	player = &data->players[actor->lastlook];
 
 	if (player->health <= 0)
 	    continue;		// dead
@@ -1683,7 +1683,7 @@ void A_BossDeath (data_t* data, mobj_t* mo)
 
     // make sure there is a player alive for victory
     for (i=0 ; i<MAXPLAYERS ; i++)
-	if (playeringame[i] && players[i].health > 0)
+	if (data->playeringame[i] && data->players[i].health > 0)
 	    break;
     
     if (i==MAXPLAYERS)

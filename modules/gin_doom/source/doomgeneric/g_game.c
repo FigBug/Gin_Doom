@@ -105,8 +105,6 @@ boolean         timingdemo;             // if true, exit with report on completi
 int             starttime;          	// for comparative timing purposes  	 
  
  
-boolean         playeringame[MAXPLAYERS]; 
-player_t        players[MAXPLAYERS]; 
 
 boolean         turbodetected[MAXPLAYERS];
  
@@ -240,7 +238,7 @@ static boolean WeaponSelectable(data_t* data, weapontype_t weapon)
 
     // Can't select a weapon if we don't own it.
 
-    if (!players[data->consoleplayer].weaponowned[weapon])
+    if (!data->players[data->consoleplayer].weaponowned[weapon])
     {
         return false;
     }
@@ -249,8 +247,8 @@ static boolean WeaponSelectable(data_t* data, weapontype_t weapon)
     // we also have the berserk pack.
 
     if (weapon == wp_fist
-     && players[data->consoleplayer].weaponowned[wp_chainsaw]
-     && !players[data->consoleplayer].powers[pw_strength])
+     && data->players[data->consoleplayer].weaponowned[wp_chainsaw]
+     && !data->players[data->consoleplayer].powers[pw_strength])
     {
         return false;
     }
@@ -265,13 +263,13 @@ static int G_NextWeapon(data_t* data, int direction)
 
     // Find index in the table.
 
-    if (players[data->consoleplayer].pendingweapon == wp_nochange)
+    if (data->players[data->consoleplayer].pendingweapon == wp_nochange)
     {
-        weapon = players[data->consoleplayer].readyweapon;
+        weapon = data->players[data->consoleplayer].readyweapon;
     }
     else
     {
-        weapon = players[data->consoleplayer].pendingweapon;
+        weapon = data->players[data->consoleplayer].pendingweapon;
     }
 
     for (i=0; i<arrlen(weapon_order_table); ++i)
@@ -627,9 +625,9 @@ void G_DoLoadLevel (data_t* data)
     for (i=0 ; i<MAXPLAYERS ; i++) 
     { 
 	turbodetected[i] = false;
-	if (playeringame[i] && players[i].playerstate == PST_DEAD) 
-	    players[i].playerstate = PST_REBORN; 
-	memset (players[i].frags,0,sizeof(players[i].frags)); 
+	if (data->playeringame[i] && data->players[i].playerstate == PST_DEAD) 
+	    data->players[i].playerstate = PST_REBORN; 
+	memset (data->players[i].frags,0,sizeof(data->players[i].frags)); 
     } 
 		 
     P_SetupLevel (data, data->gameepisode, data->gamemap, 0, data->gameskill);
@@ -648,7 +646,7 @@ void G_DoLoadLevel (data_t* data)
 
     if (testcontrols)
     {
-        players[data->consoleplayer].message = "Press escape to quit.";
+        data->players[data->consoleplayer].message = "Press escape to quit.";
     }
 } 
 
@@ -708,7 +706,7 @@ static void SetMouseButtons(unsigned int buttons_mask)
 
 //
 // G_Responder  
-// Get info needed to make ticcmd_ts for the players.
+// Get info needed to make ticcmd_ts for the data->players.
 // 
 boolean G_Responder (data_t* data, event_t* ev) 
 { 
@@ -722,7 +720,7 @@ boolean G_Responder (data_t* data, event_t* ev)
 	    data->displayplayer++; 
 	    if (data->displayplayer == MAXPLAYERS) 
 		data->displayplayer = 0; 
-	} while (!playeringame[data->displayplayer] && data->displayplayer != data->consoleplayer); 
+	} while (!data->playeringame[data->displayplayer] && data->displayplayer != data->consoleplayer); 
 	return true; 
     }
     
@@ -829,7 +827,7 @@ boolean G_Responder (data_t* data, event_t* ev)
  
 //
 // G_Ticker
-// Make ticcmd_ts for the players.
+// Make ticcmd_ts for the data->players.
 //
 void G_Ticker (data_t* data) 
 { 
@@ -839,7 +837,7 @@ void G_Ticker (data_t* data)
     
     // do player reborns if needed
     for (i=0 ; i<MAXPLAYERS ; i++) 
-	if (playeringame[i] && players[i].playerstate == PST_REBORN) 
+	if (data->playeringame[i] && data->players[i].playerstate == PST_REBORN) 
 	    G_DoReborn (data, i);
     
     // do things to change the game state
@@ -873,7 +871,7 @@ void G_Ticker (data_t* data)
 	    break; 
 	  case ga_screenshot: 
 	    V_ScreenShot("DOOM%02i.%s"); 
-            players[data->consoleplayer].message = DEH_String("screen shot");
+            data->players[data->consoleplayer].message = DEH_String("screen shot");
 	    gameaction = ga_nothing; 
 	    break; 
 	  case ga_nothing: 
@@ -887,9 +885,9 @@ void G_Ticker (data_t* data)
  
     for (i=0 ; i<MAXPLAYERS ; i++)
     {
-	if (playeringame[i]) 
+	if (data->playeringame[i]) 
 	{ 
-	    cmd = &players[i].cmd; 
+	    cmd = &data->players[i].cmd; 
 
 	    memcpy(cmd, &netcmds[i], sizeof(ticcmd_t));
 
@@ -919,7 +917,7 @@ void G_Ticker (data_t* data)
                 extern char *player_names[4];
                 M_snprintf(turbomessage, sizeof(turbomessage),
                            "%s is turbo!", player_names[i]);
-                players[data->consoleplayer].message = turbomessage;
+                data->players[data->consoleplayer].message = turbomessage;
                 turbodetected[i] = false;
             }
 
@@ -931,8 +929,8 @@ void G_Ticker (data_t* data)
 		    I_Error (NULL, "consistency failure (%i should be %i)",
 			     cmd->consistancy, consistancy[i][buf]); 
 		} 
-		if (players[i].mo) 
-		    consistancy[i][buf] = players[i].mo->x; 
+		if (data->players[i].mo) 
+		    consistancy[i][buf] = data->players[i].mo->x; 
 		else 
 		    consistancy[i][buf] = rndindex; 
 	    } 
@@ -942,11 +940,11 @@ void G_Ticker (data_t* data)
     // check for special buttons
     for (i=0 ; i<MAXPLAYERS ; i++)
     {
-	if (playeringame[i]) 
+	if (data->playeringame[i]) 
 	{ 
-	    if (players[i].cmd.buttons & BT_SPECIAL) 
+	    if (data->players[i].cmd.buttons & BT_SPECIAL) 
 	    { 
-		switch (players[i].cmd.buttons & BT_SPECIALMASK) 
+		switch (data->players[i].cmd.buttons & BT_SPECIALMASK) 
 		{ 
 		  case BTS_PAUSE: 
 		    data->paused ^= 1; 
@@ -964,7 +962,7 @@ void G_Ticker (data_t* data)
                     }
 
 		    savegameslot =  
-			(players[i].cmd.buttons & BTS_SAVEMASK)>>BTS_SAVESHIFT; 
+			(data->players[i].cmd.buttons & BTS_SAVEMASK)>>BTS_SAVESHIFT; 
 		    gameaction = ga_savegame; 
 		    break; 
 		} 
@@ -1028,11 +1026,11 @@ void G_InitPlayer (data_t* data, int player)
 // G_PlayerFinishLevel
 // Can when a player completes a level.
 //
-void G_PlayerFinishLevel (int player) 
+void G_PlayerFinishLevel (data_t* data, int player) 
 { 
     player_t*	p; 
 	 
-    p = &players[player]; 
+    p = &data->players[player]; 
 	 
     memset (p->powers, 0, sizeof (p->powers)); 
     memset (p->cards, 0, sizeof (p->cards)); 
@@ -1058,18 +1056,18 @@ void G_PlayerReborn (data_t* data, int player)
     int		itemcount;
     int		secretcount; 
 	 
-    memcpy (frags,players[player].frags,sizeof(frags)); 
-    killcount = players[player].killcount; 
-    itemcount = players[player].itemcount; 
-    secretcount = players[player].secretcount; 
+    memcpy (frags,data->players[player].frags,sizeof(frags)); 
+    killcount = data->players[player].killcount; 
+    itemcount = data->players[player].itemcount; 
+    secretcount = data->players[player].secretcount; 
 	 
-    p = &players[player]; 
+    p = &data->players[player]; 
     memset (p, 0, sizeof(*p)); 
  
-    memcpy (players[player].frags, frags, sizeof(players[player].frags)); 
-    players[player].killcount = killcount; 
-    players[player].itemcount = itemcount; 
-    players[player].secretcount = secretcount; 
+    memcpy (data->players[player].frags, frags, sizeof(data->players[player].frags)); 
+    data->players[player].killcount = killcount; 
+    data->players[player].itemcount = itemcount; 
+    data->players[player].secretcount = secretcount; 
  
     p->usedown = p->attackdown = true;	// don't do anything immediately 
     p->playerstate = PST_LIVE;       
@@ -1104,12 +1102,12 @@ G_CheckSpot
     mobj_t*		mo; 
     int			i;
 	
-    if (!players[playernum].mo)
+    if (!data->players[playernum].mo)
     {
 	// first spawn of level, before corpses
 	for (i=0 ; i<playernum ; i++)
-	    if (players[i].mo->x == mthing->x << FRACBITS
-		&& players[i].mo->y == mthing->y << FRACBITS)
+	    if (data->players[i].mo->x == mthing->x << FRACBITS
+		&& data->players[i].mo->y == mthing->y << FRACBITS)
 		return false;	
 	return true;
     }
@@ -1117,13 +1115,13 @@ G_CheckSpot
     x = mthing->x << FRACBITS; 
     y = mthing->y << FRACBITS; 
 	 
-    if (!P_CheckPosition (data, players[playernum].mo, x, y) )
+    if (!P_CheckPosition (data, data->players[playernum].mo, x, y) )
 	return false; 
  
     // flush an old corpse if needed 
     if (bodyqueslot >= BODYQUESIZE) 
 	P_RemoveMobj (data, bodyque[bodyqueslot%BODYQUESIZE]);
-    bodyque[bodyqueslot%BODYQUESIZE] = players[playernum].mo; 
+    bodyque[bodyqueslot%BODYQUESIZE] = data->players[playernum].mo; 
     bodyqueslot++; 
 
     // spawn a teleport fog
@@ -1189,7 +1187,7 @@ G_CheckSpot
                          ss->sector->floorheight, MT_TFOG);
     }
 
-    if (players[data->consoleplayer].viewz != 1) 
+    if (data->players[data->consoleplayer].viewz != 1) 
 	S_StartSound(data, mo, sfx_telept);	// don't start sound on first frame 
  
     return true; 
@@ -1242,7 +1240,7 @@ void G_DoReborn (data_t* data, int playernum)
 	// respawn at the start
 
 	// first dissasociate the corpse 
-	players[playernum].mo->player = NULL;   
+	data->players[playernum].mo->player = NULL;   
 		 
 	// spawn at random spot if in death match 
 	if (data->deathmatch) 
@@ -1257,7 +1255,7 @@ void G_DoReborn (data_t* data, int playernum)
 	    return; 
 	}
 	
-	// try to spawn at one of the other players spots 
+	// try to spawn at one of the other data->players spots 
 	for (i=0 ; i<MAXPLAYERS ; i++)
 	{
 	    if (G_CheckSpot (data, playernum, &playerstarts[i]) )
@@ -1331,8 +1329,8 @@ void G_DoCompleted (data_t* data)
     gameaction = ga_nothing; 
  
     for (i=0 ; i<MAXPLAYERS ; i++) 
-	if (playeringame[i]) 
-	    G_PlayerFinishLevel (i);        // take away cards and stuff 
+	if (data->playeringame[i]) 
+	    G_PlayerFinishLevel (data, i);        // take away cards and stuff 
 	 
     if (automapactive) 
 	AM_Stop (data); 
@@ -1358,7 +1356,7 @@ void G_DoCompleted (data_t* data)
                 return;
               case 9: 
                 for (i=0 ; i<MAXPLAYERS ; i++) 
-                    players[i].didsecret = true; 
+                    data->players[i].didsecret = true; 
                 break;
             }
         }
@@ -1378,12 +1376,12 @@ void G_DoCompleted (data_t* data)
     {
 	// exit secret level 
 	for (i=0 ; i<MAXPLAYERS ; i++) 
-	    players[i].didsecret = true; 
+	    data->players[i].didsecret = true; 
     } 
 //#endif
     
 	 
-    wminfo.didsecret = players[data->consoleplayer].didsecret; 
+    wminfo.didsecret = data->players[data->consoleplayer].didsecret; 
     wminfo.epsd = data->gameepisode -1; 
     wminfo.last = data->gamemap -1;
     
@@ -1450,12 +1448,12 @@ void G_DoCompleted (data_t* data)
  
     for (i=0 ; i<MAXPLAYERS ; i++) 
     { 
-	wminfo.plyr[i].in = playeringame[i]; 
-	wminfo.plyr[i].skills = players[i].killcount; 
-	wminfo.plyr[i].sitems = players[i].itemcount; 
-	wminfo.plyr[i].ssecret = players[i].secretcount; 
+	wminfo.plyr[i].in = data->playeringame[i]; 
+	wminfo.plyr[i].skills = data->players[i].killcount; 
+	wminfo.plyr[i].sitems = data->players[i].itemcount; 
+	wminfo.plyr[i].ssecret = data->players[i].secretcount; 
 	wminfo.plyr[i].stime = data->leveltime; 
-	memcpy (wminfo.plyr[i].frags, players[i].frags 
+	memcpy (wminfo.plyr[i].frags, data->players[i].frags 
 		, sizeof(wminfo.plyr[i].frags)); 
     } 
  
@@ -1477,7 +1475,7 @@ void G_WorldDone (data_t* data)
     gameaction = ga_worlddone; 
 
     if (secretexit) 
-	players[data->consoleplayer].didsecret = true; 
+	data->players[data->consoleplayer].didsecret = true; 
 
     if ( gamemode == commercial )
     {
@@ -1659,7 +1657,7 @@ void G_DoSaveGame (data_t* data)
     gameaction = ga_nothing;
     M_StringCopy(savedescription, "", sizeof(savedescription));
 
-    players[data->consoleplayer].message = DEH_String(GGSAVED);
+    data->players[data->consoleplayer].message = DEH_String(GGSAVED);
 
     // draw the pattern into the back screen
     R_FillBackScreen ();	
@@ -1669,7 +1667,7 @@ void G_DoSaveGame (data_t* data)
 //
 // G_InitNew
 // Can be called by the startup code or the menu task,
-// data->consoleplayer, data->displayplayer, playeringame[] should be set. 
+// data->consoleplayer, data->displayplayer, data->playeringame[] should be set. 
 //
 skill_t	d_skill; 
 int     d_episode; 
@@ -1694,7 +1692,7 @@ void G_DoNewGame (data_t* data)
     netdemo = false;
     data->netgame = false;
     data->deathmatch = false;
-    playeringame[1] = playeringame[2] = playeringame[3] = 0;
+    data->playeringame[1] = data->playeringame[2] = data->playeringame[3] = 0;
     data->respawnparm = false;
     data->fastparm = false;
     data->nomonsters = false;
@@ -1809,9 +1807,9 @@ G_InitNew
 	mobjinfo[MT_TROOPSHOT].speed = 10*FRACUNIT;
     }
 
-    // force players to be initialized upon first level load
+    // force data->players to be initialized upon first level load
     for (i=0 ; i<MAXPLAYERS ; i++)
-	players[i].playerstate = PST_REBORN;
+	data->players[i].playerstate = PST_REBORN;
 
     data->usergame = true;                // will be set false if a demo
     data->paused = false;
@@ -2077,7 +2075,7 @@ void G_BeginRecording (data_t* data)
     *demo_p++ = data->consoleplayer;
 	 
     for (i=0 ; i<MAXPLAYERS ; i++) 
-	*demo_p++ = playeringame[i]; 		 
+	*demo_p++ = data->playeringame[i]; 		 
 } 
  
 
@@ -2178,9 +2176,9 @@ void G_DoPlayDemo (data_t* data)
     data->consoleplayer = *demo_p++;
 	
     for (i=0 ; i<MAXPLAYERS ; i++) 
-	playeringame[i] = *demo_p++; 
+	data->playeringame[i] = *demo_p++; 
 
-    if (playeringame[1] || M_CheckParm(data, "-solo-net") > 0
+    if (data->playeringame[1] || M_CheckParm(data, "-solo-net") > 0
                         || M_CheckParm(data, "-netdemo") > 0)
     {
 	data->netgame = true;
@@ -2256,7 +2254,7 @@ boolean G_CheckDemoStatus (data_t* data)
 	netdemo = false;
 	data->netgame = false;
 	data->deathmatch = false;
-	playeringame[1] = playeringame[2] = playeringame[3] = 0;
+	data->playeringame[1] = data->playeringame[2] = data->playeringame[3] = 0;
 	data->respawnparm = false;
 	data->fastparm = false;
 	data->nomonsters = false;

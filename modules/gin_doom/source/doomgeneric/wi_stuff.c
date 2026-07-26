@@ -835,14 +835,14 @@ void WI_drawNoState(void)
     WI_drawShowNextLoc();
 }
 
-int WI_fragSum(int playernum)
+int WI_fragSum(data_t* data, int playernum)
 {
     int		i;
     int		frags = 0;
     
     for (i=0 ; i<MAXPLAYERS ; i++)
     {
-	if (playeringame[i]
+	if (data->playeringame[i]
 	    && i!=playernum)
 	{
 	    frags += plrs[playernum].frags[i];
@@ -880,10 +880,10 @@ void WI_initDeathmatchStats(data_t* data)
 
     for (i=0 ; i<MAXPLAYERS ; i++)
     {
-	if (playeringame[i])
+	if (data->playeringame[i])
 	{
 	    for (j=0 ; j<MAXPLAYERS ; j++)
-		if (playeringame[j])
+		if (data->playeringame[j])
 		    dm_frags[i][j] = 0;
 
 	    dm_totals[i] = 0;
@@ -911,13 +911,13 @@ void WI_updateDeathmatchStats(data_t* data)
 
 	for (i=0 ; i<MAXPLAYERS ; i++)
 	{
-	    if (playeringame[i])
+	    if (data->playeringame[i])
 	    {
 		for (j=0 ; j<MAXPLAYERS ; j++)
-		    if (playeringame[j])
+		    if (data->playeringame[j])
 			dm_frags[i][j] = plrs[i].frags[j];
 
-		dm_totals[i] = WI_fragSum(i);
+		dm_totals[i] = WI_fragSum(data, i);
 	    }
 	}
 	
@@ -936,11 +936,11 @@ void WI_updateDeathmatchStats(data_t* data)
 
 	for (i=0 ; i<MAXPLAYERS ; i++)
 	{
-	    if (playeringame[i])
+	    if (data->playeringame[i])
 	    {
 		for (j=0 ; j<MAXPLAYERS ; j++)
 		{
-		    if (playeringame[j]
+		    if (data->playeringame[j]
 			&& dm_frags[i][j] != plrs[i].frags[j])
 		    {
 			if (plrs[i].frags[j] < 0)
@@ -957,7 +957,7 @@ void WI_updateDeathmatchStats(data_t* data)
 			stillticking = true;
 		    }
 		}
-		dm_totals[i] = WI_fragSum(i);
+		dm_totals[i] = WI_fragSum(data, i);
 
 		if (dm_totals[i] > 99)
 		    dm_totals[i] = 99;
@@ -998,7 +998,7 @@ void WI_updateDeathmatchStats(data_t* data)
 
 
 
-void WI_drawDeathmatchStats(void)
+void WI_drawDeathmatchStats(data_t* data)
 {
 
     int		i;
@@ -1027,7 +1027,7 @@ void WI_drawDeathmatchStats(void)
 
     for (i=0 ; i<MAXPLAYERS ; i++)
     {
-	if (playeringame[i])
+	if (data->playeringame[i])
 	{
 	    V_DrawPatch(x-SHORT(p[i]->width)/2,
 			DM_MATRIXY - WI_SPACINGY,
@@ -1067,11 +1067,11 @@ void WI_drawDeathmatchStats(void)
     {
 	x = DM_MATRIXX + DM_SPACINGX;
 
-	if (playeringame[i])
+	if (data->playeringame[i])
 	{
 	    for (j=0 ; j<MAXPLAYERS ; j++)
 	    {
-		if (playeringame[j])
+		if (data->playeringame[j])
 		    WI_drawNum(x+w, y, dm_frags[i][j], 2);
 
 		x += DM_SPACINGX;
@@ -1099,12 +1099,12 @@ void WI_initNetgameStats(data_t* data)
 
     for (i=0 ; i<MAXPLAYERS ; i++)
     {
-	if (!playeringame[i])
+	if (!data->playeringame[i])
 	    continue;
 
 	cnt_kills[i] = cnt_items[i] = cnt_secret[i] = cnt_frags[i] = 0;
 
-	dofrags += WI_fragSum(i);
+	dofrags += WI_fragSum(data, i);
     }
 
     dofrags = !!dofrags;
@@ -1130,7 +1130,7 @@ void WI_updateNetgameStats(data_t* data)
 
 	for (i=0 ; i<MAXPLAYERS ; i++)
 	{
-	    if (!playeringame[i])
+	    if (!data->playeringame[i])
 		continue;
 
 	    cnt_kills[i] = (plrs[i].skills * 100) / wbs->maxkills;
@@ -1138,7 +1138,7 @@ void WI_updateNetgameStats(data_t* data)
 	    cnt_secret[i] = (plrs[i].ssecret * 100) / wbs->maxsecret;
 
 	    if (dofrags)
-		cnt_frags[i] = WI_fragSum(i);
+		cnt_frags[i] = WI_fragSum(data, i);
 	}
 	S_StartSound(data, 0, sfx_barexp);
 	ng_state = 10;
@@ -1153,7 +1153,7 @@ void WI_updateNetgameStats(data_t* data)
 
 	for (i=0 ; i<MAXPLAYERS ; i++)
 	{
-	    if (!playeringame[i])
+	    if (!data->playeringame[i])
 		continue;
 
 	    cnt_kills[i] += 2;
@@ -1179,7 +1179,7 @@ void WI_updateNetgameStats(data_t* data)
 
 	for (i=0 ; i<MAXPLAYERS ; i++)
 	{
-	    if (!playeringame[i])
+	    if (!data->playeringame[i])
 		continue;
 
 	    cnt_items[i] += 2;
@@ -1203,7 +1203,7 @@ void WI_updateNetgameStats(data_t* data)
 
 	for (i=0 ; i<MAXPLAYERS ; i++)
 	{
-	    if (!playeringame[i])
+	    if (!data->playeringame[i])
 		continue;
 
 	    cnt_secret[i] += 2;
@@ -1229,12 +1229,12 @@ void WI_updateNetgameStats(data_t* data)
 
 	for (i=0 ; i<MAXPLAYERS ; i++)
 	{
-	    if (!playeringame[i])
+	    if (!data->playeringame[i])
 		continue;
 
 	    cnt_frags[i] += 1;
 
-	    if (cnt_frags[i] >= (fsum = WI_fragSum(i)))
+	    if (cnt_frags[i] >= (fsum = WI_fragSum(data, i)))
 		cnt_frags[i] = fsum;
 	    else
 		stillticking = true;
@@ -1269,7 +1269,7 @@ void WI_updateNetgameStats(data_t* data)
 
 
 
-void WI_drawNetgameStats(void)
+void WI_drawNetgameStats(data_t* data)
 {
     int		i;
     int		x;
@@ -1302,7 +1302,7 @@ void WI_drawNetgameStats(void)
 
     for (i=0 ; i<MAXPLAYERS ; i++)
     {
-	if (!playeringame[i])
+	if (!data->playeringame[i])
 	    continue;
 
 	x = NG_STATSX;
@@ -1478,15 +1478,15 @@ void WI_drawStats(void)
 
 }
 
-void WI_checkForAccelerate(void)
+void WI_checkForAccelerate(data_t* data)
 {
     int   i;
     player_t  *player;
 
     // check for button presses to skip delays
-    for (i=0, player = players ; i<MAXPLAYERS ; i++, player++)
+    for (i=0, player = data->players ; i<MAXPLAYERS ; i++, player++)
     {
-	if (playeringame[i])
+	if (data->playeringame[i])
 	{
 	    if (player->cmd.buttons & BT_ATTACK)
 	    {
@@ -1525,7 +1525,7 @@ void WI_Ticker(data_t* data)
 	  S_ChangeMusic(data, mus_inter, true); 
     }
 
-    WI_checkForAccelerate();
+    WI_checkForAccelerate(data);
 
     switch (state)
     {
@@ -1755,9 +1755,9 @@ void WI_Drawer (data_t* data)
     {
       case StatCount:
 	if (data->deathmatch)
-	    WI_drawDeathmatchStats();
+	    WI_drawDeathmatchStats(data);
 	else if (data->netgame)
-	    WI_drawNetgameStats();
+	    WI_drawNetgameStats(data);
 	else
 	    WI_drawStats();
 	break;

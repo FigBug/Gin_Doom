@@ -427,15 +427,15 @@ void S_StartSound(data_t* data, void *origin_p, int sfx_id)
 
     // Check to see if it is audible,
     //  and if not, modify the params
-    if (origin && origin != players[data->consoleplayer].mo)
+    if (origin && origin != data->players[data->consoleplayer].mo)
     {
-        rc = S_AdjustSoundParams(data, players[data->consoleplayer].mo,
+        rc = S_AdjustSoundParams(data, data->players[data->consoleplayer].mo,
                                  origin,
                                  &volume,
                                  &sep);
 
-        if (origin->x == players[data->consoleplayer].mo->x
-         && origin->y == players[data->consoleplayer].mo->y)
+        if (origin->x == data->players[data->consoleplayer].mo->x
+         && origin->y == data->players[data->consoleplayer].mo->y)
         {        
             sep = NORM_SEP;
         }

@@ -131,15 +131,15 @@ void P_Ticker (data_t* data)
     if ( !data->netgame
 	 && menuactive
 	 && !data->demoplayback
-	 && players[data->consoleplayer].viewz != 1)
+	 && data->players[data->consoleplayer].viewz != 1)
     {
 	return;
     }
     
 		
     for (i=0 ; i<MAXPLAYERS ; i++)
-	if (playeringame[i])
-	    P_PlayerThink (data, &players[i]);
+	if (data->playeringame[i])
+	    P_PlayerThink (data, &data->players[i]);
 			
     P_RunThinkers (data);
     P_UpdateSpecials (data);

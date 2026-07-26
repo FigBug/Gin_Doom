@@ -680,10 +680,10 @@ void P_SpawnPlayer (data_t* data, mapthing_t* mthing)
     }
 
     // not playing?
-    if (!playeringame[mthing->type-1])
+    if (!data->playeringame[mthing->type-1])
 	return;					
 		
-    p = &players[mthing->type-1];
+    p = &data->players[mthing->type-1];
 
     if (p->playerstate == PST_REBORN)
 	G_PlayerReborn (data, mthing->type-1);
@@ -762,7 +762,7 @@ void P_SpawnMapThing (data_t* data, mapthing_t* mthing)
         return;
     }
 	
-    // check for players specially
+    // check for data->players specially
     if (mthing->type <= 4)
     {
 	// save spots for respawning in network games
@@ -797,7 +797,7 @@ void P_SpawnMapThing (data_t* data, mapthing_t* mthing)
 		 mthing->type,
 		 mthing->x, mthing->y);
 		
-    // don't spawn keycards and players in data->deathmatch
+    // don't spawn keycards and data->players in data->deathmatch
     if (data->deathmatch && mobjinfo[i].flags & MF_NOTDMATCH)
 	return;
 		

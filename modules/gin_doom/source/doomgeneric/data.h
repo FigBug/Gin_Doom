@@ -6,6 +6,7 @@ typedef struct data_s data_t;
 #include "d_mode.h"
 #include "d_event.h"
 #include "doomdef.h"
+#include "d_player.h"
 
 struct data_s
 {
@@ -92,6 +93,9 @@ struct data_s
 	boolean         demoplayback;
 	boolean         singledemo;
 	boolean         precache;
+
+	boolean         playeringame[MAXPLAYERS];
+	player_t        players[MAXPLAYERS];
 
 
 };

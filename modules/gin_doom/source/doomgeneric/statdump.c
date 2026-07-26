@@ -125,7 +125,7 @@ static void DiscoverGamemode(wbstartstruct_t *stats, int num_stats)
 
 #if ORIGCODE
 
-/* Returns the number of players active in the given stats buffer. */
+/* Returns the number of data->players active in the given stats buffer. */
 
 static int GetNumPlayers(wbstartstruct_t *stats)
 {
