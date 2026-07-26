@@ -173,6 +173,23 @@ struct data_s
 	// i_video.c
 	byte*           I_VideoBuffer;
 
+	// r_main.c view state
+	int             viewangleoffset;
+	byte*           fixedcolormap;   // lighttable_t*
+	int             centerx;
+	int             centery;
+	fixed_t         centerxfrac;
+	fixed_t         centeryfrac;
+	fixed_t         projection;
+	fixed_t         viewx;
+	fixed_t         viewy;
+	fixed_t         viewz;
+	angle_t         viewangle;
+	fixed_t         viewcos;
+	fixed_t         viewsin;
+	player_t*       viewplayer;
+	int             extralight;
+
 
 };
 
