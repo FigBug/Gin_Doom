@@ -249,7 +249,7 @@ void R_RenderSegLoop (data_t* data)
 	    data->dc_yh = yh;
 	    data->dc_texturemid = data->rw_midtexturemid;
 	    data->dc_source = R_GetColumn(data, data->midtexture,texturecolumn);
-	    colfunc (data);
+	    data->colfunc (data);
 	    data->ceilingclip[data->rw_x] = data->viewheight;
 	    data->floorclip[data->rw_x] = -1;
 	}
@@ -271,7 +271,7 @@ void R_RenderSegLoop (data_t* data)
 		    data->dc_yh = mid;
 		    data->dc_texturemid = data->rw_toptexturemid;
 		    data->dc_source = R_GetColumn(data, data->toptexture,texturecolumn);
-		    colfunc (data);
+		    data->colfunc (data);
 		    data->ceilingclip[data->rw_x] = mid;
 		}
 		else
@@ -301,7 +301,7 @@ void R_RenderSegLoop (data_t* data)
 		    data->dc_texturemid = data->rw_bottomtexturemid;
 		    data->dc_source = R_GetColumn(data, data->bottomtexture,
 					    texturecolumn);
-		    colfunc (data);
+		    data->colfunc (data);
 		    data->floorclip[data->rw_x] = mid;
 		}
 		else

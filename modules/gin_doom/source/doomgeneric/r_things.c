@@ -354,7 +354,7 @@ void R_DrawMaskedColumn (data_t* data, column_t* column)
 
 	    // Drawn by either R_DrawColumn
 	    //  or (SHADOW) R_DrawFuzzColumn.
-	    colfunc (data);	
+	    data->colfunc (data);	
 	}
 	column = (column_t *)(  (byte *)column + column->length + 4);
     }
@@ -388,11 +388,11 @@ R_DrawVisSprite
     if (!data->dc_colormap)
     {
 	// NULL colormap = shadow draw
-	colfunc = fuzzcolfunc;
+	data->colfunc = data->fuzzcolfunc;
     }
     else if (vis->mobjflags & MF_TRANSLATION)
     {
-	colfunc = transcolfunc;
+	data->colfunc = data->transcolfunc;
 	data->dc_translation = data->translationtables - 256 +
 	    ( (vis->mobjflags & MF_TRANSLATION) >> (MF_TRANSSHIFT-8) );
     }
@@ -415,7 +415,7 @@ R_DrawVisSprite
 	R_DrawMaskedColumn (data, column);
     }
 
-    colfunc = basecolfunc;
+    data->colfunc = data->basecolfunc;
 }
 
 

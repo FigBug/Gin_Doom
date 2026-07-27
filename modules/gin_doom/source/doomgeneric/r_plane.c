@@ -148,7 +148,7 @@ R_MapPlane
     data->ds_x2 = x2;
 
     // high or low detail
-    spanfunc (data);	
+    data->spanfunc (data);	
 }
 
 
@@ -391,7 +391,7 @@ void R_DrawPlanes (data_t* data)
 		    angle = (data->viewangle + data->xtoviewangle[x])>>ANGLETOSKYSHIFT;
 		    data->dc_x = x;
 		    data->dc_source = R_GetColumn(data, data->skytexture, angle);
-		    colfunc (data);
+		    data->colfunc (data);
 		}
 	    }
 	    continue;

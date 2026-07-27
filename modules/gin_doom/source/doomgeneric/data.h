@@ -292,6 +292,15 @@ struct data_s
 	spritedef_t*    sprites;
 	spriteframe_t   sprtemp[29];
 	char*           spritename;
+
+	// r_main.c column/span draw function pointers (were globals). Sprite
+	// drawing swaps colfunc for shadow/translation, so sharing them races
+	// (a shadow sprite ends up calling R_DrawColumn with a NULL colormap).
+	void            (*colfunc) (data_t*);
+	void            (*basecolfunc) (data_t*);
+	void            (*fuzzcolfunc) (data_t*);
+	void            (*transcolfunc) (data_t*);
+	void            (*spanfunc) (data_t*);
 	vissprite_t     vissprites[128];         // MAXVISSPRITES
 	vissprite_t*    vissprite_p;
 	int             newvissprite;
