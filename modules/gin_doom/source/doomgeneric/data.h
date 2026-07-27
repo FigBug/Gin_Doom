@@ -418,6 +418,10 @@ struct data_s
 	char*           gamedescription;
 	boolean         modifiedgame;
 
+	boolean         testcontrols;
+	int             testcontrols_mousespeed;
+	int             snd_channels;
+
 	// level geometry (p_setup.c)
 	int             numvertexes;
 	vertex_t*       vertexes;

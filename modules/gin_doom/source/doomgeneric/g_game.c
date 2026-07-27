@@ -109,8 +109,6 @@ byte*		demo_p;
 byte*		demoend; 
  
 
-boolean         testcontrols = false;    // Invoked by setup to test controls
-int             testcontrols_mousespeed;
  
 
  
@@ -491,7 +489,7 @@ void G_BuildTiccmd (data_t* data, ticcmd_t* cmd, int maketic)
     {
         // No movement in the previous frame
 
-        testcontrols_mousespeed = 0;
+        data->testcontrols_mousespeed = 0;
     }
     
     data->mousex = data->mousey = 0; 
@@ -612,7 +610,7 @@ void G_DoLoadLevel (data_t* data)
     memset(data->mousearray, 0, sizeof(data->mousearray));
     memset(data->joyarray, 0, sizeof(data->joyarray));
 
-    if (testcontrols)
+    if (data->testcontrols)
     {
         data->players[data->consoleplayer].message = "Press escape to quit.";
     }
@@ -730,14 +728,14 @@ boolean G_Responder (data_t* data, event_t* ev)
 	    return true;	// finale ate the event 
     } 
 
-    if (testcontrols && ev->type == ev_mouse)
+    if (data->testcontrols && ev->type == ev_mouse)
     {
         // If we are invoked by setup to test the controls, save the 
         // mouse speed so that we can display it on-screen.
         // Perform a low pass filter on this so that the thermometer 
         // appears to move smoothly.
 
-        testcontrols_mousespeed = abs(ev->data2);
+        data->testcontrols_mousespeed = abs(ev->data2);
     }
 
     // If the next/previous weapon keys are pressed, set the data->next_weapon

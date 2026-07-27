@@ -17,6 +17,7 @@ data_t* DG_Alloc()
 	data->mouseSensitivity = 5;
 	data->gamemission = doom;
 	data->gameversion = exe_final2;
+	data->snd_channels = 8;
 	data->musicVolume = 8;
 	data->mousebuttons = &data->mousearray[1];
 	data->joybuttons = &data->joyarray[1];

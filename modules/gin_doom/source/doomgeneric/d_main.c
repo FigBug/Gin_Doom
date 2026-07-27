@@ -227,11 +227,11 @@ void D_Display (data_t* data)
 		}
     }
 
-    if (testcontrols)
+    if (data->testcontrols)
     {
         // Box showing current mouse speed
 
-        V_DrawMouseSpeedBox(data, testcontrols_mousespeed);
+        V_DrawMouseSpeedBox(data, data->testcontrols_mousespeed);
     }
 
     menuactivestate = data->menuactive;
@@ -321,7 +321,7 @@ void D_BindVariables(data_t* data)
     M_BindVariable("show_messages",          &showMessages);
     M_BindVariable("screenblocks",           &screenblocks);
     M_BindVariable("detaillevel",            &detailLevel);
-    M_BindVariable("snd_channels",           &snd_channels);
+    M_BindVariable("data->snd_channels",           &data->snd_channels);
     M_BindVariable("vanilla_savegame_limit", &vanilla_savegame_limit);
     M_BindVariable("vanilla_demo_limit",     &vanilla_demo_limit);
     M_BindVariable("show_endoom",            &data->show_endoom);
@@ -392,7 +392,7 @@ void D_DoomLoop (data_t* data)
 
     D_StartGameLoop (data);
 
-    if (testcontrols)
+    if (data->testcontrols)
     {
         data->wipegamestate = data->gamestate;
     }
@@ -1030,7 +1030,7 @@ static void D_Endoom(data_t* data)
     // game has actually started.
 
     if (!data->show_endoom || !data->main_loop_started
-     || screensaver_mode || M_CheckParm(data, "-testcontrols") > 0)
+     || screensaver_mode || M_CheckParm(data, "-data->testcontrols") > 0)
     {
         return;
     }
@@ -1683,14 +1683,14 @@ void D_DoomMain (data_t* data)
     // Undocumented:
     // Invoked by setup to test the controls.
 
-    p = M_CheckParm(data, "-testcontrols");
+    p = M_CheckParm(data, "-data->testcontrols");
 
     if (p > 0)
     {
 		data->startepisode = 1;
 		data->startmap = 1;
 		data->autostart = true;
-        testcontrols = true;
+        data->testcontrols = true;
     }
 
     // Check for load game parameter

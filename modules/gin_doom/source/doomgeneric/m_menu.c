@@ -1427,10 +1427,10 @@ boolean M_Responder (data_t* data, event_t* ev)
     static  int     mousex = 0;
     static  int     lastx = 0;
 
-    // In testcontrols mode, none of the function keys should do anything
+    // In data->testcontrols mode, none of the function keys should do anything
     // - the only key is escape to quit.
 
-    if (testcontrols)
+    if (data->testcontrols)
     {
         if (ev->type == ev_quit
          || (ev->type == ev_keydown
