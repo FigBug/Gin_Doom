@@ -1903,10 +1903,9 @@ void A_BrainSpit (data_t* data, mobj_t*	mo)
     mobj_t*	targ;
     mobj_t*	newmobj;
     
-    static int	easy = 0;
 	
-    easy ^= 1;
-    if (data->gameskill <= sk_easy && (!easy))
+    data->pe_easy ^= 1;
+    if (data->gameskill <= sk_easy && (!data->pe_easy))
 	return;
 		
     // shoot a cube at current target

@@ -634,17 +634,15 @@ ST_Responder (data_t* data, event_t* ev)
 int ST_calcPainOffset(data_t* data)
 {
     int		health;
-    static int	lastcalc;
-    static int	oldhealth = -1;
     
     health = data->sb_plyr->health > 100 ? 100 : data->sb_plyr->health;
 
-    if (health != oldhealth)
+    if (health != data->sb_pain_oldhealth)
     {
-	lastcalc = ST_FACESTRIDE * (((100 - health) * ST_NUMPAINFACES) / 101);
-	oldhealth = health;
+	data->sb_pain_lastcalc = ST_FACESTRIDE * (((100 - health) * ST_NUMPAINFACES) / 101);
+	data->sb_pain_oldhealth = health;
     }
-    return lastcalc;
+    return data->sb_pain_lastcalc;
 }
 
 

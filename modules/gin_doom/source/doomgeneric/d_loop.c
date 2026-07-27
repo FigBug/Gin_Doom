@@ -693,15 +693,14 @@ void TryRunTics (data_t* data)
     int	i;
     int	lowtic;
     int	entertic;
-    static int oldentertics;
     int realtics;
     int	availabletics;
     int	counts;
 
     // get real tics
     entertic = I_GetTime (data) / data->ticdup;
-    realtics = entertic - oldentertics;
-    oldentertics = entertic;
+    realtics = entertic - data->dl_oldentertics;
+    data->dl_oldentertics = entertic;
 
     // in data->singletics mode, run a single tic every time this function
     // is called.

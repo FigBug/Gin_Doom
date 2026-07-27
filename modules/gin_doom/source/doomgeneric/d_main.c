@@ -126,12 +126,6 @@ void R_ExecuteSetViewSize (data_t* data);
 
 void D_Display (data_t* data)
 {
-    static  boolean		viewactivestate = false;
-    static  boolean		menuactivestate = false;
-    static  boolean		inhelpscreensstate = false;
-    static  boolean		fullscreen = false;
-    static  gamestate_t		oldgamestate = -1;
-    static  int			borderdrawcount;
     int				nowtime;
     int				tics;
     int				wipestart;
@@ -149,8 +143,8 @@ void D_Display (data_t* data)
     if (data->setsizeneeded)
     {
 		R_ExecuteSetViewSize (data);
-		oldgamestate = -1;                      // force background redraw
-		borderdrawcount = 3;
+		data->dd_oldgamestate = -1;                      // force background redraw
+		data->dd_borderdrawcount = 3;
     }
 
     // save the current screen if about to wipe
@@ -173,12 +167,12 @@ void D_Display (data_t* data)
 			break;
 		if (data->automapactive)
 			AM_Drawer (data);
-		if (wipe || (data->viewheight != 200 && fullscreen) )
+		if (wipe || (data->viewheight != 200 && data->dd_fullscreen) )
 			redrawsbar = true;
-		if (inhelpscreensstate && !inhelpscreens)
+		if (data->dd_inhelpscreensstate && !inhelpscreens)
 			redrawsbar = true;              // just put away the help screen
 		ST_Drawer (data, data->viewheight == 200, redrawsbar );
-		fullscreen = data->viewheight == 200;
+		data->dd_fullscreen = data->viewheight == 200;
 		break;
 
       case GS_INTERMISSION:
@@ -205,25 +199,25 @@ void D_Display (data_t* data)
     	HU_Drawer (data);
     
     // clean up border stuff
-    if (data->gamestate != oldgamestate && data->gamestate != GS_LEVEL)
+    if (data->gamestate != data->dd_oldgamestate && data->gamestate != GS_LEVEL)
     	I_SetPalette (data, W_CacheLumpName (DEH_String("PLAYPAL"),PU_CACHE));
 
     // see if the border needs to be initially drawn
-    if (data->gamestate == GS_LEVEL && oldgamestate != GS_LEVEL)
+    if (data->gamestate == GS_LEVEL && data->dd_oldgamestate != GS_LEVEL)
     {
-		viewactivestate = false;        // view was not active
+		data->dd_viewactivestate = false;        // view was not active
 		R_FillBackScreen(data);    // draw the pattern into the back screen
     }
 
     // see if the border needs to be updated to the screen
     if (data->gamestate == GS_LEVEL && !data->automapactive && data->scaledviewwidth != 320)
     {
-		if (data->menuactive || menuactivestate || !viewactivestate)
-			borderdrawcount = 3;
-		if (borderdrawcount)
+		if (data->menuactive || data->dd_menuactivestate || !data->dd_viewactivestate)
+			data->dd_borderdrawcount = 3;
+		if (data->dd_borderdrawcount)
 		{
 			R_DrawViewBorder(data);    // erase old menu stuff
-			borderdrawcount--;
+			data->dd_borderdrawcount--;
 		}
     }
 
@@ -234,10 +228,10 @@ void D_Display (data_t* data)
         V_DrawMouseSpeedBox(data, data->testcontrols_mousespeed);
     }
 
-    menuactivestate = data->menuactive;
-    viewactivestate = data->viewactive;
-    inhelpscreensstate = inhelpscreens;
-    oldgamestate = data->wipegamestate = data->gamestate;
+    data->dd_menuactivestate = data->menuactive;
+    data->dd_viewactivestate = data->viewactive;
+    data->dd_inhelpscreensstate = inhelpscreens;
+    data->dd_oldgamestate = data->wipegamestate = data->gamestate;
     
     // draw pause pic
     if (data->paused)

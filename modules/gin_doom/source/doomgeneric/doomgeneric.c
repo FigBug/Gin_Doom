@@ -18,6 +18,8 @@ data_t* DG_Alloc()
 	data->gamemission = doom;
 	data->gameversion = exe_final2;
 	data->snd_channels = 8;
+	data->dd_oldgamestate = -1;
+	data->sb_pain_oldhealth = -1;
 	data->musicVolume = 8;
 	data->mousebuttons = &data->mousearray[1];
 	data->joybuttons = &data->joyarray[1];

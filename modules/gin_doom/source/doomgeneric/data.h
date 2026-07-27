@@ -649,6 +649,24 @@ struct data_s
 	boolean         hu_chat_on;
 	boolean         hu_message_dontfuckwithme;
 
+	// d_main D_Display render-refresh state (was function-local statics)
+	boolean         dd_viewactivestate;
+	boolean         dd_menuactivestate;
+	boolean         dd_inhelpscreensstate;
+	boolean         dd_fullscreen;
+	gamestate_t     dd_oldgamestate;
+	int             dd_borderdrawcount;
+
+	// function-local statics moved out
+	char            hu_lastmessage[HU_MAXLINELENGTH+1];
+	boolean         hu_altdown;
+	int             hu_num_nobrainers;
+	int             sb_pain_lastcalc;
+	int             sb_pain_oldhealth;
+	int             fin_laststage;
+	int             pe_easy;
+	int             dl_oldentertics;
+
 	// level geometry (p_setup.c)
 	int             numvertexes;
 	vertex_t*       vertexes;

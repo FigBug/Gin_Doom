@@ -496,15 +496,12 @@ char HU_dequeueChatChar(data_t* data)
 boolean HU_Responder(data_t* data, event_t *ev)
 {
 
-    static char		lastmessage[HU_MAXLINELENGTH+1];
     char*		macromessage;
     boolean		eatkey = false;
-    static boolean	altdown = false;
     unsigned char 	c;
     int			i;
     int			numplayers;
     
-    static int		num_nobrainers = 0;
 
     numplayers = 0;
     for (i=0 ; i<MAXPLAYERS ; i++)
@@ -516,7 +513,7 @@ boolean HU_Responder(data_t* data, event_t *ev)
     }
     else if (ev->data1 == KEY_RALT || ev->data1 == KEY_LALT)
     {
-	altdown = ev->type == ev_keydown;
+	data->hu_altdown = ev->type == ev_keydown;
 	return false;
     }
 
@@ -552,14 +549,14 @@ boolean HU_Responder(data_t* data, event_t *ev)
 		    }
 		    else if (i == data->consoleplayer)
 		    {
-			num_nobrainers++;
-			if (num_nobrainers < 3)
+			data->hu_num_nobrainers++;
+			if (data->hu_num_nobrainers < 3)
 			    data->hu_plr->message = DEH_String(HUSTR_TALKTOSELF1);
-			else if (num_nobrainers < 6)
+			else if (data->hu_num_nobrainers < 6)
 			    data->hu_plr->message = DEH_String(HUSTR_TALKTOSELF2);
-			else if (num_nobrainers < 9)
+			else if (data->hu_num_nobrainers < 9)
 			    data->hu_plr->message = DEH_String(HUSTR_TALKTOSELF3);
-			else if (num_nobrainers < 32)
+			else if (data->hu_num_nobrainers < 32)
 			    data->hu_plr->message = DEH_String(HUSTR_TALKTOSELF4);
 			else
 			    data->hu_plr->message = DEH_String(HUSTR_TALKTOSELF5);
@@ -571,7 +568,7 @@ boolean HU_Responder(data_t* data, event_t *ev)
     else
     {
 	// send a macro
-	if (altdown)
+	if (data->hu_altdown)
 	{
 	    c = ev->data1 - '0';
 	    if (c > 9)
@@ -589,8 +586,8 @@ boolean HU_Responder(data_t* data, event_t *ev)
 	    
             // leave chat mode and notify that it was sent
             data->hu_chat_on = false;
-            M_StringCopy(lastmessage, chat_macros[c], sizeof(lastmessage));
-            data->hu_plr->message = lastmessage;
+            M_StringCopy(data->hu_lastmessage, chat_macros[c], sizeof(data->hu_lastmessage));
+            data->hu_plr->message = data->hu_lastmessage;
             eatkey = true;
 	}
 	else
@@ -611,8 +608,8 @@ boolean HU_Responder(data_t* data, event_t *ev)
 		data->hu_chat_on = false;
                 if (data->hu_w_chat.l.len)
                 {
-                    M_StringCopy(lastmessage, data->hu_w_chat.l.l, sizeof(lastmessage));
-                    data->hu_plr->message = lastmessage;
+                    M_StringCopy(data->hu_lastmessage, data->hu_w_chat.l.l, sizeof(data->hu_lastmessage));
+                    data->hu_plr->message = data->hu_lastmessage;
                 }
 	    }
 	    else if (c == KEY_ESCAPE)

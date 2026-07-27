@@ -602,7 +602,6 @@ void F_BunnyScroll (data_t* data)
     patch_t*	p2;
     char	name[10];
     int		stage;
-    static int	laststage;
 		
     p1 = W_CacheLumpName (DEH_String("PFUB2"), PU_LEVEL);
     p2 = W_CacheLumpName (DEH_String("PFUB1"), PU_LEVEL);
@@ -630,17 +629,17 @@ void F_BunnyScroll (data_t* data)
         V_DrawPatch(data, (SCREENWIDTH - 13 * 8) / 2,
                     (SCREENHEIGHT - 8 * 8) / 2, 
                     W_CacheLumpName(DEH_String("END0"), PU_CACHE));
-	laststage = 0;
+	data->fin_laststage = 0;
 	return;
     }
 	
     stage = (data->finalecount-1180) / 5;
     if (stage > 6)
 	stage = 6;
-    if (stage > laststage)
+    if (stage > data->fin_laststage)
     {
 	S_StartSound(data, NULL, sfx_pistol);
-	laststage = stage;
+	data->fin_laststage = stage;
     }
 	
     DEH_snprintf(name, 10, "END%i", stage);
