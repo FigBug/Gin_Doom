@@ -50,9 +50,7 @@ typedef enum
 //#include "f_finale.h"
 
 // Stage of animation:
-finalestage_t finalestage;
 
-unsigned int finalecount;
 
 #define	TEXTSPEED	3
 #define	TEXTWAIT	250
@@ -94,8 +92,6 @@ static textscreen_t textscreens[] =
     { pack_plut, 1, 31, "RROCK19",   P6TEXT},
 };
 
-char*	finaletext;
-char*	finaleflat;
 
 void	F_StartCast (data_t* data);
 void	F_CastTicker (data_t* data);
@@ -140,18 +136,18 @@ void F_StartFinale (data_t* data)
          && (logical_gamemission != doom || data->gameepisode == screen->episode)
          && data->gamemap == screen->level)
         {
-            finaletext = screen->text;
-            finaleflat = screen->background;
+            data->finaletext = screen->text;
+            data->finaleflat = screen->background;
         }
     }
 
     // Do dehacked substitutions of strings
   
-    finaletext = DEH_String(finaletext);
-    finaleflat = DEH_String(finaleflat);
+    data->finaletext = DEH_String(data->finaletext);
+    data->finaleflat = DEH_String(data->finaleflat);
     
-    finalestage = F_STAGE_TEXT;
-    finalecount = 0;
+    data->finalestage = F_STAGE_TEXT;
+    data->finalecount = 0;
 	
 }
 
@@ -159,7 +155,7 @@ void F_StartFinale (data_t* data)
 
 boolean F_Responder (data_t* data, event_t *event)
 {
-    if (finalestage == F_STAGE_CAST)
+    if (data->finalestage == F_STAGE_CAST)
 	return F_CastResponder (data, event);
 	
     return false;
@@ -175,7 +171,7 @@ void F_Ticker (data_t* data)
     
     // check for skipping
     if ( (data->gamemode == commercial)
-      && ( finalecount > 50) )
+      && ( data->finalecount > 50) )
     {
       // go on to the next level
       for (i=0 ; i<MAXPLAYERS ; i++)
@@ -192,9 +188,9 @@ void F_Ticker (data_t* data)
     }
     
     // advance animation
-    finalecount++;
+    data->finalecount++;
 	
-    if (finalestage == F_STAGE_CAST)
+    if (data->finalestage == F_STAGE_CAST)
     {
 	F_CastTicker (data);
 	return;
@@ -203,11 +199,11 @@ void F_Ticker (data_t* data)
     if ( data->gamemode == commercial)
 	return;
 		
-    if (finalestage == F_STAGE_TEXT
-     && finalecount>strlen (finaletext)*TEXTSPEED + TEXTWAIT)
+    if (data->finalestage == F_STAGE_TEXT
+     && data->finalecount>strlen (data->finaletext)*TEXTSPEED + TEXTWAIT)
     {
-	finalecount = 0;
-	finalestage = F_STAGE_ARTSCREEN;
+	data->finalecount = 0;
+	data->finalestage = F_STAGE_ARTSCREEN;
 	data->wipegamestate = -1;		// force a wipe
 	if (data->gameepisode == 3)
 	    S_StartMusic(data, mus_bunny);
@@ -237,7 +233,7 @@ void F_TextWrite (data_t* data)
     int		cy;
     
     // erase the entire screen to a tiled background
-    src = W_CacheLumpName ( finaleflat , PU_CACHE);
+    src = W_CacheLumpName ( data->finaleflat , PU_CACHE);
     dest = data->I_VideoBuffer;
 	
     for (y=0 ; y<SCREENHEIGHT ; y++)
@@ -259,9 +255,9 @@ void F_TextWrite (data_t* data)
     // draw some of the text onto the screen
     cx = 10;
     cy = 10;
-    ch = finaletext;
+    ch = data->finaletext;
 	
-    count = ((signed int) finalecount - 10) / TEXTSPEED;
+    count = ((signed int) data->finalecount - 10) / TEXTSPEED;
     if (count < 0)
 	count = 0;
     for ( ; count ; count-- )
@@ -325,13 +321,7 @@ castinfo_t	castorder[] = {
     {NULL,0}
 };
 
-int		castnum;
-int		casttics;
 state_t*	caststate;
-boolean		castdeath;
-int		castframes;
-int		castonmelee;
-boolean		castattacking;
 
 
 //
@@ -340,14 +330,14 @@ boolean		castattacking;
 void F_StartCast (data_t* data)
 {
     data->wipegamestate = -1;		// force a screen wipe
-    castnum = 0;
-    caststate = &states[mobjinfo[castorder[castnum].type].seestate];
-    casttics = caststate->tics;
-    castdeath = false;
-    finalestage = F_STAGE_CAST;
-    castframes = 0;
-    castonmelee = 0;
-    castattacking = false;
+    data->castnum = 0;
+    caststate = &states[mobjinfo[castorder[data->castnum].type].seestate];
+    data->casttics = caststate->tics;
+    data->castdeath = false;
+    data->finalestage = F_STAGE_CAST;
+    data->castframes = 0;
+    data->castonmelee = 0;
+    data->castattacking = false;
     S_ChangeMusic(data, mus_evil, true);
 }
 
@@ -360,20 +350,20 @@ void F_CastTicker (data_t* data)
     int		st;
     int		sfx;
 	
-    if (--casttics > 0)
+    if (--data->casttics > 0)
 	return;			// not time to change state yet
 		
     if (caststate->tics == -1 || caststate->nextstate == S_NULL)
     {
 	// switch from deathstate to next monster
-	castnum++;
-	castdeath = false;
-	if (castorder[castnum].name == NULL)
-	    castnum = 0;
-	if (mobjinfo[castorder[castnum].type].seesound)
-	    S_StartSound(data, NULL, mobjinfo[castorder[castnum].type].seesound);
-	caststate = &states[mobjinfo[castorder[castnum].type].seestate];
-	castframes = 0;
+	data->castnum++;
+	data->castdeath = false;
+	if (castorder[data->castnum].name == NULL)
+	    data->castnum = 0;
+	if (mobjinfo[castorder[data->castnum].type].seesound)
+	    S_StartSound(data, NULL, mobjinfo[castorder[data->castnum].type].seesound);
+	caststate = &states[mobjinfo[castorder[data->castnum].type].seestate];
+	data->castframes = 0;
     }
     else
     {
@@ -382,7 +372,7 @@ void F_CastTicker (data_t* data)
 	    goto stopattack;	// Oh, gross hack!
 	st = caststate->nextstate;
 	caststate = &states[st];
-	castframes++;
+	data->castframes++;
 	
 	// sound hacks....
 	switch (st)
@@ -420,41 +410,41 @@ void F_CastTicker (data_t* data)
 	    S_StartSound(data, NULL, sfx);
     }
 	
-    if (castframes == 12)
+    if (data->castframes == 12)
     {
 	// go into attack frame
-	castattacking = true;
-	if (castonmelee)
-	    caststate=&states[mobjinfo[castorder[castnum].type].meleestate];
+	data->castattacking = true;
+	if (data->castonmelee)
+	    caststate=&states[mobjinfo[castorder[data->castnum].type].meleestate];
 	else
-	    caststate=&states[mobjinfo[castorder[castnum].type].missilestate];
-	castonmelee ^= 1;
+	    caststate=&states[mobjinfo[castorder[data->castnum].type].missilestate];
+	data->castonmelee ^= 1;
 	if (caststate == &states[S_NULL])
 	{
-	    if (castonmelee)
+	    if (data->castonmelee)
 		caststate=
-		    &states[mobjinfo[castorder[castnum].type].meleestate];
+		    &states[mobjinfo[castorder[data->castnum].type].meleestate];
 	    else
 		caststate=
-		    &states[mobjinfo[castorder[castnum].type].missilestate];
+		    &states[mobjinfo[castorder[data->castnum].type].missilestate];
 	}
     }
 	
-    if (castattacking)
+    if (data->castattacking)
     {
-	if (castframes == 24
-	    ||	caststate == &states[mobjinfo[castorder[castnum].type].seestate] )
+	if (data->castframes == 24
+	    ||	caststate == &states[mobjinfo[castorder[data->castnum].type].seestate] )
 	{
 	  stopattack:
-	    castattacking = false;
-	    castframes = 0;
-	    caststate = &states[mobjinfo[castorder[castnum].type].seestate];
+	    data->castattacking = false;
+	    data->castframes = 0;
+	    caststate = &states[mobjinfo[castorder[data->castnum].type].seestate];
 	}
     }
 	
-    casttics = caststate->tics;
-    if (casttics == -1)
-	casttics = 15;
+    data->casttics = caststate->tics;
+    if (data->casttics == -1)
+	data->casttics = 15;
 }
 
 
@@ -467,17 +457,17 @@ boolean F_CastResponder (data_t* data, event_t* ev)
     if (ev->type != ev_keydown)
 	return false;
 		
-    if (castdeath)
+    if (data->castdeath)
 	return true;			// already in dying frames
 		
     // go into death frame
-    castdeath = true;
-    caststate = &states[mobjinfo[castorder[castnum].type].deathstate];
-    casttics = caststate->tics;
-    castframes = 0;
-    castattacking = false;
-    if (mobjinfo[castorder[castnum].type].deathsound)
-	S_StartSound(data, NULL, mobjinfo[castorder[castnum].type].deathsound);
+    data->castdeath = true;
+    caststate = &states[mobjinfo[castorder[data->castnum].type].deathstate];
+    data->casttics = caststate->tics;
+    data->castframes = 0;
+    data->castattacking = false;
+    if (mobjinfo[castorder[data->castnum].type].deathsound)
+	S_StartSound(data, NULL, mobjinfo[castorder[data->castnum].type].deathsound);
 	
     return true;
 }
@@ -549,7 +539,7 @@ void F_CastDrawer (data_t* data)
     // erase the entire screen to a background
     V_DrawPatch(data, 0, 0, W_CacheLumpName (DEH_String("BOSSBACK"), PU_CACHE));
 
-    F_CastPrint (data, DEH_String(castorder[castnum].name));
+    F_CastPrint (data, DEH_String(castorder[data->castnum].name));
     
     // draw the current frame in the middle of the screen
     sprdef = &sprites[caststate->sprite];
@@ -619,7 +609,7 @@ void F_BunnyScroll (data_t* data)
 
     V_MarkRect(data, 0, 0, SCREENWIDTH, SCREENHEIGHT);
 	
-    scrolled = (320 - ((signed int) finalecount-230)/2);
+    scrolled = (320 - ((signed int) data->finalecount-230)/2);
     if (scrolled > 320)
 	scrolled = 320;
     if (scrolled < 0)
@@ -633,9 +623,9 @@ void F_BunnyScroll (data_t* data)
 	    F_DrawPatchCol (data, x, p2, x+scrolled - 320);		
     }
 	
-    if (finalecount < 1130)
+    if (data->finalecount < 1130)
 	return;
-    if (finalecount < 1180)
+    if (data->finalecount < 1180)
     {
         V_DrawPatch(data, (SCREENWIDTH - 13 * 8) / 2,
                     (SCREENHEIGHT - 8 * 8) / 2, 
@@ -644,7 +634,7 @@ void F_BunnyScroll (data_t* data)
 	return;
     }
 	
-    stage = (finalecount-1180) / 5;
+    stage = (data->finalecount-1180) / 5;
     if (stage > 6)
 	stage = 6;
     if (stage > laststage)
@@ -702,7 +692,7 @@ static void F_ArtScreenDrawer(data_t* data)
 //
 void F_Drawer (data_t* data)
 {
-    switch (finalestage)
+    switch (data->finalestage)
     {
         case F_STAGE_CAST:
             F_CastDrawer(data);

@@ -93,7 +93,6 @@ void A_Fall (data_t* data, mobj_t *actor);
 // sound blocking data->lines cut off traversal.
 //
 
-mobj_t*		soundtarget;
 
 void
 P_RecursiveSound
@@ -114,7 +113,7 @@ P_RecursiveSound
     
     sec->validcount = data->validcount;
     sec->soundtraversed = soundblocks+1;
-    sec->soundtarget = soundtarget;
+    sec->soundtarget = data->soundtarget;
 	
     for (i=0 ;i<sec->linecount ; i++)
     {
@@ -155,7 +154,7 @@ P_NoiseAlert
   mobj_t*	target,
   mobj_t*	emmiter )
 {
-    soundtarget = target;
+    data->soundtarget = target;
     data->validcount++;
     P_RecursiveSound(data, emmiter->subsector->sector, 0);
 }
@@ -1110,10 +1109,6 @@ void A_SkelFist (data_t* data, mobj_t*	actor)
 // PIT_VileCheck
 // Detect a corpse that could be raised.
 //
-mobj_t*		corpsehit;
-mobj_t*		vileobj;
-fixed_t		viletryx;
-fixed_t		viletryy;
 
 boolean PIT_VileCheck (data_t* data, mobj_t*	thing)
 {
@@ -1131,15 +1126,15 @@ boolean PIT_VileCheck (data_t* data, mobj_t*	thing)
     
     maxdist = thing->info->radius + mobjinfo[MT_VILE].radius;
 	
-    if ( abs(thing->x - viletryx) > maxdist
-	 || abs(thing->y - viletryy) > maxdist )
+    if ( abs(thing->x - data->viletryx) > maxdist
+	 || abs(thing->y - data->viletryy) > maxdist )
 	return true;		// not actually touching
 		
-    corpsehit = thing;
-    corpsehit->momx = corpsehit->momy = 0;
-    corpsehit->height <<= 2;
-    check = P_CheckPosition (data, corpsehit, corpsehit->x, corpsehit->y);
-    corpsehit->height >>= 2;
+    data->corpsehit = thing;
+    data->corpsehit->momx = data->corpsehit->momy = 0;
+    data->corpsehit->height <<= 2;
+    check = P_CheckPosition (data, data->corpsehit, data->corpsehit->x, data->corpsehit->y);
+    data->corpsehit->height >>= 2;
 
     if (!check)
 	return true;		// doesn't fit here
@@ -1169,17 +1164,17 @@ void A_VileChase (data_t* data, mobj_t* actor)
     if (actor->movedir != DI_NODIR)
     {
 	// check for corpses to raise
-	viletryx =
+	data->viletryx =
 	    actor->x + actor->info->speed*xspeed[actor->movedir];
-	viletryy =
+	data->viletryy =
 	    actor->y + actor->info->speed*yspeed[actor->movedir];
 
-	xl = (viletryx - data->bmaporgx - MAXRADIUS*2)>>MAPBLOCKSHIFT;
-	xh = (viletryx - data->bmaporgx + MAXRADIUS*2)>>MAPBLOCKSHIFT;
-	yl = (viletryy - data->bmaporgy - MAXRADIUS*2)>>MAPBLOCKSHIFT;
-	yh = (viletryy - data->bmaporgy + MAXRADIUS*2)>>MAPBLOCKSHIFT;
+	xl = (data->viletryx - data->bmaporgx - MAXRADIUS*2)>>MAPBLOCKSHIFT;
+	xh = (data->viletryx - data->bmaporgx + MAXRADIUS*2)>>MAPBLOCKSHIFT;
+	yl = (data->viletryy - data->bmaporgy - MAXRADIUS*2)>>MAPBLOCKSHIFT;
+	yh = (data->viletryy - data->bmaporgy + MAXRADIUS*2)>>MAPBLOCKSHIFT;
 	
-	vileobj = actor;
+	data->vileobj = actor;
 	for (bx=xl ; bx<=xh ; bx++)
 	{
 	    for (by=yl ; by<=yh ; by++)
@@ -1191,19 +1186,19 @@ void A_VileChase (data_t* data, mobj_t* actor)
 		{
 		    // got one!
 		    temp = actor->target;
-		    actor->target = corpsehit;
+		    actor->target = data->corpsehit;
 			A_FaceTarget (data, actor);
 		    actor->target = temp;
 					
 		    P_SetMobjState (data, actor, S_VILE_HEAL1);
-		    S_StartSound(data, corpsehit, sfx_slop);
-		    info = corpsehit->info;
+		    S_StartSound(data, data->corpsehit, sfx_slop);
+		    info = data->corpsehit->info;
 		    
-		    P_SetMobjState (data, corpsehit,info->raisestate);
-		    corpsehit->height <<= 2;
-		    corpsehit->flags = info->flags;
-		    corpsehit->health = info->spawnhealth;
-		    corpsehit->target = NULL;
+		    P_SetMobjState (data, data->corpsehit,info->raisestate);
+		    data->corpsehit->height <<= 2;
+		    data->corpsehit->flags = info->flags;
+		    data->corpsehit->health = info->spawnhealth;
+		    data->corpsehit->target = NULL;
 
 		    return;
 		}
@@ -1814,9 +1809,6 @@ A_CloseShotgun2
 
 
 
-mobj_t*		braintargets[32];
-int		numbraintargets;
-int		braintargeton = 0;
 
 void A_BrainAwake (data_t* data, mobj_t* mo)
 {
@@ -1824,8 +1816,8 @@ void A_BrainAwake (data_t* data, mobj_t* mo)
     mobj_t*	m;
 	
     // find all the target spots
-    numbraintargets = 0;
-    braintargeton = 0;
+    data->numbraintargets = 0;
+    data->braintargeton = 0;
 	
     thinker = data->thinkercap.next;
     for (thinker = data->thinkercap.next ;
@@ -1839,8 +1831,8 @@ void A_BrainAwake (data_t* data, mobj_t* mo)
 
 	if (m->type == MT_BOSSTARGET )
 	{
-	    braintargets[numbraintargets] = m;
-	    numbraintargets++;
+	    data->braintargets[data->numbraintargets] = m;
+	    data->numbraintargets++;
 	}
     }
 	
@@ -1918,8 +1910,8 @@ void A_BrainSpit (data_t* data, mobj_t*	mo)
 	return;
 		
     // shoot a cube at current target
-    targ = braintargets[braintargeton];
-    braintargeton = (braintargeton+1)%numbraintargets;
+    targ = data->braintargets[data->braintargeton];
+    data->braintargeton = (data->braintargeton+1)%data->numbraintargets;
 
     // spawn brain missile
     newmobj = P_SpawnMissile (data, mo, targ, MT_SPAWNSHOT);

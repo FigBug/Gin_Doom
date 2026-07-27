@@ -572,6 +572,34 @@ struct data_s
 	char            mn_savegamestrings[10][24];
 	int             mn_epi;
 
+	// f_finale.c
+	char*           finaletext;
+	char*           finaleflat;
+	int             finalestage;
+	unsigned int    finalecount;
+	int             castnum;
+	int             casttics;
+	boolean         castdeath;
+	int             castframes;
+	int             castonmelee;
+	boolean         castattacking;
+	// p_enemy.c
+	mobj_t*         soundtarget;
+	mobj_t*         corpsehit;
+	mobj_t*         vileobj;
+	fixed_t         viletryx;
+	fixed_t         viletryy;
+	mobj_t*         braintargets[32];
+	int             numbraintargets;
+	int             braintargeton;
+	// p_sight.c
+	fixed_t         sightzstart;
+	fixed_t         si_topslope;
+	fixed_t         si_bottomslope;
+	int             sightcounts[2];
+	fixed_t         t2x;
+	fixed_t         t2y;
+
 	// level geometry (p_setup.c)
 	int             numvertexes;
 	vertex_t*       vertexes;

@@ -29,15 +29,9 @@
 //
 // P_CheckSight
 //
-fixed_t		sightzstart;		// eye z of looker
-fixed_t		topslope;
-fixed_t		bottomslope;		// slopes to top and bottom of target
 
 divline_t	strace;			// from t1 to t2
-fixed_t		t2x;
-fixed_t		t2y;
 
-int		sightcounts[2];
 
 
 //
@@ -181,7 +175,7 @@ boolean P_CrossSubsector (data_t* data, int num)
 	divl.dx = v2->x - v1->x;
 	divl.dy = v2->y - v1->y;
 	s1 = P_DivlineSide (strace.x, strace.y, &divl);
-	s2 = P_DivlineSide (t2x, t2y, &divl);
+	s2 = P_DivlineSide (data->t2x, data->t2y, &divl);
 
 	// line isn't crossed?
 	if (s1 == s2)
@@ -230,19 +224,19 @@ boolean P_CrossSubsector (data_t* data, int num)
 		
 	if (front->floorheight != back->floorheight)
 	{
-	    slope = FixedDiv (openbottom - sightzstart , frac);
-	    if (slope > bottomslope)
-		bottomslope = slope;
+	    slope = FixedDiv (openbottom - data->sightzstart , frac);
+	    if (slope > data->si_bottomslope)
+		data->si_bottomslope = slope;
 	}
 		
 	if (front->ceilingheight != back->ceilingheight)
 	{
-	    slope = FixedDiv (opentop - sightzstart , frac);
-	    if (slope < topslope)
-		topslope = slope;
+	    slope = FixedDiv (opentop - data->sightzstart , frac);
+	    if (slope < data->si_topslope)
+		data->si_topslope = slope;
 	}
 		
-	if (topslope <= bottomslope)
+	if (data->si_topslope <= data->si_bottomslope)
 	    return false;		// stop				
     }
     // passed the subsector ok
@@ -281,7 +275,7 @@ boolean P_CrossBSPNode (data_t* data, int bspnum)
 	return false;
 	
     // the partition plane is crossed here
-    if (side == P_DivlineSide (t2x, t2y,(divline_t *)bsp))
+    if (side == P_DivlineSide (data->t2x, data->t2y,(divline_t *)bsp))
     {
 	// the line doesn't touch the other side
 	return true;
@@ -322,7 +316,7 @@ P_CheckSight
     // Check in REJECT table.
     if (data->rejectmatrix[bytenum]&bitnum)
     {
-	sightcounts[0]++;
+	data->sightcounts[0]++;
 
 	// can't possibly be connected
 	return false;	
@@ -330,18 +324,18 @@ P_CheckSight
 
     // An unobstructed LOS is possible.
     // Now look from eyes of t1 to any part of t2.
-    sightcounts[1]++;
+    data->sightcounts[1]++;
 
     data->validcount++;
 	
-    sightzstart = t1->z + t1->height - (t1->height>>2);
-    topslope = (t2->z+t2->height) - sightzstart;
-    bottomslope = (t2->z) - sightzstart;
+    data->sightzstart = t1->z + t1->height - (t1->height>>2);
+    data->si_topslope = (t2->z+t2->height) - data->sightzstart;
+    data->si_bottomslope = (t2->z) - data->sightzstart;
 	
     strace.x = t1->x;
     strace.y = t1->y;
-    t2x = t2->x;
-    t2y = t2->y;
+    data->t2x = t2->x;
+    data->t2y = t2->y;
     strace.dx = t2->x - t1->x;
     strace.dy = t2->y - t1->y;
 
