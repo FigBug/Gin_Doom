@@ -73,9 +73,11 @@
 
 #ifdef __cplusplus
 
-// Use builtin bool type with C++.
+// Must match the size of the C enum below: data_t is shared between C and
+// C++ translation units, so a 1-byte bool here would shift every field that
+// follows a boolean member.
 
-typedef bool boolean;
+typedef uint32_t boolean;
 
 #else
 

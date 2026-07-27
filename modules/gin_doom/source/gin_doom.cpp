@@ -194,7 +194,6 @@ Doom::Doom()
 Doom::~Doom()
 {
 	auto data = (data_t*)user_data;
-
 	if (data)
 		data->runloop = 0;
     // Long timeout: the game may still be in D_DoomMain startup and only
@@ -229,7 +228,6 @@ void Doom::run()
 	data_t* data;
 	data = DG_Alloc();
 	user_data = data;
-
 	data->user_data = this;
 
     // The destructor may have signalled before user_data was set and so been
