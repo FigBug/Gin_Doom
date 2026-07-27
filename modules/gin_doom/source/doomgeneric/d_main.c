@@ -1784,7 +1784,7 @@ void D_DoomMain (data_t* data)
         extern boolean net_client_connected;
         int i;
 
-        data->deathmatch    = 1;
+        data->deathmatch    = data->couch_deathmatch;   // 0 co-op, 1 dm, 2 alt
         data->netgame       = true;
         data->consoleplayer = data->couch_index;
         data->displayplayer = data->couch_index;
@@ -1792,6 +1792,12 @@ void D_DoomMain (data_t* data)
 
         for (i = 0; i < data->couch_players && i < MAXPLAYERS; ++i)
             data->playeringame[i] = true;
+
+        // Game setup from the title screen.
+        data->startskill   = data->couch_skill;
+        data->startepisode = data->couch_episode ? data->couch_episode : 1;
+        data->startmap     = data->couch_map ? data->couch_map : 1;
+        data->nomonsters   = data->couch_nomonsters;
 
         data->ticdup    = 1;
         data->autostart = true;

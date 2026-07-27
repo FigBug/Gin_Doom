@@ -669,6 +669,15 @@ struct data_s
 	// deathmatch, this instance being player couch_index).
 	int             couch_players;
 	int             couch_index;
+	// Game setup chosen on the CouchDoom title screen (applied in D_DoomMain
+	// when couch_players > 1). couch_deathmatch: 0 co-op, 1 deathmatch, 2 alt.
+	int             couch_deathmatch;
+	int             couch_skill;        // skill_t 0..4
+	int             couch_episode;      // 1 (shareware)
+	int             couch_map;          // 1..9
+	int             couch_nomonsters;   // 1 = no monsters
+	int             couch_fraglimit;    // 0 = unlimited; end level at N frags
+	int             couch_fragged;      // internal: set once frag limit reached
 
 	// g_game.c demo/game state
 	char*           demoname;

@@ -942,12 +942,33 @@ void G_Ticker (data_t* data)
     // do main actions
     switch (data->gamestate) 
     { 
-      case GS_LEVEL: 
+      case GS_LEVEL:
 	P_Ticker (data);
-	ST_Ticker (data); 
-	AM_Ticker (data); 
-	HU_Ticker (data);            
-	break; 
+	ST_Ticker (data);
+	AM_Ticker (data);
+	HU_Ticker (data);
+	// CouchDoom deathmatch frag limit: end the level once any player reaches
+	// couch_fraglimit total frags. Runs identically on every instance (frags
+	// are part of the synced simulation), so all exit on the same tic.
+	if (data->deathmatch && data->couch_fraglimit > 0 && !data->couch_fragged)
+	{
+	    int i, j;
+	    for (i = 0; i < MAXPLAYERS; ++i)
+	    {
+	        int total = 0;
+	        if (!data->playeringame[i])
+	            continue;
+	        for (j = 0; j < MAXPLAYERS; ++j)
+	            total += data->players[i].frags[j];
+	        if (total >= data->couch_fraglimit)
+	        {
+	            data->couch_fragged = 1;
+	            G_ExitLevel (data);
+	            break;
+	        }
+	    }
+	}
+	break;
 	 
       case GS_INTERMISSION: 
 	WI_Ticker (data); 

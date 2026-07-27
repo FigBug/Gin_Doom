@@ -211,12 +211,13 @@ void Doom::registerComponent (DoomComponent* comp)
 	component = comp;
 }
 
-void Doom::startGame (juce::File wadFile_, int playerIndex, int numPlayers, bool playMusic_)
+void Doom::startGame (juce::File wadFile_, int playerIndex, int numPlayers, bool playMusic_, DoomSetup setup_)
 {
     wadFile = wadFile_;
     couchIndex = playerIndex;
     couchPlayers = numPlayers;
     playMusic = playMusic_;
+    setup = setup_;
     startThread();
 }
 
@@ -255,6 +256,12 @@ void Doom::run()
     // deathmatch and register with the lockstep arbiter.
     data->couch_index = couchIndex;
     data->couch_players = couchPlayers;
+    data->couch_deathmatch = setup.deathmatch;
+    data->couch_skill      = setup.skill;
+    data->couch_episode    = setup.episode;
+    data->couch_map        = setup.map;
+    data->couch_nomonsters = setup.monsters ? 0 : 1;
+    data->couch_fraglimit  = setup.fragLimit;
 
     const char* params[4];
     int argc = 0;
