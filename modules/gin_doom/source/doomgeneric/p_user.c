@@ -351,7 +351,7 @@ void P_PlayerThink (data_t* data, player_t* player)
 	player->bonuscount--;
 
     
-    // Handling colormaps.
+    // Handling data->colormaps.
     if (player->powers[pw_invulnerability])
     {
 	if (player->powers[pw_invulnerability] > 4*32

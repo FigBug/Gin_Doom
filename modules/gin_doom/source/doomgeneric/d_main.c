@@ -1545,7 +1545,7 @@ void D_DoomMain (data_t* data)
     {
         I_PrintDivider();
         printf(" WARNING: The loaded WAD file contains modified sprites or\n"
-               " floor textures.  You may want to use the '-merge' command\n"
+               " floor data->textures.  You may want to use the '-merge' command\n"
                " line option instead of '-file'.\n");
     }
 

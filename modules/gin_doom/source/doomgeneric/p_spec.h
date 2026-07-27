@@ -261,7 +261,7 @@ P_ChangeSwitchTexture
   line_t*	line,
   int		useAgain );
 
-void P_InitSwitchList(void);
+void P_InitSwitchList(data_t* data);
 
 
 //

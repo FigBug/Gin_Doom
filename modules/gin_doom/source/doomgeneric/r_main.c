@@ -607,7 +607,7 @@ void R_InitLightTables (data_t* data)
 	    if (level >= NUMCOLORMAPS)
 		level = NUMCOLORMAPS-1;
 
-	    data->zlight[i][j] = colormaps + level*256;
+	    data->zlight[i][j] = data->colormaps + level*256;
 	}
     }
 }
@@ -724,7 +724,7 @@ void R_ExecuteSetViewSize (data_t* data)
 	    if (level >= NUMCOLORMAPS)
 		level = NUMCOLORMAPS-1;
 
-	    data->scalelight[i][j] = colormaps + level*256;
+	    data->scalelight[i][j] = data->colormaps + level*256;
 	}
     }
 }
@@ -814,7 +814,7 @@ void R_SetupFrame (data_t* data, player_t* player)
     if (player->fixedcolormap)
     {
 	data->fixedcolormap =
-	    colormaps
+	    data->colormaps
 	    + player->fixedcolormap*256*sizeof(lighttable_t);
 	
 	data->walllights = data->scalelightfixed;

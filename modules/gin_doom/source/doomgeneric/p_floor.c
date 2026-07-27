@@ -376,16 +376,16 @@ EV_DoFloor
 		  {
 		      side = getSide(data, secnum,i,0);
 		      if (side->bottomtexture >= 0)
-			  if (textureheight[side->bottomtexture] < 
+			  if (data->textureheight[side->bottomtexture] < 
 			      minsize)
 			      minsize = 
-				  textureheight[side->bottomtexture];
+				  data->textureheight[side->bottomtexture];
 		      side = getSide(data, secnum,i,1);
 		      if (side->bottomtexture >= 0)
-			  if (textureheight[side->bottomtexture] < 
+			  if (data->textureheight[side->bottomtexture] < 
 			      minsize)
 			      minsize = 
-				  textureheight[side->bottomtexture];
+				  data->textureheight[side->bottomtexture];
 		  }
 	      }
 	      floor->floordestheight =

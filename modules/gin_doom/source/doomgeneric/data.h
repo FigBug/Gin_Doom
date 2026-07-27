@@ -3,6 +3,8 @@
 
 typedef struct data_s data_t;
 struct channel_s;
+struct texture_s;
+typedef struct texture_s texture_t;
 struct musicinfo_s;
 
 #include "d_mode.h"
@@ -374,6 +376,34 @@ struct data_s
 	fixed_t         swingx;
 	fixed_t         swingy;
 	fixed_t         bulletslope;
+
+	// r_data.c
+	int             firstflat;
+	int             lastflat;
+	int             numflats;
+	int             firstpatch;
+	int             lastpatch;
+	int             numpatches;
+	int             firstspritelump;
+	int             lastspritelump;
+	int             numspritelumps;
+	int             numtextures;
+	texture_t**     textures;
+	texture_t**     textures_hashtable;
+	int*            texturewidthmask;
+	fixed_t*        textureheight;
+	int*            texturecompositesize;
+	short**         texturecolumnlump;
+	byte**          texturecomposite;
+	int*            flattranslation;
+	int*            texturetranslation;
+	fixed_t*        spritewidth;
+	fixed_t*        spriteoffset;
+	fixed_t*        spritetopoffset;
+	byte*           colormaps;   // lighttable_t*
+	int             flatmemory;
+	int             texturememory;
+	int             spritememory;
 
 	// level geometry (p_setup.c)
 	int             numvertexes;

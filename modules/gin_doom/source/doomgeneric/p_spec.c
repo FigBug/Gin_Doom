@@ -49,7 +49,7 @@
 
 
 //
-// Animating textures and planes
+// Animating data->textures and planes
 // There is another anim_t used in wi_stuff, unrelated.
 //
 typedef struct
@@ -157,19 +157,19 @@ void P_InitPicAnims (data_t* data)
 	if (animdefs[i].istexture)
 	{
 	    // different episode ?
-	    if (R_CheckTextureNumForName(startname) == -1)
+	    if (R_CheckTextureNumForName(data, startname) == -1)
 		continue;	
 
-	    lastanim->picnum = R_TextureNumForName(endname);
-	    lastanim->basepic = R_TextureNumForName(startname);
+	    lastanim->picnum = R_TextureNumForName(data, endname);
+	    lastanim->basepic = R_TextureNumForName(data, startname);
 	}
 	else
 	{
 	    if (W_CheckNumForName(startname) == -1)
 		continue;
 
-	    lastanim->picnum = R_FlatNumForName(endname);
-	    lastanim->basepic = R_FlatNumForName(startname);
+	    lastanim->picnum = R_FlatNumForName(data, endname);
+	    lastanim->basepic = R_FlatNumForName(data, startname);
 	}
 
 	lastanim->istexture = animdefs[i].istexture;
@@ -360,7 +360,7 @@ P_FindNextHighestFloor
             }
             else if (h == MAX_ADJOINING_SECTORS + 2)
             {
-                // Fatal overflow: game crashes at 22 textures
+                // Fatal overflow: game crashes at 22 data->textures
                 I_Error(data, "Sector with more than 22 adjoining data->sectors. "
                         "Vanilla will crash here");
             }
@@ -1120,9 +1120,9 @@ void P_UpdateSpecials (data_t* data)
 	{
 	    pic = anim->basepic + ( (data->leveltime/anim->speed + i)%anim->numpics );
 	    if (anim->istexture)
-		texturetranslation[i] = pic;
+		data->texturetranslation[i] = pic;
 	    else
-		flattranslation[i] = pic;
+		data->flattranslation[i] = pic;
 	}
     }
 
@@ -1189,8 +1189,6 @@ static void DonutOverrun(data_t* data, fixed_t *s3_floorheight, short *s3_floorp
     static int tmp_s3_floorheight;
     static int tmp_s3_floorpic;
 
-    extern int numflats;
-
     if (first)
     {
         int p;
@@ -1233,13 +1231,13 @@ static void DonutOverrun(data_t* data, fixed_t *s3_floorheight, short *s3_floorp
             M_StrToInt(data->myargv[p + 1], &tmp_s3_floorheight);
             M_StrToInt(data->myargv[p + 2], &tmp_s3_floorpic);
 
-            if (tmp_s3_floorpic >= numflats)
+            if (tmp_s3_floorpic >= data->numflats)
             {
                 fprintf(stderr,
                         "DonutOverrun: The second parameter for \"-donut\" "
                         "switch should be greater than 0 and less than number "
                         "of flats (%d). Using default value (%d) instead. \n",
-                        numflats, DONUT_FLOORPIC_DEFAULT);
+                        data->numflats, DONUT_FLOORPIC_DEFAULT);
                 tmp_s3_floorpic = DONUT_FLOORPIC_DEFAULT;
             }
         }

@@ -120,7 +120,7 @@ R_InstallSpriteLump
 	sprtemp[frame].rotate = false;
 	for (r=0 ; r<8 ; r++)
 	{
-	    sprtemp[frame].lump[r] = lump - firstspritelump;
+	    sprtemp[frame].lump[r] = lump - data->firstspritelump;
 	    sprtemp[frame].flip[r] = (byte)flipped;
 	}
 	return;
@@ -140,7 +140,7 @@ R_InstallSpriteLump
 		 "has two lumps mapped to it",
 		 spritename, 'A'+frame, '1'+rotation);
 		
-    sprtemp[frame].lump[rotation] = lump - firstspritelump;
+    sprtemp[frame].lump[rotation] = lump - data->firstspritelump;
     sprtemp[frame].flip[rotation] = (byte)flipped;
 }
 
@@ -185,8 +185,8 @@ void R_InitSpriteDefs (data_t* data, char** namelist)
 		
     sprites = Z_Malloc(data->numsprites *sizeof(*sprites), PU_STATIC, NULL);
 	
-    start = firstspritelump-1;
-    end = lastspritelump+1;
+    start = data->firstspritelump-1;
+    end = data->lastspritelump+1;
 	
     // scan all the lump names for each of the names,
     //  noting the highest frame letter.
@@ -320,7 +320,7 @@ vissprite_t* R_NewVisSprite (data_t* data)
 
 //
 // R_DrawMaskedColumn
-// Used for sprites and masked mid textures.
+// Used for sprites and masked mid data->textures.
 // Masked means: partly transparent, i.e. stored
 //  in posts/runs of opaque pixels.
 //
@@ -384,7 +384,7 @@ R_DrawVisSprite
     patch_t*		patch;
 	
 	
-    patch = W_CacheLumpNum (vis->patch+firstspritelump, PU_CACHE);
+    patch = W_CacheLumpNum (vis->patch+data->firstspritelump, PU_CACHE);
 
     data->dc_colormap = vis->colormap;
     
@@ -511,14 +511,14 @@ void R_ProjectSprite (data_t* data, mobj_t* thing)
     }
     
     // calculate edges of the shape
-    tx -= spriteoffset[lump];	
+    tx -= data->spriteoffset[lump];	
     x1 = (data->centerxfrac + FixedMul (tx,xscale) ) >>FRACBITS;
 
     // off the right side?
     if (x1 > data->viewwidth)
 	return;
     
-    tx +=  spritewidth[lump];
+    tx +=  data->spritewidth[lump];
     x2 = ((data->centerxfrac + FixedMul (tx,xscale) ) >>FRACBITS) - 1;
 
     // off the left side
@@ -532,7 +532,7 @@ void R_ProjectSprite (data_t* data, mobj_t* thing)
     vis->gx = thing->x;
     vis->gy = thing->y;
     vis->gz = thing->z;
-    vis->gzt = thing->z + spritetopoffset[lump];
+    vis->gzt = thing->z + data->spritetopoffset[lump];
     vis->texturemid = vis->gzt - data->viewz;
     vis->x1 = x1 < 0 ? 0 : x1;
     vis->x2 = x2 >= data->viewwidth ? data->viewwidth-1 : x2;	
@@ -540,7 +540,7 @@ void R_ProjectSprite (data_t* data, mobj_t* thing)
 
     if (flip)
     {
-	vis->startfrac = spritewidth[lump]-1;
+	vis->startfrac = data->spritewidth[lump]-1;
 	vis->xiscale = -iscale;
     }
     else
@@ -567,7 +567,7 @@ void R_ProjectSprite (data_t* data, mobj_t* thing)
     else if (thing->frame & FF_FULLBRIGHT)
     {
 	// full bright
-	vis->colormap = colormaps;
+	vis->colormap = data->colormaps;
     }
     
     else
@@ -654,14 +654,14 @@ void R_DrawPSprite (data_t* data, pspdef_t* psp)
     // calculate edges of the shape
     tx = psp->sx-160*FRACUNIT;
 	
-    tx -= spriteoffset[lump];	
+    tx -= data->spriteoffset[lump];	
     x1 = (data->centerxfrac + FixedMul (tx,data->pspritescale) ) >>FRACBITS;
 
     // off the right side
     if (x1 > data->viewwidth)
 	return;		
 
-    tx +=  spritewidth[lump];
+    tx +=  data->spritewidth[lump];
     x2 = ((data->centerxfrac + FixedMul (tx, data->pspritescale) ) >>FRACBITS) - 1;
 
     // off the left side
@@ -671,7 +671,7 @@ void R_DrawPSprite (data_t* data, pspdef_t* psp)
     // store information in a vissprite
     vis = &avis;
     vis->mobjflags = 0;
-    vis->texturemid = (BASEYCENTER<<FRACBITS)+FRACUNIT/2-(psp->sy-spritetopoffset[lump]);
+    vis->texturemid = (BASEYCENTER<<FRACBITS)+FRACUNIT/2-(psp->sy-data->spritetopoffset[lump]);
     vis->x1 = x1 < 0 ? 0 : x1;
     vis->x2 = x2 >= data->viewwidth ? data->viewwidth-1 : x2;	
     vis->scale = data->pspritescale<<data->detailshift;
@@ -679,7 +679,7 @@ void R_DrawPSprite (data_t* data, pspdef_t* psp)
     if (flip)
     {
 	vis->xiscale = -data->pspriteiscale;
-	vis->startfrac = spritewidth[lump]-1;
+	vis->startfrac = data->spritewidth[lump]-1;
     }
     else
     {
@@ -706,7 +706,7 @@ void R_DrawPSprite (data_t* data, pspdef_t* psp)
     else if (psp->state->frame & FF_FULLBRIGHT)
     {
 	// full bright
-	vis->colormap = colormaps;
+	vis->colormap = data->colormaps;
     }
     else
     {
@@ -951,7 +951,7 @@ void R_DrawMasked (data_t* data)
 	}
     }
     
-    // render any remaining masked mid textures
+    // render any remaining masked mid data->textures
     for (ds=data->ds_p-1 ; ds >= data->drawsegs ; ds--)
 	if (ds->maskedtexturecol)
 	    R_RenderMaskedSegRange (data, ds, ds->x1, ds->x2);

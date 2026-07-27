@@ -598,20 +598,20 @@ void P_InitSlidingDoorFrames(void)
 	if (!slideFrameNames[i].frontFrame1[0])
 	    break;
 			
-	f1 = R_TextureNumForName(slideFrameNames[i].frontFrame1);
-	f2 = R_TextureNumForName(slideFrameNames[i].frontFrame2);
-	f3 = R_TextureNumForName(slideFrameNames[i].frontFrame3);
-	f4 = R_TextureNumForName(slideFrameNames[i].frontFrame4);
+	f1 = R_TextureNumForName(data, slideFrameNames[i].frontFrame1);
+	f2 = R_TextureNumForName(data, slideFrameNames[i].frontFrame2);
+	f3 = R_TextureNumForName(data, slideFrameNames[i].frontFrame3);
+	f4 = R_TextureNumForName(data, slideFrameNames[i].frontFrame4);
 
 	slideFrames[i].frontFrames[0] = f1;
 	slideFrames[i].frontFrames[1] = f2;
 	slideFrames[i].frontFrames[2] = f3;
 	slideFrames[i].frontFrames[3] = f4;
 		
-	f1 = R_TextureNumForName(slideFrameNames[i].backFrame1);
-	f2 = R_TextureNumForName(slideFrameNames[i].backFrame2);
-	f3 = R_TextureNumForName(slideFrameNames[i].backFrame3);
-	f4 = R_TextureNumForName(slideFrameNames[i].backFrame4);
+	f1 = R_TextureNumForName(data, slideFrameNames[i].backFrame1);
+	f2 = R_TextureNumForName(data, slideFrameNames[i].backFrame2);
+	f3 = R_TextureNumForName(data, slideFrameNames[i].backFrame3);
+	f4 = R_TextureNumForName(data, slideFrameNames[i].backFrame4);
 
 	slideFrames[i].backFrames[0] = f1;
 	slideFrames[i].backFrames[1] = f2;

@@ -43,7 +43,7 @@
 //
 void R_InitSkyMap (data_t* data)
 {
-  // data->skyflatnum = R_FlatNumForName ( SKYFLATNAME );
+  // data->skyflatnum = R_FlatNumForName (data,  SKYFLATNAME );
     data->skytexturemid = 100*FRACUNIT;
 }
 

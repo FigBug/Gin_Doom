@@ -257,8 +257,8 @@ void P_LoadSectors (data_t* data, int lump)
     {
 	ss->floorheight = SHORT(ms->floorheight)<<FRACBITS;
 	ss->ceilingheight = SHORT(ms->ceilingheight)<<FRACBITS;
-	ss->floorpic = R_FlatNumForName(ms->floorpic);
-	ss->ceilingpic = R_FlatNumForName(ms->ceilingpic);
+	ss->floorpic = R_FlatNumForName(data, ms->floorpic);
+	ss->ceilingpic = R_FlatNumForName(data, ms->ceilingpic);
 	ss->lightlevel = SHORT(ms->lightlevel);
 	ss->special = SHORT(ms->special);
 	ss->tag = SHORT(ms->tag);
@@ -465,9 +465,9 @@ void P_LoadSideDefs (data_t* data, int lump)
     {
 	sd->textureoffset = SHORT(msd->textureoffset)<<FRACBITS;
 	sd->rowoffset = SHORT(msd->rowoffset)<<FRACBITS;
-	sd->toptexture = R_TextureNumForName(msd->toptexture);
-	sd->bottomtexture = R_TextureNumForName(msd->bottomtexture);
-	sd->midtexture = R_TextureNumForName(msd->midtexture);
+	sd->toptexture = R_TextureNumForName(data, msd->toptexture);
+	sd->bottomtexture = R_TextureNumForName(data, msd->bottomtexture);
+	sd->midtexture = R_TextureNumForName(data, msd->midtexture);
 	sd->sector = &data->sectors[SHORT(msd->sector)];
     }
 
@@ -824,7 +824,7 @@ P_SetupLevel
 //
 void P_Init (data_t* data)
 {
-    P_InitSwitchList ();
+    P_InitSwitchList (data);
     P_InitPicAnims (data);
     R_InitSprites (data, sprnames);
 }

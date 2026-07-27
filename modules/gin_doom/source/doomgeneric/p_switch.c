@@ -98,7 +98,7 @@ button_t        buttonlist[MAXBUTTONS];
 // P_InitSwitchList
 // Only called at game initialization.
 //
-void P_InitSwitchList(void)
+void P_InitSwitchList(data_t* data)
 {
     int		i;
     int		index;
@@ -126,17 +126,17 @@ void P_InitSwitchList(void)
 #if 0	// UNUSED - debug?
 	    int		value;
 			
-	    if (R_CheckTextureNumForName(alphSwitchList[i].name1) < 0)
+	    if (R_CheckTextureNumForName(data, alphSwitchList[i].name1) < 0)
 	    {
 		I_Error (NULL, "Can't find switch texture '%s'!",
 			alphSwitchList[i].name1);
 		continue;
 	    }
 	    
-	    value = R_TextureNumForName(alphSwitchList[i].name1);
+	    value = R_TextureNumForName(data, alphSwitchList[i].name1);
 #endif
-	    switchlist[index++] = R_TextureNumForName(DEH_String(alphSwitchList[i].name1));
-	    switchlist[index++] = R_TextureNumForName(DEH_String(alphSwitchList[i].name2));
+	    switchlist[index++] = R_TextureNumForName(data, DEH_String(alphSwitchList[i].name1));
+	    switchlist[index++] = R_TextureNumForName(data, DEH_String(alphSwitchList[i].name2));
 	}
     }
 }

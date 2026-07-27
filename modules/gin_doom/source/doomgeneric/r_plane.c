@@ -376,10 +376,10 @@ void R_DrawPlanes (data_t* data)
 	    data->dc_iscale = data->pspriteiscale>>data->detailshift;
 	    
 	    // Sky is allways drawn full bright,
-	    //  i.e. colormaps[0] is used.
+	    //  i.e. data->colormaps[0] is used.
 	    // Because of this hack, sky is not affected
 	    //  by INVUL inverse mapping.
-	    data->dc_colormap = colormaps;
+	    data->dc_colormap = data->colormaps;
 	    data->dc_texturemid = data->skytexturemid;
 	    for (x=pl->minx ; x <= pl->maxx ; x++)
 	    {
@@ -390,7 +390,7 @@ void R_DrawPlanes (data_t* data)
 		{
 		    angle = (data->viewangle + data->xtoviewangle[x])>>ANGLETOSKYSHIFT;
 		    data->dc_x = x;
-		    data->dc_source = R_GetColumn(data->skytexture, angle);
+		    data->dc_source = R_GetColumn(data, data->skytexture, angle);
 		    colfunc (data);
 		}
 	    }
@@ -398,7 +398,7 @@ void R_DrawPlanes (data_t* data)
 	}
 	
 	// regular flat
-        lumpnum = firstflat + flattranslation[pl->picnum];
+        lumpnum = data->firstflat + data->flattranslation[pl->picnum];
 	data->ds_source = W_CacheLumpNum(lumpnum, PU_STATIC);
 	
 	data->planeheight = abs(pl->height-data->viewz);

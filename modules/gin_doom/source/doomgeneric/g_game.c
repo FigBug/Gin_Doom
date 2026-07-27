@@ -556,7 +556,7 @@ void G_DoLoadLevel (data_t* data)
     //  we look for an actual index, instead of simply
     //  setting one.
 
-    data->skyflatnum = R_FlatNumForName(DEH_String(SKYFLATNAME));
+    data->skyflatnum = R_FlatNumForName(data, DEH_String(SKYFLATNAME));
 
     // The "Sky never changes in Doom II" bug was fixed in
     // the id Anthology version of doom2.exe for Final Doom.
@@ -580,7 +580,7 @@ void G_DoLoadLevel (data_t* data)
 
         skytexturename = DEH_String(skytexturename);
 
-        data->skytexture = R_TextureNumForName(skytexturename);
+        data->skytexture = R_TextureNumForName(data, skytexturename);
     }
 
     data->levelstarttic = data->gametic;        // for time calculation
@@ -1832,7 +1832,7 @@ G_InitNew
 
     skytexturename = DEH_String(skytexturename);
 
-    data->skytexture = R_TextureNumForName(skytexturename);
+    data->skytexture = R_TextureNumForName(data, skytexturename);
 
 
     G_DoLoadLevel (data);

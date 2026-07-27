@@ -306,7 +306,7 @@ void R_DrawFuzzColumn (data_t* data)
 	//  a pixel that is either one column
 	//  left or right of the current one.
 	// Add index from colormap to index.
-	*dest = colormaps[6*256+dest[fuzzoffset[data->fuzzpos]]]; 
+	*dest = data->colormaps[6*256+dest[fuzzoffset[data->fuzzpos]]]; 
 
 	// Clamp table lookup index.
 	if (++data->fuzzpos == FUZZTABLE) 
@@ -372,8 +372,8 @@ void R_DrawFuzzColumnLow (data_t* data)
 	//  a pixel that is either one column
 	//  left or right of the current one.
 	// Add index from colormap to index.
-	*dest = colormaps[6*256+dest[fuzzoffset[data->fuzzpos]]]; 
-	*dest2 = colormaps[6*256+dest2[fuzzoffset[data->fuzzpos]]]; 
+	*dest = data->colormaps[6*256+dest[fuzzoffset[data->fuzzpos]]]; 
+	*dest2 = data->colormaps[6*256+dest2[fuzzoffset[data->fuzzpos]]]; 
 
 	// Clamp table lookup index.
 	if (++data->fuzzpos == FUZZTABLE) 

@@ -35,7 +35,7 @@
 
 // OPTIMIZE: closed two sided data->lines as single sided
 
-// True if any of the data->segs textures might be visible.
+// True if any of the data->segs data->textures might be visible.
 
 // False if the back side is the same plane.
 
@@ -78,7 +78,7 @@ R_RenderMaskedSegRange
     curline = ds->curline;
     frontsector = curline->frontsector;
     backsector = curline->backsector;
-    texnum = texturetranslation[curline->sidedef->midtexture];
+    texnum = data->texturetranslation[curline->sidedef->midtexture];
 	
     lightnum = (frontsector->lightlevel >> LIGHTSEGSHIFT)+data->extralight;
 
@@ -106,7 +106,7 @@ R_RenderMaskedSegRange
     {
 	data->dc_texturemid = frontsector->floorheight > backsector->floorheight
 	    ? frontsector->floorheight : backsector->floorheight;
-	data->dc_texturemid = data->dc_texturemid + textureheight[texnum] - data->viewz;
+	data->dc_texturemid = data->dc_texturemid + data->textureheight[texnum] - data->viewz;
     }
     else
     {
@@ -140,7 +140,7 @@ R_RenderMaskedSegRange
 	    
 	    // draw the texture
 	    col = (column_t *)( 
-		(byte *)R_GetColumn(texnum,data->maskedtexturecol[data->dc_x]) -3);
+		(byte *)R_GetColumn(data, texnum,data->maskedtexturecol[data->dc_x]) -3);
 			
 	    R_DrawMaskedColumn (data, col);
 	    data->maskedtexturecol[data->dc_x] = SHRT_MAX;
@@ -155,10 +155,10 @@ R_RenderMaskedSegRange
 
 //
 // R_RenderSegLoop
-// Draws zero, one, or two textures (and possibly a masked
+// Draws zero, one, or two data->textures (and possibly a masked
 //  texture) for walls.
 // Can draw or mark the starting pixel of floor and ceiling
-//  textures.
+//  data->textures.
 // CALLED: CORE LOOPING ROUTINE.
 //
 #define HEIGHTBITS		12
@@ -248,7 +248,7 @@ void R_RenderSegLoop (data_t* data)
 	    data->dc_yl = yl;
 	    data->dc_yh = yh;
 	    data->dc_texturemid = data->rw_midtexturemid;
-	    data->dc_source = R_GetColumn(data->midtexture,texturecolumn);
+	    data->dc_source = R_GetColumn(data, data->midtexture,texturecolumn);
 	    colfunc (data);
 	    data->ceilingclip[data->rw_x] = data->viewheight;
 	    data->floorclip[data->rw_x] = -1;
@@ -270,7 +270,7 @@ void R_RenderSegLoop (data_t* data)
 		    data->dc_yl = yl;
 		    data->dc_yh = mid;
 		    data->dc_texturemid = data->rw_toptexturemid;
-		    data->dc_source = R_GetColumn(data->toptexture,texturecolumn);
+		    data->dc_source = R_GetColumn(data, data->toptexture,texturecolumn);
 		    colfunc (data);
 		    data->ceilingclip[data->rw_x] = mid;
 		}
@@ -299,7 +299,7 @@ void R_RenderSegLoop (data_t* data)
 		    data->dc_yl = mid;
 		    data->dc_yh = yh;
 		    data->dc_texturemid = data->rw_bottomtexturemid;
-		    data->dc_source = R_GetColumn(data->bottomtexture,
+		    data->dc_source = R_GetColumn(data, data->bottomtexture,
 					    texturecolumn);
 		    colfunc (data);
 		    data->floorclip[data->rw_x] = mid;
@@ -422,13 +422,13 @@ R_StoreWallRange
     if (!backsector)
     {
 	// single sided line
-	data->midtexture = texturetranslation[sidedef->midtexture];
+	data->midtexture = data->texturetranslation[sidedef->midtexture];
 	// a single sided line is terminal, so it must mark ends
 	data->markfloor = data->markceiling = true;
 	if (linedef->flags & ML_DONTPEGBOTTOM)
 	{
 	    vtop = frontsector->floorheight +
-		textureheight[sidedef->midtexture];
+		data->textureheight[sidedef->midtexture];
 	    // bottom of texture at bottom
 	    data->rw_midtexturemid = vtop - data->viewz;	
 	}
@@ -536,7 +536,7 @@ R_StoreWallRange
 	if (data->worldhigh < data->worldtop)
 	{
 	    // top texture
-	    data->toptexture = texturetranslation[sidedef->toptexture];
+	    data->toptexture = data->texturetranslation[sidedef->toptexture];
 	    if (linedef->flags & ML_DONTPEGTOP)
 	    {
 		// top of texture at top
@@ -546,7 +546,7 @@ R_StoreWallRange
 	    {
 		vtop =
 		    backsector->ceilingheight
-		    + textureheight[sidedef->toptexture];
+		    + data->textureheight[sidedef->toptexture];
 		
 		// bottom of texture
 		data->rw_toptexturemid = vtop - data->viewz;	
@@ -555,7 +555,7 @@ R_StoreWallRange
 	if (data->worldlow > data->worldbottom)
 	{
 	    // bottom texture
-	    data->bottomtexture = texturetranslation[sidedef->bottomtexture];
+	    data->bottomtexture = data->texturetranslation[sidedef->bottomtexture];
 
 	    if (linedef->flags & ML_DONTPEGBOTTOM )
 	    {
