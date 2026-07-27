@@ -27,6 +27,25 @@ data_t* DG_Alloc()
 	data->mousebuttons = &data->mousearray[1];
 	data->joybuttons = &data->joyarray[1];
 
+	// m_menu.c
+	data->mn_showMessages = 1;
+	data->mn_screenblocks = 10;
+
+	// st_stuff.c
+	data->sb_st_stopped = true;
+	data->sb_st_oldhealth = -1;
+
+	// am_map.c
+	data->am_stopped = true;
+	data->am_scale_mtof = (fixed_t)(.2*FRACUNIT); // INITSCALEMTOF
+	data->am_finit_width = SCREENWIDTH;
+	data->am_finit_height = SCREENHEIGHT - 32;
+	data->am_leveljuststarted = 1;
+	data->am_followplayer = 1;
+
+	// d_loop.c
+	data->new_sync = true;
+
 	return data;
 }
 
