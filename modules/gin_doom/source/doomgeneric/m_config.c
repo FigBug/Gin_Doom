@@ -520,7 +520,7 @@ static default_t	doom_defaults_list[] =
     // Number of sounds that will be played simultaneously.
     //
 
-    CONFIG_VARIABLE_INT(data->snd_channels),
+    CONFIG_VARIABLE_INT(snd_channels),
 
     //!
     // Music output device.  A non-zero value gives MIDI sound output,
@@ -568,7 +568,7 @@ static default_t	doom_defaults_list[] =
     // levels of gamma correction.
     //
 
-    CONFIG_VARIABLE_INT(data->usegamma),
+    CONFIG_VARIABLE_INT(usegamma),
 
     //!
     // @game hexen

@@ -391,19 +391,23 @@ void I_Error (data_t* data, const char *error, ...)
 
     // Shutdown. Here might be other errors.
 
-    entry = exit_funcs;
-
-    while (entry != NULL)
+    // data may be NULL for errors raised before an instance exists
+    if (data != NULL)
     {
-        if (entry->run_on_error)
-        {
-            entry->func (data);
-        }
+        entry = exit_funcs;
 
-        entry = entry->next;
+        while (entry != NULL)
+        {
+            if (entry->run_on_error)
+            {
+                entry->func (data);
+            }
+
+            entry = entry->next;
+        }
     }
 
-    exit_gui_popup = !M_ParmExists(data, "-nogui");
+    exit_gui_popup = data == NULL || !M_ParmExists(data, "-nogui");
 
     // Pop up a GUI dialog box to show the error message, if the
     // game was not run from the console (and the user will
