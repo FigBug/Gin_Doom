@@ -1397,12 +1397,6 @@ boolean M_Responder (data_t* data, event_t* ev)
     int             ch;
     int             key;
     int             i;
-    static  int     joywait = 0;
-    static  int     mousewait = 0;
-    static  int     mousey = 0;
-    static  int     lasty = 0;
-    static  int     mousex = 0;
-    static  int     lastx = 0;
 
     // In data->testcontrols mode, none of the function keys should do anything
     // - the only key is escape to quit.
@@ -1444,88 +1438,88 @@ boolean M_Responder (data_t* data, event_t* ev)
     ch = 0;
     key = -1;
 	
-    if (ev->type == ev_joystick && joywait < I_GetTime (data))
+    if (ev->type == ev_joystick && data->mn_joywait < I_GetTime (data))
     {
 	if (ev->data3 < 0)
 	{
 	    key = key_menu_up;
-	    joywait = I_GetTime(data) + 5;
+	    data->mn_joywait = I_GetTime(data) + 5;
 	}
 	else if (ev->data3 > 0)
 	{
 	    key = key_menu_down;
-	    joywait = I_GetTime(data) + 5;
+	    data->mn_joywait = I_GetTime(data) + 5;
 	}
 		
 	if (ev->data2 < 0)
 	{
 	    key = key_menu_left;
-	    joywait = I_GetTime(data) + 2;
+	    data->mn_joywait = I_GetTime(data) + 2;
 	}
 	else if (ev->data2 > 0)
 	{
 	    key = key_menu_right;
-	    joywait = I_GetTime(data) + 2;
+	    data->mn_joywait = I_GetTime(data) + 2;
 	}
 		
 	if (ev->data1&1)
 	{
 	    key = key_menu_forward;
-	    joywait = I_GetTime(data) + 5;
+	    data->mn_joywait = I_GetTime(data) + 5;
 	}
 	if (ev->data1&2)
 	{
 	    key = key_menu_back;
-	    joywait = I_GetTime(data) + 5;
+	    data->mn_joywait = I_GetTime(data) + 5;
 	}
         if (joybmenu >= 0 && (ev->data1 & (1 << joybmenu)) != 0)
         {
             key = key_menu_activate;
-	    joywait = I_GetTime(data) + 5;
+	    data->mn_joywait = I_GetTime(data) + 5;
         }
     }
     else
     {
-	if (ev->type == ev_mouse && mousewait < I_GetTime(data))
+	if (ev->type == ev_mouse && data->mn_mousewait < I_GetTime(data))
 	{
-	    mousey += ev->data3;
-	    if (mousey < lasty-30)
+	    data->mn_mousey += ev->data3;
+	    if (data->mn_mousey < data->mn_lasty-30)
 	    {
 		key = key_menu_down;
-		mousewait = I_GetTime(data) + 5;
-		mousey = lasty -= 30;
+		data->mn_mousewait = I_GetTime(data) + 5;
+		data->mn_mousey = data->mn_lasty -= 30;
 	    }
-	    else if (mousey > lasty+30)
+	    else if (data->mn_mousey > data->mn_lasty+30)
 	    {
 		key = key_menu_up;
-		mousewait = I_GetTime(data) + 5;
-		mousey = lasty += 30;
+		data->mn_mousewait = I_GetTime(data) + 5;
+		data->mn_mousey = data->mn_lasty += 30;
 	    }
 		
-	    mousex += ev->data2;
-	    if (mousex < lastx-30)
+	    data->mn_mousex += ev->data2;
+	    if (data->mn_mousex < data->mn_lastx-30)
 	    {
 		key = key_menu_left;
-		mousewait = I_GetTime(data) + 5;
-		mousex = lastx -= 30;
+		data->mn_mousewait = I_GetTime(data) + 5;
+		data->mn_mousex = data->mn_lastx -= 30;
 	    }
-	    else if (mousex > lastx+30)
+	    else if (data->mn_mousex > data->mn_lastx+30)
 	    {
 		key = key_menu_right;
-		mousewait = I_GetTime(data) + 5;
-		mousex = lastx += 30;
+		data->mn_mousewait = I_GetTime(data) + 5;
+		data->mn_mousex = data->mn_lastx += 30;
 	    }
 		
 	    if (ev->data1&1)
 	    {
 		key = key_menu_forward;
-		mousewait = I_GetTime(data) + 15;
+		data->mn_mousewait = I_GetTime(data) + 15;
 	    }
 			
 	    if (ev->data1&2)
 	    {
 		key = key_menu_back;
-		mousewait = I_GetTime(data) + 15;
+		data->mn_mousewait = I_GetTime(data) + 15;
 	    }
 	}
 	else

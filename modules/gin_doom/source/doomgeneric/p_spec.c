@@ -1182,20 +1182,17 @@ void P_UpdateSpecials (data_t* data)
 static void DonutOverrun(data_t* data, fixed_t *s3_floorheight, short *s3_floorpic,
                          line_t *line, sector_t *pillar_sector)
 {
-    static int first = 1;
-    static int tmp_s3_floorheight;
-    static int tmp_s3_floorpic;
 
-    if (first)
+    if (data->ps_ovr_first)
     {
         int p;
 
         // This is the first time we have had an overrun.
-        first = 0;
+        data->ps_ovr_first = 0;
 
         // Default values
-        tmp_s3_floorheight = DONUT_FLOORHEIGHT_DEFAULT;
-        tmp_s3_floorpic = DONUT_FLOORPIC_DEFAULT;
+        data->ps_tmp_s3_floorheight = DONUT_FLOORHEIGHT_DEFAULT;
+        data->ps_tmp_s3_floorpic = DONUT_FLOORPIC_DEFAULT;
 
         //!
         // @category compat
@@ -1225,17 +1222,17 @@ static void DonutOverrun(data_t* data, fixed_t *s3_floorheight, short *s3_floorp
             // DOSBox under XP:
             // 0000:0000    (00 00 00 F1) ?? ?? ?? 00-(07 00)
 
-            M_StrToInt(data->myargv[p + 1], &tmp_s3_floorheight);
-            M_StrToInt(data->myargv[p + 2], &tmp_s3_floorpic);
+            M_StrToInt(data->myargv[p + 1], &data->ps_tmp_s3_floorheight);
+            M_StrToInt(data->myargv[p + 2], &data->ps_tmp_s3_floorpic);
 
-            if (tmp_s3_floorpic >= data->numflats)
+            if (data->ps_tmp_s3_floorpic >= data->numflats)
             {
                 fprintf(stderr,
                         "DonutOverrun: The second parameter for \"-donut\" "
                         "switch should be greater than 0 and less than number "
                         "of flats (%d). Using default value (%d) instead. \n",
                         data->numflats, DONUT_FLOORPIC_DEFAULT);
-                tmp_s3_floorpic = DONUT_FLOORPIC_DEFAULT;
+                data->ps_tmp_s3_floorpic = DONUT_FLOORPIC_DEFAULT;
             }
         }
     }
@@ -1245,11 +1242,11 @@ static void DonutOverrun(data_t* data, fixed_t *s3_floorheight, short *s3_floorp
             "Linedef: %d; Sector: %d; "
             "New floor height: %d; New floor pic: %d\n",
             line->iLineID, pillar_sector->iSectorID,
-            tmp_s3_floorheight >> 16, tmp_s3_floorpic);
+            data->ps_tmp_s3_floorheight >> 16, data->ps_tmp_s3_floorpic);
      */
 
-    *s3_floorheight = (fixed_t) tmp_s3_floorheight;
-    *s3_floorpic = (short) tmp_s3_floorpic;
+    *s3_floorheight = (fixed_t) data->ps_tmp_s3_floorheight;
+    *s3_floorpic = (short) data->ps_tmp_s3_floorpic;
 }
 
 

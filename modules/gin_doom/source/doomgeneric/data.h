@@ -667,6 +667,21 @@ struct data_s
 	int             pe_easy;
 	int             dl_oldentertics;
 
+	int             am_lastlevel;
+	int             am_lastepisode;
+	int             am_bigstate;
+	int             am_nexttic;
+	int             am_litelevelscnt;
+	int             mn_joywait;
+	int             mn_mousewait;
+	int             mn_mousex;
+	int             mn_mousey;
+	int             mn_lastx;
+	int             mn_lasty;
+	int             ps_ovr_first;
+	int             ps_tmp_s3_floorheight;
+	int             ps_tmp_s3_floorpic;
+
 	// level geometry (p_setup.c)
 	int             numvertexes;
 	vertex_t*       vertexes;

@@ -508,15 +508,14 @@ void AM_Stop(data_t* data)
 //
 void AM_Start(data_t* data)
 {
-    static int lastlevel = -1, lastepisode = -1;
 
     if (!data->am_stopped) AM_Stop(data);
     data->am_stopped = false;
-    if (lastlevel != data->gamemap || lastepisode != data->gameepisode)
+    if (data->am_lastlevel != data->gamemap || data->am_lastepisode != data->gameepisode)
     {
 	AM_LevelInit(data);
-	lastlevel = data->gamemap;
-	lastepisode = data->gameepisode;
+	data->am_lastlevel = data->gamemap;
+	data->am_lastepisode = data->gameepisode;
     }
     AM_initVariables(data);
     AM_loadPics(data);
@@ -552,7 +551,6 @@ AM_Responder
 {
 
     int rc;
-    static int bigstate=0;
     static char buffer[20];
     int key;
 
@@ -604,14 +602,14 @@ AM_Responder
         }
         else if (key == key_map_toggle)
         {
-            bigstate = 0;
+            data->am_bigstate = 0;
             data->viewactive = true;
             AM_Stop(data);
         }
         else if (key == key_map_maxzoom)
         {
-            bigstate = !bigstate;
-            if (bigstate)
+            data->am_bigstate = !data->am_bigstate;
+            if (data->am_bigstate)
             {
                 AM_saveScaleAndLoc(data);
                 AM_minOutWindowScale(data);
@@ -739,17 +737,15 @@ void AM_doFollowPlayer(data_t* data)
 //
 void AM_updateLightLev(data_t* data)
 {
-    static int nexttic = 0;
     //static int litelevels[] = { 0, 3, 5, 6, 6, 7, 7, 7 };
     static int litelevels[] = { 0, 4, 7, 10, 12, 14, 15, 15 };
-    static int litelevelscnt = 0;
    
     // Change light level
-    if (data->am_amclock>nexttic)
+    if (data->am_amclock>data->am_nexttic)
     {
-	data->am_lightlev = litelevels[litelevelscnt++];
-	if (litelevelscnt == arrlen(litelevels)) litelevelscnt = 0;
-	nexttic = data->am_amclock + 6 - (data->am_amclock % 6);
+	data->am_lightlev = litelevels[data->am_litelevelscnt++];
+	if (data->am_litelevelscnt == arrlen(litelevels)) data->am_litelevelscnt = 0;
+	data->am_nexttic = data->am_amclock + 6 - (data->am_amclock % 6);
     }
 
 }
