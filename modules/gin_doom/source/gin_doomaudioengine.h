@@ -22,10 +22,6 @@ public:
     // thread can locate this instance's OPL music state (data->opl_music).
     void attach (void* doomData);
 
-    // Called on this instance's game thread so the SFX C callbacks (which
-    // carry no instance pointer) dispatch to this engine.
-    void makeCurrent();
-
 private:
     juce::CriticalSection lock;
 

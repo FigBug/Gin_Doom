@@ -108,7 +108,7 @@ void S_Init(data_t* data, int sfxVol, int musVol)
 {  
     int i;
 
-    I_PrecacheSounds(S_sfx, NUMSFX);
+    I_PrecacheSounds(data, S_sfx, NUMSFX);
 
     S_SetSfxVolume(data, sfxVol);
     S_SetMusicVolume(data, musVol);
@@ -138,8 +138,8 @@ void S_Init(data_t* data, int sfxVol, int musVol)
 
 void S_Shutdown(data_t* data)
 {
-    I_ShutdownSound();
-    I_ShutdownMusic();
+    I_ShutdownSound(data);
+    I_ShutdownMusic(data);
 }
 
 static void S_StopChannel(data_t* data, int cnum)
@@ -153,9 +153,9 @@ static void S_StopChannel(data_t* data, int cnum)
     {
         // stop the sound playing
 
-        if (I_SoundIsPlaying(c->handle))
+        if (I_SoundIsPlaying(data, c->handle))
         {
-            I_StopSound(c->handle);
+            I_StopSound(data, c->handle);
         }
 
         // check to see if other data->channels are playing the sound
@@ -462,10 +462,10 @@ void S_StartSound(data_t* data, void *origin_p, int sfx_id)
 
     if (sfx->lumpnum < 0)
     {
-        sfx->lumpnum = I_GetSfxLumpNum(sfx);
+        sfx->lumpnum = I_GetSfxLumpNum(data, sfx);
     }
 
-    data->channels[cnum].handle = I_StartSound(sfx, cnum, volume, sep);
+    data->channels[cnum].handle = I_StartSound(data, sfx, cnum, volume, sep);
 }        
 
 //
@@ -476,7 +476,7 @@ void S_PauseSound(data_t* data)
 {
     if (data->mus_playing && !data->mus_paused)
     {
-        I_PauseSong();
+        I_PauseSong(data);
         data->mus_paused = true;
     }
 }
@@ -485,7 +485,7 @@ void S_ResumeSound(data_t* data)
 {
     if (data->mus_playing && data->mus_paused)
     {
-        I_ResumeSong();
+        I_ResumeSong(data);
         data->mus_paused = false;
     }
 }
@@ -503,7 +503,7 @@ void S_UpdateSounds(data_t* data, mobj_t *listener)
     sfxinfo_t*        sfx;
     channel_t*        c;
 
-    I_UpdateSound();
+    I_UpdateSound(data);
 
     for (cnum=0; cnum<data->snd_channels; cnum++)
     {
@@ -512,7 +512,7 @@ void S_UpdateSounds(data_t* data, mobj_t *listener)
 
         if (c->sfxinfo)
         {
-            if (I_SoundIsPlaying(c->handle))
+            if (I_SoundIsPlaying(data, c->handle))
             {
                 // initialize parameters
                 volume = data->snd_SfxVolume;
@@ -547,7 +547,7 @@ void S_UpdateSounds(data_t* data, mobj_t *listener)
                     }
                     else
                     {
-                        I_UpdateSoundParams(c->handle, volume, sep);
+                        I_UpdateSoundParams(data, c->handle, volume, sep);
                     }
                 }
             }
@@ -569,7 +569,7 @@ void S_SetMusicVolume(data_t* data, int volume)
                 volume);
     }    
 
-    I_SetMusicVolume(volume);
+    I_SetMusicVolume(data, volume);
 }
 
 void S_SetSfxVolume(data_t* data, int volume)
@@ -632,16 +632,16 @@ void S_ChangeMusic(data_t* data, int musicnum, int looping)
 
     music->data = W_CacheLumpNum(music->lumpnum, PU_STATIC);
 
-    handle = I_RegisterSong(music->data, W_LumpLength(music->lumpnum));
+    handle = I_RegisterSong(data, music->data, W_LumpLength(music->lumpnum));
     music->handle = handle;
-    I_PlaySong(handle, looping);
+    I_PlaySong(data, handle, looping);
 
     data->mus_playing = music;
 }
 
 boolean S_MusicPlaying(data_t* data)
 {
-    return I_MusicIsPlaying();
+    return I_MusicIsPlaying(data);
 }
 
 void S_StopMusic(data_t* data)
@@ -650,11 +650,11 @@ void S_StopMusic(data_t* data)
     {
         if (data->mus_paused)
         {
-            I_ResumeSong();
+            I_ResumeSong(data);
         }
 
-        I_StopSong();
-        I_UnRegisterSong(data->mus_playing->handle);
+        I_StopSong(data);
+        I_UnRegisterSong(data, data->mus_playing->handle);
         W_ReleaseLumpNum(data->mus_playing->lumpnum);
         data->mus_playing->data = NULL;
         data->mus_playing = NULL;

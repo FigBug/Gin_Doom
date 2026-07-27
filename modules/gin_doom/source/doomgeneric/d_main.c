@@ -1556,7 +1556,7 @@ void D_DoomMain (data_t* data)
     I_InitTimer();
     I_InitJoystick();
     I_InitSound(data, true);
-    I_InitMusic();
+    I_InitMusic(data);
 
 #ifdef FEATURE_MULTIPLAYER
     printf ("NET_Init: Init network subsystem.\n");

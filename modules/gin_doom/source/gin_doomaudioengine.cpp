@@ -1,11 +1,4 @@
 
-// The SFX module (DG_sound_module in this file) is a set of C callbacks that
-// carry no instance pointer, so they dispatch through 'e'. It is thread_local
-// and set per game thread (DoomAudioEngine::makeCurrent, called from
-// Doom::run), so each plugin instance's game thread reaches its own engine.
-// The audio thread never uses 'e' (it renders through the instance directly).
-thread_local DoomAudioEngine* e = nullptr;
-
 //==============================================================================
 // OPL music (i_oplmusic.c / opl.c).
 //
@@ -53,13 +46,6 @@ DoomAudioEngine::DoomAudioEngine()
 
 DoomAudioEngine::~DoomAudioEngine()
 {
-}
-
-void DoomAudioEngine::makeCurrent()
-{
-    // Called on this instance's game thread so the SFX C callbacks dispatch
-    // to this engine.
-    e = this;
 }
 
 void DoomAudioEngine::processBlock (juce::AudioBuffer<float>& buffer, int sampleRate)
@@ -257,53 +243,74 @@ bool DoomAudioEngine::initSound (bool _use_sfx_prefix)
     return true;
 }
 
-static void I_JUCE_PrecacheSounds(sfxinfo_t *sounds, int num_sounds)
+// The SFX C callbacks receive the instance's data_t and resolve their engine
+// from it (Doom::run stores &audio in data->audio_engine).
+
+static DoomAudioEngine* engineFor (data_t* data)
 {
-    e->precacheSounds (sounds, num_sounds);
+    return data != nullptr ? (DoomAudioEngine*) data->audio_engine : nullptr;
 }
 
-static int I_JUCE_GetSfxLumpNum(sfxinfo_t *sfx)
+static void I_JUCE_PrecacheSounds(data_t* data, sfxinfo_t *sounds, int num_sounds)
 {
-    return e->getSfxLumpNum (sfx);
+    if (auto* eng = engineFor (data))
+        eng->precacheSounds (sounds, num_sounds);
 }
 
-static void I_JUCE_UpdateSoundParams(int handle, int vol, int sep)
+static int I_JUCE_GetSfxLumpNum(data_t* data, sfxinfo_t *sfx)
 {
-    e->updateSoundParams(handle, vol, sep);
+    if (auto* eng = engineFor (data))
+        return eng->getSfxLumpNum (sfx);
+    return 0;
 }
 
-static int I_JUCE_StartSound(sfxinfo_t* sfxinfo, int channel, int vol, int sep)
+static void I_JUCE_UpdateSoundParams(data_t* data, int handle, int vol, int sep)
 {
-    return e->startSound (sfxinfo, channel, vol, sep);
+    if (auto* eng = engineFor (data))
+        eng->updateSoundParams(handle, vol, sep);
 }
 
-static void I_JUCE_StopSound(int handle)
+static int I_JUCE_StartSound(data_t* data, sfxinfo_t* sfxinfo, int channel, int vol, int sep)
 {
-    e->stopSound (handle);
+    if (auto* eng = engineFor (data))
+        return eng->startSound (sfxinfo, channel, vol, sep);
+    return -1;
 }
 
-static boolean I_JUCE_SoundIsPlaying(int handle)
+static void I_JUCE_StopSound(data_t* data, int handle)
 {
-    return e->soundIsPlaying (handle);
+    if (auto* eng = engineFor (data))
+        eng->stopSound (handle);
+}
+
+static boolean I_JUCE_SoundIsPlaying(data_t* data, int handle)
+{
+    if (auto* eng = engineFor (data))
+        return eng->soundIsPlaying (handle);
+    return false;
 }
 
 //
 // Periodically called to update the sound system
 //
 
-static void I_JUCE_UpdateSound(void)
+static void I_JUCE_UpdateSound(data_t* data)
 {
-    return e->updateSound();
+    if (auto* eng = engineFor (data))
+        eng->updateSound();
 }
 
-static void I_JUCE_ShutdownSound(void)
+static void I_JUCE_ShutdownSound(data_t* data)
 {
-    return e->shutdownSound();
+    if (auto* eng = engineFor (data))
+        eng->shutdownSound();
 }
 
-static boolean I_JUCE_InitSound(boolean _use_sfx_prefix)
+static boolean I_JUCE_InitSound(data_t* data, boolean _use_sfx_prefix)
 {
-    return e->initSound (_use_sfx_prefix);
+    if (auto* eng = engineFor (data))
+        return eng->initSound (_use_sfx_prefix);
+    return false;
 }
 
 static snddevice_t sound_devices[] =

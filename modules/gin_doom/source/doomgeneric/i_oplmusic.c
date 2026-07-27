@@ -385,33 +385,19 @@ int opl_io_port = 0x388;
 // ---------------------------------------------------------------------------
 // Per-instance dispatch.
 //
-// The music module interface functions receive no data_t, so the current
-// instance is found through a thread-local pointer set on that instance's
-// game thread (see DG_SetCurrentData, called from Doom::run). The audio
-// thread never uses this; it renders through an explicit handle.
+// The music module interface functions receive the instance's data_t and pull
+// their state from data->opl_music. The audio thread renders through an
+// explicit handle (DG_OPL_Render). No globals or thread-locals are involved.
 // ---------------------------------------------------------------------------
 
-#if defined(_MSC_VER)
-#define DG_THREAD_LOCAL __declspec(thread)
-#else
-#define DG_THREAD_LOCAL __thread
-#endif
-
-static DG_THREAD_LOCAL data_t *dg_music_data;
-
-void DG_SetCurrentData(void *data)
+static opl_music_t *MusicForData(data_t *data)
 {
-    dg_music_data = (data_t *) data;
-}
-
-static opl_music_t *CurrentMusic(void)
-{
-    if (dg_music_data == NULL)
+    if (data == NULL)
     {
         return NULL;
     }
 
-    return (opl_music_t *) dg_music_data->opl_music;
+    return (opl_music_t *) data->opl_music;
 }
 
 // Load instrument table from GENMIDI lump:
@@ -692,9 +678,9 @@ static void SetChannelVolume(opl_music_t *m, opl_channel_data_t *channel,
 
 // Set music volume (0 - 127)
 
-static void I_OPL_SetMusicVolume(int volume)
+static void I_OPL_SetMusicVolume(data_t *data, int volume)
 {
-    opl_music_t *m = CurrentMusic();
+    opl_music_t *m = MusicForData(data);
     unsigned int i;
 
     if (m == NULL || m->current_music_volume == volume)
@@ -1525,9 +1511,9 @@ static void StartTrack(opl_music_t *m, midi_file_t *file, unsigned int track_num
 
 // Start playing a mid
 
-static void I_OPL_PlaySong(void *handle, boolean looping)
+static void I_OPL_PlaySong(data_t *data, void *handle, boolean looping)
 {
-    opl_music_t *m = CurrentMusic();
+    opl_music_t *m = MusicForData(data);
     midi_file_t *file;
     unsigned int i;
 
@@ -1576,9 +1562,9 @@ static void I_OPL_PlaySong(void *handle, boolean looping)
     OPL_SetPaused(m->opl, 0);
 }
 
-static void I_OPL_PauseSong(void)
+static void I_OPL_PauseSong(data_t *data)
 {
-    opl_music_t *m = CurrentMusic();
+    opl_music_t *m = MusicForData(data);
     unsigned int i;
 
     if (m == NULL || !m->music_initialized)
@@ -1607,9 +1593,9 @@ static void I_OPL_PauseSong(void)
     OPL_Unlock(m->opl);
 }
 
-static void I_OPL_ResumeSong(void)
+static void I_OPL_ResumeSong(data_t *data)
 {
-    opl_music_t *m = CurrentMusic();
+    opl_music_t *m = MusicForData(data);
 
     if (m == NULL || !m->music_initialized)
     {
@@ -1619,9 +1605,9 @@ static void I_OPL_ResumeSong(void)
     OPL_SetPaused(m->opl, 0);
 }
 
-static void I_OPL_StopSong(void)
+static void I_OPL_StopSong(data_t *data)
 {
-    opl_music_t *m = CurrentMusic();
+    opl_music_t *m = MusicForData(data);
     unsigned int i;
 
     if (m == NULL || !m->music_initialized)
@@ -1657,9 +1643,9 @@ static void I_OPL_StopSong(void)
     OPL_Unlock(m->opl);
 }
 
-static void I_OPL_UnRegisterSong(void *handle)
+static void I_OPL_UnRegisterSong(data_t *data, void *handle)
 {
-    opl_music_t *m = CurrentMusic();
+    opl_music_t *m = MusicForData(data);
 
     if (m == NULL || !m->music_initialized)
     {
@@ -1708,9 +1694,9 @@ static midi_file_t *LoadMus(byte *musdata, int len)
     return result;
 }
 
-static void *I_OPL_RegisterSong(void *data, int len)
+static void *I_OPL_RegisterSong(data_t *data, void *songdata, int len)
 {
-    opl_music_t *m = CurrentMusic();
+    opl_music_t *m = MusicForData(data);
     midi_file_t *result;
 
     if (m == NULL || !m->music_initialized)
@@ -1722,13 +1708,13 @@ static void *I_OPL_RegisterSong(void *data, int len)
     // assumed to be MUS and converted.  Loading happens entirely in memory
     // (no temp files), which is important for a sandboxed audio plugin.
 
-    if (IsMid(data, len) && len < MAXMIDLENGTH)
+    if (IsMid(songdata, len) && len < MAXMIDLENGTH)
     {
-        result = MIDI_LoadFileMem(data, len);
+        result = MIDI_LoadFileMem(songdata, len);
     }
     else
     {
-        result = LoadMus(data, len);
+        result = LoadMus(songdata, len);
     }
 
     if (result == NULL)
@@ -1741,9 +1727,9 @@ static void *I_OPL_RegisterSong(void *data, int len)
 
 // Is the song playing?
 
-static boolean I_OPL_MusicIsPlaying(void)
+static boolean I_OPL_MusicIsPlaying(data_t *data)
 {
-    opl_music_t *m = CurrentMusic();
+    opl_music_t *m = MusicForData(data);
 
     if (m == NULL || !m->music_initialized)
     {
@@ -1755,23 +1741,20 @@ static boolean I_OPL_MusicIsPlaying(void)
 
 // Shutdown music
 
-static void I_OPL_ShutdownMusic(void)
+static void I_OPL_ShutdownMusic(data_t *data)
 {
-    opl_music_t *m = CurrentMusic();
+    opl_music_t *m = MusicForData(data);
 
     if (m != NULL && m->music_initialized)
     {
         // Stop currently-playing track, if there is one:
 
-        I_OPL_StopSong();
+        I_OPL_StopSong(data);
 
         // Stop the audio thread from touching this instance before we tear
         // it down.
 
-        if (dg_music_data != NULL)
-        {
-            dg_music_data->opl_music = NULL;
-        }
+        data->opl_music = NULL;
 
         // Release GENMIDI lump
 
@@ -1787,9 +1770,8 @@ static void I_OPL_ShutdownMusic(void)
 
 // Initialize music subsystem
 
-static boolean I_OPL_InitMusic(void)
+static boolean I_OPL_InitMusic(data_t *data)
 {
-    data_t *data = dg_music_data;
     opl_music_t *m;
     const char *dmxoption;
     opl_init_result_t chip_type;
@@ -1890,9 +1872,9 @@ void DG_OPL_Render(void *music_handle, int16_t *buffer, unsigned int nsamples,
 // Tear down this instance's music state (called from Doom::run when the game
 // thread exits, so nothing is leaked per instance).  Idempotent.
 
-void DG_OPL_Shutdown(void)
+void DG_OPL_Shutdown(void *data)
 {
-    I_OPL_ShutdownMusic();
+    I_OPL_ShutdownMusic((data_t *) data);
 }
 
 static snddevice_t music_opl_devices[] =

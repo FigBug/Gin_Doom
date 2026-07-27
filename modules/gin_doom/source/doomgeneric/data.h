@@ -126,7 +126,10 @@ struct data_s
 	struct channel_s* channels;
 	struct musicinfo_s* mus_playing;
 
-	// i_oplmusic.c - per-instance OPL music state (opaque opl_music_t*)
+	// Audio (per-instance). audio_engine is the DoomAudioEngine* for this
+	// instance (set in Doom::run); the SFX C callbacks resolve it from here.
+	// opl_music is this instance's OPL music state (opaque opl_music_t*).
+	void*           audio_engine;
 	void*           opl_music;
 
 	// g_game.c input/demo state

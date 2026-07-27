@@ -64,8 +64,8 @@ int snd_sfxdevice = SNDDEVICE_SB;
 
 extern void I_InitTimidityConfig(void);
 #ifdef FEATURE_SOUND
-extern sound_module_t* DG_sound_module;
-extern music_module_t* DG_music_module;
+extern sound_module_t DG_sound_module;
+extern music_module_t DG_music_module;
 #endif
 extern sound_module_t sound_pcsound_module;
 extern music_module_t music_opl_module;
@@ -118,7 +118,7 @@ static boolean SndDeviceInList(snddevice_t device, snddevice_t *list,
 // Find and initialize a sound_module_t appropriate for the setting
 // in snd_sfxdevice.
 
-static void InitSfxModule(boolean use_sfx_prefix)
+static void InitSfxModule(data_t* data, boolean use_sfx_prefix)
 {
     int i;
 
@@ -129,13 +129,13 @@ static void InitSfxModule(boolean use_sfx_prefix)
         // Is the sfx device in the list of devices supported by
         // this module?
 
-        if (SndDeviceInList(snd_sfxdevice, 
+        if (SndDeviceInList(snd_sfxdevice,
                             sound_modules[i]->sound_devices,
                             sound_modules[i]->num_sound_devices))
         {
             // Initialize the module
 
-            if (sound_modules[i]->Init(use_sfx_prefix))
+            if (sound_modules[i]->Init(data, use_sfx_prefix))
             {
                 sound_module = sound_modules[i];
                 return;
@@ -204,7 +204,7 @@ void I_InitSound(data_t* data, boolean use_sfx_prefix)
 
         if (!nosfx)
         {
-            InitSfxModule(use_sfx_prefix);
+            InitSfxModule(data, use_sfx_prefix);
         }
 
         if (!nomusic)
@@ -215,24 +215,24 @@ void I_InitSound(data_t* data, boolean use_sfx_prefix)
 
 }
 
-void I_ShutdownSound(void)
+void I_ShutdownSound(data_t* data)
 {
     if (sound_module != NULL)
     {
-        sound_module->Shutdown();
+        sound_module->Shutdown(data);
     }
 
     if (music_module != NULL)
     {
-        music_module->Shutdown();
+        music_module->Shutdown(data);
     }
 }
 
-int I_GetSfxLumpNum(sfxinfo_t *sfxinfo)
+int I_GetSfxLumpNum(data_t* data, sfxinfo_t *sfxinfo)
 {
-    if (sound_module != NULL) 
+    if (sound_module != NULL)
     {
-        return sound_module->GetSfxLumpNum(sfxinfo);
+        return sound_module->GetSfxLumpNum(data, sfxinfo);
     }
     else
     {
@@ -240,16 +240,16 @@ int I_GetSfxLumpNum(sfxinfo_t *sfxinfo)
     }
 }
 
-void I_UpdateSound(void)
+void I_UpdateSound(data_t* data)
 {
     if (sound_module != NULL)
     {
-        sound_module->Update();
+        sound_module->Update(data);
     }
 
     if (music_module != NULL && music_module->Poll != NULL)
     {
-        music_module->Poll();
+        music_module->Poll(data);
     }
 }
 
@@ -274,21 +274,21 @@ static void CheckVolumeSeparation(int *vol, int *sep)
     }
 }
 
-void I_UpdateSoundParams(int channel, int vol, int sep)
+void I_UpdateSoundParams(data_t* data, int channel, int vol, int sep)
 {
     if (sound_module != NULL)
     {
         CheckVolumeSeparation(&vol, &sep);
-        sound_module->UpdateSoundParams(channel, vol, sep);
+        sound_module->UpdateSoundParams(data, channel, vol, sep);
     }
 }
 
-int I_StartSound(sfxinfo_t *sfxinfo, int channel, int vol, int sep)
+int I_StartSound(data_t* data, sfxinfo_t *sfxinfo, int channel, int vol, int sep)
 {
     if (sound_module != NULL)
     {
         CheckVolumeSeparation(&vol, &sep);
-        return sound_module->StartSound(sfxinfo, channel, vol, sep);
+        return sound_module->StartSound(data, sfxinfo, channel, vol, sep);
     }
     else
     {
@@ -296,19 +296,19 @@ int I_StartSound(sfxinfo_t *sfxinfo, int channel, int vol, int sep)
     }
 }
 
-void I_StopSound(int channel)
+void I_StopSound(data_t* data, int channel)
 {
     if (sound_module != NULL)
     {
-        sound_module->StopSound(channel);
+        sound_module->StopSound(data, channel);
     }
 }
 
-boolean I_SoundIsPlaying(int channel)
+boolean I_SoundIsPlaying(data_t* data, int channel)
 {
     if (sound_module != NULL)
     {
-        return sound_module->SoundIsPlaying(channel);
+        return sound_module->SoundIsPlaying(data, channel);
     }
     else
     {
@@ -316,56 +316,56 @@ boolean I_SoundIsPlaying(int channel)
     }
 }
 
-void I_PrecacheSounds(sfxinfo_t *sounds, int num_sounds)
+void I_PrecacheSounds(data_t* data, sfxinfo_t *sounds, int num_sounds)
 {
     if (sound_module != NULL && sound_module->CacheSounds != NULL)
     {
-	sound_module->CacheSounds(sounds, num_sounds);
+	sound_module->CacheSounds(data, sounds, num_sounds);
     }
 }
 
-void I_InitMusic(void)
+void I_InitMusic(data_t* data)
 {
     if(music_module != NULL)
     {
-        music_module->Init();
+        music_module->Init(data);
     }
 }
 
-void I_ShutdownMusic(void)
+void I_ShutdownMusic(data_t* data)
 {
-
+    (void) data;
 }
 
-void I_SetMusicVolume(int volume)
+void I_SetMusicVolume(data_t* data, int volume)
 {
     if (music_module != NULL)
     {
-        music_module->SetMusicVolume(volume);
+        music_module->SetMusicVolume(data, volume);
     }
 }
 
-void I_PauseSong(void)
+void I_PauseSong(data_t* data)
 {
     if (music_module != NULL)
     {
-        music_module->PauseMusic();
+        music_module->PauseMusic(data);
     }
 }
 
-void I_ResumeSong(void)
+void I_ResumeSong(data_t* data)
 {
     if (music_module != NULL)
     {
-        music_module->ResumeMusic();
+        music_module->ResumeMusic(data);
     }
 }
 
-void *I_RegisterSong(void *data, int len)
+void *I_RegisterSong(data_t* data, void *songdata, int len)
 {
     if (music_module != NULL)
     {
-        return music_module->RegisterSong(data, len);
+        return music_module->RegisterSong(data, songdata, len);
     }
     else
     {
@@ -373,41 +373,41 @@ void *I_RegisterSong(void *data, int len)
     }
 }
 
-void I_UnRegisterSong(void *handle)
+void I_UnRegisterSong(data_t* data, void *handle)
 {
     if (music_module != NULL)
     {
-        music_module->UnRegisterSong(handle);
+        music_module->UnRegisterSong(data, handle);
     }
 }
 
-void I_PlaySong(void *handle, boolean looping)
+void I_PlaySong(data_t* data, void *handle, boolean looping)
 {
     if (music_module != NULL)
     {
-        music_module->PlaySong(handle, looping);
+        music_module->PlaySong(data, handle, looping);
     }
 }
 
-void I_StopSong(void)
+void I_StopSong(data_t* data)
 {
     if (music_module != NULL)
     {
-        music_module->StopSong();
+        music_module->StopSong(data);
     }
 }
 
-boolean I_MusicIsPlaying(void)
+boolean I_MusicIsPlaying(data_t* data)
 {
     if (music_module != NULL)
     {
-        return music_module->MusicIsPlaying();
+        return music_module->MusicIsPlaying(data);
     }
     else
     {
         return false;
     }
-    
+
 }
 
 void I_BindSoundVariables(void)
