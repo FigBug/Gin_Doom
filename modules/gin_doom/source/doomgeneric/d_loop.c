@@ -40,13 +40,9 @@
 #include "net_sdl.h"
 #include "net_loop.h"
 
-// The complete set of data for a particular tic.
-
-typedef struct
-{
-    ticcmd_t cmds[NET_MAXPLAYERS];
-    boolean ingame[NET_MAXPLAYERS];
-} ticcmd_set_t;
+// ticcmd_set_t (the complete set of ticcmds for a tic) and the per-instance
+// ticdata[] buffer now live in data_t (see data.h), so multiple simulations
+// running in one process each keep their own tic history.
 
 //
 // data->gametic is the tic about to (or currently being) run
@@ -56,8 +52,6 @@ typedef struct
 // a data->gametic cannot be run until ticcmds are received for it
 // from all data->players.
 //
-
-static ticcmd_set_t ticdata[BACKUPTICS];
 
 // The index of the next tic to be made (with a call to BuildTiccmd).
 
@@ -174,8 +168,8 @@ static boolean BuildNewTic (data_t* data)
     }
 
 #endif
-    ticdata[data->maketic % BACKUPTICS].cmds[data->localplayer] = cmd;
-    ticdata[data->maketic % BACKUPTICS].ingame[data->localplayer] = true;
+    data->ticdata[data->maketic % BACKUPTICS].cmds[data->localplayer] = cmd;
+    data->ticdata[data->maketic % BACKUPTICS].ingame[data->localplayer] = true;
 
     ++data->maketic;
 
@@ -276,8 +270,8 @@ void D_ReceiveTic(data_t* data, ticcmd_t *ticcmds, boolean *players_mask)
         }
         else
         {
-            ticdata[data->recvtic % BACKUPTICS].cmds[i] = ticcmds[i];
-            ticdata[data->recvtic % BACKUPTICS].ingame[i] = players_mask[i];
+            data->ticdata[data->recvtic % BACKUPTICS].cmds[i] = ticcmds[i];
+            data->ticdata[data->recvtic % BACKUPTICS].ingame[i] = players_mask[i];
         }
     }
 
@@ -778,7 +772,7 @@ void TryRunTics (data_t* data)
             return;
         }
 
-        set = &ticdata[(data->gametic / data->ticdup) % BACKUPTICS];
+        set = &data->ticdata[(data->gametic / data->ticdup) % BACKUPTICS];
 
         if (!net_client_connected)
         {

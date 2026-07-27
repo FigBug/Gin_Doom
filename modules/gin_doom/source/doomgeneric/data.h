@@ -18,6 +18,14 @@ struct musicinfo_s;
 #include "st_lib.h"
 #include "p_spec.h"
 
+// The complete set of ticcmds for a particular tic (d_loop.c). Per-instance so
+// that multiple simulations don't share a single tic buffer.
+typedef struct
+{
+	ticcmd_t cmds[NET_MAXPLAYERS];
+	boolean ingame[NET_MAXPLAYERS];
+} ticcmd_set_t;
+
 struct data_s
 {
 	void*		user_data;
@@ -608,6 +616,7 @@ struct data_s
 	fixed_t         t2y;
 
 	// d_loop.c
+	ticcmd_set_t    ticdata[BACKUPTICS];
 	int             frameon;
 	int             frameskip[4];
 	int             lasttime;
