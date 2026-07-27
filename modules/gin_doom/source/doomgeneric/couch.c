@@ -20,6 +20,11 @@
 // ---------------------------------------------------------------------------
 
 #ifdef _WIN32
+  // Included after doomtype.h, whose C 'boolean' enum clashes with the SDK's
+  // rpcndr.h/wtypesbase.h typedefs; lean-and-mean keeps those headers out.
+  #ifndef WIN32_LEAN_AND_MEAN
+    #define WIN32_LEAN_AND_MEAN
+  #endif
   #include <windows.h>
   static SRWLOCK            couch_mtx = SRWLOCK_INIT;
   static CONDITION_VARIABLE couch_cnd = CONDITION_VARIABLE_INIT;

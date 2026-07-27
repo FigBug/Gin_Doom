@@ -42,6 +42,9 @@
 // ---------------------------------------------------------------------------
 
 #ifdef _WIN32
+  #ifndef WIN32_LEAN_AND_MEAN
+    #define WIN32_LEAN_AND_MEAN
+  #endif
   #include <windows.h>
   typedef CRITICAL_SECTION dg_mutex_t;
   static void dg_mutex_init (dg_mutex_t *m)   { InitializeCriticalSection (m); }

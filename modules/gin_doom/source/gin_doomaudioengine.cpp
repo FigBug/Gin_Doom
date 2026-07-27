@@ -175,8 +175,8 @@ void DoomAudioEngine::updateSoundParams (int handle, int vol, int sep)
     else if (right > 255)
         right = 255;
 
-    channels[handle].gainL = left  / 255.0f;
-    channels[handle].gainR = right / 255.0f;
+    channels[handle].gainL = (float) left  / 255.0f;
+    channels[handle].gainR = (float) right / 255.0f;
 }
 
 int DoomAudioEngine::startSound (void* sfxinfo_, int channel, int vol, int sep)

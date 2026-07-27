@@ -141,10 +141,10 @@ extern "C" void DG_DrawFrame (data_t* data)
         {
             uint32_t px = data->DG_ScreenBuffer[y * 640 + x];
 
-            uint8_t b = (px & 0xff000000) >> 24;
-            uint8_t r = (px & 0x00ff0000) >> 16;
-            uint8_t g = (px & 0x0000ff00) >> 8;
-            uint8_t a = (px & 0x000000ff) >> 0;
+            uint8_t b = uint8_t ((px & 0xff000000) >> 24);
+            uint8_t r = uint8_t ((px & 0x00ff0000) >> 16);
+            uint8_t g = uint8_t ((px & 0x0000ff00) >> 8);
+            uint8_t a = uint8_t ((px & 0x000000ff) >> 0);
 
             juce::PixelARGB* s = (juce::PixelARGB*)p;
             s->setARGB (a, r, g, b);
