@@ -685,6 +685,11 @@ struct data_s
 	int             couch_fragged;      // internal: set once frag limit reached
 	int             couch_bot;          // 1 = this player is an AI bot
 	unsigned int    bot_seed;           // bot's private RNG (never touches rndindex)
+	fixed_t         bot_lastx;          // last-tic position, for stuck detection
+	fixed_t         bot_lasty;
+	int             bot_stuck;          // consecutive tics of ~no movement
+	int             bot_escape;         // tics left in an unstick manoeuvre
+	int             bot_escape_turn;    // angleturn/tic while escaping
 
 	// g_game.c demo/game state
 	char*           demoname;

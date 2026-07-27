@@ -65,11 +65,40 @@ void Bot_BuildTiccmd (data_t* data, ticcmd_t* cmd)
     player_t* pl = &data->players[me];
     mobj_t*   mo = pl->mo;
     mobj_t*   target;
+    fixed_t   moved;
 
     if (mo == NULL || pl->playerstate == PST_DEAD)
     {
-        // Dead: pressing attack requests a deathmatch respawn.
-        cmd->buttons |= BT_ATTACK;
+        // Dead: P_DeathThink respawns on BT_USE (not BT_ATTACK).
+        cmd->buttons |= BT_USE;
+        return;
+    }
+
+    // Stuck detection: how far did we actually move since last tic? (We always
+    // command forward motion, so little movement means we're jammed on geometry.)
+    moved = P_AproxDistance (mo->x - data->bot_lastx, mo->y - data->bot_lasty);
+    data->bot_lastx = mo->x;
+    data->bot_lasty = mo->y;
+    if (moved < 2 * FRACUNIT)
+        data->bot_stuck++;
+    else
+        data->bot_stuck = 0;
+
+    // While escaping, keep turning one way and pushing forward until we break free.
+    if (data->bot_escape > 0)
+    {
+        data->bot_escape--;
+        cmd->angleturn = (short) (cmd->angleturn + data->bot_escape_turn);
+        cmd->forwardmove = (signed char) (cmd->forwardmove + BOT_FORWARD);
+        return;
+    }
+    if (data->bot_stuck >= 8)
+    {
+        data->bot_escape = 12;
+        data->bot_escape_turn = (Bot_Rand (data) < 128) ? BOT_TURN_MAX : -BOT_TURN_MAX;
+        data->bot_stuck = 0;
+        cmd->angleturn = (short) (cmd->angleturn + data->bot_escape_turn);
+        cmd->forwardmove = (signed char) (cmd->forwardmove + BOT_FORWARD);
         return;
     }
 
