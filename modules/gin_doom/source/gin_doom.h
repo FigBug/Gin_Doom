@@ -10,7 +10,9 @@ public:
 
 	void registerComponent (DoomComponent*);
 
-    void startGame (juce::File wadFile);
+    // playMusic=false starts the instance with -nomusic (used by CouchDoom so
+    // only player 0 renders music; the others are SFX-only).
+    void startGame (juce::File wadFile, bool playMusic = true);
 	void addEvent (int key, bool press);
 	juce::Image getScreen();
 	int mapKey (int key);
@@ -30,6 +32,7 @@ private:
 	juce::Image 	screen;
 	DoomComponent*	component = nullptr;
     juce::File 		wadFile;
+    bool            playMusic = true;
 
     DoomAudioEngine audio;
 

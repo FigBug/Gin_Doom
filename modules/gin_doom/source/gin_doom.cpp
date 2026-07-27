@@ -208,9 +208,10 @@ void Doom::registerComponent (DoomComponent* comp)
 	component = comp;
 }
 
-void Doom::startGame (juce::File wadFile_)
+void Doom::startGame (juce::File wadFile_, bool playMusic_)
 {
     wadFile = wadFile_;
+    playMusic = playMusic_;
     startThread();
 }
 
@@ -245,12 +246,15 @@ void Doom::run()
     data->audio_engine = &audio;
     audio.attach (data);
 
-    const char* params[3];
-    params[0] = "doom";
-    params[1] = "-iwad";
-    params[2] = path.toRawUTF8();
+    const char* params[4];
+    int argc = 0;
+    params[argc++] = "doom";
+    params[argc++] = "-iwad";
+    params[argc++] = path.toRawUTF8();
+    if (! playMusic)
+        params[argc++] = "-nomusic";
 
-    data->myargc = 3;
+    data->myargc = argc;
     data->myargv = (char**)params;
 
     M_FindResponseFile (data);
