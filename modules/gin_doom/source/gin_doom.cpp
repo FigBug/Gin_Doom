@@ -211,13 +211,14 @@ void Doom::registerComponent (DoomComponent* comp)
 	component = comp;
 }
 
-void Doom::startGame (juce::File wadFile_, int playerIndex, int numPlayers, bool playMusic_, DoomSetup setup_)
+void Doom::startGame (juce::File wadFile_, int playerIndex, int numPlayers, bool playMusic_, DoomSetup setup_, bool isBot_)
 {
     wadFile = wadFile_;
     couchIndex = playerIndex;
     couchPlayers = numPlayers;
     playMusic = playMusic_;
     setup = setup_;
+    isBot = isBot_;
     startThread();
 }
 
@@ -262,6 +263,11 @@ void Doom::run()
     data->couch_map        = setup.map;
     data->couch_nomonsters = setup.monsters ? 0 : 1;
     data->couch_fraglimit  = setup.fragLimit;
+    data->couch_bot        = isBot ? 1 : 0;
+    // Seed the bot's private RNG (varies per instance / launch; it only drives
+    // this player's own ticcmd, so wall-clock seeding can't affect determinism).
+    data->bot_seed = (unsigned int) juce::Time::getMillisecondCounter() * 2654435761u
+                   + (unsigned int) (couchIndex * 40503 + 1);
 
     const char* params[4];
     int argc = 0;

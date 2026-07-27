@@ -28,8 +28,9 @@ public:
     // default (numPlayers = 1) is a normal single-player game. playMusic false
     // starts with -nomusic (so only player 0 renders music). setup selects the
     // mode/map/skill/etc (used only when numPlayers > 1).
+    // isBot makes this instance's player AI-controlled (a couch AI slot).
     void startGame (juce::File wadFile, int playerIndex = 0, int numPlayers = 1,
-                    bool playMusic = true, DoomSetup setup = {});
+                    bool playMusic = true, DoomSetup setup = {}, bool isBot = false);
 	void addEvent (int key, bool press);
 	juce::Image getScreen();
 	int mapKey (int key);
@@ -52,6 +53,7 @@ private:
     bool            playMusic = true;
     int             couchIndex = 0;
     int             couchPlayers = 1;
+    bool            isBot = false;
     DoomSetup       setup;
 
     DoomAudioEngine audio;

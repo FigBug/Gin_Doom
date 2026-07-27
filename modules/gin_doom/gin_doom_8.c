@@ -44,3 +44,4 @@
 #include "source/doomgeneric/data.h"
 
 #include "source/doomgeneric/couch.c"
+#include "source/doomgeneric/bot.c"

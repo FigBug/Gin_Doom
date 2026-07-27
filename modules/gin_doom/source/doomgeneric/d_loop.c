@@ -21,6 +21,7 @@
 
 #include "doomfeatures.h"
 
+#include "bot.h"
 #include "couch.h"
 #include "d_event.h"
 #include "d_loop.h"
@@ -706,6 +707,8 @@ void TryRunTics (data_t* data)
 
         memset (&cmd, 0, sizeof(cmd));
         loop_interface->BuildTiccmd (data, &cmd, data->maketic);
+        if (data->couch_bot)
+            Bot_BuildTiccmd (data, &cmd);
         data->ticdata[data->maketic % BACKUPTICS].cmds[data->localplayer] = cmd;
         data->ticdata[data->maketic % BACKUPTICS].ingame[data->localplayer] = true;
         ++data->maketic;

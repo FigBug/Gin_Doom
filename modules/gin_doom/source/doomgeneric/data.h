@@ -683,6 +683,8 @@ struct data_s
 	int             couch_nomonsters;   // 1 = no monsters
 	int             couch_fraglimit;    // 0 = unlimited; end level at N frags
 	int             couch_fragged;      // internal: set once frag limit reached
+	int             couch_bot;          // 1 = this player is an AI bot
+	unsigned int    bot_seed;           // bot's private RNG (never touches rndindex)
 
 	// g_game.c demo/game state
 	char*           demoname;
