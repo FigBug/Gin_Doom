@@ -10,9 +10,12 @@ public:
 
 	void registerComponent (DoomComponent*);
 
-    // playMusic=false starts the instance with -nomusic (used by CouchDoom so
-    // only player 0 renders music; the others are SFX-only).
-    void startGame (juce::File wadFile, bool playMusic = true);
+    // Start the game. For CouchDoom, playerIndex/numPlayers configure this
+    // instance as one player of an N-way local deathmatch (numPlayers > 1);
+    // the default (numPlayers = 1) is a normal single-player game. playMusic
+    // false starts with -nomusic (so only player 0 renders music).
+    void startGame (juce::File wadFile, int playerIndex = 0, int numPlayers = 1,
+                    bool playMusic = true);
 	void addEvent (int key, bool press);
 	juce::Image getScreen();
 	int mapKey (int key);
@@ -33,6 +36,8 @@ private:
 	DoomComponent*	component = nullptr;
     juce::File 		wadFile;
     bool            playMusic = true;
+    int             couchIndex = 0;
+    int             couchPlayers = 1;
 
     DoomAudioEngine audio;
 

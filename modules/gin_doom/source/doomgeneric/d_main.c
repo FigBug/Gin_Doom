@@ -26,6 +26,7 @@
 #include <string.h>
 
 #include "config.h"
+#include "couch.h"
 #include "deh_main.h"
 #include "doomdef.h"
 #include "doomstat.h"
@@ -1774,6 +1775,29 @@ void D_DoomMain (data_t* data)
     {
         M_StringCopy(file, P_SaveGameFile(data, data->startloadgame), sizeof(file));
         G_LoadGame(data, file);
+    }
+
+    // CouchDoom: configure this instance as one player of a local deathmatch
+    // and register it with the lockstep arbiter, then start the level below.
+    if (data->couch_players > 1)
+    {
+        extern boolean net_client_connected;
+        int i;
+
+        data->deathmatch    = 1;
+        data->netgame       = true;
+        data->consoleplayer = data->couch_index;
+        data->displayplayer = data->couch_index;
+        data->localplayer   = data->couch_index;
+
+        for (i = 0; i < data->couch_players && i < MAXPLAYERS; ++i)
+            data->playeringame[i] = true;
+
+        data->ticdup    = 1;
+        data->autostart = true;
+
+        net_client_connected = true;
+        Couch_Register(data, data->couch_index, data->couch_players);
     }
 
     if (data->gameaction != ga_loadgame )

@@ -662,6 +662,12 @@ struct data_s
 	boolean         singletics;
 	int             skiptics;
 	int             ticdup;
+
+	// couch.c fake-network config (0/1 = normal; N>1 = N-player local
+	// deathmatch, this instance being player couch_index).
+	int             couch_players;
+	int             couch_index;
+
 	// g_game.c demo/game state
 	char*           demoname;
 	byte*           demobuffer;

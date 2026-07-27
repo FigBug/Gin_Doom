@@ -21,6 +21,7 @@
 
 #include "doomfeatures.h"
 
+#include "couch.h"
 #include "d_event.h"
 #include "d_loop.h"
 #include "d_ticcmd.h"
@@ -690,6 +691,33 @@ void TryRunTics (data_t* data)
     int realtics;
     int	availabletics;
     int	counts;
+
+    // CouchDoom lockstep path: build exactly one local command, exchange it
+    // with the other instances at the barrier (which also paces to TICRATE),
+    // then run exactly one tic with the resulting full command set.
+    if (Couch_Active())
+    {
+        ticcmd_t      cmd;
+        ticcmd_set_t* set;
+
+        I_StartTic (data);
+        loop_interface->ProcessEvents (data);
+        loop_interface->RunMenu (data);
+
+        memset (&cmd, 0, sizeof(cmd));
+        loop_interface->BuildTiccmd (data, &cmd, data->maketic);
+        data->ticdata[data->maketic % BACKUPTICS].cmds[data->localplayer] = cmd;
+        data->ticdata[data->maketic % BACKUPTICS].ingame[data->localplayer] = true;
+        ++data->maketic;
+
+        Couch_Barrier (data);
+
+        set = &data->ticdata[data->gametic % BACKUPTICS];
+        memcpy (data->local_playeringame, set->ingame, sizeof(data->local_playeringame));
+        loop_interface->RunTic (data, set->cmds, set->ingame);
+        ++data->gametic;
+        return;
+    }
 
     // get real tics
     entertic = I_GetTime (data) / data->ticdup;

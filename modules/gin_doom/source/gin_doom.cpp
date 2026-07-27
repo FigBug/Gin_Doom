@@ -10,6 +10,9 @@ extern "C"
 
 	// Frees this instance's OPL music state (see i_oplmusic.c).
 	void DG_OPL_Shutdown (void* data);
+
+	// Wakes any instance waiting at the CouchDoom lockstep barrier (couch.c).
+	void Couch_Shutdown (void);
 }
 
 int keyCodes[] = {
@@ -208,9 +211,11 @@ void Doom::registerComponent (DoomComponent* comp)
 	component = comp;
 }
 
-void Doom::startGame (juce::File wadFile_, bool playMusic_)
+void Doom::startGame (juce::File wadFile_, int playerIndex, int numPlayers, bool playMusic_)
 {
     wadFile = wadFile_;
+    couchIndex = playerIndex;
+    couchPlayers = numPlayers;
     playMusic = playMusic_;
     startThread();
 }
@@ -246,6 +251,11 @@ void Doom::run()
     data->audio_engine = &audio;
     audio.attach (data);
 
+    // CouchDoom multiplayer config; read by D_DoomMain to set up the local
+    // deathmatch and register with the lockstep arbiter.
+    data->couch_index = couchIndex;
+    data->couch_players = couchPlayers;
+
     const char* params[4];
     int argc = 0;
     params[argc++] = "doom";
@@ -279,6 +289,10 @@ void Doom::run()
 
     // Stop the audio thread from touching this instance's music, then free
     // it, before the data_t itself goes away.
+    // Unblock any peers still waiting at the lockstep barrier so they don't
+    // hang when this instance exits.
+    Couch_Shutdown();
+
     audio.attach (nullptr);
     DG_OPL_Shutdown (data);
 
