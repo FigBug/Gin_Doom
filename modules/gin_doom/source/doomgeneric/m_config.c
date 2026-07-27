@@ -568,7 +568,7 @@ static default_t	doom_defaults_list[] =
     // levels of gamma correction.
     //
 
-    CONFIG_VARIABLE_INT(usegamma),
+    CONFIG_VARIABLE_INT(data->usegamma),
 
     //!
     // @game hexen

@@ -206,7 +206,7 @@ void D_Display (data_t* data)
     
     // clean up border stuff
     if (data->gamestate != oldgamestate && data->gamestate != GS_LEVEL)
-    	I_SetPalette (W_CacheLumpName (DEH_String("PLAYPAL"),PU_CACHE));
+    	I_SetPalette (data, W_CacheLumpName (DEH_String("PLAYPAL"),PU_CACHE));
 
     // see if the border needs to be initially drawn
     if (data->gamestate == GS_LEVEL && oldgamestate != GS_LEVEL)
@@ -408,7 +408,7 @@ void D_DoomLoop (data_t* data)
 		S_UpdateSounds(data, data->players[data->consoleplayer].mo);// move positional sounds
 
 		// Update display, next frame, with current state.
-		if (screenvisible)
+		if (data->screenvisible)
 		{
 			D_Display (data);
 		}

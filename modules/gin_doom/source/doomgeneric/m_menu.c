@@ -1721,11 +1721,11 @@ boolean M_Responder (data_t* data, event_t* ev)
         }
         else if (key == key_menu_gamma)    // gamma toggle
         {
-	    usegamma++;
-	    if (usegamma > 4)
-		usegamma = 0;
-	    data->players[data->consoleplayer].message = DEH_String(gammamsg[usegamma]);
-            I_SetPalette (W_CacheLumpName (DEH_String("PLAYPAL"),PU_CACHE));
+	    data->usegamma++;
+	    if (data->usegamma > 4)
+		data->usegamma = 0;
+	    data->players[data->consoleplayer].message = DEH_String(gammamsg[data->usegamma]);
+            I_SetPalette (data, W_CacheLumpName (DEH_String("PLAYPAL"),PU_CACHE));
 	    return true;
 	}
     }

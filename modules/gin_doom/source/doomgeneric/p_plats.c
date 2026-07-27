@@ -35,7 +35,6 @@
 #include "sounds.h"
 
 
-plat_t*		activeplats[MAXPLATS];
 
 
 
@@ -145,7 +144,7 @@ EV_DoPlat
     switch(type)
     {
       case perpetualRaise:
-	P_ActivateInStasis(line->tag);
+	P_ActivateInStasis(data, line->tag);
 	break;
 	
       default:
@@ -246,33 +245,33 @@ EV_DoPlat
 
 
 
-void P_ActivateInStasis(int tag)
+void P_ActivateInStasis(data_t* data, int tag)
 {
     int		i;
 	
     for (i = 0;i < MAXPLATS;i++)
-	if (activeplats[i]
-	    && (activeplats[i])->tag == tag
-	    && (activeplats[i])->status == in_stasis)
+	if (data->activeplats[i]
+	    && (data->activeplats[i])->tag == tag
+	    && (data->activeplats[i])->status == in_stasis)
 	{
-	    (activeplats[i])->status = (activeplats[i])->oldstatus;
-	    (activeplats[i])->thinker.function.acp1
+	    (data->activeplats[i])->status = (data->activeplats[i])->oldstatus;
+	    (data->activeplats[i])->thinker.function.acp1
 	      = (actionf_p1) T_PlatRaise;
 	}
 }
 
-void EV_StopPlat(line_t* line)
+void EV_StopPlat(data_t* data, line_t* line)
 {
     int		j;
 	
     for (j = 0;j < MAXPLATS;j++)
-	if (activeplats[j]
-	    && ((activeplats[j])->status != in_stasis)
-	    && ((activeplats[j])->tag == line->tag))
+	if (data->activeplats[j]
+	    && ((data->activeplats[j])->status != in_stasis)
+	    && ((data->activeplats[j])->tag == line->tag))
 	{
-	    (activeplats[j])->oldstatus = (activeplats[j])->status;
-	    (activeplats[j])->status = in_stasis;
-	    (activeplats[j])->thinker.function.acv = (actionf_v)NULL;
+	    (data->activeplats[j])->oldstatus = (data->activeplats[j])->status;
+	    (data->activeplats[j])->status = in_stasis;
+	    (data->activeplats[j])->thinker.function.acv = (actionf_v)NULL;
 	}
 }
 
@@ -281,9 +280,9 @@ void P_AddActivePlat(data_t* data, plat_t* plat)
     int		i;
     
     for (i = 0;i < MAXPLATS;i++)
-	if (activeplats[i] == NULL)
+	if (data->activeplats[i] == NULL)
 	{
-	    activeplats[i] = plat;
+	    data->activeplats[i] = plat;
 	    return;
 	}
     I_Error (data, "P_AddActivePlat: no more plats!");
@@ -293,11 +292,11 @@ void P_RemoveActivePlat(data_t* data, plat_t* plat)
 {
     int		i;
     for (i = 0;i < MAXPLATS;i++)
-	if (plat == activeplats[i])
+	if (plat == data->activeplats[i])
 	{
-	    (activeplats[i])->sector->specialdata = NULL;
-	    P_RemoveThinker(data, &(activeplats[i])->thinker);
-	    activeplats[i] = NULL;
+	    (data->activeplats[i])->sector->specialdata = NULL;
+	    P_RemoveThinker(data, &(data->activeplats[i])->thinker);
+	    data->activeplats[i] = NULL;
 	    
 	    return;
 	}

@@ -753,7 +753,7 @@ static intercepts_overrun_t intercepts_overrun[] =
     {4,   NULL, /* &data->opentop, */                      false},
     {4,   NULL, /* &data->openrange, */                    false},
     {4,   NULL,                          false},
-    {120, NULL, /* &activeplats, */      false},
+    {120, NULL, /* &data->activeplats, */      false},
     {8,   NULL,                          false},
     {4,   NULL, /* &data->bulletslope, */                  false},
     {4,   NULL, /* &data->swingx, */           false},

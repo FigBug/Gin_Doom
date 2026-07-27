@@ -92,7 +92,6 @@ switchlist_t alphSwitchList[] =
 
 int		switchlist[MAXSWITCHES * 2];
 int		numswitches;
-button_t        buttonlist[MAXBUTTONS];
 
 //
 // P_InitSwitchList
@@ -158,8 +157,8 @@ P_StartButton
     // See if button is already pressed
     for (i = 0;i < MAXBUTTONS;i++)
     {
-	if (buttonlist[i].btimer
-	    && buttonlist[i].line == line)
+	if (data->buttonlist[i].btimer
+	    && data->buttonlist[i].line == line)
 	{
 	    
 	    return;
@@ -170,13 +169,13 @@ P_StartButton
     
     for (i = 0;i < MAXBUTTONS;i++)
     {
-	if (!buttonlist[i].btimer)
+	if (!data->buttonlist[i].btimer)
 	{
-	    buttonlist[i].line = line;
-	    buttonlist[i].where = w;
-	    buttonlist[i].btexture = texture;
-	    buttonlist[i].btimer = time;
-	    buttonlist[i].soundorg = &line->frontsector->soundorg;
+	    data->buttonlist[i].line = line;
+	    data->buttonlist[i].where = w;
+	    data->buttonlist[i].btexture = texture;
+	    data->buttonlist[i].btimer = time;
+	    data->buttonlist[i].soundorg = &line->frontsector->soundorg;
 	    return;
 	}
     }
@@ -221,7 +220,7 @@ P_ChangeSwitchTexture
     {
 	if (switchlist[i] == texTop)
 	{
-	    S_StartSound(data, buttonlist->soundorg,sound);
+	    S_StartSound(data, data->buttonlist->soundorg,sound);
 	    data->sides[line->sidenum[0]].toptexture = switchlist[i^1];
 
 	    if (useAgain)
@@ -233,7 +232,7 @@ P_ChangeSwitchTexture
 	{
 	    if (switchlist[i] == texMid)
 	    {
-		S_StartSound(data, buttonlist->soundorg,sound);
+		S_StartSound(data, data->buttonlist->soundorg,sound);
 		data->sides[line->sidenum[0]].midtexture = switchlist[i^1];
 
 		if (useAgain)
@@ -245,7 +244,7 @@ P_ChangeSwitchTexture
 	    {
 		if (switchlist[i] == texBot)
 		{
-		    S_StartSound(data, buttonlist->soundorg,sound);
+		    S_StartSound(data, data->buttonlist->soundorg,sound);
 		    data->sides[line->sidenum[0]].bottomtexture = switchlist[i^1];
 
 		    if (useAgain)

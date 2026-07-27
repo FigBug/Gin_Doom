@@ -96,7 +96,6 @@ boolean screensaver_mode = false;
 // Flag indicating whether the screen is currently visible:
 // when the screen isnt visible, don't render the screen
 
-boolean screenvisible;
 
 // Mouse acceleration
 //
@@ -112,7 +111,6 @@ int mouse_threshold = 10;
 
 // Gamma correction level to use
 
-int usegamma = 0;
 
 typedef struct
 {
@@ -220,7 +218,7 @@ void I_InitGraphics (data_t* data)
     /* Allocate screen to draw to */
 	data->I_VideoBuffer = (byte*)Z_Malloc (SCREENWIDTH * SCREENHEIGHT, PU_STATIC, NULL);  // For DOOM to draw on
 
-	screenvisible = true;
+	data->screenvisible = true;
 
     extern int I_InitInput(void);
     I_InitInput();
@@ -309,7 +307,7 @@ void I_ReadScreen (data_t* data, byte* scr)
 #define GFX_RGB565_G(color)			((0x07E0 & color) >> 5)
 #define GFX_RGB565_B(color)			(0x001F & color)
 
-void I_SetPalette (byte* palette)
+void I_SetPalette (data_t* data, byte* palette)
 {
 	int i;
 	//col_t* c;
@@ -318,9 +316,9 @@ void I_SetPalette (byte* palette)
 	//{
 	//	c = (col_t*)palette;
 
-	//	rgb565_palette[i] = GFX_RGB565(gammatable[usegamma][c->r],
-	//								   gammatable[usegamma][c->g],
-	//								   gammatable[usegamma][c->b]);
+	//	rgb565_palette[i] = GFX_RGB565(gammatable[data->usegamma][c->r],
+	//								   gammatable[data->usegamma][c->g],
+	//								   gammatable[data->usegamma][c->b]);
 
 	//	palette += 3;
 	//}
@@ -331,9 +329,9 @@ void I_SetPalette (byte* palette)
 
     for (i=0; i<256; ++i ) {
         colors[i].a = 0;
-        colors[i].r = gammatable[usegamma][*palette++];
-        colors[i].g = gammatable[usegamma][*palette++];
-        colors[i].b = gammatable[usegamma][*palette++];
+        colors[i].r = gammatable[data->usegamma][*palette++];
+        colors[i].g = gammatable[data->usegamma][*palette++];
+        colors[i].b = gammatable[data->usegamma][*palette++];
     }
 }
 

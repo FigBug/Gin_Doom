@@ -327,8 +327,8 @@ EV_DoPlat
 
 void    P_AddActivePlat(data_t* data, plat_t* plat);
 void    P_RemoveActivePlat(data_t* data, plat_t* plat);
-void    EV_StopPlat(line_t* line);
-void    P_ActivateInStasis(int tag);
+void    EV_StopPlat(data_t* data, line_t* line);
+void    P_ActivateInStasis(data_t* data, int tag);
 
 
 //

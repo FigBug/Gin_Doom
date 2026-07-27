@@ -35,7 +35,6 @@
 //
 
 
-ceiling_t*	activeceilings[MAXCEILINGS];
 
 
 //
@@ -244,9 +243,9 @@ void P_AddActiveCeiling(data_t* data, ceiling_t* c)
     
     for (i = 0; i < MAXCEILINGS;i++)
     {
-	if (activeceilings[i] == NULL)
+	if (data->activeceilings[i] == NULL)
 	{
-	    activeceilings[i] = c;
+	    data->activeceilings[i] = c;
 	    return;
 	}
     }
@@ -263,11 +262,11 @@ void P_RemoveActiveCeiling(data_t* data, ceiling_t* c)
 	
     for (i = 0;i < MAXCEILINGS;i++)
     {
-	if (activeceilings[i] == c)
+	if (data->activeceilings[i] == c)
 	{
-	    activeceilings[i]->sector->specialdata = NULL;
-	    P_RemoveThinker (data, &activeceilings[i]->thinker);
-	    activeceilings[i] = NULL;
+	    data->activeceilings[i]->sector->specialdata = NULL;
+	    P_RemoveThinker (data, &data->activeceilings[i]->thinker);
+	    data->activeceilings[i] = NULL;
 	    break;
 	}
     }
@@ -284,12 +283,12 @@ void P_ActivateInStasisCeiling(data_t* data, line_t* line)
 	
     for (i = 0;i < MAXCEILINGS;i++)
     {
-	if (activeceilings[i]
-	    && (activeceilings[i]->tag == line->tag)
-	    && (activeceilings[i]->direction == 0))
+	if (data->activeceilings[i]
+	    && (data->activeceilings[i]->tag == line->tag)
+	    && (data->activeceilings[i]->direction == 0))
 	{
-	    activeceilings[i]->direction = activeceilings[i]->olddirection;
-	    activeceilings[i]->thinker.function.acp1
+	    data->activeceilings[i]->direction = data->activeceilings[i]->olddirection;
+	    data->activeceilings[i]->thinker.function.acp1
 	      = (actionf_p1)T_MoveCeiling;
 	}
     }
@@ -309,13 +308,13 @@ int	EV_CeilingCrushStop(data_t* data, line_t	*line)
     rtn = 0;
     for (i = 0;i < MAXCEILINGS;i++)
     {
-	if (activeceilings[i]
-	    && (activeceilings[i]->tag == line->tag)
-	    && (activeceilings[i]->direction != 0))
+	if (data->activeceilings[i]
+	    && (data->activeceilings[i]->tag == line->tag)
+	    && (data->activeceilings[i]->direction != 0))
 	{
-	    activeceilings[i]->olddirection = activeceilings[i]->direction;
-	    activeceilings[i]->thinker.function.acv = (actionf_v)NULL;
-	    activeceilings[i]->direction = 0;		// in-stasis
+	    data->activeceilings[i]->olddirection = data->activeceilings[i]->direction;
+	    data->activeceilings[i]->thinker.function.acv = (actionf_v)NULL;
+	    data->activeceilings[i]->direction = 0;		// in-stasis
 	    rtn = 1;
 	}
     }

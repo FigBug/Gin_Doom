@@ -45,7 +45,6 @@ int vanilla_keyboard_mapping = 1;
 
 // Is the shift key currently down?
 
-static int shiftdown = 0;
 
 // Lookup table for mapping AT keycodes to their doom keycode
 static const char at_to_doom[] =
@@ -239,13 +238,13 @@ static unsigned char TranslateKey(unsigned char key)
 
 // Get the equivalent ASCII (Unicode?) character for a keypress.
 
-static unsigned char GetTypedChar(unsigned char key)
+static unsigned char GetTypedChar(data_t* data, unsigned char key)
 {
     key = TranslateKey(key);
 
     // Is shift held down?  If so, perform a translation.
 
-    if (shiftdown > 0)
+    if (data->shiftdown > 0)
     {
         if (key >= 0 && key < arrlen(shiftxform))
         {
@@ -260,7 +259,7 @@ static unsigned char GetTypedChar(unsigned char key)
     return key;
 }
 
-static void UpdateShiftStatus(int pressed, unsigned char key)
+static void UpdateShiftStatus(data_t* data, int pressed, unsigned char key)
 {
     int change;
 
@@ -271,7 +270,7 @@ static void UpdateShiftStatus(int pressed, unsigned char key)
     }
 
     if (key == KEY_RSHIFT) {
-        shiftdown += change;
+        data->shiftdown += change;
     }
 }
 
@@ -285,7 +284,7 @@ void I_GetEvent (data_t* data)
     
 	while (DG_GetKey(data, &pressed, &key))
     {
-        UpdateShiftStatus(pressed, key);
+        UpdateShiftStatus(data, pressed, key);
 
         // process event
         
@@ -295,7 +294,7 @@ void I_GetEvent (data_t* data)
             // (shift-translated, etc)
             event.type = ev_keydown;
             event.data1 = TranslateKey(key);
-            event.data2 = GetTypedChar(key);
+            event.data2 = GetTypedChar(data, key);
 
             if (event.data1 != 0)
             {

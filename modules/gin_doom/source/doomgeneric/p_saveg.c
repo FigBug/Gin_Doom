@@ -1712,7 +1712,7 @@ void P_ArchiveSpecials (data_t* data)
 	if (th->function.acv == (actionf_v)NULL)
 	{
 	    for (i = 0; i < MAXCEILINGS;i++)
-		if (activeceilings[i] == (ceiling_t *)th)
+		if (data->activeceilings[i] == (ceiling_t *)th)
 		    break;
 	    
 	    if (i<MAXCEILINGS)

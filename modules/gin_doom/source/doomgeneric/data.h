@@ -16,6 +16,7 @@ struct musicinfo_s;
 #include "r_defs.h"
 #include "hu_lib.h"
 #include "st_lib.h"
+#include "p_spec.h"
 
 struct data_s
 {
@@ -624,6 +625,17 @@ struct data_s
 	char            savename[256];
 	int             d_episode;
 	int             d_map;
+
+	// p_spec/switch/plats/ceilng active lists
+	short           numlinespecials;
+	line_t*         linespeciallist[64];  // MAXLINEANIMS
+	button_t        buttonlist[16];       // MAXBUTTONS
+	ceiling_t*      activeceilings[30];   // MAXCEILINGS
+	plat_t*         activeplats[30];      // MAXPLATS
+	// i_video/i_input
+	int             usegamma;
+	boolean         screenvisible;
+	int             shiftdown;
 
 	// level geometry (p_setup.c)
 	int             numvertexes;

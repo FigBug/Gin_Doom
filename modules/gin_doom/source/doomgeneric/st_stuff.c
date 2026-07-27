@@ -961,7 +961,7 @@ void ST_doPaletteStuff(data_t* data)
     {
 	data->sb_st_palette = palette;
 	pal = (byte *) W_CacheLumpNum (data->sb_lu_palette, PU_CACHE)+palette*768;
-	I_SetPalette (pal);
+	I_SetPalette (data, pal);
     }
 
 }
@@ -1370,7 +1370,7 @@ void ST_Stop(data_t* data)
     if (data->sb_st_stopped)
 	return;
 
-    I_SetPalette (W_CacheLumpNum (data->sb_lu_palette, PU_CACHE));
+    I_SetPalette (data, W_CacheLumpNum (data->sb_lu_palette, PU_CACHE));
 
     data->sb_st_stopped = true;
 }

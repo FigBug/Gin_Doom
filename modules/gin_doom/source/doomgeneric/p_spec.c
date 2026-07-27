@@ -135,9 +135,6 @@ anim_t*		lastanim;
 //
 #define MAXLINEANIMS            64
 
-extern  short	numlinespecials;
-extern  line_t*	linespeciallist[MAXLINEANIMS];
-
 
 
 void P_InitPicAnims (data_t* data)
@@ -703,7 +700,7 @@ P_CrossSpecialLine
 	
       case 54:
 	// Platform Stop
-	EV_StopPlat(line);
+	EV_StopPlat(data, line);
 	line->special = 0;
 	break;
 
@@ -877,7 +874,7 @@ P_CrossSpecialLine
 	
       case 89:
 	// Platform Stop
-	EV_StopPlat(line);
+	EV_StopPlat(data, line);
 	break;
 	
       case 90:
@@ -1128,9 +1125,9 @@ void P_UpdateSpecials (data_t* data)
 
     
     //	ANIMATE LINE SPECIALS
-    for (i = 0; i < numlinespecials; i++)
+    for (i = 0; i < data->numlinespecials; i++)
     {
-	line = linespeciallist[i];
+	line = data->linespeciallist[i];
 	switch(line->special)
 	{
 	  case 48:
@@ -1143,30 +1140,30 @@ void P_UpdateSpecials (data_t* data)
     
     //	DO BUTTONS
     for (i = 0; i < MAXBUTTONS; i++)
-	if (buttonlist[i].btimer)
+	if (data->buttonlist[i].btimer)
 	{
-	    buttonlist[i].btimer--;
-	    if (!buttonlist[i].btimer)
+	    data->buttonlist[i].btimer--;
+	    if (!data->buttonlist[i].btimer)
 	    {
-		switch(buttonlist[i].where)
+		switch(data->buttonlist[i].where)
 		{
 		  case top:
-		    data->sides[buttonlist[i].line->sidenum[0]].toptexture =
-			buttonlist[i].btexture;
+		    data->sides[data->buttonlist[i].line->sidenum[0]].toptexture =
+			data->buttonlist[i].btexture;
 		    break;
 		    
 		  case middle:
-		    data->sides[buttonlist[i].line->sidenum[0]].midtexture =
-			buttonlist[i].btexture;
+		    data->sides[data->buttonlist[i].line->sidenum[0]].midtexture =
+			data->buttonlist[i].btexture;
 		    break;
 		    
 		  case bottom:
-		    data->sides[buttonlist[i].line->sidenum[0]].bottomtexture =
-			buttonlist[i].btexture;
+		    data->sides[data->buttonlist[i].line->sidenum[0]].bottomtexture =
+			data->buttonlist[i].btexture;
 		    break;
 		}
-		S_StartSound(data, &buttonlist[i].soundorg,sfx_swtchn);
-		memset(&buttonlist[i],0,sizeof(button_t));
+		S_StartSound(data, &data->buttonlist[i].soundorg,sfx_swtchn);
+		memset(&data->buttonlist[i],0,sizeof(button_t));
 	    }
 	}
 }
@@ -1371,8 +1368,6 @@ int EV_DoDonut(data_t* data, line_t*	line)
 // After the map has been loaded, scan for specials
 //  that spawn thinkers
 //
-short		numlinespecials;
-line_t*		linespeciallist[MAXLINEANIMS];
 
 
 // Parses command line parameters.
@@ -1460,20 +1455,20 @@ void P_SpawnSpecials (data_t* data)
 
     
     //	Init line EFFECTs
-    numlinespecials = 0;
+    data->numlinespecials = 0;
     for (i = 0;i < data->numlines; i++)
     {
 	switch(data->lines[i].special)
 	{
 	  case 48:
-            if (numlinespecials >= MAXLINEANIMS)
+            if (data->numlinespecials >= MAXLINEANIMS)
             {
                 I_Error(data, "Too many scrolling wall linedefs! "
                         "(Vanilla limit is 64)");
             }
 	    // EFFECT FIRSTCOL SCROLL+
-	    linespeciallist[numlinespecials] = &data->lines[i];
-	    numlinespecials++;
+	    data->linespeciallist[data->numlinespecials] = &data->lines[i];
+	    data->numlinespecials++;
 	    break;
 	}
     }
@@ -1481,13 +1476,13 @@ void P_SpawnSpecials (data_t* data)
     
     //	Init other misc stuff
     for (i = 0;i < MAXCEILINGS;i++)
-	activeceilings[i] = NULL;
+	data->activeceilings[i] = NULL;
 
     for (i = 0;i < MAXPLATS;i++)
-	activeplats[i] = NULL;
+	data->activeplats[i] = NULL;
     
     for (i = 0;i < MAXBUTTONS;i++)
-	memset(&buttonlist[i],0,sizeof(button_t));
+	memset(&data->buttonlist[i],0,sizeof(button_t));
 
     // UNUSED: no horizonal sliders.
     //	P_InitSlidingDoorFrames();
