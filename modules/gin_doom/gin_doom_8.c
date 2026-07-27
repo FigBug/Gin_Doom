@@ -39,4 +39,8 @@
 
 #define FEATURE_SOUND
 
-#include "source/doomgeneric/opl3.c"
+// data.h sets up the full type chain (data_t etc.). Include it explicitly since
+// this unity TU only compiles couch.c.
+#include "source/doomgeneric/data.h"
+
+#include "source/doomgeneric/couch.c"

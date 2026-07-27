@@ -11,7 +11,9 @@
 
 //==============================================================================
 
-#pragma clang diagnostic ignored "-Wmissing-prototypes"
+#if defined(__clang__)
+ #pragma clang diagnostic ignored "-Wmissing-prototypes"
+#endif
 
 #define FEATURE_SOUND
 

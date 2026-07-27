@@ -30,7 +30,6 @@
 // P_CheckSight
 //
 
-divline_t	strace;			// from t1 to t2
 
 
 
@@ -163,8 +162,8 @@ boolean P_CrossSubsector (data_t* data, int num)
 
 	v1 = line->v1;
 	v2 = line->v2;
-	s1 = P_DivlineSide (v1->x,v1->y, &strace);
-	s2 = P_DivlineSide (v2->x, v2->y, &strace);
+	s1 = P_DivlineSide (v1->x,v1->y, &data->strace);
+	s2 = P_DivlineSide (v2->x, v2->y, &data->strace);
 
 	// line isn't crossed?
 	if (s1 == s2)
@@ -174,7 +173,7 @@ boolean P_CrossSubsector (data_t* data, int num)
 	divl.y = v1->y;
 	divl.dx = v2->x - v1->x;
 	divl.dy = v2->y - v1->y;
-	s1 = P_DivlineSide (strace.x, strace.y, &divl);
+	s1 = P_DivlineSide (data->strace.x, data->strace.y, &divl);
 	s2 = P_DivlineSide (data->t2x, data->t2y, &divl);
 
 	// line isn't crossed?
@@ -220,7 +219,7 @@ boolean P_CrossSubsector (data_t* data, int num)
 	if (openbottom >= opentop)	
 	    return false;		// stop
 	
-	frac = P_InterceptVector2(data, &strace, &divl);
+	frac = P_InterceptVector2(data, &data->strace, &divl);
 		
 	if (front->floorheight != back->floorheight)
 	{
@@ -266,7 +265,7 @@ boolean P_CrossBSPNode (data_t* data, int bspnum)
     bsp = &data->nodes[bspnum];
     
     // decide which side the start point is on
-    side = P_DivlineSide (strace.x, strace.y, (divline_t *)bsp);
+    side = P_DivlineSide (data->strace.x, data->strace.y, (divline_t *)bsp);
     if (side == 2)
 	side = 0;	// an "on" should cross both data->sides
 
@@ -332,12 +331,12 @@ P_CheckSight
     data->si_topslope = (t2->z+t2->height) - data->sightzstart;
     data->si_bottomslope = (t2->z) - data->sightzstart;
 	
-    strace.x = t1->x;
-    strace.y = t1->y;
+    data->strace.x = t1->x;
+    data->strace.y = t1->y;
     data->t2x = t2->x;
     data->t2y = t2->y;
-    strace.dx = t2->x - t1->x;
-    strace.dy = t2->y - t1->y;
+    data->strace.dx = t2->x - t1->x;
+    data->strace.dy = t2->y - t1->y;
 
     // the head node is the last node output
     return P_CrossBSPNode (data, data->numnodes-1);	

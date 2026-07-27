@@ -1634,7 +1634,7 @@ void P_UnArchiveThinkers (data_t* data)
 	if (currentthinker->function.acp1 == (actionf_p1)P_MobjThinker)
 	    P_RemoveMobj (data, (mobj_t *)currentthinker);
 	else
-	    Z_Free (currentthinker);
+	    Z_Free(data, currentthinker);
 
 	currentthinker = next;
     }
@@ -1651,7 +1651,7 @@ void P_UnArchiveThinkers (data_t* data)
 			
 	  case tc_mobj:
 	    saveg_read_pad();
-	    mobj = Z_Malloc (sizeof(*mobj), PU_LEVEL, NULL);
+	    mobj = Z_Malloc(data, sizeof(*mobj), PU_LEVEL, NULL);
             saveg_read_mobj_t(data, mobj);
 
 	    mobj->target = NULL;
@@ -1815,7 +1815,7 @@ void P_UnArchiveSpecials (data_t* data)
 			
 	  case tc_ceiling:
 	    saveg_read_pad();
-	    ceiling = Z_Malloc (sizeof(*ceiling), PU_LEVEL, NULL);
+	    ceiling = Z_Malloc(data, sizeof(*ceiling), PU_LEVEL, NULL);
             saveg_read_ceiling_t(data, ceiling);
 	    ceiling->sector->specialdata = ceiling;
 
@@ -1828,7 +1828,7 @@ void P_UnArchiveSpecials (data_t* data)
 				
 	  case tc_door:
 	    saveg_read_pad();
-	    door = Z_Malloc (sizeof(*door), PU_LEVEL, NULL);
+	    door = Z_Malloc(data, sizeof(*door), PU_LEVEL, NULL);
             saveg_read_vldoor_t(data, door);
 	    door->sector->specialdata = door;
 	    door->thinker.function.acp1 = (actionf_p1)T_VerticalDoor;
@@ -1837,7 +1837,7 @@ void P_UnArchiveSpecials (data_t* data)
 				
 	  case tc_floor:
 	    saveg_read_pad();
-	    floor = Z_Malloc (sizeof(*floor), PU_LEVEL, NULL);
+	    floor = Z_Malloc(data, sizeof(*floor), PU_LEVEL, NULL);
             saveg_read_floormove_t(data, floor);
 	    floor->sector->specialdata = floor;
 	    floor->thinker.function.acp1 = (actionf_p1)T_MoveFloor;
@@ -1846,7 +1846,7 @@ void P_UnArchiveSpecials (data_t* data)
 				
 	  case tc_plat:
 	    saveg_read_pad();
-	    plat = Z_Malloc (sizeof(*plat), PU_LEVEL, NULL);
+	    plat = Z_Malloc(data, sizeof(*plat), PU_LEVEL, NULL);
             saveg_read_plat_t(data, plat);
 	    plat->sector->specialdata = plat;
 
@@ -1859,7 +1859,7 @@ void P_UnArchiveSpecials (data_t* data)
 				
 	  case tc_flash:
 	    saveg_read_pad();
-	    flash = Z_Malloc (sizeof(*flash), PU_LEVEL, NULL);
+	    flash = Z_Malloc(data, sizeof(*flash), PU_LEVEL, NULL);
             saveg_read_lightflash_t(data, flash);
 	    flash->thinker.function.acp1 = (actionf_p1)T_LightFlash;
 	    P_AddThinker (data, &flash->thinker);
@@ -1867,7 +1867,7 @@ void P_UnArchiveSpecials (data_t* data)
 				
 	  case tc_strobe:
 	    saveg_read_pad();
-	    strobe = Z_Malloc (sizeof(*strobe), PU_LEVEL, NULL);
+	    strobe = Z_Malloc(data, sizeof(*strobe), PU_LEVEL, NULL);
             saveg_read_strobe_t(data, strobe);
 	    strobe->thinker.function.acp1 = (actionf_p1)T_StrobeFlash;
 	    P_AddThinker (data, &strobe->thinker);
@@ -1875,7 +1875,7 @@ void P_UnArchiveSpecials (data_t* data)
 				
 	  case tc_glow:
 	    saveg_read_pad();
-	    glow = Z_Malloc (sizeof(*glow), PU_LEVEL, NULL);
+	    glow = Z_Malloc(data, sizeof(*glow), PU_LEVEL, NULL);
             saveg_read_glow_t(data, glow);
 	    glow->thinker.function.acp1 = (actionf_p1)T_Glow;
 	    P_AddThinker (data, &glow->thinker);

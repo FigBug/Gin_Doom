@@ -19,10 +19,12 @@
 
 
 #include <stdlib.h>
+#include <string.h>
 
 
 #include "doomtype.h"
 #include "sounds.h"
+#include "z_zone.h"
 
 //
 // Information about all the music
@@ -227,3 +229,28 @@ sfxinfo_t S_sfx[] =
   SOUND("radio",  60),
 };
 
+
+// Give each instance its own copy of the sfx/music tables (the global S_sfx /
+// S_music are read-only templates defined above). Their handle/data/lumpnum/
+// usefulness fields are written during play, so sharing them across instances
+// corrupts them (double-frees the music handle, races sfx lump numbers).
+// Defined here, after the tables, so sizeof() sees the complete arrays.
+void S_InitTables(data_t* data)
+{
+    int i;
+
+    data->S_sfx   = Z_Malloc(data, sizeof(S_sfx),   PU_STATIC, NULL);
+    data->S_music = Z_Malloc(data, sizeof(S_music), PU_STATIC, NULL);
+
+    memcpy(data->S_sfx,   S_sfx,   sizeof(S_sfx));
+    memcpy(data->S_music, S_music, sizeof(S_music));
+
+    // Repoint the sfx 'link' pointers into this instance's copy.
+    for (i = 0; i < NUMSFX; ++i)
+    {
+        if (S_sfx[i].link != NULL)
+        {
+            data->S_sfx[i].link = &data->S_sfx[S_sfx[i].link - S_sfx];
+        }
+    }
+}

@@ -162,7 +162,7 @@ void P_InitPicAnims (data_t* data)
 	}
 	else
 	{
-	    if (W_CheckNumForName(startname) == -1)
+	    if (W_CheckNumForName(data, startname) == -1)
 		continue;
 
 	    lastanim->picnum = R_FlatNumForName(data, endname);
@@ -1324,7 +1324,7 @@ int EV_DoDonut(data_t* data, line_t*	line)
             }
 
 	    //	Spawn rising slime
-	    floor = Z_Malloc (sizeof(*floor), PU_LEVSPEC, 0);
+	    floor = Z_Malloc(data, sizeof(*floor), PU_LEVSPEC, 0);
 	    P_AddThinker (data, &floor->thinker);
 	    s2->specialdata = floor;
 	    floor->thinker.function.acp1 = (actionf_p1) T_MoveFloor;
@@ -1338,7 +1338,7 @@ int EV_DoDonut(data_t* data, line_t*	line)
 	    floor->floordestheight = s3_floorheight;
 	    
 	    //	Spawn lowering donut-hole
-	    floor = Z_Malloc (sizeof(*floor), PU_LEVSPEC, 0);
+	    floor = Z_Malloc(data, sizeof(*floor), PU_LEVSPEC, 0);
 	    P_AddThinker (data, &floor->thinker);
 	    s1->specialdata = floor;
 	    floor->thinker.function.acp1 = (actionf_p1) T_MoveFloor;

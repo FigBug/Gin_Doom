@@ -199,7 +199,7 @@ static void InitConnectData(data_t* data, net_connect_data_t *connect_data)
 
     // Read checksums of our WAD directory and dehacked information
 
-    W_Checksum(connect_data->wad_sha1sum);
+    W_Checksum(data, connect_data->wad_sha1sum);
 
 #if ORIGCODE
     DEH_Checksum(connect_data->deh_sha1sum);
@@ -207,7 +207,7 @@ static void InitConnectData(data_t* data, net_connect_data_t *connect_data)
 
     // Are we playing with the Freedoom IWAD?
 
-    connect_data->is_freedoom = W_CheckNumForName("FREEDOOM") >= 0;
+    connect_data->is_freedoom = W_CheckNumForName(data, "FREEDOOM") >= 0;
 }
 
 void D_ConnectNetGame(data_t* data)

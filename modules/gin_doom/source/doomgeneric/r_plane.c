@@ -148,7 +148,7 @@ R_MapPlane
     data->ds_x2 = x2;
 
     // high or low detail
-    spanfunc (data);	
+    data->spanfunc (data);	
 }
 
 
@@ -391,7 +391,7 @@ void R_DrawPlanes (data_t* data)
 		    angle = (data->viewangle + data->xtoviewangle[x])>>ANGLETOSKYSHIFT;
 		    data->dc_x = x;
 		    data->dc_source = R_GetColumn(data, data->skytexture, angle);
-		    colfunc (data);
+		    data->colfunc (data);
 		}
 	    }
 	    continue;
@@ -399,7 +399,7 @@ void R_DrawPlanes (data_t* data)
 	
 	// regular flat
         lumpnum = data->firstflat + data->flattranslation[pl->picnum];
-	data->ds_source = W_CacheLumpNum(lumpnum, PU_STATIC);
+	data->ds_source = W_CacheLumpNum(data, lumpnum, PU_STATIC);
 	
 	data->planeheight = abs(pl->height-data->viewz);
 	light = (pl->lightlevel >> LIGHTSEGSHIFT)+data->extralight;
@@ -425,6 +425,6 @@ void R_DrawPlanes (data_t* data)
 			pl->bottom[x]);
 	}
 	
-        W_ReleaseLumpNum(lumpnum);
+        W_ReleaseLumpNum(data, lumpnum);
     }
 }

@@ -90,7 +90,6 @@ void	G_DoWorldDone (data_t* data);
 void	G_DoSaveGame (data_t* data);
  
 // Gamestate the last time G_Ticker was called.
-gamestate_t     oldgamestate;
 
 
 
@@ -594,7 +593,7 @@ void G_DoLoadLevel (data_t* data)
     P_SetupLevel (data, data->gameepisode, data->gamemap, 0, data->gameskill);
     data->displayplayer = data->consoleplayer;		// view the guy you are playing    
     data->gameaction = ga_nothing; 
-    Z_CheckHeap ();
+    Z_CheckHeap(data);
     
     // clear cmd building stuff
 
@@ -933,22 +932,43 @@ void G_Ticker (data_t* data)
 
     // Have we just finished displaying an intermission screen?
 
-    if (oldgamestate == GS_INTERMISSION && data->gamestate != GS_INTERMISSION)
+    if (data->oldgamestate == GS_INTERMISSION && data->gamestate != GS_INTERMISSION)
     {
         WI_End(data);
     }
 
-    oldgamestate = data->gamestate;
+    data->oldgamestate = data->gamestate;
     
     // do main actions
     switch (data->gamestate) 
     { 
-      case GS_LEVEL: 
+      case GS_LEVEL:
 	P_Ticker (data);
-	ST_Ticker (data); 
-	AM_Ticker (data); 
-	HU_Ticker (data);            
-	break; 
+	ST_Ticker (data);
+	AM_Ticker (data);
+	HU_Ticker (data);
+	// CouchDoom deathmatch frag limit: end the level once any player reaches
+	// couch_fraglimit total frags. Runs identically on every instance (frags
+	// are part of the synced simulation), so all exit on the same tic.
+	if (data->deathmatch && data->couch_fraglimit > 0 && !data->couch_fragged)
+	{
+	    int i, j;
+	    for (i = 0; i < MAXPLAYERS; ++i)
+	    {
+	        int total = 0;
+	        if (!data->playeringame[i])
+	            continue;
+	        for (j = 0; j < MAXPLAYERS; ++j)
+	            total += data->players[i].frags[j];
+	        if (total >= data->couch_fraglimit)
+	        {
+	            data->couch_fragged = 1;
+	            G_ExitLevel (data);
+	            break;
+	        }
+	    }
+	}
+	break;
 	 
       case GS_INTERMISSION: 
 	WI_Ticker (data); 
@@ -1275,7 +1295,7 @@ void G_SecretExitLevel (data_t* data)
 { 
     // IF NO WOLF3D LEVELS, NO SECRET EXIT!
     if ( (data->gamemode == commercial)
-      && (W_CheckNumForName("map31")<0))
+      && (W_CheckNumForName(data, "map31")<0))
 	data->secretexit = false;
     else
 	data->secretexit = true; 
@@ -1876,7 +1896,7 @@ static void IncreaseDemoBuffer(data_t* data)
     // Generate a new buffer twice the size
     new_length = current_length * 2;
     
-    new_demobuffer = Z_Malloc(new_length, PU_STATIC, 0);
+    new_demobuffer = Z_Malloc(data, new_length, PU_STATIC, 0);
     new_demop = new_demobuffer + (data->demo_p - data->demobuffer);
 
     // Copy over the old data
@@ -1885,7 +1905,7 @@ static void IncreaseDemoBuffer(data_t* data)
 
     // Free the old buffer and point the demo pointers at the new buffer.
 
-    Z_Free(data->demobuffer);
+    Z_Free(data, data->demobuffer);
 
     data->demobuffer = new_demobuffer;
     data->demo_p = new_demop;
@@ -1954,7 +1974,7 @@ void G_RecordDemo (data_t* data, char *name)
 
     data->usergame = false;
     demoname_size = strlen(name) + 5;
-    data->demoname = Z_Malloc(demoname_size, PU_STATIC, NULL);
+    data->demoname = Z_Malloc(data, demoname_size, PU_STATIC, NULL);
     M_snprintf(data->demoname, demoname_size, "%s.lmp", name);
     maxsize = 0x20000;
 
@@ -1969,7 +1989,7 @@ void G_RecordDemo (data_t* data, char *name)
     i = M_CheckParmWithArgs(data, "-maxdemo", 1);
     if (i)
 	maxsize = atoi(data->myargv[i+1])*1024;
-    data->demobuffer = Z_Malloc (maxsize,PU_STATIC,NULL); 
+    data->demobuffer = Z_Malloc(data, maxsize,PU_STATIC,NULL); 
     data->demoend = data->demobuffer + maxsize;
 	
     data->demorecording = true; 
@@ -2094,7 +2114,7 @@ void G_DoPlayDemo (data_t* data)
     int demoversion;
 	 
     data->gameaction = ga_nothing; 
-    data->demobuffer = data->demo_p = W_CacheLumpName (data->defdemoname, PU_STATIC); 
+    data->demobuffer = data->demo_p = W_CacheLumpName(data, data->defdemoname, PU_STATIC); 
 
     demoversion = *data->demo_p++;
 
@@ -2206,7 +2226,7 @@ boolean G_CheckDemoStatus (data_t* data)
 	 
     if (data->demoplayback) 
     { 
-        W_ReleaseLumpName(data->defdemoname);
+        W_ReleaseLumpName(data, data->defdemoname);
 	data->demoplayback = false; 
 	data->netdemo = false;
 	data->netgame = false;
@@ -2229,7 +2249,7 @@ boolean G_CheckDemoStatus (data_t* data)
     { 
 	*data->demo_p++ = DEMOMARKER; 
 	M_WriteFile (data->demoname, data->demobuffer, data->demo_p - data->demobuffer); 
-	Z_Free (data->demobuffer); 
+	Z_Free(data, data->demobuffer); 
 	data->demorecording = false; 
 	I_Error (NULL, "Demo %s recorded",data->demoname); 
     } 

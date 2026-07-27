@@ -64,7 +64,6 @@ extern int		numspritelumps;
 // Lookup tables for map data.
 //
 extern int		numsprites;
-extern spritedef_t*	sprites;
 
 
 

@@ -94,13 +94,13 @@ void V_ScreenShot(data_t* data, char *format);
 // Load the lookup table for translucency calculations from the TINTTAB
 // lump.
 
-void V_LoadTintTable(void);
+void V_LoadTintTable(data_t* data);
 
 // villsa [STRIFE]
 // Load the lookup table for translucency calculations from the XLATAB
 // lump.
 
-void V_LoadXlaTable(void);
+void V_LoadXlaTable(data_t* data);
 
 void V_DrawMouseSpeedBox(data_t* data, int speed);
 

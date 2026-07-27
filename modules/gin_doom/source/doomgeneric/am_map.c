@@ -379,7 +379,7 @@ void AM_changeWindowLoc(data_t* data)
 void AM_initVariables(data_t* data)
 {
     int pnum;
-    static event_t st_notify = { ev_keyup, AM_MSGENTERED, 0, 0 };
+    static event_t st_notify = { ev_keyup, AM_MSGENTERED, 0, 0, 0 };
 
     data->automapactive = true;
     data->am_fb = data->I_VideoBuffer;
@@ -440,7 +440,7 @@ void AM_loadPics(data_t* data)
     for (i=0;i<10;i++)
     {
 	DEH_snprintf(namebuf, 9, "AMMNUM%d", i);
-	data->am_marknums[i] = W_CacheLumpName(namebuf, PU_STATIC);
+	data->am_marknums[i] = W_CacheLumpName(data, namebuf, PU_STATIC);
     }
 
 }
@@ -453,7 +453,7 @@ void AM_unloadPics(data_t* data)
     for (i=0;i<10;i++)
     {
 	DEH_snprintf(namebuf, 9, "AMMNUM%d", i);
-	W_ReleaseLumpName(namebuf);
+	W_ReleaseLumpName(data, namebuf);
     }
 }
 
@@ -495,7 +495,7 @@ void AM_LevelInit(data_t* data)
 //
 void AM_Stop(data_t* data)
 {
-    static event_t st_notify = { 0, ev_keyup, AM_MSGEXITED, 0 };
+    static event_t st_notify = { 0, ev_keyup, AM_MSGEXITED, 0, 0 };
 
     AM_unloadPics(data);
     data->automapactive = false;

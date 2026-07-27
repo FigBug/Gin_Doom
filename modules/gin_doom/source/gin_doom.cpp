@@ -10,6 +10,9 @@ extern "C"
 
 	// Frees this instance's OPL music state (see i_oplmusic.c).
 	void DG_OPL_Shutdown (void* data);
+
+	// Wakes any instance waiting at the CouchDoom lockstep barrier (couch.c).
+	void Couch_Shutdown (void);
 }
 
 int keyCodes[] = {
@@ -138,10 +141,10 @@ extern "C" void DG_DrawFrame (data_t* data)
         {
             uint32_t px = data->DG_ScreenBuffer[y * 640 + x];
 
-            uint8_t b = (px & 0xff000000) >> 24;
-            uint8_t r = (px & 0x00ff0000) >> 16;
-            uint8_t g = (px & 0x0000ff00) >> 8;
-            uint8_t a = (px & 0x000000ff) >> 0;
+            uint8_t b = uint8_t ((px & 0xff000000) >> 24);
+            uint8_t r = uint8_t ((px & 0x00ff0000) >> 16);
+            uint8_t g = uint8_t ((px & 0x0000ff00) >> 8);
+            uint8_t a = uint8_t ((px & 0x000000ff) >> 0);
 
             juce::PixelARGB* s = (juce::PixelARGB*)p;
             s->setARGB (a, r, g, b);
@@ -208,9 +211,13 @@ void Doom::registerComponent (DoomComponent* comp)
 	component = comp;
 }
 
-void Doom::startGame (juce::File wadFile_)
+void Doom::startGame (juce::File wadFile_, int playerIndex, int numPlayers, bool playMusic_, DoomSetup setup_)
 {
     wadFile = wadFile_;
+    couchIndex = playerIndex;
+    couchPlayers = numPlayers;
+    playMusic = playMusic_;
+    setup = setup_;
     startThread();
 }
 
@@ -245,12 +252,26 @@ void Doom::run()
     data->audio_engine = &audio;
     audio.attach (data);
 
-    const char* params[3];
-    params[0] = "doom";
-    params[1] = "-iwad";
-    params[2] = path.toRawUTF8();
+    // CouchDoom multiplayer config; read by D_DoomMain to set up the local
+    // deathmatch and register with the lockstep arbiter.
+    data->couch_index = couchIndex;
+    data->couch_players = couchPlayers;
+    data->couch_deathmatch = setup.deathmatch;
+    data->couch_skill      = setup.skill;
+    data->couch_episode    = setup.episode;
+    data->couch_map        = setup.map;
+    data->couch_nomonsters = setup.monsters ? 0 : 1;
+    data->couch_fraglimit  = setup.fragLimit;
 
-    data->myargc = 3;
+    const char* params[4];
+    int argc = 0;
+    params[argc++] = "doom";
+    params[argc++] = "-iwad";
+    params[argc++] = path.toRawUTF8();
+    if (! playMusic)
+        params[argc++] = "-nomusic";
+
+    data->myargc = argc;
     data->myargv = (char**)params;
 
     M_FindResponseFile (data);
@@ -275,6 +296,10 @@ void Doom::run()
 
     // Stop the audio thread from touching this instance's music, then free
     // it, before the data_t itself goes away.
+    // Unblock any peers still waiting at the lockstep barrier so they don't
+    // hang when this instance exits.
+    Couch_Shutdown();
+
     audio.attach (nullptr);
     DG_OPL_Shutdown (data);
 

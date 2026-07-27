@@ -11,15 +11,23 @@
 extern "C" void DG_OPL_Render (void* music_handle, int16_t* buffer,
                                unsigned int nsamples, unsigned int rate);
 
-// Relative level of the music mix. OPL output is full-scale signed 16-bit;
-// this scales it into float and leaves headroom for sound effects.
-static constexpr float kMusicGain = 0.5f;
+// Relative level of the music mix. The Nuked OPL output is quiet - it peaks
+// around ~9% of full-scale 16-bit for typical tracks - so it is amplified (not
+// attenuated) to sit as an audible bed under the sound effects, with headroom
+// left for louder passages and the master level.
+static constexpr float kMusicGain = 3.0f;
 
 void DoomAudioEngine::Channel::processBlock (juce::AudioBuffer<float>& bufferOut, int sampleRateOut)
 {
     fifo.setResamplingRatio (samplerate, sampleRateOut);
 
-    while (fifo.samplesReady() < buffer.getNumSamples())
+    const int needed = bufferOut.getNumSamples();
+
+    // Push input until the FIFO can supply this output block. Bound by the
+    // output block size (not the whole sound) - otherwise the FIFO over-buffers,
+    // truncates the tail, and can overflow on longer sounds, audible as
+    // clicks/dropouts.
+    while (fifo.samplesReady() < needed)
     {
         int todo = std::min (16, buffer.getNumSamples() - pos);
         if (todo == 0)
@@ -37,7 +45,16 @@ void DoomAudioEngine::Channel::processBlock (juce::AudioBuffer<float>& bufferOut
         }
     }
 
-    fifo.popAudioBufferAdding (bufferOut);
+    // Pop the resampled block and mix it in with Doom's per-sound volume and
+    // stereo separation (gainL/gainR). Applying them here honours distance/pan
+    // instead of every sound playing at full scale (which summed across channels
+    // and instances into constant clipping).
+    gin::ScratchBuffer scratch (2, needed);
+    fifo.popAudioBuffer (scratch);
+
+    bufferOut.addFrom (0, 0, scratch, 0, 0, needed, gainL);
+    if (bufferOut.getNumChannels() > 1)
+        bufferOut.addFrom (1, 0, scratch, 1, 0, needed, gainR);
 }
 
 DoomAudioEngine::DoomAudioEngine()
@@ -137,7 +154,7 @@ int DoomAudioEngine::getSfxLumpNum (void* sfx_)
     else
         M_StringCopy (buf, DEH_String (sfx->name), buf_len);
 
-    return W_GetNumForName (buf);
+    return doomData != nullptr ? W_GetNumForName ((data_t*) doomData, buf) : 0;
 }
 
 void DoomAudioEngine::updateSoundParams (int handle, int vol, int sep)
@@ -158,8 +175,8 @@ void DoomAudioEngine::updateSoundParams (int handle, int vol, int sep)
     else if (right > 255)
         right = 255;
 
-    channels[handle].gainL = left  / 255.0f;
-    channels[handle].gainR = right / 255.0f;
+    channels[handle].gainL = (float) left  / 255.0f;
+    channels[handle].gainR = (float) right / 255.0f;
 }
 
 int DoomAudioEngine::startSound (void* sfxinfo_, int channel, int vol, int sep)
@@ -169,10 +186,14 @@ int DoomAudioEngine::startSound (void* sfxinfo_, int channel, int vol, int sep)
     if (channel < 0 || channel >= int (std::size (channels)))
         return 0;
 
+    auto* dd = (data_t*) doomData;
+    if (dd == nullptr)
+        return 0;
+
     sfxinfo_t* sfxinfo = (sfxinfo_t*)sfxinfo_;
 
-    auto data = (uint8_t*)W_CacheLumpNum (sfxinfo->lumpnum, PU_STATIC);
-    auto lumplen = W_LumpLength ((unsigned int)sfxinfo->lumpnum);
+    auto data = (uint8_t*)W_CacheLumpNum (dd, sfxinfo->lumpnum, PU_STATIC);
+    auto lumplen = W_LumpLength (dd, (unsigned int)sfxinfo->lumpnum);
 
     if (lumplen < 8 || data[0] != 0x03 || data[1] != 0x00)
         return -1;
@@ -202,7 +223,7 @@ int DoomAudioEngine::startSound (void* sfxinfo_, int channel, int vol, int sep)
         r[i] = (data[i] / 127.5f - 1.0f) * 0.65f;
     }
 
-    W_ReleaseLumpNum (sfxinfo->lumpnum);
+    W_ReleaseLumpNum (dd, sfxinfo->lumpnum);
 
     updateSoundParams (channel, vol, sep);
 

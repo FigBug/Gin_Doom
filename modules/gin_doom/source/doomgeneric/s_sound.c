@@ -101,14 +101,17 @@ typedef struct channel_s
 //
 // Initializes sound stuff, including volume
 // Sets data->channels, SFX and music volume,
-//  allocates channel buffer, sets S_sfx lookup.
+//  allocates channel buffer, sets data->S_sfx lookup.
 //
 
 void S_Init(data_t* data, int sfxVol, int musVol)
 {  
     int i;
 
-    I_PrecacheSounds(data, S_sfx, NUMSFX);
+    // Give this instance its own copy of the sfx/music tables.
+    S_InitTables(data);
+
+    I_PrecacheSounds(data, data->S_sfx, NUMSFX);
 
     S_SetSfxVolume(data, sfxVol);
     S_SetMusicVolume(data, musVol);
@@ -116,7 +119,7 @@ void S_Init(data_t* data, int sfxVol, int musVol)
     // Allocating the internal data->channels for mixing
     // (the maximum numer of sounds rendered
     // simultaneously) within zone memory.
-    data->channels = Z_Malloc(data->snd_channels*sizeof(channel_t), PU_STATIC, 0);
+    data->channels = Z_Malloc(data, data->snd_channels*sizeof(channel_t), PU_STATIC, 0);
 
     // Free all data->channels for use
     for (i=0 ; i<data->snd_channels ; i++)
@@ -130,7 +133,7 @@ void S_Init(data_t* data, int sfxVol, int musVol)
     // Note that sounds have not been cached (yet).
     for (i=1 ; i<NUMSFX ; i++)
     {
-        S_sfx[i].lumpnum = S_sfx[i].usefulness = -1;
+        data->S_sfx[i].lumpnum = data->S_sfx[i].usefulness = -1;
     }
 
     I_AtExit(S_Shutdown, true);
@@ -399,7 +402,7 @@ void S_StartSound(data_t* data, void *origin_p, int sfx_id)
         I_Error (NULL, "Bad sfx #: %d", sfx_id);
     }
 
-    sfx = &S_sfx[sfx_id];
+    sfx = &data->S_sfx[sfx_id];
 
     // Initialize sound parameters
     if (sfx->link)
@@ -612,7 +615,7 @@ void S_ChangeMusic(data_t* data, int musicnum, int looping)
     }
     else
     {
-        music = &S_music[musicnum];
+        music = &data->S_music[musicnum];
     }
 
     if (data->mus_playing == music)
@@ -627,12 +630,12 @@ void S_ChangeMusic(data_t* data, int musicnum, int looping)
     if (!music->lumpnum)
     {
         M_snprintf(namebuf, sizeof(namebuf), "d_%s", DEH_String(music->name));
-        music->lumpnum = W_GetNumForName(namebuf);
+        music->lumpnum = W_GetNumForName(data, namebuf);
     }
 
-    music->data = W_CacheLumpNum(music->lumpnum, PU_STATIC);
+    music->data = W_CacheLumpNum(data, music->lumpnum, PU_STATIC);
 
-    handle = I_RegisterSong(data, music->data, W_LumpLength(music->lumpnum));
+    handle = I_RegisterSong(data, music->data, W_LumpLength(data, music->lumpnum));
     music->handle = handle;
     I_PlaySong(data, handle, looping);
 
@@ -655,7 +658,7 @@ void S_StopMusic(data_t* data)
 
         I_StopSong(data);
         I_UnRegisterSong(data, data->mus_playing->handle);
-        W_ReleaseLumpNum(data->mus_playing->lumpnum);
+        W_ReleaseLumpNum(data, data->mus_playing->lumpnum);
         data->mus_playing->data = NULL;
         data->mus_playing = NULL;
     }

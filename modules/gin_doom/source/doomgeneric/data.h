@@ -8,6 +8,9 @@ struct menu_s;
 typedef struct menu_s menu_t;
 typedef struct texture_s texture_t;
 struct musicinfo_s;
+struct lumpinfo_s;
+struct memzone_s;
+struct sfxinfo_struct;
 
 #include "d_mode.h"
 #include "d_event.h"
@@ -90,6 +93,7 @@ struct data_s
 	int             leveltime;
 	int             gametic;
 	gamestate_t     gamestate;
+	gamestate_t     oldgamestate;   // g_game.c - previous tic's gamestate
 	skill_t         gameskill;
 	boolean         respawnmonsters;
 	int             gameepisode;
@@ -133,6 +137,12 @@ struct data_s
 	boolean         mus_paused;
 	struct channel_s* channels;
 	struct musicinfo_s* mus_playing;
+
+	// Per-instance copies of the sfx/music tables (were global S_sfx/S_music).
+	// Their handle/data/lumpnum fields are mutated during play, so each
+	// instance needs its own; initialised by S_InitTables from the templates.
+	struct sfxinfo_struct*  S_sfx;
+	struct musicinfo_s*     S_music;
 
 	// Audio (per-instance). audio_engine is the DoomAudioEngine* for this
 	// instance (set in Doom::run); the SFX C callbacks resolve it from here.
@@ -194,6 +204,10 @@ struct data_s
 
 	// i_video.c
 	byte*           I_VideoBuffer;
+	// Active 8-bit->RGB palette (per-instance; stored as packed uint32 so data.h
+	// needs no i_video "struct color" definition). The red damage tint lives
+	// here, so it must not be shared or every instance flashes together.
+	unsigned int    colors[256];
 
 	// r_main.c view state
 	int             viewangleoffset;
@@ -279,6 +293,19 @@ struct data_s
 	short           screenheightarray[SCREENWIDTH];
 	int             numsprites;
 	int             maxframe;
+	// r_things.c sprite-def tables (were globals; per-instance for concurrent init)
+	spritedef_t*    sprites;
+	spriteframe_t   sprtemp[29];
+	char*           spritename;
+
+	// r_main.c column/span draw function pointers (were globals). Sprite
+	// drawing swaps colfunc for shadow/translation, so sharing them races
+	// (a shadow sprite ends up calling R_DrawColumn with a NULL colormap).
+	void            (*colfunc) (data_t*);
+	void            (*basecolfunc) (data_t*);
+	void            (*fuzzcolfunc) (data_t*);
+	void            (*transcolfunc) (data_t*);
+	void            (*spanfunc) (data_t*);
 	vissprite_t     vissprites[128];         // MAXVISSPRITES
 	vissprite_t*    vissprite_p;
 	int             newvissprite;
@@ -413,6 +440,7 @@ struct data_s
 	fixed_t*        textureheight;
 	int*            texturecompositesize;
 	short**         texturecolumnlump;
+	unsigned short** texturecolumnofs;
 	byte**          texturecomposite;
 	int*            flattranslation;
 	int*            texturetranslation;
@@ -614,6 +642,16 @@ struct data_s
 	int             sightcounts[2];
 	fixed_t         t2x;
 	fixed_t         t2y;
+	divline_t       strace;         // p_sight.c - sight trace t1->t2
+
+	// z_zone.c - per-instance zone heap.
+	struct memzone_s*   mainzone;
+
+	// w_wad.c - per-instance lump directory + hash table so each Doom
+	// instance owns its own WADs.
+	struct lumpinfo_s*  lumpinfo;
+	unsigned int        numlumps;
+	struct lumpinfo_s** lumphash;
 
 	// d_loop.c
 	ticcmd_set_t    ticdata[BACKUPTICS];
@@ -631,6 +669,21 @@ struct data_s
 	boolean         singletics;
 	int             skiptics;
 	int             ticdup;
+
+	// couch.c fake-network config (0/1 = normal; N>1 = N-player local
+	// deathmatch, this instance being player couch_index).
+	int             couch_players;
+	int             couch_index;
+	// Game setup chosen on the CouchDoom title screen (applied in D_DoomMain
+	// when couch_players > 1). couch_deathmatch: 0 co-op, 1 deathmatch, 2 alt.
+	int             couch_deathmatch;
+	int             couch_skill;        // skill_t 0..4
+	int             couch_episode;      // 1 (shareware)
+	int             couch_map;          // 1..9
+	int             couch_nomonsters;   // 1 = no monsters
+	int             couch_fraglimit;    // 0 = unlimited; end level at N frags
+	int             couch_fragged;      // internal: set once frag limit reached
+
 	// g_game.c demo/game state
 	char*           demoname;
 	byte*           demobuffer;

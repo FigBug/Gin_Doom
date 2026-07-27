@@ -78,11 +78,6 @@
 
 
 
-void (*colfunc) (data_t*);
-void (*basecolfunc) (data_t*);
-void (*fuzzcolfunc) (data_t*);
-void (*transcolfunc) (data_t*);
-void (*spanfunc) (data_t*);
 
 
 
@@ -670,17 +665,17 @@ void R_ExecuteSetViewSize (data_t* data)
 
     if (!data->detailshift)
     {
-	colfunc = basecolfunc = R_DrawColumn;
-	fuzzcolfunc = R_DrawFuzzColumn;
-	transcolfunc = R_DrawTranslatedColumn;
-	spanfunc = R_DrawSpan;
+	data->colfunc = data->basecolfunc = R_DrawColumn;
+	data->fuzzcolfunc = R_DrawFuzzColumn;
+	data->transcolfunc = R_DrawTranslatedColumn;
+	data->spanfunc = R_DrawSpan;
     }
     else
     {
-	colfunc = basecolfunc = R_DrawColumnLow;
-	fuzzcolfunc = R_DrawFuzzColumnLow;
-	transcolfunc = R_DrawTranslatedColumnLow;
-	spanfunc = R_DrawSpanLow;
+	data->colfunc = data->basecolfunc = R_DrawColumnLow;
+	data->fuzzcolfunc = R_DrawFuzzColumnLow;
+	data->transcolfunc = R_DrawTranslatedColumnLow;
+	data->spanfunc = R_DrawSpanLow;
     }
 
     R_InitBuffer (data, data->scaledviewwidth, data->viewheight);

@@ -62,6 +62,10 @@ void D_QuitNetGame (data_t* data);
 //? how many ticks to run?
 void TryRunTics (data_t* data);
 
+// Inject a complete set of ticcmds for one tic (the fake-network arbiter in
+// couch.c calls this on every instance).
+void D_ReceiveTic(data_t* data, ticcmd_t *ticcmds, boolean *players_mask);
+
 // Called at start of game loop to initialize timers
 void D_StartGameLoop (data_t* data);
 

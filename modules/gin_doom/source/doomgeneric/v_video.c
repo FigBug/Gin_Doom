@@ -477,9 +477,9 @@ void V_DrawShadowedPatch(data_t* data, int x, int y, patch_t *patch)
 // Load tint table from TINTTAB lump.
 //
 
-void V_LoadTintTable(void)
+void V_LoadTintTable(data_t* data)
 {
-    tinttable = W_CacheLumpName("TINTTAB", PU_STATIC);
+    tinttable = W_CacheLumpName(data, "TINTTAB", PU_STATIC);
 }
 
 //
@@ -488,9 +488,9 @@ void V_LoadTintTable(void)
 // villsa [STRIFE] Load xla table from XLATAB lump.
 //
 
-void V_LoadXlaTable(void)
+void V_LoadXlaTable(data_t* data)
 {
-    xlatab = W_CacheLumpName("XLATAB", PU_STATIC);
+    xlatab = W_CacheLumpName(data, "XLATAB", PU_STATIC);
 }
 
 //
@@ -648,7 +648,7 @@ typedef struct
 // WritePCXfile
 //
 
-void WritePCXfile(char *filename, byte *data,
+void WritePCXfile(data_t* dt, char *filename, byte *pixels,
                   int width, int height,
                   byte *palette)
 {
@@ -657,7 +657,7 @@ void WritePCXfile(char *filename, byte *data,
     pcx_t*	pcx;
     byte*	pack;
 	
-    pcx = Z_Malloc (width*height*2+1000, PU_STATIC, NULL);
+    pcx = Z_Malloc(dt, width*height*2+1000, PU_STATIC, NULL);
 
     pcx->manufacturer = 0x0a;		// PCX id
     pcx->version = 5;			// 256 color
@@ -680,12 +680,12 @@ void WritePCXfile(char *filename, byte *data,
 	
     for (i=0 ; i<width*height ; i++)
     {
-	if ( (*data & 0xc0) != 0xc0)
-	    *pack++ = *data++;
+	if ( (*pixels & 0xc0) != 0xc0)
+	    *pack++ = *pixels++;
 	else
 	{
 	    *pack++ = 0xc1;
-	    *pack++ = *data++;
+	    *pack++ = *pixels++;
 	}
     }
     
@@ -698,7 +698,7 @@ void WritePCXfile(char *filename, byte *data,
     length = pack - (byte *)pcx;
     M_WriteFile (filename, pcx, length);
 
-    Z_Free (pcx);
+    Z_Free(dt, pcx);
 }
 
 #ifdef HAVE_LIBPNG
@@ -826,15 +826,15 @@ void V_ScreenShot(data_t* data, char *format)
     {
     WritePNGfile(lbmname, data->I_VideoBuffer,
                  SCREENWIDTH, SCREENHEIGHT,
-                 W_CacheLumpName (DEH_String("PLAYPAL"), PU_CACHE));
+                 W_CacheLumpName(data, DEH_String("PLAYPAL"), PU_CACHE));
     }
     else
 #endif
     {
     // save the pcx file
-    WritePCXfile(lbmname, data->I_VideoBuffer,
+    WritePCXfile(data, lbmname, data->I_VideoBuffer,
                  SCREENWIDTH, SCREENHEIGHT,
-                 W_CacheLumpName (DEH_String("PLAYPAL"), PU_CACHE));
+                 W_CacheLumpName(data, DEH_String("PLAYPAL"), PU_CACHE));
     }
 }
 

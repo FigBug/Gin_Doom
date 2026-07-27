@@ -233,7 +233,7 @@ void F_TextWrite (data_t* data)
     int		cy;
     
     // erase the entire screen to a tiled background
-    src = W_CacheLumpName ( data->finaleflat , PU_CACHE);
+    src = W_CacheLumpName(data,  data->finaleflat , PU_CACHE);
     dest = data->I_VideoBuffer;
 	
     for (y=0 ; y<SCREENHEIGHT ; y++)
@@ -537,17 +537,17 @@ void F_CastDrawer (data_t* data)
     patch_t*		patch;
     
     // erase the entire screen to a background
-    V_DrawPatch(data, 0, 0, W_CacheLumpName (DEH_String("BOSSBACK"), PU_CACHE));
+    V_DrawPatch(data, 0, 0, W_CacheLumpName(data, DEH_String("BOSSBACK"), PU_CACHE));
 
     F_CastPrint (data, DEH_String(castorder[data->castnum].name));
     
     // draw the current frame in the middle of the screen
-    sprdef = &sprites[caststate->sprite];
+    sprdef = &data->sprites[caststate->sprite];
     sprframe = &sprdef->spriteframes[ caststate->frame & FF_FRAMEMASK];
     lump = sprframe->lump[0];
     flip = (boolean)sprframe->flip[0];
 			
-    patch = W_CacheLumpNum (lump+data->firstspritelump, PU_CACHE);
+    patch = W_CacheLumpNum(data, lump+data->firstspritelump, PU_CACHE);
     if (flip)
 	V_DrawPatchFlipped(data, 160, 170, patch);
     else
@@ -603,8 +603,8 @@ void F_BunnyScroll (data_t* data)
     char	name[10];
     int		stage;
 		
-    p1 = W_CacheLumpName (DEH_String("PFUB2"), PU_LEVEL);
-    p2 = W_CacheLumpName (DEH_String("PFUB1"), PU_LEVEL);
+    p1 = W_CacheLumpName(data, DEH_String("PFUB2"), PU_LEVEL);
+    p2 = W_CacheLumpName(data, DEH_String("PFUB1"), PU_LEVEL);
 
     V_MarkRect(data, 0, 0, SCREENWIDTH, SCREENHEIGHT);
 	
@@ -628,7 +628,7 @@ void F_BunnyScroll (data_t* data)
     {
         V_DrawPatch(data, (SCREENWIDTH - 13 * 8) / 2,
                     (SCREENHEIGHT - 8 * 8) / 2, 
-                    W_CacheLumpName(DEH_String("END0"), PU_CACHE));
+                    W_CacheLumpName(data, DEH_String("END0"), PU_CACHE));
 	data->fin_laststage = 0;
 	return;
     }
@@ -645,7 +645,7 @@ void F_BunnyScroll (data_t* data)
     DEH_snprintf(name, 10, "END%i", stage);
     V_DrawPatch(data, (SCREENWIDTH - 13 * 8) / 2, 
                 (SCREENHEIGHT - 8 * 8) / 2, 
-                W_CacheLumpName (name,PU_CACHE));
+                W_CacheLumpName(data, name,PU_CACHE));
 }
 
 static void F_ArtScreenDrawer(data_t* data)
@@ -682,7 +682,7 @@ static void F_ArtScreenDrawer(data_t* data)
 
         lumpname = DEH_String(lumpname);
 
-        V_DrawPatch(data, 0, 0, W_CacheLumpName(lumpname, PU_CACHE));
+        V_DrawPatch(data, 0, 0, W_CacheLumpName(data, lumpname, PU_CACHE));
     }
 }
 
