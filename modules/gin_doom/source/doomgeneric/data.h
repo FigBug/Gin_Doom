@@ -13,6 +13,7 @@ struct musicinfo_s;
 #include "d_player.h"
 #include "r_defs.h"
 #include "hu_lib.h"
+#include "st_lib.h"
 
 struct data_s
 {
@@ -508,6 +509,41 @@ struct data_s
 	char            hu_chatchars[128];   // QUEUESIZE
 	int             hu_head;
 	int             hu_tail;
+
+	// st_stuff.c
+	player_t*       sb_plyr;
+	boolean         sb_st_firsttime;
+	int             sb_lu_palette;
+	int             sb_st_msgcounter;
+	int             sb_st_chatstate;
+	int             sb_st_gamestate;
+	boolean         sb_st_statusbaron;
+	boolean         sb_st_chat;
+	boolean         sb_st_oldchat;
+	boolean         sb_st_cursoron;
+	boolean         sb_st_notdeathmatch;
+	boolean         sb_st_armson;
+	boolean         sb_st_fragson;
+	unsigned int    sb_st_clock;
+	st_number_t     sb_w_ready;
+	st_number_t     sb_w_frags;
+	st_percent_t    sb_w_health;
+	st_binicon_t    sb_w_armsbg;
+	st_multicon_t   sb_w_arms[6];
+	st_multicon_t   sb_w_faces;
+	st_multicon_t   sb_w_keyboxes[3];
+	st_percent_t    sb_w_armor;
+	st_number_t     sb_w_ammo[4];
+	st_number_t     sb_w_maxammo[4];
+	int             sb_st_fragscount;
+	int             sb_st_oldhealth;
+	boolean         sb_oldweaponsowned[NUMWEAPONS];
+	int             sb_st_facecount;
+	int             sb_st_faceindex;
+	int             sb_keyboxes[3];
+	int             sb_st_randomnumber;
+	int             sb_st_palette;
+	boolean         sb_st_stopped;
 
 	// level geometry (p_setup.c)
 	int             numvertexes;
