@@ -55,35 +55,23 @@
 // important; as long as it is in the right general
 // range, it will usually work.  Otherwise, we can use
 // the generator (hacked doom2.exe) and provide it 
-// with -spechit.
+// with -data->spechit.
 
 //#define DEFAULT_SPECHIT_MAGIC 0x84f968e8
 
 
-fixed_t		tmbbox[4];
-mobj_t*		tmthing;
-int		tmflags;
-fixed_t		tmx;
-fixed_t		tmy;
 
 
-// If "floatok" true, move would be ok
-// if within "tmfloorz - tmceilingz".
-boolean		floatok;
+// If "data->floatok" true, move would be ok
+// if within "data->tmfloorz - data->tmceilingz".
 
-fixed_t		tmfloorz;
-fixed_t		tmceilingz;
-fixed_t		tmdropoffz;
 
 // keep track of the line that lowers the ceiling,
 // so missiles don't explode against sky hack walls
-line_t*		ceilingline;
 
 // keep track of special data->lines as they are hit,
 // but don't process them until the move is proven valid
 
-line_t*		spechit[MAXSPECIALCROSS];
-int		numspechit;
 
 
 
@@ -101,24 +89,24 @@ boolean PIT_StompThing (data_t* data, mobj_t* thing)
     if (!(thing->flags & MF_SHOOTABLE) )
 	return true;
 		
-    blockdist = thing->radius + tmthing->radius;
+    blockdist = thing->radius + data->tmthing->radius;
     
-    if ( abs(thing->x - tmx) >= blockdist
-	 || abs(thing->y - tmy) >= blockdist )
+    if ( abs(thing->x - data->tmx) >= blockdist
+	 || abs(thing->y - data->tmy) >= blockdist )
     {
 	// didn't hit it
 	return true;
     }
     
     // don't clip against self
-    if (thing == tmthing)
+    if (thing == data->tmthing)
 	return true;
     
     // monsters don't stomp things except on boss level
-    if ( !tmthing->player && data->gamemap != 30)
+    if ( !data->tmthing->player && data->gamemap != 30)
 	return false;	
 		
-    P_DamageMobj (data, thing, tmthing, tmthing, 10000);
+    P_DamageMobj (data, thing, data->tmthing, data->tmthing, 10000);
 	
     return true;
 }
@@ -144,35 +132,35 @@ P_TeleportMove
     subsector_t*	newsubsec;
     
     // kill anything occupying the position
-    tmthing = thing;
-    tmflags = thing->flags;
+    data->tmthing = thing;
+    data->tmflags = thing->flags;
 	
-    tmx = x;
-    tmy = y;
+    data->tmx = x;
+    data->tmy = y;
 	
-    tmbbox[BOXTOP] = y + tmthing->radius;
-    tmbbox[BOXBOTTOM] = y - tmthing->radius;
-    tmbbox[BOXRIGHT] = x + tmthing->radius;
-    tmbbox[BOXLEFT] = x - tmthing->radius;
+    data->tmbbox[BOXTOP] = y + data->tmthing->radius;
+    data->tmbbox[BOXBOTTOM] = y - data->tmthing->radius;
+    data->tmbbox[BOXRIGHT] = x + data->tmthing->radius;
+    data->tmbbox[BOXLEFT] = x - data->tmthing->radius;
 
     newsubsec = R_PointInSubsector(data, x,y);
-    ceilingline = NULL;
+    data->ceilingline = NULL;
     
     // The base floor/ceiling is from the subsector
     // that contains the point.
     // Any contacted data->lines the step closer together
     // will adjust them.
-    tmfloorz = tmdropoffz = newsubsec->sector->floorheight;
-    tmceilingz = newsubsec->sector->ceilingheight;
+    data->tmfloorz = data->tmdropoffz = newsubsec->sector->floorheight;
+    data->tmceilingz = newsubsec->sector->ceilingheight;
 			
     data->validcount++;
-    numspechit = 0;
+    data->numspechit = 0;
     
     // stomp on any things contacted
-    xl = (tmbbox[BOXLEFT] - bmaporgx - MAXRADIUS)>>MAPBLOCKSHIFT;
-    xh = (tmbbox[BOXRIGHT] - bmaporgx + MAXRADIUS)>>MAPBLOCKSHIFT;
-    yl = (tmbbox[BOXBOTTOM] - bmaporgy - MAXRADIUS)>>MAPBLOCKSHIFT;
-    yh = (tmbbox[BOXTOP] - bmaporgy + MAXRADIUS)>>MAPBLOCKSHIFT;
+    xl = (data->tmbbox[BOXLEFT] - bmaporgx - MAXRADIUS)>>MAPBLOCKSHIFT;
+    xh = (data->tmbbox[BOXRIGHT] - bmaporgx + MAXRADIUS)>>MAPBLOCKSHIFT;
+    yl = (data->tmbbox[BOXBOTTOM] - bmaporgy - MAXRADIUS)>>MAPBLOCKSHIFT;
+    yh = (data->tmbbox[BOXTOP] - bmaporgy + MAXRADIUS)>>MAPBLOCKSHIFT;
 
     for (bx=xl ; bx<=xh ; bx++)
 	for (by=yl ; by<=yh ; by++)
@@ -183,8 +171,8 @@ P_TeleportMove
     // so link the thing into its new position
     P_UnsetThingPosition (thing);
 
-    thing->floorz = tmfloorz;
-    thing->ceilingz = tmceilingz;	
+    thing->floorz = data->tmfloorz;
+    thing->ceilingz = data->tmceilingz;	
     thing->x = x;
     thing->y = y;
 
@@ -202,17 +190,17 @@ static void SpechitOverrun(data_t* data, line_t *ld);
 
 //
 // PIT_CheckLine
-// Adjusts tmfloorz and tmceilingz as data->lines are contacted
+// Adjusts data->tmfloorz and data->tmceilingz as data->lines are contacted
 //
 boolean PIT_CheckLine (data_t* data, line_t* ld)
 {
-    if (tmbbox[BOXRIGHT] <= ld->bbox[BOXLEFT]
-	|| tmbbox[BOXLEFT] >= ld->bbox[BOXRIGHT]
-	|| tmbbox[BOXTOP] <= ld->bbox[BOXBOTTOM]
-	|| tmbbox[BOXBOTTOM] >= ld->bbox[BOXTOP] )
+    if (data->tmbbox[BOXRIGHT] <= ld->bbox[BOXLEFT]
+	|| data->tmbbox[BOXLEFT] >= ld->bbox[BOXRIGHT]
+	|| data->tmbbox[BOXTOP] <= ld->bbox[BOXBOTTOM]
+	|| data->tmbbox[BOXBOTTOM] >= ld->bbox[BOXTOP] )
 	return true;
 
-    if (P_BoxOnLineSide (tmbbox, ld) != -1)
+    if (P_BoxOnLineSide (data->tmbbox, ld) != -1)
 	return true;
 		
     // A line has been hit
@@ -229,12 +217,12 @@ boolean PIT_CheckLine (data_t* data, line_t* ld)
     if (!ld->backsector)
 	return false;		// one sided line
 		
-    if (!(tmthing->flags & MF_MISSILE) )
+    if (!(data->tmthing->flags & MF_MISSILE) )
     {
 	if ( ld->flags & ML_BLOCKING )
 	    return false;	// explicitly blocking everything
 
-	if ( !tmthing->player && ld->flags & ML_BLOCKMONSTERS )
+	if ( !data->tmthing->player && ld->flags & ML_BLOCKMONSTERS )
 	    return false;	// block monsters only
     }
 
@@ -242,26 +230,26 @@ boolean PIT_CheckLine (data_t* data, line_t* ld)
     P_LineOpening (ld);	
 	
     // adjust floor / ceiling heights
-    if (opentop < tmceilingz)
+    if (opentop < data->tmceilingz)
     {
-	tmceilingz = opentop;
-	ceilingline = ld;
+	data->tmceilingz = opentop;
+	data->ceilingline = ld;
     }
 
-    if (openbottom > tmfloorz)
-	tmfloorz = openbottom;	
+    if (openbottom > data->tmfloorz)
+	data->tmfloorz = openbottom;	
 
-    if (lowfloor < tmdropoffz)
-	tmdropoffz = lowfloor;
+    if (lowfloor < data->tmdropoffz)
+	data->tmdropoffz = lowfloor;
 		
     // if contacted a special line, add it to the list
     if (ld->special)
     {
-        spechit[numspechit] = ld;
-	numspechit++;
+        data->spechit[data->numspechit] = ld;
+	data->numspechit++;
 
         // fraggle: spechits overrun emulation code from prboom-plus
-        if (numspechit > MAXSPECIALCROSS_ORIGINAL)
+        if (data->numspechit > MAXSPECIALCROSS_ORIGINAL)
         {
             SpechitOverrun(data, ld);
         }
@@ -282,51 +270,51 @@ boolean PIT_CheckThing (data_t* data, mobj_t* thing)
     if (!(thing->flags & (MF_SOLID|MF_SPECIAL|MF_SHOOTABLE) ))
 	return true;
     
-    blockdist = thing->radius + tmthing->radius;
+    blockdist = thing->radius + data->tmthing->radius;
 
-    if ( abs(thing->x - tmx) >= blockdist
-	 || abs(thing->y - tmy) >= blockdist )
+    if ( abs(thing->x - data->tmx) >= blockdist
+	 || abs(thing->y - data->tmy) >= blockdist )
     {
 	// didn't hit it
 	return true;	
     }
     
     // don't clip against self
-    if (thing == tmthing)
+    if (thing == data->tmthing)
 	return true;
     
     // check for skulls slamming into things
-    if (tmthing->flags & MF_SKULLFLY)
+    if (data->tmthing->flags & MF_SKULLFLY)
     {
-	damage = ((P_Random (data)%8)+1)*tmthing->info->damage;
+	damage = ((P_Random (data)%8)+1)*data->tmthing->info->damage;
 	
-	P_DamageMobj (data, thing, tmthing, tmthing, damage);
+	P_DamageMobj (data, thing, data->tmthing, data->tmthing, damage);
 	
-	tmthing->flags &= ~MF_SKULLFLY;
-	tmthing->momx = tmthing->momy = tmthing->momz = 0;
+	data->tmthing->flags &= ~MF_SKULLFLY;
+	data->tmthing->momx = data->tmthing->momy = data->tmthing->momz = 0;
 	
-	P_SetMobjState (data, tmthing, tmthing->info->spawnstate);
+	P_SetMobjState (data, data->tmthing, data->tmthing->info->spawnstate);
 	
 	return false;		// stop moving
     }
 
     
     // missiles can hit other things
-    if (tmthing->flags & MF_MISSILE)
+    if (data->tmthing->flags & MF_MISSILE)
     {
 	// see if it went over / under
-	if (tmthing->z > thing->z + thing->height)
+	if (data->tmthing->z > thing->z + thing->height)
 	    return true;		// overhead
-	if (tmthing->z+tmthing->height < thing->z)
+	if (data->tmthing->z+data->tmthing->height < thing->z)
 	    return true;		// underneath
 		
-	if (tmthing->target 
-         && (tmthing->target->type == thing->type || 
-	    (tmthing->target->type == MT_KNIGHT && thing->type == MT_BRUISER)||
-	    (tmthing->target->type == MT_BRUISER && thing->type == MT_KNIGHT) ) )
+	if (data->tmthing->target 
+         && (data->tmthing->target->type == thing->type || 
+	    (data->tmthing->target->type == MT_KNIGHT && thing->type == MT_BRUISER)||
+	    (data->tmthing->target->type == MT_BRUISER && thing->type == MT_KNIGHT) ) )
 	{
 	    // Don't hit same species as originator.
-	    if (thing == tmthing->target)
+	    if (thing == data->tmthing->target)
 		return true;
 
             // sdh: Add deh_species_infighting here.  We can override the
@@ -348,8 +336,8 @@ boolean PIT_CheckThing (data_t* data, mobj_t* thing)
 	}
 	
 	// damage / explode
-	damage = ((P_Random (data)%8)+1)*tmthing->info->damage;
-	P_DamageMobj (data, thing, tmthing, tmthing->target, damage);
+	damage = ((P_Random (data)%8)+1)*data->tmthing->info->damage;
+	P_DamageMobj (data, thing, data->tmthing, data->tmthing->target, damage);
 
 	// don't traverse any more
 	return false;				
@@ -359,10 +347,10 @@ boolean PIT_CheckThing (data_t* data, mobj_t* thing)
     if (thing->flags & MF_SPECIAL)
     {
 	solid = thing->flags&MF_SOLID;
-	if (tmflags&MF_PICKUP)
+	if (data->tmflags&MF_PICKUP)
 	{
 	    // can remove thing
-	    P_TouchSpecialThing (data, thing, tmthing);
+	    P_TouchSpecialThing (data, thing, data->tmthing);
 	}
 	return !solid;
     }
@@ -393,7 +381,7 @@ boolean PIT_CheckThing (data_t* data, mobj_t* thing)
 //  newsubsec
 //  floorz
 //  ceilingz
-//  tmdropoffz
+//  data->tmdropoffz
 //   the lowest point contacted
 //   (monsters won't move to a dropoff)
 //  speciallines[]
@@ -415,31 +403,31 @@ P_CheckPosition
     int			by;
     subsector_t*	newsubsec;
 
-    tmthing = thing;
-    tmflags = thing->flags;
+    data->tmthing = thing;
+    data->tmflags = thing->flags;
 	
-    tmx = x;
-    tmy = y;
+    data->tmx = x;
+    data->tmy = y;
 	
-    tmbbox[BOXTOP] = y + tmthing->radius;
-    tmbbox[BOXBOTTOM] = y - tmthing->radius;
-    tmbbox[BOXRIGHT] = x + tmthing->radius;
-    tmbbox[BOXLEFT] = x - tmthing->radius;
+    data->tmbbox[BOXTOP] = y + data->tmthing->radius;
+    data->tmbbox[BOXBOTTOM] = y - data->tmthing->radius;
+    data->tmbbox[BOXRIGHT] = x + data->tmthing->radius;
+    data->tmbbox[BOXLEFT] = x - data->tmthing->radius;
 
     newsubsec = R_PointInSubsector(data, x,y);
-    ceilingline = NULL;
+    data->ceilingline = NULL;
     
     // The base floor / ceiling is from the subsector
     // that contains the point.
     // Any contacted data->lines the step closer together
     // will adjust them.
-    tmfloorz = tmdropoffz = newsubsec->sector->floorheight;
-    tmceilingz = newsubsec->sector->ceilingheight;
+    data->tmfloorz = data->tmdropoffz = newsubsec->sector->floorheight;
+    data->tmceilingz = newsubsec->sector->ceilingheight;
 			
     data->validcount++;
-    numspechit = 0;
+    data->numspechit = 0;
 
-    if ( tmflags & MF_NOCLIP )
+    if ( data->tmflags & MF_NOCLIP )
 	return true;
     
     // Check things first, possibly picking things up.
@@ -447,10 +435,10 @@ P_CheckPosition
     // because mobj_ts are grouped into mapblocks
     // based on their origin point, and can overlap
     // into adjacent blocks by up to MAXRADIUS units.
-    xl = (tmbbox[BOXLEFT] - bmaporgx - MAXRADIUS)>>MAPBLOCKSHIFT;
-    xh = (tmbbox[BOXRIGHT] - bmaporgx + MAXRADIUS)>>MAPBLOCKSHIFT;
-    yl = (tmbbox[BOXBOTTOM] - bmaporgy - MAXRADIUS)>>MAPBLOCKSHIFT;
-    yh = (tmbbox[BOXTOP] - bmaporgy + MAXRADIUS)>>MAPBLOCKSHIFT;
+    xl = (data->tmbbox[BOXLEFT] - bmaporgx - MAXRADIUS)>>MAPBLOCKSHIFT;
+    xh = (data->tmbbox[BOXRIGHT] - bmaporgx + MAXRADIUS)>>MAPBLOCKSHIFT;
+    yl = (data->tmbbox[BOXBOTTOM] - bmaporgy - MAXRADIUS)>>MAPBLOCKSHIFT;
+    yh = (data->tmbbox[BOXTOP] - bmaporgy + MAXRADIUS)>>MAPBLOCKSHIFT;
 
     for (bx=xl ; bx<=xh ; bx++)
 	for (by=yl ; by<=yh ; by++)
@@ -458,10 +446,10 @@ P_CheckPosition
 		return false;
     
     // check data->lines
-    xl = (tmbbox[BOXLEFT] - bmaporgx)>>MAPBLOCKSHIFT;
-    xh = (tmbbox[BOXRIGHT] - bmaporgx)>>MAPBLOCKSHIFT;
-    yl = (tmbbox[BOXBOTTOM] - bmaporgy)>>MAPBLOCKSHIFT;
-    yh = (tmbbox[BOXTOP] - bmaporgy)>>MAPBLOCKSHIFT;
+    xl = (data->tmbbox[BOXLEFT] - bmaporgx)>>MAPBLOCKSHIFT;
+    xh = (data->tmbbox[BOXRIGHT] - bmaporgx)>>MAPBLOCKSHIFT;
+    yl = (data->tmbbox[BOXBOTTOM] - bmaporgy)>>MAPBLOCKSHIFT;
+    yh = (data->tmbbox[BOXTOP] - bmaporgy)>>MAPBLOCKSHIFT;
 
     for (bx=xl ; bx<=xh ; bx++)
 	for (by=yl ; by<=yh ; by++)
@@ -490,27 +478,27 @@ P_TryMove
     int		oldside;
     line_t*	ld;
 
-    floatok = false;
+    data->floatok = false;
     if (!P_CheckPosition (data, thing, x, y))
 	return false;		// solid wall or thing
     
     if ( !(thing->flags & MF_NOCLIP) )
     {
-	if (tmceilingz - tmfloorz < thing->height)
+	if (data->tmceilingz - data->tmfloorz < thing->height)
 	    return false;	// doesn't fit
 
-	floatok = true;
+	data->floatok = true;
 	
 	if ( !(thing->flags&MF_TELEPORT) 
-	     &&tmceilingz - thing->z < thing->height)
+	     &&data->tmceilingz - thing->z < thing->height)
 	    return false;	// mobj must lower itself to fit
 
 	if ( !(thing->flags&MF_TELEPORT)
-	     && tmfloorz - thing->z > 24*FRACUNIT )
+	     && data->tmfloorz - thing->z > 24*FRACUNIT )
 	    return false;	// too big a step up
 
 	if ( !(thing->flags&(MF_DROPOFF|MF_FLOAT))
-	     && tmfloorz - tmdropoffz > 24*FRACUNIT )
+	     && data->tmfloorz - data->tmdropoffz > 24*FRACUNIT )
 	    return false;	// don't stand over a dropoff
     }
     
@@ -520,8 +508,8 @@ P_TryMove
 
     oldx = thing->x;
     oldy = thing->y;
-    thing->floorz = tmfloorz;
-    thing->ceilingz = tmceilingz;	
+    thing->floorz = data->tmfloorz;
+    thing->ceilingz = data->tmceilingz;	
     thing->x = x;
     thing->y = y;
 
@@ -530,10 +518,10 @@ P_TryMove
     // if any special data->lines were hit, do the effect
     if (! (thing->flags&(MF_TELEPORT|MF_NOCLIP)) )
     {
-	while (numspechit--)
+	while (data->numspechit--)
 	{
 	    // see if the line was crossed
-	    ld = spechit[numspechit];
+	    ld = data->spechit[data->numspechit];
 	    side = P_PointOnLineSide (thing->x, thing->y, ld);
 	    oldside = P_PointOnLineSide (oldx, oldy, ld);
 	    if (side != oldside)
@@ -567,8 +555,8 @@ boolean P_ThingHeightClip (data_t* data, mobj_t* thing)
     P_CheckPosition (data, thing, thing->x, thing->y);
     // what about stranding a monster partially off an edge?
 	
-    thing->floorz = tmfloorz;
-    thing->ceilingz = tmceilingz;
+    thing->floorz = data->tmfloorz;
+    thing->ceilingz = data->tmceilingz;
 	
     if (onfloor)
     {
@@ -594,16 +582,9 @@ boolean P_ThingHeightClip (data_t* data, mobj_t* thing)
 // SLIDE MOVE
 // Allows the player to slide along any angled walls.
 //
-fixed_t		bestslidefrac;
-fixed_t		secondslidefrac;
 
-line_t*		bestslideline;
-line_t*		secondslideline;
 
-mobj_t*		slidemo;
 
-fixed_t		tmxmove;
-fixed_t		tmymove;
 
 
 
@@ -626,24 +607,24 @@ void P_HitSlideLine (data_t* data, line_t* ld)
 	
     if (ld->slopetype == ST_HORIZONTAL)
     {
-	tmymove = 0;
+	data->tmymove = 0;
 	return;
     }
     
     if (ld->slopetype == ST_VERTICAL)
     {
-	tmxmove = 0;
+	data->tmxmove = 0;
 	return;
     }
 	
-    side = P_PointOnLineSide (slidemo->x, slidemo->y, ld);
+    side = P_PointOnLineSide (data->slidemo->x, data->slidemo->y, ld);
 	
     lineangle = R_PointToAngle2(data, 0,0, ld->dx, ld->dy);
 
     if (side == 1)
 	lineangle += ANG180;
 
-    moveangle = R_PointToAngle2(data, 0,0, tmxmove, tmymove);
+    moveangle = R_PointToAngle2(data, 0,0, data->tmxmove, data->tmymove);
     deltaangle = moveangle-lineangle;
 
     if (deltaangle > ANG180)
@@ -653,11 +634,11 @@ void P_HitSlideLine (data_t* data, line_t* ld)
     lineangle >>= ANGLETOFINESHIFT;
     deltaangle >>= ANGLETOFINESHIFT;
 	
-    movelen = P_AproxDistance (tmxmove, tmymove);
+    movelen = P_AproxDistance (data->tmxmove, data->tmymove);
     newlen = FixedMul (movelen, finecosine[deltaangle]);
 
-    tmxmove = FixedMul (newlen, finecosine[lineangle]);	
-    tmymove = FixedMul (newlen, finesine[lineangle]);	
+    data->tmxmove = FixedMul (newlen, finecosine[lineangle]);	
+    data->tmymove = FixedMul (newlen, finesine[lineangle]);	
 }
 
 
@@ -675,7 +656,7 @@ boolean PTR_SlideTraverse (data_t* data, intercept_t* in)
     
     if ( ! (li->flags & ML_TWOSIDED) )
     {
-	if (P_PointOnLineSide (slidemo->x, slidemo->y, li))
+	if (P_PointOnLineSide (data->slidemo->x, data->slidemo->y, li))
 	{
 	    // don't hit the back side
 	    return true;		
@@ -686,13 +667,13 @@ boolean PTR_SlideTraverse (data_t* data, intercept_t* in)
     // set openrange, opentop, openbottom
     P_LineOpening (li);
     
-    if (openrange < slidemo->height)
+    if (openrange < data->slidemo->height)
 	goto isblocking;		// doesn't fit
 		
-    if (opentop - slidemo->z < slidemo->height)
+    if (opentop - data->slidemo->z < data->slidemo->height)
 	goto isblocking;		// mobj is too high
 
-    if (openbottom - slidemo->z > 24*FRACUNIT )
+    if (openbottom - data->slidemo->z > 24*FRACUNIT )
 	goto isblocking;		// too big a step up
 
     // this line doesn't block movement
@@ -701,12 +682,12 @@ boolean PTR_SlideTraverse (data_t* data, intercept_t* in)
     // the line does block movement,
     // see if it is closer than best so far
   isblocking:		
-    if (in->frac < bestslidefrac)
+    if (in->frac < data->bestslidefrac)
     {
-	secondslidefrac = bestslidefrac;
-	secondslideline = bestslideline;
-	bestslidefrac = in->frac;
-	bestslideline = li;
+	data->secondslidefrac = data->bestslidefrac;
+	data->secondslideline = data->bestslideline;
+	data->bestslidefrac = in->frac;
+	data->bestslideline = li;
     }
 	
     return false;	// stop
@@ -733,7 +714,7 @@ void P_SlideMove (data_t* data, mobj_t* mo)
     fixed_t		newy;
     int			hitcount;
 		
-    slidemo = mo;
+    data->slidemo = mo;
     hitcount = 0;
     
   retry:
@@ -764,7 +745,7 @@ void P_SlideMove (data_t* data, mobj_t* mo)
 	traily = mo->y + mo->radius;
     }
 		
-    bestslidefrac = FRACUNIT+1;
+    data->bestslidefrac = FRACUNIT+1;
 	
     P_PathTraverse ( data, leadx, leady, leadx+mo->momx, leady+mo->momy,
 		     PT_ADDLINES, PTR_SlideTraverse );
@@ -774,7 +755,7 @@ void P_SlideMove (data_t* data, mobj_t* mo)
 		     PT_ADDLINES, PTR_SlideTraverse );
     
     // move up to the wall
-    if (bestslidefrac == FRACUNIT+1)
+    if (data->bestslidefrac == FRACUNIT+1)
     {
 	// the move most have hit the middle, so stairstep
       stairstep:
@@ -784,11 +765,11 @@ void P_SlideMove (data_t* data, mobj_t* mo)
     }
 
     // fudge a bit to make sure it doesn't hit
-    bestslidefrac -= 0x800;	
-    if (bestslidefrac > 0)
+    data->bestslidefrac -= 0x800;	
+    if (data->bestslidefrac > 0)
     {
-	newx = FixedMul (mo->momx, bestslidefrac);
-	newy = FixedMul (mo->momy, bestslidefrac);
+	newx = FixedMul (mo->momx, data->bestslidefrac);
+	newy = FixedMul (mo->momy, data->bestslidefrac);
 	
 	if (!P_TryMove (data, mo, mo->x+newx, mo->y+newy))
 	    goto stairstep;
@@ -796,23 +777,23 @@ void P_SlideMove (data_t* data, mobj_t* mo)
     
     // Now continue along the wall.
     // First calculate remainder.
-    bestslidefrac = FRACUNIT-(bestslidefrac+0x800);
+    data->bestslidefrac = FRACUNIT-(data->bestslidefrac+0x800);
     
-    if (bestslidefrac > FRACUNIT)
-	bestslidefrac = FRACUNIT;
+    if (data->bestslidefrac > FRACUNIT)
+	data->bestslidefrac = FRACUNIT;
     
-    if (bestslidefrac <= 0)
+    if (data->bestslidefrac <= 0)
 	return;
     
-    tmxmove = FixedMul (mo->momx, bestslidefrac);
-    tmymove = FixedMul (mo->momy, bestslidefrac);
+    data->tmxmove = FixedMul (mo->momx, data->bestslidefrac);
+    data->tmymove = FixedMul (mo->momy, data->bestslidefrac);
 
-    P_HitSlideLine (data, bestslideline);	// clip the moves
+    P_HitSlideLine (data, data->bestslideline);	// clip the moves
 
-    mo->momx = tmxmove;
-    mo->momy = tmymove;
+    mo->momx = data->tmxmove;
+    mo->momy = data->tmymove;
 		
-    if (!P_TryMove (data, mo, mo->x+tmxmove, mo->y+tmymove))
+    if (!P_TryMove (data, mo, mo->x+data->tmxmove, mo->y+data->tmymove))
     {
 	goto retry;
     }
@@ -822,17 +803,11 @@ void P_SlideMove (data_t* data, mobj_t* mo)
 //
 // P_LineAttack
 //
-mobj_t*		linetarget;	// who got hit (or NULL)
-mobj_t*		shootthing;
 
 // Height if not aiming up or down
 // ???: use slope for monsters?
-fixed_t		shootz;	
 
-int		la_damage;
-fixed_t		attackrange;
 
-fixed_t		aimslope;
 
 // slopes to top and bottom of target
 extern fixed_t	topslope;
@@ -841,7 +816,7 @@ extern fixed_t	bottomslope;
 
 //
 // PTR_AimTraverse
-// Sets linetaget and aimslope when a target is aimed at.
+// Sets linetaget and data->aimslope when a target is aimed at.
 //
 boolean
 PTR_AimTraverse (data_t* data, intercept_t* in)
@@ -868,12 +843,12 @@ PTR_AimTraverse (data_t* data, intercept_t* in)
 	if (openbottom >= opentop)
 	    return false;		// stop
 	
-	dist = FixedMul (attackrange, in->frac);
+	dist = FixedMul (data->attackrange, in->frac);
 
         if (li->backsector == NULL
          || li->frontsector->floorheight != li->backsector->floorheight)
 	{
-	    slope = FixedDiv (openbottom - shootz , dist);
+	    slope = FixedDiv (openbottom - data->shootz , dist);
 	    if (slope > bottomslope)
 		bottomslope = slope;
 	}
@@ -881,7 +856,7 @@ PTR_AimTraverse (data_t* data, intercept_t* in)
 	if (li->backsector == NULL
          || li->frontsector->ceilingheight != li->backsector->ceilingheight)
 	{
-	    slope = FixedDiv (opentop - shootz , dist);
+	    slope = FixedDiv (opentop - data->shootz , dist);
 	    if (slope < topslope)
 		topslope = slope;
 	}
@@ -894,20 +869,20 @@ PTR_AimTraverse (data_t* data, intercept_t* in)
     
     // shoot a thing
     th = in->d.thing;
-    if (th == shootthing)
+    if (th == data->shootthing)
 	return true;			// can't shoot self
     
     if (!(th->flags&MF_SHOOTABLE))
 	return true;			// corpse or something
 
     // check angles to see if the thing can be aimed at
-    dist = FixedMul (attackrange, in->frac);
-    thingtopslope = FixedDiv (th->z+th->height - shootz , dist);
+    dist = FixedMul (data->attackrange, in->frac);
+    thingtopslope = FixedDiv (th->z+th->height - data->shootz , dist);
 
     if (thingtopslope < bottomslope)
 	return true;			// shot over the thing
 
-    thingbottomslope = FixedDiv (th->z - shootz, dist);
+    thingbottomslope = FixedDiv (th->z - data->shootz, dist);
 
     if (thingbottomslope > topslope)
 	return true;			// shot under the thing
@@ -919,8 +894,8 @@ PTR_AimTraverse (data_t* data, intercept_t* in)
     if (thingbottomslope < bottomslope)
 	thingbottomslope = bottomslope;
 
-    aimslope = (thingtopslope+thingbottomslope)/2;
-    linetarget = th;
+    data->aimslope = (thingtopslope+thingbottomslope)/2;
+    data->linetarget = th;
 
     return false;			// don't go any farther
 }
@@ -950,7 +925,7 @@ boolean PTR_ShootTraverse (data_t* data, intercept_t* in)
 	li = in->d.line;
 	
 	if (li->special)
-	    P_ShootSpecialLine (data, shootthing, li);
+	    P_ShootSpecialLine (data, data->shootthing, li);
 
 	if ( !(li->flags & ML_TWOSIDED) )
 	    goto hitline;
@@ -958,34 +933,34 @@ boolean PTR_ShootTraverse (data_t* data, intercept_t* in)
 	// crosses a two sided line
 	P_LineOpening (li);
 		
-	dist = FixedMul (attackrange, in->frac);
+	dist = FixedMul (data->attackrange, in->frac);
 
         // e6y: emulation of missed back side on two-sided data->lines.
         // backsector can be NULL when emulating missing back side.
 
         if (li->backsector == NULL)
         {
-            slope = FixedDiv (openbottom - shootz , dist);
-            if (slope > aimslope)
+            slope = FixedDiv (openbottom - data->shootz , dist);
+            if (slope > data->aimslope)
                 goto hitline;
 
-            slope = FixedDiv (opentop - shootz , dist);
-            if (slope < aimslope)
+            slope = FixedDiv (opentop - data->shootz , dist);
+            if (slope < data->aimslope)
                 goto hitline;
         }
         else
         {
             if (li->frontsector->floorheight != li->backsector->floorheight)
             {
-                slope = FixedDiv (openbottom - shootz , dist);
-                if (slope > aimslope)
+                slope = FixedDiv (openbottom - data->shootz , dist);
+                if (slope > data->aimslope)
                     goto hitline;
             }
 
             if (li->frontsector->ceilingheight != li->backsector->ceilingheight)
             {
-                slope = FixedDiv (opentop - shootz , dist);
-                if (slope < aimslope)
+                slope = FixedDiv (opentop - data->shootz , dist);
+                if (slope < data->aimslope)
                     goto hitline;
             }
         }
@@ -997,10 +972,10 @@ boolean PTR_ShootTraverse (data_t* data, intercept_t* in)
 	// hit line
       hitline:
 	// position a bit closer
-	frac = in->frac - FixedDiv (4*FRACUNIT,attackrange);
+	frac = in->frac - FixedDiv (4*FRACUNIT,data->attackrange);
 	x = trace.x + FixedMul (trace.dx, frac);
 	y = trace.y + FixedMul (trace.dy, frac);
-	z = shootz + FixedMul (aimslope, FixedMul(frac, attackrange));
+	z = data->shootz + FixedMul (data->aimslope, FixedMul(frac, data->attackrange));
 
 	if (li->frontsector->ceilingpic == skyflatnum)
 	{
@@ -1022,42 +997,42 @@ boolean PTR_ShootTraverse (data_t* data, intercept_t* in)
     
     // shoot a thing
     th = in->d.thing;
-    if (th == shootthing)
+    if (th == data->shootthing)
 	return true;		// can't shoot self
     
     if (!(th->flags&MF_SHOOTABLE))
 	return true;		// corpse or something
 		
     // check angles to see if the thing can be aimed at
-    dist = FixedMul (attackrange, in->frac);
-    thingtopslope = FixedDiv (th->z+th->height - shootz , dist);
+    dist = FixedMul (data->attackrange, in->frac);
+    thingtopslope = FixedDiv (th->z+th->height - data->shootz , dist);
 
-    if (thingtopslope < aimslope)
+    if (thingtopslope < data->aimslope)
 	return true;		// shot over the thing
 
-    thingbottomslope = FixedDiv (th->z - shootz, dist);
+    thingbottomslope = FixedDiv (th->z - data->shootz, dist);
 
-    if (thingbottomslope > aimslope)
+    if (thingbottomslope > data->aimslope)
 	return true;		// shot under the thing
 
     
     // hit thing
     // position a bit closer
-    frac = in->frac - FixedDiv (10*FRACUNIT,attackrange);
+    frac = in->frac - FixedDiv (10*FRACUNIT,data->attackrange);
 
     x = trace.x + FixedMul (trace.dx, frac);
     y = trace.y + FixedMul (trace.dy, frac);
-    z = shootz + FixedMul (aimslope, FixedMul(frac, attackrange));
+    z = data->shootz + FixedMul (data->aimslope, FixedMul(frac, data->attackrange));
 
     // Spawn bullet puffs or blod spots,
     // depending on target type.
     if (in->d.thing->flags & MF_NOBLOOD)
 	P_SpawnPuff (data, x,y,z);
     else
-	P_SpawnBlood (data, x,y,z, la_damage);
+	P_SpawnBlood (data, x,y,z, data->la_damage);
 
-    if (la_damage)
-	P_DamageMobj (data, th, shootthing, shootthing, la_damage);
+    if (data->la_damage)
+	P_DamageMobj (data, th, data->shootthing, data->shootthing, data->la_damage);
 
     // don't go any farther
     return false;
@@ -1081,26 +1056,26 @@ P_AimLineAttack
     t1 = P_SubstNullMobj(data, t1);
 	
     angle >>= ANGLETOFINESHIFT;
-    shootthing = t1;
+    data->shootthing = t1;
     
     x2 = t1->x + (distance>>FRACBITS)*finecosine[angle];
     y2 = t1->y + (distance>>FRACBITS)*finesine[angle];
-    shootz = t1->z + (t1->height>>1) + 8*FRACUNIT;
+    data->shootz = t1->z + (t1->height>>1) + 8*FRACUNIT;
 
     // can't shoot outside view angles
     topslope = 100*FRACUNIT/160;	
     bottomslope = -100*FRACUNIT/160;
     
-    attackrange = distance;
-    linetarget = NULL;
+    data->attackrange = distance;
+    data->linetarget = NULL;
 	
     P_PathTraverse ( data, t1->x, t1->y,
 		     x2, y2,
 		     PT_ADDLINES|PT_ADDTHINGS,
 		     PTR_AimTraverse );
 		
-    if (linetarget)
-	return aimslope;
+    if (data->linetarget)
+	return data->aimslope;
 
     return 0;
 }
@@ -1109,7 +1084,7 @@ P_AimLineAttack
 //
 // P_LineAttack
 // If damage == 0, it is just a test trace
-// that will leave linetarget set.
+// that will leave data->linetarget set.
 //
 void
 P_LineAttack
@@ -1124,13 +1099,13 @@ P_LineAttack
     fixed_t	y2;
 	
     angle >>= ANGLETOFINESHIFT;
-    shootthing = t1;
-    la_damage = damage;
+    data->shootthing = t1;
+    data->la_damage = damage;
     x2 = t1->x + (distance>>FRACBITS)*finecosine[angle];
     y2 = t1->y + (distance>>FRACBITS)*finesine[angle];
-    shootz = t1->z + (t1->height>>1) + 8*FRACUNIT;
-    attackrange = distance;
-    aimslope = slope;
+    data->shootz = t1->z + (t1->height>>1) + 8*FRACUNIT;
+    data->attackrange = distance;
+    data->aimslope = slope;
 		
     P_PathTraverse ( data, t1->x, t1->y,
 		     x2, y2,
@@ -1143,7 +1118,6 @@ P_LineAttack
 //
 // USE LINES
 //
-mobj_t*		usething;
 
 boolean	PTR_UseTraverse (data_t* data, intercept_t* in)
 {
@@ -1154,7 +1128,7 @@ boolean	PTR_UseTraverse (data_t* data, intercept_t* in)
 	P_LineOpening (in->d.line);
 	if (openrange <= 0)
 	{
-	    S_StartSound(data, usething, sfx_noway);
+	    S_StartSound(data, data->usething, sfx_noway);
 	    
 	    // can't use through a wall
 	    return false;	
@@ -1164,12 +1138,12 @@ boolean	PTR_UseTraverse (data_t* data, intercept_t* in)
     }
 	
     side = 0;
-    if (P_PointOnLineSide (usething->x, usething->y, in->d.line) == 1)
+    if (P_PointOnLineSide (data->usething->x, data->usething->y, in->d.line) == 1)
 	side = 1;
     
     //	return false;		// don't use back side
 	
-    P_UseSpecialLine (data, usething, in->d.line, side);
+    P_UseSpecialLine (data, data->usething, in->d.line, side);
 
     // can't use for than one special line in a row
     return false;
@@ -1188,7 +1162,7 @@ void P_UseLines (data_t* data, player_t*	player)
     fixed_t	x2;
     fixed_t	y2;
 	
-    usething = player->mo;
+    data->usething = player->mo;
 		
     angle = player->mo->angle >> ANGLETOFINESHIFT;
 
@@ -1204,15 +1178,12 @@ void P_UseLines (data_t* data, player_t*	player)
 //
 // RADIUS ATTACK
 //
-mobj_t*		bombsource;
-mobj_t*		bombspot;
-int		bombdamage;
 
 
 //
 // PIT_RadiusAttack
-// "bombsource" is the creature
-// that caused the explosion at "bombspot".
+// "data->bombsource" is the creature
+// that caused the explosion at "data->bombspot".
 //
 boolean PIT_RadiusAttack (data_t* data, mobj_t* thing)
 {
@@ -1229,8 +1200,8 @@ boolean PIT_RadiusAttack (data_t* data, mobj_t* thing)
 	|| thing->type == MT_SPIDER)
 	return true;	
 		
-    dx = abs(thing->x - bombspot->x);
-    dy = abs(thing->y - bombspot->y);
+    dx = abs(thing->x - data->bombspot->x);
+    dy = abs(thing->y - data->bombspot->y);
     
     dist = dx>dy ? dx : dy;
     dist = (dist - thing->radius) >> FRACBITS;
@@ -1238,13 +1209,13 @@ boolean PIT_RadiusAttack (data_t* data, mobj_t* thing)
     if (dist < 0)
 	dist = 0;
 
-    if (dist >= bombdamage)
+    if (dist >= data->bombdamage)
 	return true;	// out of range
 
-    if ( P_CheckSight (data, thing, bombspot) )
+    if ( P_CheckSight (data, thing, data->bombspot) )
     {
 	// must be in direct path
-	P_DamageMobj (data, thing, bombspot, bombsource, bombdamage - dist);
+	P_DamageMobj (data, thing, data->bombspot, data->bombsource, data->bombdamage - dist);
     }
     
     return true;
@@ -1277,9 +1248,9 @@ P_RadiusAttack
     yl = (spot->y - dist - bmaporgy)>>MAPBLOCKSHIFT;
     xh = (spot->x + dist - bmaporgx)>>MAPBLOCKSHIFT;
     xl = (spot->x - dist - bmaporgx)>>MAPBLOCKSHIFT;
-    bombspot = spot;
-    bombsource = source;
-    bombdamage = damage;
+    data->bombspot = spot;
+    data->bombsource = source;
+    data->bombdamage = damage;
 	
     for (y=yl ; y<=yh ; y++)
 	for (x=xl ; x<=xh ; x++)
@@ -1301,8 +1272,6 @@ P_RadiusAttack
 //  the way it was and call P_ChangeSector again
 //  to undo the changes.
 //
-boolean		crushchange;
-boolean		nofit;
 
 
 //
@@ -1347,9 +1316,9 @@ boolean PIT_ChangeSector (data_t* data, mobj_t*	thing)
 	return true;			
     }
     
-    nofit = true;
+    data->nofit = true;
 
-    if (crushchange && !(data->leveltime&3) )
+    if (data->crushchange && !(data->leveltime&3) )
     {
 	P_DamageMobj(data, thing,NULL,NULL,10);
 
@@ -1380,8 +1349,8 @@ P_ChangeSector
     int		x;
     int		y;
 	
-    nofit = false;
-    crushchange = crunch;
+    data->nofit = false;
+    data->crushchange = crunch;
 	
     // re-check heights for all things near the moving sector
     for (x=sector->blockbox[BOXLEFT] ; x<= sector->blockbox[BOXRIGHT] ; x++)
@@ -1389,11 +1358,11 @@ P_ChangeSector
 	    P_BlockThingsIterator (data, x, y, PIT_ChangeSector);
 	
 	
-    return nofit;
+    return data->nofit;
 }
 
 // Code to emulate the behavior of Vanilla Doom when encountering an overrun
-// of the spechit array.  This is by Andrey Budko (e6y) and comes from his
+// of the data->spechit array.  This is by Andrey Budko (e6y) and comes from his
 // PrBoom plus port.  A big thanks to Andrey for this.
 
 static void SpechitOverrun(data_t* data, line_t *ld)
@@ -1407,16 +1376,16 @@ static void SpechitOverrun(data_t* data, line_t *ld)
 
         // This is the first time we have had an overrun.  Work out
         // what base address we are going to use.
-        // Allow a spechit value to be specified on the command line.
+        // Allow a data->spechit value to be specified on the command line.
 
         //!
         // @category compat
         // @arg <n>
         //
-        // Use the specified magic value when emulating spechit overruns.
+        // Use the specified magic value when emulating data->spechit overruns.
         //
 
-        p = M_CheckParmWithArgs(data, "-spechit", 1);
+        p = M_CheckParmWithArgs(data, "-data->spechit", 1);
         
         if (p > 0)
         {
@@ -1432,24 +1401,24 @@ static void SpechitOverrun(data_t* data, line_t *ld)
 
     addr = baseaddr + (ld - data->lines) * 0x3E;
 
-    switch(numspechit)
+    switch(data->numspechit)
     {
         case 9: 
         case 10:
         case 11:
         case 12:
-            tmbbox[numspechit-9] = addr;
+            data->tmbbox[data->numspechit-9] = addr;
             break;
         case 13: 
-            crushchange = addr; 
+            data->crushchange = addr; 
             break;
         case 14: 
-            nofit = addr; 
+            data->nofit = addr; 
             break;
         default:
             fprintf(stderr, "SpechitOverrun: Warning: unable to emulate"
-                            "an overrun where numspechit=%i\n",
-                            numspechit);
+                            "an overrun where data->numspechit=%i\n",
+                            data->numspechit);
             break;
     }
 }

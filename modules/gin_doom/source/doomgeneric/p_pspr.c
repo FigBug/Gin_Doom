@@ -483,13 +483,13 @@ A_Punch
     P_LineAttack (data, player->mo, angle, MELEERANGE, slope, damage);
 
     // turn to face target
-    if (linetarget)
+    if (data->linetarget)
     {
 	S_StartSound(data, player->mo, sfx_punch);
 	player->mo->angle = R_PointToAngle2(data, player->mo->x,
 					     player->mo->y,
-					     linetarget->x,
-					     linetarget->y);
+					     data->linetarget->x,
+					     data->linetarget->y);
     }
 }
 
@@ -515,7 +515,7 @@ A_Saw
     slope = P_AimLineAttack (data, player->mo, angle, MELEERANGE+1);
     P_LineAttack (data, player->mo, angle, MELEERANGE+1, slope, damage);
 
-    if (!linetarget)
+    if (!data->linetarget)
     {
 	S_StartSound(data, player->mo, sfx_sawful);
 	return;
@@ -524,7 +524,7 @@ A_Saw
 	
     // turn to face target
     angle = R_PointToAngle2(data, player->mo->x, player->mo->y,
-			     linetarget->x, linetarget->y);
+			     data->linetarget->x, data->linetarget->y);
     if (angle - player->mo->angle > ANG180)
     {
 	if ((signed int) (angle - player->mo->angle) < -ANG90/20)
@@ -624,11 +624,11 @@ void P_BulletSlope (data_t* data, mobj_t*	mo)
     an = mo->angle;
     bulletslope = P_AimLineAttack (data, mo, an, 16*64*FRACUNIT);
 
-    if (!linetarget)
+    if (!data->linetarget)
     {
 	an += 1<<26;
 	bulletslope = P_AimLineAttack (data, mo, an, 16*64*FRACUNIT);
-	if (!linetarget)
+	if (!data->linetarget)
 	{
 	    an -= 2<<26;
 	    bulletslope = P_AimLineAttack (data, mo, an, 16*64*FRACUNIT);
@@ -817,19 +817,19 @@ void A_BFGSpray (data_t* data, mobj_t* mo)
 	//  of the missile
 	P_AimLineAttack (data, mo->target, an, 16*64*FRACUNIT);
 
-	if (!linetarget)
+	if (!data->linetarget)
 	    continue;
 
-	P_SpawnMobj (data, linetarget->x,
-		     linetarget->y,
-		     linetarget->z + (linetarget->height>>2),
+	P_SpawnMobj (data, data->linetarget->x,
+		     data->linetarget->y,
+		     data->linetarget->z + (data->linetarget->height>>2),
 		     MT_EXTRABFG);
 	
 	damage = 0;
 	for (j=0;j<15;j++)
 	    damage += (P_Random (data)&7) + 1;
 
-	P_DamageMobj (data, linetarget, mo->target,mo->target, damage);
+	P_DamageMobj (data, data->linetarget, mo->target,mo->target, damage);
     }
 }
 

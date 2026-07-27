@@ -304,6 +304,39 @@ struct data_s
 	byte**          walllights;              // lighttable_t**
 	short*          maskedtexturecol;
 
+	// p_map.c
+	fixed_t         tmbbox[4];
+	mobj_t*         tmthing;
+	int             tmflags;
+	fixed_t         tmx;
+	fixed_t         tmy;
+	boolean         floatok;
+	fixed_t         tmfloorz;
+	fixed_t         tmceilingz;
+	fixed_t         tmdropoffz;
+	line_t*         ceilingline;
+	line_t*         spechit[20];    // MAXSPECIALCROSS
+	int             numspechit;
+	fixed_t         bestslidefrac;
+	fixed_t         secondslidefrac;
+	line_t*         bestslideline;
+	line_t*         secondslideline;
+	mobj_t*         slidemo;
+	fixed_t         tmxmove;
+	fixed_t         tmymove;
+	mobj_t*         shootthing;
+	mobj_t*         linetarget;
+	fixed_t         shootz;
+	int             la_damage;
+	fixed_t         attackrange;
+	fixed_t         aimslope;
+	mobj_t*         usething;
+	mobj_t*         bombsource;
+	mobj_t*         bombspot;
+	int             bombdamage;
+	boolean         crushchange;
+	boolean         nofit;
+
 	// level geometry (p_setup.c)
 	int             numvertexes;
 	vertex_t*       vertexes;

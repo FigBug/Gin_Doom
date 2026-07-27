@@ -164,9 +164,9 @@ void P_XYMovement (data_t* data, mobj_t* mo)
 	    else if (mo->flags & MF_MISSILE)
 	    {
 		// explode a missile
-		if (ceilingline &&
-		    ceilingline->backsector &&
-		    ceilingline->backsector->ceilingpic == skyflatnum)
+		if (data->ceilingline &&
+		    data->ceilingline->backsector &&
+		    data->ceilingline->backsector->ceilingpic == skyflatnum)
 		{
 		    // Hack to prevent missiles exploding
 		    // against the sky.
@@ -843,7 +843,6 @@ void P_SpawnMapThing (data_t* data, mapthing_t* mthing)
 //
 // P_SpawnPuff
 //
-extern fixed_t attackrange;
 
 void
 P_SpawnPuff
@@ -864,7 +863,7 @@ P_SpawnPuff
 	th->tics = 1;
 	
     // don't make punches spark on the wall
-    if (attackrange == MELEERANGE)
+    if (data->attackrange == MELEERANGE)
 	P_SetMobjState (data, th, S_PUFF3);
 }
 
@@ -1012,18 +1011,18 @@ P_SpawnPlayerMissile
     an = source->angle;
     slope = P_AimLineAttack (data, source, an, 16*64*FRACUNIT);
     
-    if (!linetarget)
+    if (!data->linetarget)
     {
 	an += 1<<26;
 	slope = P_AimLineAttack (data, source, an, 16*64*FRACUNIT);
 
-	if (!linetarget)
+	if (!data->linetarget)
 	{
 	    an -= 2<<26;
 	    slope = P_AimLineAttack (data, source, an, 16*64*FRACUNIT);
 	}
 
-	if (!linetarget)
+	if (!data->linetarget)
 	{
 	    an = source->angle;
 	    slope = 0;

@@ -285,10 +285,10 @@ boolean P_Move (data_t* data, mobj_t*	actor)
     if (!try_ok)
     {
 	// open any specials
-	if (actor->flags & MF_FLOAT && floatok)
+	if (actor->flags & MF_FLOAT && data->floatok)
 	{
 	    // must adjust height
-	    if (actor->z < tmfloorz)
+	    if (actor->z < data->tmfloorz)
 		actor->z += FLOATSPEED;
 	    else
 		actor->z -= FLOATSPEED;
@@ -297,14 +297,14 @@ boolean P_Move (data_t* data, mobj_t*	actor)
 	    return true;
 	}
 		
-	if (!numspechit)
+	if (!data->numspechit)
 	    return false;
 			
 	actor->movedir = DI_NODIR;
 	good = false;
-	while (numspechit--)
+	while (data->numspechit--)
 	{
-	    ld = spechit[numspechit];
+	    ld = data->spechit[data->numspechit];
 	    // if the special is not a door
 	    // that can be opened,
 	    // return false
