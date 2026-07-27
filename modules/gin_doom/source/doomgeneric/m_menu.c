@@ -58,6 +58,11 @@
 
 #include "m_menu.h"
 
+// windows.h defines LoadMenu as a macro, which clashes with the menu below
+#ifdef LoadMenu
+#undef LoadMenu
+#endif
+
 
 extern patch_t*		hu_font[HU_FONTSIZE];
 

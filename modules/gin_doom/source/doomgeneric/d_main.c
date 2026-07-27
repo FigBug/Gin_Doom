@@ -1253,7 +1253,7 @@ void D_DoomMain (data_t* data)
     // allowing play from CD.
     //
 
-    if (M_ParmExists("-cdrom"))
+    if (M_ParmExists(data, "-cdrom"))
     {
         printf(D_CDROM);
 
@@ -1493,9 +1493,9 @@ void D_DoomMain (data_t* data)
 
 #ifdef _WIN32
     // In -cdrom mode, we write savegames to c:\doomdata as well as configs.
-    if (M_ParmExists("-cdrom"))
+    if (M_ParmExists(data, "-cdrom"))
     {
-        savegamedir = configdir;
+        data->savegamedir = configdir;
     }
     else
 #endif
