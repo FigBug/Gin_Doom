@@ -43,14 +43,14 @@
 // HEADS UP TEXT
 //
 
-void HU_Init(void);
+void HU_Init(data_t* data);
 void HU_Start(data_t* data);
 
 boolean HU_Responder(data_t* data, event_t* ev);
 
 void HU_Ticker(data_t* data);
 void HU_Drawer(data_t* data);
-char HU_dequeueChatChar(void);
+char HU_dequeueChatChar(data_t* data);
 void HU_Erase(data_t* data);
 
 extern char *chat_macros[10];

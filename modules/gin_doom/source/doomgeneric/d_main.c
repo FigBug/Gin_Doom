@@ -1734,7 +1734,7 @@ void D_DoomMain (data_t* data)
     PrintGameVersion(data);
 
     DEH_printf("HU_Init: Setting up heads up display.\n");
-    HU_Init ();
+    HU_Init(data);
 
     DEH_printf("ST_Init: Init status bar.\n");
     ST_Init (data);

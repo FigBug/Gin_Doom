@@ -370,7 +370,7 @@ void G_BuildTiccmd (data_t* data, ticcmd_t* cmd, int maketic)
     }
 
     // buttons
-    cmd->chatchar = HU_dequeueChatChar(); 
+    cmd->chatchar = HU_dequeueChatChar(data); 
  
     if (data->gamekeydown[key_fire] || data->mousebuttons[mousebfire] 
 	|| data->joybuttons[joybfire]) 

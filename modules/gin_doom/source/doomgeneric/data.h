@@ -12,6 +12,7 @@ struct musicinfo_s;
 #include "doomdef.h"
 #include "d_player.h"
 #include "r_defs.h"
+#include "hu_lib.h"
 
 struct data_s
 {
@@ -491,6 +492,22 @@ struct data_s
 	int             wi_ng_state;
 	int             wi_sp_state;
 	boolean         wi_snl_pointeron;
+
+	// hu_stuff.c
+	hu_textline_t   hu_w_title;
+	hu_itext_t      hu_w_chat;
+	boolean         hu_always_off;
+	char            hu_chat_dest[MAXPLAYERS];
+	hu_itext_t      hu_w_inputbuffer[MAXPLAYERS];
+	boolean         hu_message_on;
+	boolean         hu_message_nottobefuckedwith;
+	hu_stext_t      hu_w_message;
+	int             hu_message_counter;
+	boolean         hu_headsupactive;
+	player_t*       hu_plr;
+	char            hu_chatchars[128];   // QUEUESIZE
+	int             hu_head;
+	int             hu_tail;
 
 	// level geometry (p_setup.c)
 	int             numvertexes;
