@@ -4,6 +4,8 @@
 typedef struct data_s data_t;
 struct channel_s;
 struct texture_s;
+struct menu_s;
+typedef struct menu_s menu_t;
 typedef struct texture_s texture_t;
 struct musicinfo_s;
 
@@ -544,6 +546,31 @@ struct data_s
 	int             sb_st_randomnumber;
 	int             sb_st_palette;
 	boolean         sb_st_stopped;
+
+	// m_menu.c
+	menu_t*         mn_currentMenu;
+	short           mn_itemOn;
+	short           mn_skullAnimCounter;
+	short           mn_whichSkull;
+	int             mn_showMessages;
+	int             mn_detailLevel;
+	int             mn_screenblocks;
+	int             mn_screenSize;
+	int             mn_quickSaveSlot;
+	int             mn_messageToPrint;
+	char*           mn_messageString;
+	int             mn_messx;
+	int             mn_messy;
+	int             mn_messageLastMenuActive;
+	boolean         mn_messageNeedsInput;
+	void            (*mn_messageRoutine)(data_t*, int);
+	int             mn_saveStringEnter;
+	int             mn_saveSlot;
+	int             mn_saveCharIndex;
+	char            mn_saveOldString[24];
+	boolean         mn_inhelpscreens;
+	char            mn_savegamestrings[10][24];
+	int             mn_epi;
 
 	// level geometry (p_setup.c)
 	int             numvertexes;
