@@ -204,6 +204,10 @@ struct data_s
 
 	// i_video.c
 	byte*           I_VideoBuffer;
+	// Active 8-bit->RGB palette (per-instance; stored as packed uint32 so data.h
+	// needs no i_video "struct color" definition). The red damage tint lives
+	// here, so it must not be shared or every instance flashes together.
+	unsigned int    colors[256];
 
 	// r_main.c view state
 	int             viewangleoffset;

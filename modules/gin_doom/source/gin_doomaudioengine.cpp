@@ -11,9 +11,11 @@
 extern "C" void DG_OPL_Render (void* music_handle, int16_t* buffer,
                                unsigned int nsamples, unsigned int rate);
 
-// Relative level of the music mix. OPL output is full-scale signed 16-bit;
-// this scales it into float and leaves headroom for sound effects.
-static constexpr float kMusicGain = 0.5f;
+// Relative level of the music mix. The Nuked OPL output is quiet - it peaks
+// around ~9% of full-scale 16-bit for typical tracks - so it is amplified (not
+// attenuated) to sit as an audible bed under the sound effects, with headroom
+// left for louder passages and the master level.
+static constexpr float kMusicGain = 3.0f;
 
 void DoomAudioEngine::Channel::processBlock (juce::AudioBuffer<float>& bufferOut, int sampleRateOut)
 {

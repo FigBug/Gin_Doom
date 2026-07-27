@@ -50,6 +50,7 @@
 
 #include "w_wad.h"
 #include "z_zone.h"
+#include "couch.h"
 
 #ifdef __MACOSX__
 #include <CoreFoundation/CFUserNotification.h>
@@ -247,9 +248,18 @@ void I_Quit (data_t* data)
 {
     atexit_listentry_t *entry;
 
+    // CouchDoom: a player selecting Quit shouldn't tear down the process (or
+    // this one instance) - it asks the host to return all four to the menu,
+    // which does the orderly teardown. Just flag it and keep running.
+    if (Couch_Active())
+    {
+        Couch_RequestQuit();
+        return;
+    }
+
     // Run through all exit functions
- 
-    entry = exit_funcs; 
+
+    entry = exit_funcs;
 
     while (entry != NULL)
     {

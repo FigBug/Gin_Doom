@@ -34,4 +34,11 @@ void Couch_Barrier(data_t* data);
 // instance doesn't deadlock the others).
 void Couch_Shutdown(void);
 
+// Clear all arbiter state for a fresh session (host calls before a new match).
+void Couch_Reset(void);
+
+// A player chose Quit; the host polls this and returns everyone to the menu.
+void Couch_RequestQuit(void);
+boolean Couch_QuitRequested(void);
+
 #endif

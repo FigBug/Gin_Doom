@@ -82,7 +82,7 @@ struct color {
     uint32_t a:8;
 };
 
-static struct color colors[256];
+// The active palette is per-instance (data->colors); see data.h.
 
 void I_GetEvent(data_t* data);
 
@@ -123,15 +123,16 @@ typedef struct
 
 static uint16_t rgb565_palette[256];
 
-void cmap_to_rgb565(uint16_t * out, uint8_t * in, int in_pixels)
+void cmap_to_rgb565(data_t* data, uint16_t * out, uint8_t * in, int in_pixels)
 {
     int i, j;
     struct color c;
     uint16_t r, g, b;
+    struct color* colors = (struct color*) data->colors;
 
     for (i = 0; i < in_pixels; i++)
     {
-        c = colors[*in]; 
+        c = colors[*in];
         r = ((uint16_t)(c.r >> 3)) << 11;
         g = ((uint16_t)(c.g >> 2)) << 5;
         b = ((uint16_t)(c.b >> 3)) << 0;
@@ -144,12 +145,13 @@ void cmap_to_rgb565(uint16_t * out, uint8_t * in, int in_pixels)
     }
 }
 
-void cmap_to_fb(uint8_t * out, uint8_t * in, int in_pixels)
+void cmap_to_fb(data_t* data, uint8_t * out, uint8_t * in, int in_pixels)
 {
     int i, j, k;
     struct color c;
     uint32_t pix;
     uint16_t r, g, b;
+    struct color* colors = (struct color*) data->colors;
 
     for (i = 0; i < in_pixels; i++)
     {
@@ -280,8 +282,8 @@ void I_FinishUpdate (data_t* data)
                 //XXX FIXME fb_scaling support!
             }
 #else
-            //cmap_to_rgb565((void*)line_out, (void*)line_in, SCREENWIDTH);
-            cmap_to_fb((void*)line_out, (void*)line_in, SCREENWIDTH);
+            //cmap_to_rgb565(data, (void*)line_out, (void*)line_in, SCREENWIDTH);
+            cmap_to_fb(data, (void*)line_out, (void*)line_in, SCREENWIDTH);
 #endif
             line_out += (SCREENWIDTH * fb_scaling * (s_Fb.bits_per_pixel/8)) + x_offset_end;
         }
@@ -310,6 +312,7 @@ void I_ReadScreen (data_t* data, byte* scr)
 void I_SetPalette (data_t* data, byte* palette)
 {
 	int i;
+	struct color* colors = (struct color*) data->colors;
 	//col_t* c;
 
 	//for (i = 0; i < 256; i++)

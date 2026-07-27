@@ -48,6 +48,43 @@ static unsigned int couch_gen = 0;          // barrier generation
 static int          couch_tic = 0;          // next tic to distribute
 static int          couch_start_ms = -1;    // wall-clock of tic 0, for pacing
 static int          couch_abort = 0;
+static int          couch_quit = 0;         // a player chose Quit -> host returns to menu
+
+// Clear all arbiter state so a fresh session starts clean (called by the host
+// before starting a new match; no game threads are running at that point).
+void Couch_Reset(void)
+{
+    int i;
+    C_LOCK();
+    for (i = 0; i < MAXPLAYERS; ++i)
+        couch_data[i] = NULL;
+    couch_n = 0;
+    couch_arrived = 0;
+    couch_gen = 0;
+    couch_tic = 0;
+    couch_start_ms = -1;
+    couch_abort = 0;
+    couch_quit = 0;
+    C_UNLOCK();
+}
+
+// A player selected Quit; the host polls Couch_QuitRequested and returns all
+// instances to the menu.
+void Couch_RequestQuit(void)
+{
+    C_LOCK();
+    couch_quit = 1;
+    C_UNLOCK();
+}
+
+boolean Couch_QuitRequested(void)
+{
+    boolean q;
+    C_LOCK();
+    q = couch_quit ? true : false;
+    C_UNLOCK();
+    return q;
+}
 
 void Couch_Register(data_t* data, int index, int numplayers)
 {
