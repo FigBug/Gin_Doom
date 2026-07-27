@@ -867,9 +867,9 @@ void R_PrecacheLevel (data_t* data)
 	if (!spritepresent[i])
 	    continue;
 
-	for (j=0 ; j<sprites[i].numframes ; j++)
+	for (j=0 ; j<data->sprites[i].numframes ; j++)
 	{
-	    sf = &sprites[i].spriteframes[j];
+	    sf = &data->sprites[i].spriteframes[j];
 	    for (k=0 ; k<8 ; k++)
 	    {
 		lump = data->firstspritelump + sf->lump[k];

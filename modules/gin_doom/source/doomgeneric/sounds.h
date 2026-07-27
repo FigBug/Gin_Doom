@@ -28,6 +28,8 @@ extern sfxinfo_t	S_sfx[];
 // the complete set of music
 extern musicinfo_t	S_music[];
 
+void S_InitTables(data_t* data);
+
 //
 // Identifiers for all music in game.
 //

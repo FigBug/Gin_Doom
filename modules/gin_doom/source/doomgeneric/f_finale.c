@@ -542,7 +542,7 @@ void F_CastDrawer (data_t* data)
     F_CastPrint (data, DEH_String(castorder[data->castnum].name));
     
     // draw the current frame in the middle of the screen
-    sprdef = &sprites[caststate->sprite];
+    sprdef = &data->sprites[caststate->sprite];
     sprframe = &sprdef->spriteframes[ caststate->frame & FF_FRAMEMASK];
     lump = sprframe->lump[0];
     flip = (boolean)sprframe->flip[0];

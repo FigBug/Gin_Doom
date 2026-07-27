@@ -13,7 +13,7 @@
 // GNU General Public License for more details.
 //
 // DESCRIPTION:
-//	Refresh of things, i.e. objects represented by sprites.
+//	Refresh of things, i.e. objects represented by data->sprites.
 //
 
 
@@ -76,11 +76,8 @@ typedef struct
 //
 
 // variables used to look up
-//  and range check thing_t sprites patches
-spritedef_t*	sprites;
+//  and range check thing_t data->sprites patches
 
-spriteframe_t	sprtemp[29];
-char*		spritename;
 
 
 
@@ -109,39 +106,39 @@ R_InstallSpriteLump
     if (rotation == 0)
     {
 	// the lump should be used for all rotations
-	if (sprtemp[frame].rotate == false)
+	if (data->sprtemp[frame].rotate == false)
 	    I_Error (NULL, "R_InitSprites: Sprite %s frame %c has "
-		     "multip rot=0 lump", spritename, 'A'+frame);
+		     "multip rot=0 lump", data->spritename, 'A'+frame);
 
-	if (sprtemp[frame].rotate == true)
+	if (data->sprtemp[frame].rotate == true)
 	    I_Error (NULL, "R_InitSprites: Sprite %s frame %c has rotations "
-		     "and a rot=0 lump", spritename, 'A'+frame);
+		     "and a rot=0 lump", data->spritename, 'A'+frame);
 			
-	sprtemp[frame].rotate = false;
+	data->sprtemp[frame].rotate = false;
 	for (r=0 ; r<8 ; r++)
 	{
-	    sprtemp[frame].lump[r] = lump - data->firstspritelump;
-	    sprtemp[frame].flip[r] = (byte)flipped;
+	    data->sprtemp[frame].lump[r] = lump - data->firstspritelump;
+	    data->sprtemp[frame].flip[r] = (byte)flipped;
 	}
 	return;
     }
 	
     // the lump is only used for one rotation
-    if (sprtemp[frame].rotate == false)
+    if (data->sprtemp[frame].rotate == false)
 	I_Error (NULL, "R_InitSprites: Sprite %s frame %c has rotations "
-		 "and a rot=0 lump", spritename, 'A'+frame);
+		 "and a rot=0 lump", data->spritename, 'A'+frame);
 		
-    sprtemp[frame].rotate = true;
+    data->sprtemp[frame].rotate = true;
 
     // make 0 based
     rotation--;		
-    if (sprtemp[frame].lump[rotation] != -1)
+    if (data->sprtemp[frame].lump[rotation] != -1)
 	I_Error (NULL, "R_InitSprites: Sprite %s : %c : %c "
 		 "has two lumps mapped to it",
-		 spritename, 'A'+frame, '1'+rotation);
+		 data->spritename, 'A'+frame, '1'+rotation);
 		
-    sprtemp[frame].lump[rotation] = lump - data->firstspritelump;
-    sprtemp[frame].flip[rotation] = (byte)flipped;
+    data->sprtemp[frame].lump[rotation] = lump - data->firstspritelump;
+    data->sprtemp[frame].flip[rotation] = (byte)flipped;
 }
 
 
@@ -152,7 +149,7 @@ R_InstallSpriteLump
 // Pass a null terminated list of sprite names
 //  (4 chars exactly) to be used.
 // Builds the sprite rotation matrixes to account
-//  for horizontally flipped sprites.
+//  for horizontally flipped data->sprites.
 // Will report an error if the lumps are inconsistant. 
 // Only called at startup.
 //
@@ -183,7 +180,7 @@ void R_InitSpriteDefs (data_t* data, char** namelist)
     if (!data->numsprites)
 	return;
 		
-    sprites = Z_Malloc(data, data->numsprites *sizeof(*sprites), PU_STATIC, NULL);
+    data->sprites = Z_Malloc(data, data->numsprites *sizeof(*data->sprites), PU_STATIC, NULL);
 	
     start = data->firstspritelump-1;
     end = data->lastspritelump+1;
@@ -193,8 +190,8 @@ void R_InitSpriteDefs (data_t* data, char** namelist)
     // Just compare 4 characters as ints
     for (i=0 ; i<data->numsprites ; i++)
     {
-	spritename = DEH_String(namelist[i]);
-	memset (sprtemp,-1, sizeof(sprtemp));
+	data->spritename = DEH_String(namelist[i]);
+	memset (data->sprtemp,-1, sizeof(data->sprtemp));
 		
 	data->maxframe = -1;
 	
@@ -202,7 +199,7 @@ void R_InitSpriteDefs (data_t* data, char** namelist)
 	//  filling in the frames for whatever is found
 	for (l=start+1 ; l<end ; l++)
 	{
-	    if (!strncasecmp(data->lumpinfo[l].name, spritename, 4))
+	    if (!strncasecmp(data->lumpinfo[l].name, data->spritename, 4))
 	    {
 		frame = data->lumpinfo[l].name[4] - 'A';
 		rotation = data->lumpinfo[l].name[5] - '0';
@@ -226,7 +223,7 @@ void R_InitSpriteDefs (data_t* data, char** namelist)
 	// check the frames that were found for completeness
 	if (data->maxframe == -1)
 	{
-	    sprites[i].numframes = 0;
+	    data->sprites[i].numframes = 0;
 	    continue;
 	}
 		
@@ -234,12 +231,12 @@ void R_InitSpriteDefs (data_t* data, char** namelist)
 	
 	for (frame = 0 ; frame < data->maxframe ; frame++)
 	{
-	    switch ((int)sprtemp[frame].rotate)
+	    switch ((int)data->sprtemp[frame].rotate)
 	    {
 	      case -1:
 		// no rotations were found for that frame at all
 		I_Error (NULL, "R_InitSprites: No patches found "
-			 "for %s frame %c", spritename, frame+'A');
+			 "for %s frame %c", data->spritename, frame+'A');
 		break;
 		
 	      case 0:
@@ -249,19 +246,19 @@ void R_InitSpriteDefs (data_t* data, char** namelist)
 	      case 1:
 		// must have all 8 frames
 		for (rotation=0 ; rotation<8 ; rotation++)
-		    if (sprtemp[frame].lump[rotation] == -1)
+		    if (data->sprtemp[frame].lump[rotation] == -1)
 			I_Error (NULL, "R_InitSprites: Sprite %s frame %c "
 				 "is missing rotations",
-				 spritename, frame+'A');
+				 data->spritename, frame+'A');
 		break;
 	    }
 	}
 	
-	// allocate space for the frames present and copy sprtemp to it
-	sprites[i].numframes = data->maxframe;
-	sprites[i].spriteframes = 
+	// allocate space for the frames present and copy data->sprtemp to it
+	data->sprites[i].numframes = data->maxframe;
+	data->sprites[i].spriteframes = 
 	    Z_Malloc(data, data->maxframe * sizeof(spriteframe_t), PU_STATIC, NULL);
-	memcpy (sprites[i].spriteframes, sprtemp, data->maxframe*sizeof(spriteframe_t));
+	memcpy (data->sprites[i].spriteframes, data->sprtemp, data->maxframe*sizeof(spriteframe_t));
     }
 
 }
@@ -320,7 +317,7 @@ vissprite_t* R_NewVisSprite (data_t* data)
 
 //
 // R_DrawMaskedColumn
-// Used for sprites and masked mid data->textures.
+// Used for data->sprites and masked mid data->textures.
 // Masked means: partly transparent, i.e. stored
 //  in posts/runs of opaque pixels.
 //
@@ -487,7 +484,7 @@ void R_ProjectSprite (data_t* data, mobj_t* thing)
 	I_Error (NULL, "R_ProjectSprite: invalid sprite number %i ",
 		 thing->sprite);
 #endif
-    sprdef = &sprites[thing->sprite];
+    sprdef = &data->sprites[thing->sprite];
 #ifdef RANGECHECK
     if ( (thing->frame&FF_FRAMEMASK) >= sprdef->numframes )
 	I_Error (NULL, "R_ProjectSprite: invalid sprite frame %i : %i ",
@@ -587,7 +584,7 @@ void R_ProjectSprite (data_t* data, mobj_t* thing)
 
 //
 // R_AddSprites
-// During BSP traversal, this adds sprites by sector.
+// During BSP traversal, this adds data->sprites by sector.
 //
 void R_AddSprites (data_t* data, sector_t* sec)
 {
@@ -640,7 +637,7 @@ void R_DrawPSprite (data_t* data, pspdef_t* psp)
 	I_Error (NULL, "R_ProjectSprite: invalid sprite number %i ",
 		 psp->state->sprite);
 #endif
-    sprdef = &sprites[psp->state->sprite];
+    sprdef = &data->sprites[psp->state->sprite];
 #ifdef RANGECHECK
     if ( (psp->state->frame & FF_FRAMEMASK)  >= sprdef->numframes)
 	I_Error (NULL, "R_ProjectSprite: invalid sprite frame %i : %i ",

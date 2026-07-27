@@ -10,6 +10,7 @@ typedef struct texture_s texture_t;
 struct musicinfo_s;
 struct lumpinfo_s;
 struct memzone_s;
+struct sfxinfo_struct;
 
 #include "d_mode.h"
 #include "d_event.h"
@@ -135,6 +136,12 @@ struct data_s
 	boolean         mus_paused;
 	struct channel_s* channels;
 	struct musicinfo_s* mus_playing;
+
+	// Per-instance copies of the sfx/music tables (were global S_sfx/S_music).
+	// Their handle/data/lumpnum fields are mutated during play, so each
+	// instance needs its own; initialised by S_InitTables from the templates.
+	struct sfxinfo_struct*  S_sfx;
+	struct musicinfo_s*     S_music;
 
 	// Audio (per-instance). audio_engine is the DoomAudioEngine* for this
 	// instance (set in Doom::run); the SFX C callbacks resolve it from here.
@@ -281,6 +288,10 @@ struct data_s
 	short           screenheightarray[SCREENWIDTH];
 	int             numsprites;
 	int             maxframe;
+	// r_things.c sprite-def tables (were globals; per-instance for concurrent init)
+	spritedef_t*    sprites;
+	spriteframe_t   sprtemp[29];
+	char*           spritename;
 	vissprite_t     vissprites[128];         // MAXVISSPRITES
 	vissprite_t*    vissprite_p;
 	int             newvissprite;
