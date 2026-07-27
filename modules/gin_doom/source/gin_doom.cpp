@@ -194,7 +194,10 @@ Doom::~Doom()
 
 	if (data)
 		data->runloop = 0;
-    stopThread (1000);
+    // Long timeout: the game may still be in D_DoomMain startup and only
+    // checks runloop once it reaches the main loop. Force-killing the thread
+    // aborts the process on Linux (glibc "FATAL: exception not rethrown").
+    stopThread (10000);
 }
 
 void Doom::registerComponent (DoomComponent* comp)
@@ -225,6 +228,15 @@ void Doom::run()
 	user_data = data;
 
 	data->user_data = this;
+
+    // The destructor may have signalled before user_data was set and so been
+    // unable to clear runloop; don't start the game just to tear it down.
+    if (threadShouldExit())
+    {
+        user_data = nullptr;
+        DG_Free (data);
+        return;
+    }
 
     const char* params[3];
     params[0] = "doom";

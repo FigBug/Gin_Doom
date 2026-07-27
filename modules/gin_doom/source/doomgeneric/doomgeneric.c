@@ -7,6 +7,10 @@ data_t* DG_Alloc()
 	data = malloc (sizeof (data_t));
 	memset (data, 0, sizeof (data_t));
 
+	// Set at alloc time, not at loop entry, so a quit requested while the
+	// game is still starting up isn't overwritten by D_DoomLoop.
+	data->runloop = 1;
+
 	// d_main.c
 	data->main_loop_started = false;
 	data->show_endoom = 1;

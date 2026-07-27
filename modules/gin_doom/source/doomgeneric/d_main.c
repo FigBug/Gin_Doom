@@ -389,7 +389,6 @@ void D_DoomLoop (data_t* data)
         data->wipegamestate = data->gamestate;
     }
 
-	data->runloop = 1;
     while (data->runloop)
     {
 		// frame syncronous IO operations
