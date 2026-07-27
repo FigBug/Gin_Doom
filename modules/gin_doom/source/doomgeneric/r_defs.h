@@ -26,6 +26,8 @@ typedef struct
     int last;
 } cliprange_t;
 
+typedef struct { fixed_t x, y; } mpoint_t;
+
 
 // Screenwidth.
 #include "doomdef.h"

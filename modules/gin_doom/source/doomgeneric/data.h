@@ -422,6 +422,52 @@ struct data_s
 	int             testcontrols_mousespeed;
 	int             snd_channels;
 
+	// am_map.c
+	int             am_cheating;
+	int             am_grid;
+	int             am_finit_width;
+	int             am_finit_height;
+	int             am_f_x;
+	int             am_f_y;
+	int             am_f_w;
+	int             am_f_h;
+	int             am_lightlev;
+	byte*           am_fb;
+	int             am_amclock;
+	mpoint_t        am_m_paninc;
+	fixed_t         am_mtof_zoommul;
+	fixed_t         am_ftom_zoommul;
+	fixed_t         am_m_x;
+	fixed_t         am_m_y;
+	fixed_t         am_m_x2;
+	fixed_t         am_m_y2;
+	fixed_t         am_m_w;
+	fixed_t         am_m_h;
+	fixed_t         am_min_x;
+	fixed_t         am_min_y;
+	fixed_t         am_max_x;
+	fixed_t         am_max_y;
+	fixed_t         am_max_w;
+	fixed_t         am_max_h;
+	fixed_t         am_min_w;
+	fixed_t         am_min_h;
+	fixed_t         am_min_scale_mtof;
+	fixed_t         am_max_scale_mtof;
+	fixed_t         am_old_m_w;
+	fixed_t         am_old_m_h;
+	fixed_t         am_old_m_x;
+	fixed_t         am_old_m_y;
+	mpoint_t        am_f_oldloc;
+	fixed_t         am_scale_mtof;
+	fixed_t         am_scale_ftom;
+	patch_t*        am_marknums[10];
+	mpoint_t        am_markpoints[10];
+	int             am_markpointnum;
+	int             am_followplayer;
+	boolean         am_stopped;
+	int             am_leveljuststarted;
+	player_t*       am_plr;
+
 	// level geometry (p_setup.c)
 	int             numvertexes;
 	vertex_t*       vertexes;
