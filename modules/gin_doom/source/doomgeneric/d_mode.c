@@ -45,7 +45,7 @@ static struct
     { strife,    commercial, 1, 34 },
 };
 
-// Check that a gamemode+gamemission received over the network is valid.
+// Check that a data->gamemode+data->gamemission received over the network is valid.
 
 boolean D_ValidGameMode(GameMission_t mission, GameMode_t mode)
 {

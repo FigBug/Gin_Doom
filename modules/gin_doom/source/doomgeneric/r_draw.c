@@ -817,7 +817,7 @@ void R_FillBackScreen (data_t* data)
                                      PU_STATIC, NULL);
     }
 
-    if (gamemode == commercial)
+    if (data->gamemode == commercial)
 	name = name2;
     else
 	name = name1;

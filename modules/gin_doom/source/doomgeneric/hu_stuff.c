@@ -354,7 +354,7 @@ void HU_Start(data_t* data)
     // Chex.exe always uses the episode 1 level title
     // eg. E2M1 gives the title for E1M1
 
-    if (gameversion == exe_chex)
+    if (data->gameversion == exe_chex)
     {
         s = HU_TITLE_CHEX;
     }
@@ -457,7 +457,7 @@ void HU_Ticker(data_t* data)
 			    message_nottobefuckedwith = true;
 			    message_on = true;
 			    message_counter = HU_MSGTIMEOUT;
-			    if ( gamemode == commercial )
+			    if ( data->gamemode == commercial )
 			      S_StartSound(data, 0, sfx_radio);
 			    else
 			      S_StartSound(data, 0, sfx_tink);

@@ -103,7 +103,7 @@ EV_Teleport
                 // particular version; the later version included in
                 // some versions of the Id Anthology fixed this.
 
-                if (gameversion != exe_final)
+                if (data->gameversion != exe_final)
 		    thing->z = thing->floorz;
 
 		if (thing->player)

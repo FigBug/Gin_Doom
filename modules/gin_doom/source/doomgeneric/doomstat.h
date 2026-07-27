@@ -55,8 +55,8 @@ extern char            *gamedescription;
 // as the same most of the time.
 
 #define logical_gamemission                             \
-    (gamemission == pack_chex ? doom :                  \
-     gamemission == pack_hacx ? doom2 : gamemission)
+    (data->gamemission == pack_chex ? doom :                  \
+     data->gamemission == pack_hacx ? doom2 : data->gamemission)
 
 // Set if homebrew PWAD stuff has been added.
 extern  boolean	modifiedgame;

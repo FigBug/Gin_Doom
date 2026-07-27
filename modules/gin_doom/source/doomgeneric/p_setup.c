@@ -324,7 +324,7 @@ void P_LoadThings (data_t* data, int lump)
 	spawn = true;
 
 	// Do not spawn cool, new monsters if !commercial
-	if (gamemode != commercial)
+	if (data->gamemode != commercial)
 	{
 	    switch (SHORT(mt->type))
 	    {
@@ -747,7 +747,7 @@ P_SetupLevel
     P_InitThinkers (data);
 	   
     // find map name
-    if ( gamemode == commercial)
+    if ( data->gamemode == commercial)
     {
 	if (map<10)
 	    DEH_snprintf(lumpname, 9, "map0%i", map);

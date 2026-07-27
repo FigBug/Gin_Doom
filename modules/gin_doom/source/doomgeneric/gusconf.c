@@ -178,7 +178,7 @@ static char *ReadDMXConfig(void)
     unsigned int len;
     char *data;
 
-    // TODO: This should be chosen based on gamemode == commercial:
+    // TODO: This should be chosen based on data->gamemode == commercial:
 
     lumpnum = W_CheckNumForName("DMXGUS");
 

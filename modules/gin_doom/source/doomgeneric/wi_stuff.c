@@ -417,7 +417,7 @@ void WI_drawLF(data_t* data)
 {
     int y = WI_TITLEY;
 
-    if (gamemode != commercial || wbs->last < NUMCMAPS)
+    if (data->gamemode != commercial || wbs->last < NUMCMAPS)
     {
         // draw <LevelName> 
         V_DrawPatch(data, (SCREENWIDTH - SHORT(lnames[wbs->last]->width))/2,
@@ -522,7 +522,7 @@ void WI_initAnimatedBack(data_t* data)
     int		i;
     anim_t*	a;
 
-    if (gamemode == commercial)
+    if (data->gamemode == commercial)
 	return;
 
     if (wbs->epsd > 2)
@@ -551,7 +551,7 @@ void WI_updateAnimatedBack(data_t* data)
     int		i;
     anim_t*	a;
 
-    if (gamemode == commercial)
+    if (data->gamemode == commercial)
 	return;
 
     if (wbs->epsd > 2)
@@ -602,7 +602,7 @@ void WI_drawAnimatedBack(data_t* data)
     int			i;
     anim_t*		a;
 
-    if (gamemode == commercial)
+    if (data->gamemode == commercial)
 	return;
 
     if (wbs->epsd > 2)
@@ -803,7 +803,7 @@ void WI_drawShowNextLoc(data_t* data)
     // draw animated background
     WI_drawAnimatedBack(data); 
 
-    if ( gamemode != commercial)
+    if ( data->gamemode != commercial)
     {
   	if (wbs->epsd > 2)
 	{
@@ -827,7 +827,7 @@ void WI_drawShowNextLoc(data_t* data)
     }
 
     // draws which level you are entering..
-    if ( (gamemode != commercial)
+    if ( (data->gamemode != commercial)
 	 || wbs->next != 30)
 	WI_drawEL(data);  
 
@@ -984,7 +984,7 @@ void WI_updateDeathmatchStats(data_t* data)
 	{
 	    S_StartSound(data, 0, sfx_slop);
 
-	    if ( gamemode == commercial)
+	    if ( data->gamemode == commercial)
 		WI_initNoState(data);
 	    else
 		WI_initShowNextLoc(data);
@@ -1255,7 +1255,7 @@ void WI_updateNetgameStats(data_t* data)
 	if (acceleratestage)
 	{
 	    S_StartSound(data, 0, sfx_sgcock);
-	    if ( gamemode == commercial )
+	    if ( data->gamemode == commercial )
 		WI_initNoState(data);
 	    else
 		WI_initShowNextLoc(data);
@@ -1431,7 +1431,7 @@ void WI_updateStats(data_t* data)
 	{
 	    S_StartSound(data, 0, sfx_sgcock);
 
-	    if (gamemode == commercial)
+	    if (data->gamemode == commercial)
 		WI_initNoState(data);
 	    else
 		WI_initShowNextLoc(data);
@@ -1523,7 +1523,7 @@ void WI_Ticker(data_t* data)
     if (bcnt == 1)
     {
 	// intermission music
-  	if ( gamemode == commercial )
+  	if ( data->gamemode == commercial )
 	  S_ChangeMusic(data, mus_dm2int, true);
 	else
 	  S_ChangeMusic(data, mus_inter, true); 
@@ -1561,7 +1561,7 @@ static void WI_loadUnloadData(data_t* data, load_callback_t callback)
     char name[9];
     anim_t *a;
 
-    if (gamemode == commercial)
+    if (data->gamemode == commercial)
     {
 	for (i=0 ; i<NUMCMAPS ; i++)
 	{
@@ -1687,11 +1687,11 @@ static void WI_loadUnloadData(data_t* data, load_callback_t callback)
 
     // Background image
 
-    if (gamemode == commercial)
+    if (data->gamemode == commercial)
     {
         M_StringCopy(name, DEH_String("INTERPIC"), sizeof(name));
     }
-    else if (gamemode == retail && wbs->epsd == 3)
+    else if (data->gamemode == retail && wbs->epsd == 3)
     {
         M_StringCopy(name, DEH_String("INTERPIC"), sizeof(name));
     }
@@ -1712,7 +1712,7 @@ static void WI_loadCallback(char *name, patch_t **variable)
 
 void WI_loadData(data_t* data)
 {
-    if (gamemode == commercial)
+    if (data->gamemode == commercial)
     {
 	NUMCMAPS = 32;
 	lnames = (patch_t **) Z_Malloc(sizeof(patch_t*) * NUMCMAPS,
@@ -1777,15 +1777,15 @@ void WI_Drawer (data_t* data)
 }
 
 
-void WI_initVariables(wbstartstruct_t* wbstartstruct)
+void WI_initVariables(data_t* data, wbstartstruct_t* wbstartstruct)
 {
 
     wbs = wbstartstruct;
 
 #ifdef RANGECHECKING
-    if (gamemode != commercial)
+    if (data->gamemode != commercial)
     {
-      if ( gamemode == retail )
+      if ( data->gamemode == retail )
 	RNGCHECK(wbs->epsd, 0, 3);
       else
 	RNGCHECK(wbs->epsd, 0, 2);
@@ -1814,14 +1814,14 @@ void WI_initVariables(wbstartstruct_t* wbstartstruct)
     if (!wbs->maxsecret)
 	wbs->maxsecret = 1;
 
-    if ( gamemode != retail )
+    if ( data->gamemode != retail )
       if (wbs->epsd > 2)
 	wbs->epsd -= 3;
 }
 
 void WI_Start(data_t* data, wbstartstruct_t* wbstartstruct)
 {
-    WI_initVariables(wbstartstruct);
+    WI_initVariables(data, wbstartstruct);
     WI_loadData(data);
 
     if (data->deathmatch)

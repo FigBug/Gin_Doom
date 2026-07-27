@@ -199,7 +199,7 @@ static boolean WeaponSelectable(data_t* data, weapontype_t weapon)
     // These weapons aren't available in shareware.
 
     if ((weapon == wp_plasma || weapon == wp_bfg)
-     && gamemission == doom && gamemode == shareware)
+     && data->gamemission == doom && data->gamemode == shareware)
     {
         return false;
     }
@@ -560,8 +560,8 @@ void G_DoLoadLevel (data_t* data)
 
     // The "Sky never changes in Doom II" bug was fixed in
     // the id Anthology version of doom2.exe for Final Doom.
-    if ((gamemode == commercial)
-     && (gameversion == exe_final2 || gameversion == exe_chex))
+    if ((data->gamemode == commercial)
+     && (data->gameversion == exe_final2 || data->gameversion == exe_chex))
     {
         char *skytexturename;
 
@@ -1282,7 +1282,7 @@ void G_ExitLevel (data_t* data)
 void G_SecretExitLevel (data_t* data) 
 { 
     // IF NO WOLF3D LEVELS, NO SECRET EXIT!
-    if ( (gamemode == commercial)
+    if ( (data->gamemode == commercial)
       && (W_CheckNumForName("map31")<0))
 	secretexit = false;
     else
@@ -1303,11 +1303,11 @@ void G_DoCompleted (data_t* data)
     if (data->automapactive) 
 	AM_Stop (data); 
 	
-    if (gamemode != commercial)
+    if (data->gamemode != commercial)
     {
         // Chex Quest ends after 5 levels, rather than 8.
 
-        if (gameversion == exe_chex)
+        if (data->gameversion == exe_chex)
         {
             if (data->gamemap == 5)
             {
@@ -1332,7 +1332,7 @@ void G_DoCompleted (data_t* data)
 
 //#if 0  Hmmm - why?
     if ( (data->gamemap == 8)
-	 && (gamemode != commercial) ) 
+	 && (data->gamemode != commercial) ) 
     {
 	// victory 
 	data->gameaction = ga_victory; 
@@ -1340,7 +1340,7 @@ void G_DoCompleted (data_t* data)
     } 
 	 
     if ( (data->gamemap == 9)
-	 && (gamemode != commercial) ) 
+	 && (data->gamemode != commercial) ) 
     {
 	// exit secret level 
 	for (i=0 ; i<MAXPLAYERS ; i++) 
@@ -1354,7 +1354,7 @@ void G_DoCompleted (data_t* data)
     data->wminfo.last = data->gamemap -1;
     
     // data->wminfo.next is 0 biased, unlike data->gamemap
-    if ( gamemode == commercial)
+    if ( data->gamemode == commercial)
     {
 	if (secretexit)
 	    switch(data->gamemap)
@@ -1405,7 +1405,7 @@ void G_DoCompleted (data_t* data)
     // Set par time. Doom episode 4 doesn't have a par time, so this
     // overflows into the cpars array. It's necessary to emulate this
     // for statcheck regression testing.
-    if (gamemode == commercial)
+    if (data->gamemode == commercial)
 	data->wminfo.partime = TICRATE*cpars[data->gamemap-1];
     else if (data->gameepisode < 4)
 	data->wminfo.partime = TICRATE*pars[data->gameepisode][data->gamemap];
@@ -1445,7 +1445,7 @@ void G_WorldDone (data_t* data)
     if (secretexit) 
 	data->players[data->consoleplayer].didsecret = true; 
 
-    if ( gamemode == commercial )
+    if ( data->gamemode == commercial )
     {
 	switch (data->gamemap)
 	{
@@ -1701,12 +1701,12 @@ G_InitNew
     if (episode < 1)
       episode = 1;
 
-    if ( gamemode == retail )
+    if ( data->gamemode == retail )
     {
       if (episode > 4)
 	episode = 4;
     }
-    else if ( gamemode == shareware )
+    else if ( data->gamemode == shareware )
     {
       if (episode > 1)
 	   episode = 1;	// only start episode 1 on shareware
@@ -1721,7 +1721,7 @@ G_InitNew
     if (skill > sk_nightmare)
 	skill = sk_nightmare;
 
-    if (gameversion >= exe_ultimate)
+    if (data->gameversion >= exe_ultimate)
     {
         if (episode == 0)
         {
@@ -1740,7 +1740,7 @@ G_InitNew
         }
     }
 
-    if (episode > 1 && gamemode == shareware)
+    if (episode > 1 && data->gamemode == shareware)
     {
         episode = 1;
     }
@@ -1749,7 +1749,7 @@ G_InitNew
 	map = 1;
 
     if ( (map > 9)
-	 && ( gamemode != commercial) )
+	 && ( data->gamemode != commercial) )
       map = 9;
 
     M_ClearRandom (data);
@@ -1801,7 +1801,7 @@ G_InitNew
     // restore from a saved game.  This was fixed before the Doom
     // source release, but this IS the way Vanilla DOS Doom behaves.
 
-    if (gamemode == commercial)
+    if (data->gamemode == commercial)
     {
         if (data->gamemap < 12)
             skytexturename = "SKY1";
@@ -1986,10 +1986,10 @@ void G_RecordDemo (data_t* data, char *name)
     data->demorecording = true; 
 } 
 
-// Get the demo version code appropriate for the version set in gameversion.
+// Get the demo version code appropriate for the version set in data->gameversion.
 int G_VanillaVersionCode(data_t* data)
 {
-    switch (gameversion)
+    switch (data->gameversion)
     {
         case exe_doom_1_2:
             I_Error(data, "Doom 1.2 does not have a version code!");

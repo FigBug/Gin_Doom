@@ -520,11 +520,11 @@ ST_Responder (data_t* data, event_t* ev)
 	cht_GetParam(&cheat_mus, buf);
 
         // Note: The original v1.9 had a bug that tried to play back
-        // the Doom II music regardless of gamemode.  This was fixed
+        // the Doom II music regardless of data->gamemode.  This was fixed
         // in the Ultimate Doom executable so that it would work for
         // the Doom 1 music as well.
 
-	if (gamemode == commercial || gameversion < exe_ultimate)
+	if (data->gamemode == commercial || data->gameversion < exe_ultimate)
 	{
 	  musnum = mus_runnin + (buf[0]-'0')*10 + buf[1]-'0' - 1;
 	  
@@ -608,7 +608,7 @@ ST_Responder (data_t* data, event_t* ev)
       
       cht_GetParam(&cheat_clev, buf);
       
-      if (gamemode == commercial)
+      if (data->gamemode == commercial)
       {
 	epsd = 1;
 	map = (buf[0] - '0')*10 + buf[1] - '0';
@@ -621,7 +621,7 @@ ST_Responder (data_t* data, event_t* ev)
 
       // Chex.exe always warps to episode 1.
 
-      if (gameversion == exe_chex)
+      if (data->gameversion == exe_chex)
       {
         epsd = 1;
       }
@@ -634,21 +634,21 @@ ST_Responder (data_t* data, event_t* ev)
 	return false;
 
       // Ohmygod - this is not going to work.
-      if ((gamemode == retail)
+      if ((data->gamemode == retail)
 	  && ((epsd > 4) || (map > 9)))
 	return false;
 
-      if ((gamemode == registered)
+      if ((data->gamemode == registered)
 	  && ((epsd > 3) || (map > 9)))
 	return false;
 
-      if ((gamemode == shareware)
+      if ((data->gamemode == shareware)
 	  && ((epsd > 1) || (map > 9)))
 	return false;
 
       // The source release has this check as map > 34. However, Vanilla
       // Doom allows IDCLEV up to MAP40 even though it normally crashes.
-      if ((gamemode == commercial)
+      if ((data->gamemode == commercial)
 	&& (( epsd > 1) || (map > 40)))
 	return false;
 
@@ -983,7 +983,7 @@ void ST_doPaletteStuff(data_t* data)
     // as though the player is being covered in goo by an
     // attacking flemoid.
 
-    if (gameversion == exe_chex
+    if (data->gameversion == exe_chex
      && palette >= STARTREDPALS && palette < STARTREDPALS + NUMREDPALS)
     {
         palette = RADIATIONPAL;

@@ -746,7 +746,7 @@ void M_DrawReadThis1(data_t* data)
     
     // Different versions of Doom 1.9 work differently
 
-    switch (gameversion)
+    switch (data->gameversion)
     {
         case exe_doom_1_666:
         case exe_doom_1_7:
@@ -754,7 +754,7 @@ void M_DrawReadThis1(data_t* data)
         case exe_doom_1_9:
         case exe_hacx:
 
-            if (gamemode == commercial)
+            if (data->gamemode == commercial)
             {
                 // Doom 2
 
@@ -819,7 +819,7 @@ void M_DrawReadThis2(data_t* data)
     inhelpscreens = true;
 
     // We only ever draw the second page if this is 
-    // gameversion == exe_doom_1_9 and gamemode == registered
+    // data->gameversion == exe_doom_1_9 and data->gamemode == registered
 
     V_DrawPatchDirect(data, 0, 0, W_CacheLumpName(DEH_String("HELP1"), PU_CACHE));
 }
@@ -912,7 +912,7 @@ void M_NewGame(data_t* data, int choice)
 	
     // Chex Quest disabled the episode select screen, as did Doom II.
 
-    if (gamemode == commercial || gameversion == exe_chex)
+    if (data->gamemode == commercial || data->gameversion == exe_chex)
 	M_SetupNextMenu(&NewDef);
     else
 	M_SetupNextMenu(&EpiDef);
@@ -952,7 +952,7 @@ void M_ChooseSkill(data_t* data, int choice)
 
 void M_Episode(data_t* data, int choice)
 {
-    if ( (gamemode == shareware)
+    if ( (data->gamemode == shareware)
 	 && choice)
     {
 	M_StartMessage(data, DEH_String(SWSTRING),NULL,false);
@@ -961,7 +961,7 @@ void M_Episode(data_t* data, int choice)
     }
 
     // Yet another hack...
-    if ( (gamemode == registered)
+    if ( (data->gamemode == registered)
 	 && (choice > 2))
     {
       fprintf( stderr,
@@ -1074,7 +1074,7 @@ void M_ReadThis2(data_t* data, int choice)
     // Doom 1.9 had two menus when playing Doom 1
     // All others had only one
 
-    if (gameversion <= exe_doom_1_9 && gamemode != commercial)
+    if (data->gameversion <= exe_doom_1_9 && data->gamemode != commercial)
     {
         choice = 0;
         M_SetupNextMenu(&ReadDef2);
@@ -1131,7 +1131,7 @@ void M_QuitResponse(data_t* data, int key)
 	return;
     if (!data->netgame)
     {
-	if (gamemode == commercial)
+	if (data->gamemode == commercial)
 	    S_StartSound(data, NULL,quitsounds2[(data->gametic>>2)&7]);
 	else
 	    S_StartSound(data, NULL,quitsounds[(data->gametic>>2)&7]);
@@ -1675,7 +1675,7 @@ boolean M_Responder (data_t* data, event_t* ev)
         {
 	    M_StartControlPanel(data);
 
-	    if ( gamemode == retail )
+	    if ( data->gamemode == retail )
 	      currentMenu = &ReadDef2;
 	    else
 	      currentMenu = &ReadDef1;
@@ -2093,7 +2093,7 @@ void M_Init (data_t* data)
     //  like HELP1/2, and four episodes.
 
   
-    switch ( gamemode )
+    switch ( data->gamemode )
     {
       case commercial:
         // Commercial has no "read this" entry.
@@ -2117,7 +2117,7 @@ void M_Init (data_t* data)
     // three episodes; if we're emulating one of those then don't try
     // to show episode four. If we are, then do show episode four
     // (should crash if missing).
-    if (gameversion < exe_ultimate)
+    if (data->gameversion < exe_ultimate)
     {
 	EpiDef.numitems--;
     }

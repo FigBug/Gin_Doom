@@ -406,7 +406,7 @@ P_TouchSpecialThing
 	break;
 	
       case SPR_MEGA:
-	if (gamemode != commercial)
+	if (data->gamemode != commercial)
 	    return;
 	player->health = deh_megasphere_health;
 	player->mo->health = player->health;
@@ -735,7 +735,7 @@ P_KillMobj
 
     // In Chex Quest, monsters don't drop items.
 
-    if (gameversion == exe_chex)
+    if (data->gameversion == exe_chex)
     {
         return;
     }

@@ -174,13 +174,13 @@ boolean P_CheckAmmo (data_t* data, player_t* player)
     {
 	if (player->weaponowned[wp_plasma]
 	    && player->ammo[am_cell]
-	    && (gamemode != shareware) )
+	    && (data->gamemode != shareware) )
 	{
 	    player->pendingweapon = wp_plasma;
 	}
 	else if (player->weaponowned[wp_supershotgun] 
 		 && player->ammo[am_shell]>2
-		 && (gamemode == commercial) )
+		 && (data->gamemode == commercial) )
 	{
 	    player->pendingweapon = wp_supershotgun;
 	}
@@ -209,7 +209,7 @@ boolean P_CheckAmmo (data_t* data, player_t* player)
 	}
 	else if (player->weaponowned[wp_bfg]
 		 && player->ammo[am_cell]>40
-		 && (gamemode != shareware) )
+		 && (data->gamemode != shareware) )
 	{
 	    player->pendingweapon = wp_bfg;
 	}

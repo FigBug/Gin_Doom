@@ -411,6 +411,13 @@ struct data_s
 	mapthing_t      playerstarts[MAXPLAYERS];
 	int             mouseSensitivity;
 
+	// game identity (doomstat.c)
+	GameMode_t      gamemode;
+	GameMission_t   gamemission;
+	GameVersion_t   gameversion;
+	char*           gamedescription;
+	boolean         modifiedgame;
+
 	// level geometry (p_setup.c)
 	int             numvertexes;
 	vertex_t*       vertexes;

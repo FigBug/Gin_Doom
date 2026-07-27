@@ -1610,7 +1610,7 @@ void A_Explode (data_t* data, mobj_t* thingy)
 
 static boolean CheckBossEnd(data_t* data, mobjtype_t motype)
 {
-    if (gameversion < exe_ultimate)
+    if (data->gameversion < exe_ultimate)
     {
         if (data->gamemap != 8)
         {
@@ -1666,7 +1666,7 @@ void A_BossDeath (data_t* data, mobj_t* mo)
     line_t	junk;
     int		i;
 		
-    if ( gamemode == commercial)
+    if ( data->gamemode == commercial)
     {
 	if (data->gamemap != 7)
 	    return;
@@ -1709,7 +1709,7 @@ void A_BossDeath (data_t* data, mobj_t* mo)
     }
 	
     // victory!
-    if ( gamemode == commercial)
+    if ( data->gamemode == commercial)
     {
 	if (data->gamemap == 7)
 	{
@@ -2004,7 +2004,7 @@ void A_PlayerScream (data_t* data, mobj_t* mo)
     // Default death sound.
     int		sound = sfx_pldeth;
 	
-    if ( (gamemode == commercial)
+    if ( (data->gamemode == commercial)
 	&& 	(mo->health < -50))
     {
 	// IF THE PLAYER DIES

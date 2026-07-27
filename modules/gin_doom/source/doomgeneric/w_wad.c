@@ -193,7 +193,7 @@ wad_file_t *W_AddFile (data_t* data, char *filename)
 				 "or PWAD id\n", filename);
 			}
 
-			// ???modifiedgame = true;
+			// ???data->modifiedgame = true;
 		}
 
 		header.numlumps = LONG(header.numlumps);

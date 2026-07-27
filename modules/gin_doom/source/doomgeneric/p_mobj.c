@@ -286,7 +286,7 @@ void P_ZMovement (data_t* data, mobj_t* mo)
 	//  demos would desync in close lost soul fights.
 	// Note that this only applies to original Doom 1 or Doom2 demos - not
 	//  Final Doom and Ultimate Doom.  So we test demo_compatibility *and*
-	//  gamemission. (Note we assume that Doom1 is always Ult Doom, which
+	//  data->gamemission. (Note we assume that Doom1 is always Ult Doom, which
 	//  seems to hold for most published demos.)
         //  
         //  fraggle - cph got the logic here slightly wrong.  There are three
@@ -299,7 +299,7 @@ void P_ZMovement (data_t* data, mobj_t* mo)
         // So we need to check that this is either retail or commercial
         // (but not doom2)
 	
-	int correct_lost_soul_bounce = gameversion >= exe_ultimate;
+	int correct_lost_soul_bounce = data->gameversion >= exe_ultimate;
 
 	if (correct_lost_soul_bounce && mo->flags & MF_SKULLFLY)
 	{

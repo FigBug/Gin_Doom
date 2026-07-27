@@ -200,7 +200,7 @@ void S_Start(data_t* data)
     // start new music for the level
     data->mus_paused = 0;
 
-    if (gamemode == commercial)
+    if (data->gamemode == commercial)
     {
         mnum = mus_runnin + data->gamemap - 1;
     }

@@ -144,7 +144,7 @@ static void SaveGameSettings(data_t* data, net_gamesettings_t *settings)
     settings->map = data->startmap;
     settings->skill = data->startskill;
     settings->loadgame = data->startloadgame;
-    settings->gameversion = gameversion;
+    settings->gameversion = data->gameversion;
     settings->nomonsters = data->nomonsters;
     settings->fast_monsters = data->fastparm;
     settings->respawn_monsters = data->respawnparm;
@@ -189,8 +189,8 @@ static void InitConnectData(data_t* data, net_connect_data_t *connect_data)
 
     // Game type fields:
 
-    connect_data->gamemode = gamemode;
-    connect_data->gamemission = gamemission;
+    connect_data->gamemode = data->gamemode;
+    connect_data->gamemission = data->gamemission;
 
     // Are we recording a demo? Possibly set lowres turn mode
 

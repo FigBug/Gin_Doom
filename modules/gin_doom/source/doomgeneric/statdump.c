@@ -361,7 +361,7 @@ void StatDump(data_t* data)
     {
         printf("Statistics captured for %i level(s)\n", num_captured_stats);
 
-        // We actually know what the real gamemission is, but this has
+        // We actually know what the real data->gamemission is, but this has
         // to match the output from statdump.exe.
 
         DiscoverGamemode(captured_stats, num_captured_stats);

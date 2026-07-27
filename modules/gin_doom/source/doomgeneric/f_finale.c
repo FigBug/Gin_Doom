@@ -131,7 +131,7 @@ void F_StartFinale (data_t* data)
 
         // Hack for Chex Quest
 
-        if (gameversion == exe_chex && screen->mission == doom)
+        if (data->gameversion == exe_chex && screen->mission == doom)
         {
             screen->level = 5;
         }
@@ -174,7 +174,7 @@ void F_Ticker (data_t* data)
     size_t		i;
     
     // check for skipping
-    if ( (gamemode == commercial)
+    if ( (data->gamemode == commercial)
       && ( finalecount > 50) )
     {
       // go on to the next level
@@ -200,7 +200,7 @@ void F_Ticker (data_t* data)
 	return;
     }
 	
-    if ( gamemode == commercial)
+    if ( data->gamemode == commercial)
 	return;
 		
     if (finalestage == F_STAGE_TEXT
@@ -672,7 +672,7 @@ static void F_ArtScreenDrawer(data_t* data)
         switch (data->gameepisode)
         {
             case 1:
-                if (gamemode == retail)
+                if (data->gamemode == retail)
                 {
                     lumpname = "CREDIT";
                 }
