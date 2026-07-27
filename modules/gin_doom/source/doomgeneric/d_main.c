@@ -198,7 +198,7 @@ void D_Display (data_t* data)
     
     // clean up border stuff
     if (data->gamestate != data->dd_oldgamestate && data->gamestate != GS_LEVEL)
-    	I_SetPalette (data, W_CacheLumpName (DEH_String("PLAYPAL"),PU_CACHE));
+    	I_SetPalette (data, W_CacheLumpName(data, DEH_String("PLAYPAL"),PU_CACHE));
 
     // see if the border needs to be initially drawn
     if (data->gamestate == GS_LEVEL && data->dd_oldgamestate != GS_LEVEL)
@@ -239,7 +239,7 @@ void D_Display (data_t* data)
 		else
 			y = data->viewwindowy+4;
 		V_DrawPatchDirect(data, data->viewwindowx + (data->scaledviewwidth - 68) / 2, y,
-							  W_CacheLumpName (DEH_String("M_PAUSE"), PU_CACHE));
+							  W_CacheLumpName(data, DEH_String("M_PAUSE"), PU_CACHE));
     }
 
 
@@ -430,7 +430,7 @@ void D_PageTicker (data_t* data)
 //
 void D_PageDrawer (data_t* data)
 {
-    V_DrawPatch(data, 0, 0, W_CacheLumpName(data->dm_pagename, PU_CACHE));
+    V_DrawPatch(data, 0, 0, W_CacheLumpName(data, data->dm_pagename, PU_CACHE));
 }
 
 
@@ -525,7 +525,7 @@ void D_DoAdvanceDemo (data_t* data)
     // The Doom 3: BFG Edition version of doom2.wad does not have a
     // TITLETPIC lump. Use INTERPIC instead as a workaround.
     if (data->bfgedition && !strcasecmp(data->dm_pagename, "TITLEPIC")
-        && W_CheckNumForName("titlepic") < 0)
+        && W_CheckNumForName(data, "titlepic") < 0)
     {
         data->dm_pagename = DEH_String("INTERPIC");
     }
@@ -606,7 +606,7 @@ static char *GetGameName(data_t* data, char *gamename)
             // We also need to cut off spaces to get the basic name
 
             gamename_size = strlen(deh_sub) + 10;
-            gamename = Z_Malloc(gamename_size, PU_STATIC, 0);
+            gamename = Z_Malloc(data, gamename_size, PU_STATIC, 0);
             version = G_VanillaVersionCode(data);
             M_snprintf(gamename, gamename_size, deh_sub,
                        version / 100, version % 100);
@@ -676,14 +676,14 @@ void D_IdentifyVersion(data_t* data)
     {
         unsigned int i;
 
-        for (i=0; i<numlumps; ++i)
+        for (i=0; i<data->numlumps; ++i)
         {
-            if (!strncasecmp(lumpinfo[i].name, "MAP01", 8))
+            if (!strncasecmp(data->lumpinfo[i].name, "MAP01", 8))
             {
                 data->gamemission = doom2;
                 break;
             } 
-            else if (!strncasecmp(lumpinfo[i].name, "E1M1", 8))
+            else if (!strncasecmp(data->lumpinfo[i].name, "E1M1", 8))
             {
                 data->gamemission = doom;
                 break;
@@ -704,13 +704,13 @@ void D_IdentifyVersion(data_t* data)
     {
         // Doom 1.  But which version?
 
-        if (W_CheckNumForName("E4M1") > 0)
+        if (W_CheckNumForName(data, "E4M1") > 0)
         {
             // Ultimate Doom
 
             data->gamemode = retail;
         } 
-        else if (W_CheckNumForName("E3M1") > 0)
+        else if (W_CheckNumForName(data, "E3M1") > 0)
         {
             data->gamemode = registered;
         }
@@ -749,8 +749,8 @@ void D_IdentifyVersion(data_t* data)
 
 void D_SetGameDescription(data_t* data)
 {
-    boolean is_freedoom = W_CheckNumForName("FREEDOOM") >= 0,
-            is_freedm = W_CheckNumForName("FREEDM") >= 0;
+    boolean is_freedoom = W_CheckNumForName(data, "FREEDOOM") >= 0,
+            is_freedm = W_CheckNumForName(data, "FREEDM") >= 0;
 
     data->gamedescription = "Unknown";
 
@@ -1022,7 +1022,7 @@ static void D_Endoom(data_t* data)
         return;
     }
 
-    endoom = W_CacheLumpName(DEH_String("ENDOOM"), PU_STATIC);
+    endoom = W_CacheLumpName(data, DEH_String("ENDOOM"), PU_STATIC);
 
     I_Endoom(endoom);
 
@@ -1034,7 +1034,7 @@ static void D_Endoom(data_t* data)
 static void LoadIwadDeh(void)
 {
     // The Freedoom IWADs have DEHACKED lumps that must be loaded.
-    if (W_CheckNumForName("FREEDOOM") >= 0)
+    if (W_CheckNumForName(data, "FREEDOOM") >= 0)
     {
         // Old versions of Freedoom (before 2014-09) did not have technically
         // valid DEHACKED lumps, so ignore errors and just continue if this
@@ -1322,10 +1322,10 @@ void D_DoomMain (data_t* data)
     DEH_printf("W_Init: Init WADfiles.\n");
     D_AddFile(data, data->iwadfile);
 #if ORIGCODE
-    numiwadlumps = numlumps;
+    numiwadlumps = data->numlumps;
 #endif
 
-    W_CheckCorrectIWAD(doom);
+    W_CheckCorrectIWAD(data, doom);
 
     // Now that we've loaded the IWAD, we can figure out what data->gamemission
     // we're playing and which version of Vanilla Doom we need to emulate.
@@ -1355,7 +1355,7 @@ void D_DoomMain (data_t* data)
     // We specifically check for DMENUPIC here, before PWADs have been
     // loaded which could probably include a lump of that name.
 
-    if (W_CheckNumForName("dmenupic") >= 0)
+    if (W_CheckNumForName(data, "dmenupic") >= 0)
     {
         printf("BFG Edition: Using workarounds as needed.\n");
         data->bfgedition = true;
@@ -1439,7 +1439,7 @@ void D_DoomMain (data_t* data)
 
         if (D_AddFile(data, file))
         {
-            M_StringCopy(demolumpname, lumpinfo[numlumps - 1].name,
+            M_StringCopy(demolumpname, data->lumpinfo[data->numlumps - 1].name,
                          sizeof(demolumpname));
         }
         else
@@ -1457,7 +1457,7 @@ void D_DoomMain (data_t* data)
     I_AtExit((atexit_func_t) G_CheckDemoStatus, true);
 
     // Generate the WAD hash table.  Speed things up a bit.
-    W_GenerateHashTable();
+    W_GenerateHashTable(data);
 
     // Load DEHACKED lumps from WAD files - but only if we give the right
     // command line parameter.
@@ -1473,9 +1473,9 @@ void D_DoomMain (data_t* data)
     {
         int i, loaded = 0;
 
-        for (i = numiwadlumps; i < numlumps; ++i)
+        for (i = numiwadlumps; i < data->numlumps; ++i)
         {
-            if (!strncmp(lumpinfo[i].name, "DEHACKED", 8))
+            if (!strncmp(data->lumpinfo[i].name, "DEHACKED", 8))
             {
                 DEH_LoadLump(i, false, false);
                 loaded++;
@@ -1523,12 +1523,12 @@ void D_DoomMain (data_t* data)
 	// but w/o all the lumps of the registered version. 
 	if (data->gamemode == registered)
 	    for (i = 0;i < 23; i++)
-		if (W_CheckNumForName(name[i])<0)
+		if (W_CheckNumForName(data, name[i])<0)
 		    I_Error(data, DEH_String("\nThis is not the registered version."));
     }
 
-    if (W_CheckNumForName("SS_START") >= 0
-     || W_CheckNumForName("FF_END") >= 0)
+    if (W_CheckNumForName(data, "SS_START") >= 0
+     || W_CheckNumForName(data, "FF_END") >= 0)
     {
         I_PrintDivider();
         printf(" WARNING: The loaded WAD file contains modified sprites or\n"
@@ -1542,7 +1542,7 @@ void D_DoomMain (data_t* data)
     // Freedoom's IWADs are Boom-compatible, which means they usually
     // don't work in Vanilla (though FreeDM is okay). Show a warning
     // message and give a link to the website.
-    if (W_CheckNumForName("FREEDOOM") >= 0 && W_CheckNumForName("FREEDM") < 0)
+    if (W_CheckNumForName(data, "FREEDOOM") >= 0 && W_CheckNumForName(data, "FREEDM") < 0)
     {
         printf(" WARNING: You are playing using one of the Freedoom IWAD\n"
                " files, which might not work in this port. See this page\n"
@@ -1730,7 +1730,7 @@ void D_DoomMain (data_t* data)
     // Moved this here so that MAP01 isn't constantly looked up
     // in the main loop.
 
-    if (data->gamemode == commercial && W_CheckNumForName("map01") < 0)
+    if (data->gamemode == commercial && W_CheckNumForName(data, "map01") < 0)
         data->storedemo = true;
 
     if (M_CheckParmWithArgs(data, "-statdump", 1))

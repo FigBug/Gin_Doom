@@ -52,27 +52,29 @@ struct lumpinfo_s
 };
 
 
-extern lumpinfo_t *lumpinfo;
-extern unsigned int numlumps;
+// The lump directory (lumpinfo/numlumps) and hash table now live in data_t
+// so each Doom instance owns its own WADs.
+
+int	W_NumLumps (data_t* data);
 
 wad_file_t *W_AddFile (data_t* data, char *filename);
 
-int	W_CheckNumForName (char* name);
-int	W_GetNumForName (char* name);
+int	W_CheckNumForName (data_t* data, char* name);
+int	W_GetNumForName (data_t* data, char* name);
 
-int	W_LumpLength (unsigned int lump);
-void    W_ReadLump (unsigned int lump, void *dest);
+int	W_LumpLength (data_t* data, unsigned int lump);
+void    W_ReadLump (data_t* data, unsigned int lump, void *dest);
 
-void*	W_CacheLumpNum (int lump, int tag);
-void*	W_CacheLumpName (char* name, int tag);
+void*	W_CacheLumpNum (data_t* data, int lump, int tag);
+void*	W_CacheLumpName (data_t* data, char* name, int tag);
 
-void    W_GenerateHashTable(void);
+void    W_GenerateHashTable(data_t* data);
 
 extern unsigned int W_LumpNameHash(const char *s);
 
-void    W_ReleaseLumpNum(int lump);
-void    W_ReleaseLumpName(char *name);
+void    W_ReleaseLumpNum(data_t* data, int lump);
+void    W_ReleaseLumpName(data_t* data, char *name);
 
-void W_CheckCorrectIWAD(GameMission_t mission);
+void W_CheckCorrectIWAD(data_t* data, GameMission_t mission);
 
 #endif

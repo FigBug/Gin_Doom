@@ -137,7 +137,7 @@ int DoomAudioEngine::getSfxLumpNum (void* sfx_)
     else
         M_StringCopy (buf, DEH_String (sfx->name), buf_len);
 
-    return W_GetNumForName (buf);
+    return doomData != nullptr ? W_GetNumForName ((data_t*) doomData, buf) : 0;
 }
 
 void DoomAudioEngine::updateSoundParams (int handle, int vol, int sep)
@@ -169,10 +169,14 @@ int DoomAudioEngine::startSound (void* sfxinfo_, int channel, int vol, int sep)
     if (channel < 0 || channel >= int (std::size (channels)))
         return 0;
 
+    auto* dd = (data_t*) doomData;
+    if (dd == nullptr)
+        return 0;
+
     sfxinfo_t* sfxinfo = (sfxinfo_t*)sfxinfo_;
 
-    auto data = (uint8_t*)W_CacheLumpNum (sfxinfo->lumpnum, PU_STATIC);
-    auto lumplen = W_LumpLength ((unsigned int)sfxinfo->lumpnum);
+    auto data = (uint8_t*)W_CacheLumpNum (dd, sfxinfo->lumpnum, PU_STATIC);
+    auto lumplen = W_LumpLength (dd, (unsigned int)sfxinfo->lumpnum);
 
     if (lumplen < 8 || data[0] != 0x03 || data[1] != 0x00)
         return -1;
@@ -202,7 +206,7 @@ int DoomAudioEngine::startSound (void* sfxinfo_, int channel, int vol, int sep)
         r[i] = (data[i] / 127.5f - 1.0f) * 0.65f;
     }
 
-    W_ReleaseLumpNum (sfxinfo->lumpnum);
+    W_ReleaseLumpNum (dd, sfxinfo->lumpnum);
 
     updateSoundParams (channel, vol, sep);
 

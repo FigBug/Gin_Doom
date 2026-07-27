@@ -440,7 +440,7 @@ void AM_loadPics(data_t* data)
     for (i=0;i<10;i++)
     {
 	DEH_snprintf(namebuf, 9, "AMMNUM%d", i);
-	data->am_marknums[i] = W_CacheLumpName(namebuf, PU_STATIC);
+	data->am_marknums[i] = W_CacheLumpName(data, namebuf, PU_STATIC);
     }
 
 }
@@ -453,7 +453,7 @@ void AM_unloadPics(data_t* data)
     for (i=0;i<10;i++)
     {
 	DEH_snprintf(namebuf, 9, "AMMNUM%d", i);
-	W_ReleaseLumpName(namebuf);
+	W_ReleaseLumpName(data, namebuf);
     }
 }
 

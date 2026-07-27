@@ -172,26 +172,26 @@ static void FreeDMXConfig(gus_config_t *config)
     }
 }
 
-static char *ReadDMXConfig(void)
+static char *ReadDMXConfig(data_t* data)
 {
     int lumpnum;
     unsigned int len;
-    char *data;
+    char *buf;
 
     // TODO: This should be chosen based on data->gamemode == commercial:
 
-    lumpnum = W_CheckNumForName("DMXGUS");
+    lumpnum = W_CheckNumForName(data, "DMXGUS");
 
     if (lumpnum < 0)
     {
-        lumpnum = W_GetNumForName("DMXGUSC");
+        lumpnum = W_GetNumForName(data, "DMXGUSC");
     }
 
-    len = W_LumpLength(lumpnum);
-    data = Z_Malloc(len + 1, PU_STATIC, NULL);
-    W_ReadLump(lumpnum, data);
+    len = W_LumpLength(data, lumpnum);
+    buf = Z_Malloc(data, len + 1, PU_STATIC, NULL);
+    W_ReadLump(data, lumpnum, buf);
 
-    return data;
+    return buf;
 }
 
 static boolean WriteTimidityConfig(char *path, gus_config_t *config)
@@ -241,7 +241,7 @@ static boolean WriteTimidityConfig(char *path, gus_config_t *config)
     return true;
 }
 
-boolean GUS_WriteConfig(char *path)
+boolean GUS_WriteConfig(data_t* data, char *path)
 {
     boolean result;
     char *dmxconf;
@@ -258,13 +258,13 @@ boolean GUS_WriteConfig(char *path)
         return false;
     }
 
-    dmxconf = ReadDMXConfig();
+    dmxconf = ReadDMXConfig(data);
     ParseDMXConfig(dmxconf, &config);
 
     result = WriteTimidityConfig(path, &config);
 
     FreeDMXConfig(&config);
-    Z_Free(dmxconf);
+    Z_Free(data, dmxconf);
 
     return result;
 }

@@ -148,7 +148,7 @@ int M_ReadFile(char *name, byte **buffer)
 
     length = M_FileLength(handle);
     
-    buf = Z_Malloc (length, PU_STATIC, NULL);
+    buf = malloc(length);
     count = fread(buf, 1, length, handle);
     fclose (handle);
 	

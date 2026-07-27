@@ -116,7 +116,7 @@ void S_Init(data_t* data, int sfxVol, int musVol)
     // Allocating the internal data->channels for mixing
     // (the maximum numer of sounds rendered
     // simultaneously) within zone memory.
-    data->channels = Z_Malloc(data->snd_channels*sizeof(channel_t), PU_STATIC, 0);
+    data->channels = Z_Malloc(data, data->snd_channels*sizeof(channel_t), PU_STATIC, 0);
 
     // Free all data->channels for use
     for (i=0 ; i<data->snd_channels ; i++)
@@ -627,12 +627,12 @@ void S_ChangeMusic(data_t* data, int musicnum, int looping)
     if (!music->lumpnum)
     {
         M_snprintf(namebuf, sizeof(namebuf), "d_%s", DEH_String(music->name));
-        music->lumpnum = W_GetNumForName(namebuf);
+        music->lumpnum = W_GetNumForName(data, namebuf);
     }
 
-    music->data = W_CacheLumpNum(music->lumpnum, PU_STATIC);
+    music->data = W_CacheLumpNum(data, music->lumpnum, PU_STATIC);
 
-    handle = I_RegisterSong(data, music->data, W_LumpLength(music->lumpnum));
+    handle = I_RegisterSong(data, music->data, W_LumpLength(data, music->lumpnum));
     music->handle = handle;
     I_PlaySong(data, handle, looping);
 
@@ -655,7 +655,7 @@ void S_StopMusic(data_t* data)
 
         I_StopSong(data);
         I_UnRegisterSong(data, data->mus_playing->handle);
-        W_ReleaseLumpNum(data->mus_playing->lumpnum);
+        W_ReleaseLumpNum(data, data->mus_playing->lumpnum);
         data->mus_playing->data = NULL;
         data->mus_playing = NULL;
     }

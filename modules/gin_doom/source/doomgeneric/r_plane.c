@@ -399,7 +399,7 @@ void R_DrawPlanes (data_t* data)
 	
 	// regular flat
         lumpnum = data->firstflat + data->flattranslation[pl->picnum];
-	data->ds_source = W_CacheLumpNum(lumpnum, PU_STATIC);
+	data->ds_source = W_CacheLumpNum(data, lumpnum, PU_STATIC);
 	
 	data->planeheight = abs(pl->height-data->viewz);
 	light = (pl->lightlevel >> LIGHTSEGSHIFT)+data->extralight;
@@ -425,6 +425,6 @@ void R_DrawPlanes (data_t* data)
 			pl->bottom[x]);
 	}
 	
-        W_ReleaseLumpNum(lumpnum);
+        W_ReleaseLumpNum(data, lumpnum);
     }
 }

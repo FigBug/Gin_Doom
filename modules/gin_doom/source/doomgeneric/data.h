@@ -8,6 +8,8 @@ struct menu_s;
 typedef struct menu_s menu_t;
 typedef struct texture_s texture_t;
 struct musicinfo_s;
+struct lumpinfo_s;
+struct memzone_s;
 
 #include "d_mode.h"
 #include "d_event.h"
@@ -614,6 +616,15 @@ struct data_s
 	int             sightcounts[2];
 	fixed_t         t2x;
 	fixed_t         t2y;
+
+	// z_zone.c - per-instance zone heap.
+	struct memzone_s*   mainzone;
+
+	// w_wad.c - per-instance lump directory + hash table so each Doom
+	// instance owns its own WADs.
+	struct lumpinfo_s*  lumpinfo;
+	unsigned int        numlumps;
+	struct lumpinfo_s** lumphash;
 
 	// d_loop.c
 	ticcmd_set_t    ticdata[BACKUPTICS];

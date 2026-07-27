@@ -1528,7 +1528,7 @@ void WI_Ticker(data_t* data)
 
 }
 
-typedef void (*load_callback_t)(char *lumpname, patch_t **variable);
+typedef void (*load_callback_t)(data_t *data, char *lumpname, patch_t **variable);
 
 // Common load/unload function.  Iterates over all the graphics
 // lumps to be loaded/unloaded into memory.
@@ -1544,7 +1544,7 @@ static void WI_loadUnloadData(data_t* data, load_callback_t callback)
 	for (i=0 ; i<NUMCMAPS ; i++)
 	{
 	    DEH_snprintf(name, 9, "CWILV%2.2d", i);
-            callback(name, &lnames[i]);
+            callback(data, name, &lnames[i]);
 	}
     }
     else
@@ -1552,17 +1552,17 @@ static void WI_loadUnloadData(data_t* data, load_callback_t callback)
 	for (i=0 ; i<NUMMAPS ; i++)
 	{
 	    DEH_snprintf(name, 9, "WILV%d%d", data->wi_wbs->epsd, i);
-            callback(name, &lnames[i]);
+            callback(data, name, &lnames[i]);
 	}
 
 	// you are here
-        callback(DEH_String("WIURH0"), &yah[0]);
+        callback(data, DEH_String("WIURH0"), &yah[0]);
 
 	// you are here (alt.)
-        callback(DEH_String("WIURH1"), &yah[1]);
+        callback(data, DEH_String("WIURH1"), &yah[1]);
 
 	// splat
-        callback(DEH_String("WISPLAT"), &splat[0]);
+        callback(data, DEH_String("WISPLAT"), &splat[0]);
 
 	if (data->wi_wbs->epsd < 3)
 	{
@@ -1576,7 +1576,7 @@ static void WI_loadUnloadData(data_t* data, load_callback_t callback)
 		    {
 			// animations
 			DEH_snprintf(name, 9, "WIA%d%.2d%.2d", data->wi_wbs->epsd, j, i);
-                        callback(name, &a->p[i]);
+                        callback(data, name, &a->p[i]);
 		    }
 		    else
 		    {
@@ -1589,78 +1589,78 @@ static void WI_loadUnloadData(data_t* data, load_callback_t callback)
     }
 
     // More hacks on minus sign.
-    callback(DEH_String("WIMINUS"), &wiminus);
+    callback(data, DEH_String("WIMINUS"), &wiminus);
 
     for (i=0;i<10;i++)
     {
 	 // numbers 0-9
 	DEH_snprintf(name, 9, "WINUM%d", i);
-        callback(name, &num[i]);
+        callback(data, name, &num[i]);
     }
 
     // percent sign
-    callback(DEH_String("WIPCNT"), &percent);
+    callback(data, DEH_String("WIPCNT"), &percent);
 
     // "finished"
-    callback(DEH_String("WIF"), &finished);
+    callback(data, DEH_String("WIF"), &finished);
 
     // "entering"
-    callback(DEH_String("WIENTER"), &entering);
+    callback(data, DEH_String("WIENTER"), &entering);
 
     // "kills"
-    callback(DEH_String("WIOSTK"), &kills);
+    callback(data, DEH_String("WIOSTK"), &kills);
 
     // "scrt"
-    callback(DEH_String("WIOSTS"), &secret);
+    callback(data, DEH_String("WIOSTS"), &secret);
 
      // "secret"
-    callback(DEH_String("WISCRT2"), &sp_secret);
+    callback(data, DEH_String("WISCRT2"), &sp_secret);
 
     // french wad uses WIOBJ (?)
-    if (W_CheckNumForName(DEH_String("WIOBJ")) >= 0)
+    if (W_CheckNumForName(data, DEH_String("WIOBJ")) >= 0)
     {
     	// "items"
     	if (data->netgame && !data->deathmatch)
-            callback(DEH_String("WIOBJ"), &items);
+            callback(data, DEH_String("WIOBJ"), &items);
     	else
-            callback(DEH_String("WIOSTI"), &items);
+            callback(data, DEH_String("WIOSTI"), &items);
     } else {
-        callback(DEH_String("WIOSTI"), &items);
+        callback(data, DEH_String("WIOSTI"), &items);
     }
 
     // "frgs"
-    callback(DEH_String("WIFRGS"), &frags);
+    callback(data, DEH_String("WIFRGS"), &frags);
 
     // ":"
-    callback(DEH_String("WICOLON"), &colon);
+    callback(data, DEH_String("WICOLON"), &colon);
 
     // "time"
-    callback(DEH_String("WITIME"), &timepatch);
+    callback(data, DEH_String("WITIME"), &timepatch);
 
     // "sucks"
-    callback(DEH_String("WISUCKS"), &sucks);
+    callback(data, DEH_String("WISUCKS"), &sucks);
 
     // "par"
-    callback(DEH_String("WIPAR"), &par);
+    callback(data, DEH_String("WIPAR"), &par);
 
     // "killers" (vertical)
-    callback(DEH_String("WIKILRS"), &killers);
+    callback(data, DEH_String("WIKILRS"), &killers);
 
     // "victims" (horiz)
-    callback(DEH_String("WIVCTMS"), &victims);
+    callback(data, DEH_String("WIVCTMS"), &victims);
 
     // "total"
-    callback(DEH_String("WIMSTT"), &total);
+    callback(data, DEH_String("WIMSTT"), &total);
 
     for (i=0 ; i<MAXPLAYERS ; i++)
     {
 	// "1,2,3,4"
 	DEH_snprintf(name, 9, "STPB%d", i);
-        callback(name, &p[i]);
+        callback(data, name, &p[i]);
 
 	// "1,2,3,4"
 	DEH_snprintf(name, 9, "WIBP%d", i+1);
-        callback(name, &bp[i]);
+        callback(data, name, &bp[i]);
     }
 
     // Background image
@@ -1680,12 +1680,12 @@ static void WI_loadUnloadData(data_t* data, load_callback_t callback)
 
     // Draw backdrop and save to a temporary buffer
 
-    callback(name, &background);
+    callback(data, name, &background);
 }
 
-static void WI_loadCallback(char *name, patch_t **variable)
+static void WI_loadCallback(data_t *data, char *name, patch_t **variable)
 {
-    *variable = W_CacheLumpName(name, PU_STATIC);
+    *variable = W_CacheLumpName(data, name, PU_STATIC);
 }
 
 void WI_loadData(data_t* data)
@@ -1693,12 +1693,12 @@ void WI_loadData(data_t* data)
     if (data->gamemode == commercial)
     {
 	NUMCMAPS = 32;
-	lnames = (patch_t **) Z_Malloc(sizeof(patch_t*) * NUMCMAPS,
+	lnames = (patch_t **) Z_Malloc(data, sizeof(patch_t*) * NUMCMAPS,
 				       PU_STATIC, NULL);
     }
     else
     {
-	lnames = (patch_t **) Z_Malloc(sizeof(patch_t*) * NUMMAPS,
+	lnames = (patch_t **) Z_Malloc(data, sizeof(patch_t*) * NUMMAPS,
 				       PU_STATIC, NULL);
     }
 
@@ -1708,15 +1708,15 @@ void WI_loadData(data_t* data)
     // them with the status bar code
 
     // your face
-    star = W_CacheLumpName(DEH_String("STFST01"), PU_STATIC);
+    star = W_CacheLumpName(data, DEH_String("STFST01"), PU_STATIC);
 
     // dead face
-    bstar = W_CacheLumpName(DEH_String("STFDEAD0"), PU_STATIC);
+    bstar = W_CacheLumpName(data, DEH_String("STFDEAD0"), PU_STATIC);
 }
 
-static void WI_unloadCallback(char *name, patch_t **variable)
+static void WI_unloadCallback(data_t *data, char *name, patch_t **variable)
 {
-    W_ReleaseLumpName(name);
+    W_ReleaseLumpName(data, name);
     *variable = NULL;
 }
 
@@ -1727,8 +1727,8 @@ void WI_unloadData(data_t* data)
     // We do not free these lumps as they are shared with the status
     // bar code.
    
-    // W_ReleaseLumpName("STFST01");
-    // W_ReleaseLumpName("STFDEAD0");
+    // W_ReleaseLumpName(data, "STFST01");
+    // W_ReleaseLumpName(data, "STFDEAD0");
 }
 
 void WI_Drawer (data_t* data)

@@ -49,7 +49,7 @@ patch_t*		sttminus;
 
 void STlib_init(data_t* data)
 {
-    sttminus = (patch_t *) W_CacheLumpName(DEH_String("STTMINUS"), PU_STATIC);
+    sttminus = (patch_t *) W_CacheLumpName(data, DEH_String("STTMINUS"), PU_STATIC);
 }
 
 

@@ -36,7 +36,8 @@
 
 void
 wipe_shittyColMajorXform
-( short*	array,
+( data_t*	data,
+  short*	array,
   int		width,
   int		height )
 {
@@ -44,7 +45,7 @@ wipe_shittyColMajorXform
     int		y;
     short*	dest;
 
-    dest = (short*) Z_Malloc(width*height*2, PU_STATIC, 0);
+    dest = (short*) Z_Malloc(data, width*height*2, PU_STATIC, 0);
 
     for(y=0;y<height;y++)
 	for(x=0;x<width;x++)
@@ -52,7 +53,7 @@ wipe_shittyColMajorXform
 
     memcpy(array, dest, width*height*2);
 
-    Z_Free(dest);
+    Z_Free(data, dest);
 
 }
 
@@ -139,12 +140,12 @@ wipe_initMelt
 
     // makes this wipe faster (in theory)
     // to have stuff in column-major format
-    wipe_shittyColMajorXform((short*)data->wipe_scr_start, width/2, height);
-    wipe_shittyColMajorXform((short*)data->wipe_scr_end, width/2, height);
+    wipe_shittyColMajorXform(data, (short*)data->wipe_scr_start, width/2, height);
+    wipe_shittyColMajorXform(data, (short*)data->wipe_scr_end, width/2, height);
 
     // setup initial column positions
     // (y<0 => not ready to scroll yet)
-    data->wipe_y = (int *) Z_Malloc(width*sizeof(int), PU_STATIC, 0);
+    data->wipe_y = (int *) Z_Malloc(data, width*sizeof(int), PU_STATIC, 0);
     data->wipe_y[0] = -(M_Random (data)%16);
     for (i=1;i<width;i++)
     {
@@ -220,9 +221,9 @@ wipe_exitMelt
   int	height,
   int	ticks )
 {
-    Z_Free(data->wipe_y);
-    Z_Free(data->wipe_scr_start);
-    Z_Free(data->wipe_scr_end);
+    Z_Free(data, data->wipe_y);
+    Z_Free(data, data->wipe_scr_start);
+    Z_Free(data, data->wipe_scr_end);
     return 0;
 }
 
@@ -234,7 +235,7 @@ wipe_StartScreen
   int	width,
   int	height )
 {
-    data->wipe_scr_start = Z_Malloc(SCREENWIDTH * SCREENHEIGHT, PU_STATIC, NULL);
+    data->wipe_scr_start = Z_Malloc(data, SCREENWIDTH * SCREENHEIGHT, PU_STATIC, NULL);
     I_ReadScreen(data, data->wipe_scr_start);
     return 0;
 }
@@ -247,7 +248,7 @@ wipe_EndScreen
   int	width,
   int	height )
 {
-    data->wipe_scr_end = Z_Malloc(SCREENWIDTH * SCREENHEIGHT, PU_STATIC, NULL);
+    data->wipe_scr_end = Z_Malloc(data, SCREENWIDTH * SCREENHEIGHT, PU_STATIC, NULL);
     I_ReadScreen(data, data->wipe_scr_end);
     V_DrawBlock(data, x, y, width, height, data->wipe_scr_start); // restore start scr.
     return 0;
@@ -274,7 +275,7 @@ wipe_ScreenWipe
     if (!data->wipe_go)
     {
 	data->wipe_go = 1;
-	// wipe_scr = (byte *) Z_Malloc(width*height, PU_STATIC, 0); // DEBUG
+	// wipe_scr = (byte *) Z_Malloc(data, width*height, PU_STATIC, 0); // DEBUG
 	data->wipe_scr = data->I_VideoBuffer;
 	(*wipes[wipeno*3])(data, width, height, ticks);
     }

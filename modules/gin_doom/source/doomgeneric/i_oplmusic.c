@@ -402,11 +402,11 @@ static opl_music_t *MusicForData(data_t *data)
 
 // Load instrument table from GENMIDI lump:
 
-static boolean LoadInstrumentTable(opl_music_t *m)
+static boolean LoadInstrumentTable(data_t *data, opl_music_t *m)
 {
     byte *lump;
 
-    lump = W_CacheLumpName(DEH_String("genmidi"), PU_STATIC);
+    lump = W_CacheLumpName(data, DEH_String("genmidi"), PU_STATIC);
 
     // DMX does not check header
 
@@ -1758,7 +1758,7 @@ static void I_OPL_ShutdownMusic(data_t *data)
 
         // Release GENMIDI lump
 
-        W_ReleaseLumpName(DEH_String("genmidi"));
+        W_ReleaseLumpName(data, DEH_String("genmidi"));
 
         OPL_Destroy(m->opl);
 
@@ -1830,7 +1830,7 @@ static boolean I_OPL_InitMusic(data_t *data)
 
     // Load instruments from GENMIDI lump:
 
-    if (!LoadInstrumentTable(m))
+    if (!LoadInstrumentTable(data, m))
     {
         OPL_Destroy(m->opl);
         free(m);

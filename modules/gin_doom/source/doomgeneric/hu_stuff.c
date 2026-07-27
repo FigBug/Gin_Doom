@@ -281,7 +281,7 @@ void HU_Init(data_t* data)
     for (i=0;i<HU_FONTSIZE;i++)
     {
 	DEH_snprintf(buffer, 9, "STCFN%.3d", j++);
-	hu_font[i] = (patch_t *) W_CacheLumpName(buffer, PU_STATIC);
+	hu_font[i] = (patch_t *) W_CacheLumpName(data, buffer, PU_STATIC);
     }
 
 }

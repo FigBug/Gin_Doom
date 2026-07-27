@@ -183,7 +183,7 @@ void R_InitSpriteDefs (data_t* data, char** namelist)
     if (!data->numsprites)
 	return;
 		
-    sprites = Z_Malloc(data->numsprites *sizeof(*sprites), PU_STATIC, NULL);
+    sprites = Z_Malloc(data, data->numsprites *sizeof(*sprites), PU_STATIC, NULL);
 	
     start = data->firstspritelump-1;
     end = data->lastspritelump+1;
@@ -202,22 +202,22 @@ void R_InitSpriteDefs (data_t* data, char** namelist)
 	//  filling in the frames for whatever is found
 	for (l=start+1 ; l<end ; l++)
 	{
-	    if (!strncasecmp(lumpinfo[l].name, spritename, 4))
+	    if (!strncasecmp(data->lumpinfo[l].name, spritename, 4))
 	    {
-		frame = lumpinfo[l].name[4] - 'A';
-		rotation = lumpinfo[l].name[5] - '0';
+		frame = data->lumpinfo[l].name[4] - 'A';
+		rotation = data->lumpinfo[l].name[5] - '0';
 
 		if (data->modifiedgame)
-		    patched = W_GetNumForName (lumpinfo[l].name);
+		    patched = W_GetNumForName(data, data->lumpinfo[l].name);
 		else
 		    patched = l;
 
 		R_InstallSpriteLump (data, patched, frame, rotation, false);
 
-		if (lumpinfo[l].name[6])
+		if (data->lumpinfo[l].name[6])
 		{
-		    frame = lumpinfo[l].name[6] - 'A';
-		    rotation = lumpinfo[l].name[7] - '0';
+		    frame = data->lumpinfo[l].name[6] - 'A';
+		    rotation = data->lumpinfo[l].name[7] - '0';
 		    R_InstallSpriteLump (data, l, frame, rotation, true);
 		}
 	    }
@@ -260,7 +260,7 @@ void R_InitSpriteDefs (data_t* data, char** namelist)
 	// allocate space for the frames present and copy sprtemp to it
 	sprites[i].numframes = data->maxframe;
 	sprites[i].spriteframes = 
-	    Z_Malloc (data->maxframe * sizeof(spriteframe_t), PU_STATIC, NULL);
+	    Z_Malloc(data, data->maxframe * sizeof(spriteframe_t), PU_STATIC, NULL);
 	memcpy (sprites[i].spriteframes, sprtemp, data->maxframe*sizeof(spriteframe_t));
     }
 
@@ -384,7 +384,7 @@ R_DrawVisSprite
     patch_t*		patch;
 	
 	
-    patch = W_CacheLumpNum (vis->patch+data->firstspritelump, PU_CACHE);
+    patch = W_CacheLumpNum(data, vis->patch+data->firstspritelump, PU_CACHE);
 
     data->dc_colormap = vis->colormap;
     

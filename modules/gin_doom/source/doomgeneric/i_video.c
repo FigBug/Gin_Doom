@@ -216,7 +216,7 @@ void I_InitGraphics (data_t* data)
 
 
     /* Allocate screen to draw to */
-	data->I_VideoBuffer = (byte*)Z_Malloc (SCREENWIDTH * SCREENHEIGHT, PU_STATIC, NULL);  // For DOOM to draw on
+	data->I_VideoBuffer = (byte*)Z_Malloc(data, SCREENWIDTH * SCREENHEIGHT, PU_STATIC, NULL);  // For DOOM to draw on
 
 	data->screenvisible = true;
 
@@ -226,7 +226,7 @@ void I_InitGraphics (data_t* data)
 
 void I_ShutdownGraphics (data_t* data)
 {
-	Z_Free (data->I_VideoBuffer);
+	Z_Free(data, data->I_VideoBuffer);
 }
 
 void I_StartFrame (void)

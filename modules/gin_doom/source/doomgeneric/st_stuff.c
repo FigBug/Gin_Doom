@@ -957,7 +957,7 @@ void ST_doPaletteStuff(data_t* data)
     if (palette != data->sb_st_palette)
     {
 	data->sb_st_palette = palette;
-	pal = (byte *) W_CacheLumpNum (data->sb_lu_palette, PU_CACHE)+palette*768;
+	pal = (byte *) W_CacheLumpNum(data, data->sb_lu_palette, PU_CACHE)+palette*768;
 	I_SetPalette (data, pal);
     }
 
@@ -1033,7 +1033,7 @@ void ST_Drawer (data_t* data, boolean fullscreen, boolean refresh)
 
 }
 
-typedef void (*load_callback_t)(char *lumpname, patch_t **variable); 
+typedef void (*load_callback_t)(data_t *data, char *lumpname, patch_t **variable); 
 
 // Iterates through all graphics to be loaded or unloaded, along with
 // the variable they use, invoking the specified callback function.
@@ -1051,26 +1051,26 @@ static void ST_loadUnloadGraphics(data_t* data, load_callback_t callback)
     for (i=0;i<10;i++)
     {
 	DEH_snprintf(namebuf, 9, "STTNUM%d", i);
-        callback(namebuf, &tallnum[i]);
+        callback(data, namebuf, &tallnum[i]);
 
 	DEH_snprintf(namebuf, 9, "STYSNUM%d", i);
-        callback(namebuf, &shortnum[i]);
+        callback(data, namebuf, &shortnum[i]);
     }
 
     // Load percent key.
     //Note: why not load STMINUS here, too?
 
-    callback(DEH_String("STTPRCNT"), &tallpercent);
+    callback(data, DEH_String("STTPRCNT"), &tallpercent);
 
     // key cards
     for (i=0;i<NUMCARDS;i++)
     {
     	DEH_snprintf(namebuf, 9, "STKEYS%d", i);
-        callback(namebuf, &keys[i]);
+        callback(data, namebuf, &keys[i]);
     }
 
     // arms background
-    callback(DEH_String("STARMS"), &armsbg);
+    callback(data, DEH_String("STARMS"), &armsbg);
 
     // arms ownership widgets
     for (i=0; i<6; i++)
@@ -1078,7 +1078,7 @@ static void ST_loadUnloadGraphics(data_t* data, load_callback_t callback)
     	DEH_snprintf(namebuf, 9, "STGNUM%d", i+2);
 
     	// gray #
-        callback(namebuf, &arms[i][0]);
+        callback(data, namebuf, &arms[i][0]);
 
         // yellow #
         arms[i][1] = shortnum[i+2];
@@ -1086,10 +1086,10 @@ static void ST_loadUnloadGraphics(data_t* data, load_callback_t callback)
 
     // face backgrounds for different color data->players
     DEH_snprintf(namebuf, 9, "STFB%d", data->consoleplayer);
-    callback(namebuf, &faceback);
+    callback(data, namebuf, &faceback);
 
     // status bar background bits
-    callback(DEH_String("STBAR"), &sbar);
+    callback(data, DEH_String("STBAR"), &sbar);
 
     // face states
     facenum = 0;
@@ -1098,35 +1098,35 @@ static void ST_loadUnloadGraphics(data_t* data, load_callback_t callback)
 	for (j=0; j<ST_NUMSTRAIGHTFACES; j++)
 	{
 	    DEH_snprintf(namebuf, 9, "STFST%d%d", i, j);
-            callback(namebuf, &faces[facenum]);
+            callback(data, namebuf, &faces[facenum]);
             ++facenum;
 	}
 	DEH_snprintf(namebuf, 9, "STFTR%d0", i);	// turn right
-        callback(namebuf, &faces[facenum]);
+        callback(data, namebuf, &faces[facenum]);
         ++facenum;
 	DEH_snprintf(namebuf, 9, "STFTL%d0", i);	// turn left
-        callback(namebuf, &faces[facenum]);
+        callback(data, namebuf, &faces[facenum]);
         ++facenum;
 	DEH_snprintf(namebuf, 9, "STFOUCH%d", i);	// ouch!
-        callback(namebuf, &faces[facenum]);
+        callback(data, namebuf, &faces[facenum]);
         ++facenum;
 	DEH_snprintf(namebuf, 9, "STFEVL%d", i);	// evil grin ;)
-        callback(namebuf, &faces[facenum]);
+        callback(data, namebuf, &faces[facenum]);
         ++facenum;
 	DEH_snprintf(namebuf, 9, "STFKILL%d", i);	// pissed off
-        callback(namebuf, &faces[facenum]);
+        callback(data, namebuf, &faces[facenum]);
         ++facenum;
     }
 
-    callback(DEH_String("STFGOD0"), &faces[facenum]);
+    callback(data, DEH_String("STFGOD0"), &faces[facenum]);
     ++facenum;
-    callback(DEH_String("STFDEAD0"), &faces[facenum]);
+    callback(data, DEH_String("STFDEAD0"), &faces[facenum]);
     ++facenum;
 }
 
-static void ST_loadCallback(char *lumpname, patch_t **variable)
+static void ST_loadCallback(data_t *data, char *lumpname, patch_t **variable)
 {
-    *variable = W_CacheLumpName(lumpname, PU_STATIC);
+    *variable = W_CacheLumpName(data, lumpname, PU_STATIC);
 }
 
 void ST_loadGraphics(data_t* data)
@@ -1136,13 +1136,13 @@ void ST_loadGraphics(data_t* data)
 
 void ST_loadData(data_t* data)
 {
-    data->sb_lu_palette = W_GetNumForName (DEH_String("PLAYPAL"));
+    data->sb_lu_palette = W_GetNumForName(data, DEH_String("PLAYPAL"));
     ST_loadGraphics(data);
 }
 
-static void ST_unloadCallback(char *lumpname, patch_t **variable)
+static void ST_unloadCallback(data_t *data, char *lumpname, patch_t **variable)
 {
-    W_ReleaseLumpName(lumpname);
+    W_ReleaseLumpName(data, lumpname);
     *variable = NULL;
 }
 
@@ -1367,7 +1367,7 @@ void ST_Stop(data_t* data)
     if (data->sb_st_stopped)
 	return;
 
-    I_SetPalette (data, W_CacheLumpNum (data->sb_lu_palette, PU_CACHE));
+    I_SetPalette (data, W_CacheLumpNum(data, data->sb_lu_palette, PU_CACHE));
 
     data->sb_st_stopped = true;
 }
@@ -1375,6 +1375,6 @@ void ST_Stop(data_t* data)
 void ST_Init(data_t* data)
 {
     ST_loadData(data);
-    data->st_backing_screen = (byte *) Z_Malloc(ST_WIDTH * ST_HEIGHT, PU_STATIC, 0);
+    data->st_backing_screen = (byte *) Z_Malloc(data, ST_WIDTH * ST_HEIGHT, PU_STATIC, 0);
 }
 
