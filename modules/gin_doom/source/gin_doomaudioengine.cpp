@@ -1,5 +1,26 @@
 
-DoomAudioEngine* e = nullptr;
+// The SFX module (DG_sound_module in this file) is a set of C callbacks that
+// carry no instance pointer, so they dispatch through 'e'. It is thread_local
+// and set per game thread (DoomAudioEngine::makeCurrent, called from
+// Doom::run), so each plugin instance's game thread reaches its own engine.
+// The audio thread never uses 'e' (it renders through the instance directly).
+thread_local DoomAudioEngine* e = nullptr;
+
+//==============================================================================
+// OPL music (i_oplmusic.c / opl.c).
+//
+// Each plugin instance owns its own OPL chip + sequencer, stored in its
+// data_t (data->opl_music) and created on the game thread by I_OPL_InitMusic.
+// The audio thread renders it here via DG_OPL_Render with an explicit handle;
+// the OPL context has its own internal recursive lock, so no global state is
+// involved.
+
+extern "C" void DG_OPL_Render (void* music_handle, int16_t* buffer,
+                               unsigned int nsamples, unsigned int rate);
+
+// Relative level of the music mix. OPL output is full-scale signed 16-bit;
+// this scales it into float and leaves headroom for sound effects.
+static constexpr float kMusicGain = 0.5f;
 
 void DoomAudioEngine::Channel::processBlock (juce::AudioBuffer<float>& bufferOut, int sampleRateOut)
 {
@@ -28,21 +49,85 @@ void DoomAudioEngine::Channel::processBlock (juce::AudioBuffer<float>& bufferOut
 
 DoomAudioEngine::DoomAudioEngine()
 {
-    e = this;
 }
 
 DoomAudioEngine::~DoomAudioEngine()
 {
-    e = nullptr;
+}
+
+void DoomAudioEngine::makeCurrent()
+{
+    // Called on this instance's game thread so the SFX C callbacks dispatch
+    // to this engine.
+    e = this;
 }
 
 void DoomAudioEngine::processBlock (juce::AudioBuffer<float>& buffer, int sampleRate)
 {
-    juce::ScopedLock sl (lock);
+    {
+        juce::ScopedLock sl (lock);
 
-    for (auto& ch : channels)
-        if (ch.playing)
-            ch.processBlock (buffer, sampleRate);
+        for (auto& ch : channels)
+            if (ch.playing)
+                ch.processBlock (buffer, sampleRate);
+    }
+
+    renderMusic (buffer, sampleRate);
+}
+
+void DoomAudioEngine::attach (void* data)
+{
+    juce::ScopedLock sl (lock);
+    doomData = data;
+}
+
+void DoomAudioEngine::renderMusic (juce::AudioBuffer<float>& buffer, int sampleRate)
+{
+    if (buffer.getNumChannels() < 1)
+        return;
+
+    // Locate this instance's music state. The handle is published once on the
+    // game thread (I_OPL_InitMusic) and cleared on shutdown.
+    data_t* d;
+    {
+        juce::ScopedLock sl (lock);
+        d = (data_t*) doomData;
+    }
+
+    if (d == nullptr)
+        return;
+
+    void* music = d->opl_music;
+    if (music == nullptr)
+        return;
+
+    const int n = buffer.getNumSamples();
+    if (n <= 0)
+        return;
+
+    // Grow the scratch buffer if needed (rare; not the steady state).
+    if (musicScratchSamples < n)
+    {
+        musicScratch.malloc (n * 2);
+        musicScratchSamples = n;
+    }
+
+    // Renders this instance's OPL chip at the host rate (stereo interleaved).
+    DG_OPL_Render (music, musicScratch.get(), (unsigned int) n,
+                   (unsigned int) sampleRate);
+
+    const float gain = kMusicGain / 32768.0f;
+
+    float* l = buffer.getWritePointer (0);
+    float* r = buffer.getNumChannels() > 1 ? buffer.getWritePointer (1) : nullptr;
+
+    for (int i = 0; i < n; ++i)
+    {
+        l[i] += musicScratch[i * 2] * gain;
+
+        if (r != nullptr)
+            r[i] += musicScratch[i * 2 + 1] * gain;
+    }
 }
 
 void DoomAudioEngine::precacheSounds (void* sounds, int num_sounds)

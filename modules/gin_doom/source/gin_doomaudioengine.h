@@ -18,9 +18,28 @@ public:
     void shutdownSound (void);
     bool initSound (bool _use_sfx_prefix);
 
+    // Called by Doom once its per-instance data_t exists, so the audio
+    // thread can locate this instance's OPL music state (data->opl_music).
+    void attach (void* doomData);
+
+    // Called on this instance's game thread so the SFX C callbacks (which
+    // carry no instance pointer) dispatch to this engine.
+    void makeCurrent();
+
 private:
     juce::CriticalSection lock;
-    
+
+    // Pull this instance's OPL FM-synth music into the output buffer.
+    void renderMusic (juce::AudioBuffer<float>& buffer, int sampleRate);
+
+    // The owning instance's data_t (opaque here; cast in the .cpp). Used to
+    // reach the per-instance music state on the audio thread.
+    void* doomData = nullptr;
+
+    // Scratch buffer for OPL output (stereo interleaved 16-bit).
+    juce::HeapBlock<int16_t> musicScratch;
+    int musicScratchSamples = 0;
+
     struct Channel
     {
         bool playing = false;

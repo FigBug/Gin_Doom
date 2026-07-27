@@ -126,6 +126,9 @@ struct data_s
 	struct channel_s* channels;
 	struct musicinfo_s* mus_playing;
 
+	// i_oplmusic.c - per-instance OPL music state (opaque opl_music_t*)
+	void*           opl_music;
+
 	// g_game.c input/demo state
 	int             next_weapon;
 	boolean         gamekeydown[256];   // NUMKEYS

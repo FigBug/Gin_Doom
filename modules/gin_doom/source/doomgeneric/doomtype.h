@@ -52,6 +52,15 @@
 #define PACKEDATTR
 #endif
 
+// Wrap a struct definition so that its fields are packed with no padding.
+// Usage: typedef PACKED_STRUCT( { int a; short b; } ) my_struct_t;
+
+#ifdef _MSC_VER
+#define PACKED_STRUCT(...) __pragma(pack(push,1)) struct __VA_ARGS__ __pragma(pack(pop))
+#else
+#define PACKED_STRUCT(...) struct __VA_ARGS__ PACKEDATTR
+#endif
+
 // C99 integer types; with gcc we just use this.  Other compilers 
 // should add conditional statements that define the C99 types.
 

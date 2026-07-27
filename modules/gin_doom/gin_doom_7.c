@@ -25,9 +25,9 @@
 
 #define FEATURE_SOUND
 
-#include "source/doomgeneric/wi_stuff.c"
-#include "source/doomgeneric/i_video.c"
-#include "source/doomgeneric/i_sdlsound.c"
-// NOTE: i_sdlmusic.c is no longer built. The music module (DG_music_module)
-// is now provided by the OPL FM-synth implementation in i_oplmusic.c, which
-// is compiled via gin_doom_4.c .. gin_doom_7.c below.
+// data.h defines data_t, which i_sound.h / w_wad.h reference. In the unity
+// build this is normally pulled in transitively; include it explicitly here
+// as this translation unit only compiles i_oplmusic.c.
+#include "source/doomgeneric/data.h"
+
+#include "source/doomgeneric/i_oplmusic.c"

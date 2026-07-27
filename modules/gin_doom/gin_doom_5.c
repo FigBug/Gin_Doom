@@ -25,9 +25,5 @@
 
 #define FEATURE_SOUND
 
-#include "source/doomgeneric/wi_stuff.c"
-#include "source/doomgeneric/i_video.c"
-#include "source/doomgeneric/i_sdlsound.c"
-// NOTE: i_sdlmusic.c is no longer built. The music module (DG_music_module)
-// is now provided by the OPL FM-synth implementation in i_oplmusic.c, which
-// is compiled via gin_doom_4.c .. gin_doom_7.c below.
+#include "source/doomgeneric/opl_queue.c"
+#include "source/doomgeneric/opl.c"

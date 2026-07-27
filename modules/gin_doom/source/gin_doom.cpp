@@ -7,6 +7,13 @@ extern "C"
 	void D_DoomMain (data_t* data);
 	void M_FindResponseFile (data_t* data);
 	void dg_Create (data_t* data);
+
+	// Publishes this instance's data_t as the current one for audio/music
+	// code running on this thread (see i_oplmusic.c).
+	void DG_SetCurrentData (void* data);
+
+	// Frees this instance's OPL music state (see i_oplmusic.c).
+	void DG_OPL_Shutdown (void);
 }
 
 int keyCodes[] = {
@@ -238,6 +245,12 @@ void Doom::run()
         return;
     }
 
+    // Make this instance's data reachable by the C audio/music code that runs
+    // on this (the game) thread, and by the audio engine when it renders.
+    DG_SetCurrentData (data);
+    audio.makeCurrent();
+    audio.attach (data);
+
     const char* params[3];
     params[0] = "doom";
     params[1] = "-iwad";
@@ -265,6 +278,12 @@ void Doom::run()
 				self->component->repaint();
         }
     });
+
+    // Stop the audio thread from touching this instance's music, then free
+    // it, before the data_t itself goes away.
+    audio.attach (nullptr);
+    DG_OPL_Shutdown();
+    DG_SetCurrentData (nullptr);
 
 	user_data = nullptr;
 	DG_Free (data);
