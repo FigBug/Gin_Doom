@@ -73,15 +73,12 @@ extern  boolean	modifiedgame;
 
 
 // Selected by user. 
-extern  int		gameepisode;
-extern  int		gamemap;
 
 // If non-zero, exit the level after this number of minutes
 
 // Nightmare mode flag, single player.
 
 // Netgame? Only true if >1 player.
-extern  boolean	netgame;
 
 // 0=Cooperative; 1=Deathmatch; 2=Altdeath
 
@@ -116,13 +113,9 @@ extern int snd_DesiredSfxDevice;
 //  status bar explicitely.
 extern  boolean statusbaractive;
 
-extern  boolean	menuactive;	// Menu overlayed?
-extern  boolean	paused;		// Game Pause?
 
 
-extern  boolean		viewactive;
 
-extern  boolean		nodrawers;
 
 
 extern  boolean         testcontrols;
@@ -133,24 +126,16 @@ extern  int             testcontrols_mousespeed;
 
 // This one is related to the 3-screen display mode.
 // ANG90 = left side, ANG270 = right
-extern  int	viewangleoffset;
 
 // Player taking events, and displaying.
-extern  int	consoleplayer;	
-extern  int	displayplayer;
 
 
 // -------------------------------------
 // Scores, rating.
 // Statistics on a given map, for intermission.
 //
-extern  int	totalkills;
-extern	int	totalitems;
-extern	int	totalsecret;
 
 // Timer, for scores.
-extern  int	levelstarttic;	// gametic at level start
-extern  int	leveltime;	// tics in game play for par
 
 
 
@@ -158,19 +143,14 @@ extern  int	leveltime;	// tics in game play for par
 // DEMO playback/recording related stuff.
 // No demo, there is a human player in charge?
 // Disable save/end game?
-extern  boolean	usergame;
 
 //?
-extern  boolean	demoplayback;
-extern  boolean	demorecording;
 
 // Round angleturn in ticcmds to the nearest 256.  This is used when
 // recording Vanilla demos in netgames.
 
-extern boolean lowres_turn;
 
 // Quit after playing a demo from cmdline.
-extern  boolean		singledemo;	
 
 
 
@@ -191,10 +171,8 @@ extern  boolean		singledemo;
 
 
 // Bookkeeping on players - state.
-extern	player_t	players[MAXPLAYERS];
 
 // Alive? Disconnected?
-extern  boolean		playeringame[MAXPLAYERS];
 
 
 // Player spawn spots for deathmatch.
@@ -207,7 +185,6 @@ extern  mapthing_t      playerstarts[MAXPLAYERS];
 
 // Intermission stats.
 // Parameters for world map / intermission.
-extern  wbstartstruct_t		wminfo;	
 
 
 
@@ -236,16 +213,13 @@ extern  int             mouseSensitivity;
 // Needed to store the number of the dummy sky flat.
 // Used for rendering,
 //  as well as tracking projectiles etc.
-extern int		skyflatnum;
 
 
 
 // Netgame stuff (buffers and pointers, i.e. indices).
 
 
-extern	int		rndindex;
 
-extern  ticcmd_t       *netcmds;
 
 
 #endif

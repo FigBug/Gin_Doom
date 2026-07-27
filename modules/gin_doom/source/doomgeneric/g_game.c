@@ -900,7 +900,7 @@ void G_Ticker (data_t* data)
 		if (data->players[i].mo) 
 		    data->consistancy[i][buf] = data->players[i].mo->x; 
 		else 
-		    data->consistancy[i][buf] = rndindex; 
+		    data->consistancy[i][buf] = data->rndindex; 
 	    } 
 	}
     }
