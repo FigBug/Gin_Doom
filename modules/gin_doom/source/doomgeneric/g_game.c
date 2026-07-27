@@ -90,7 +90,6 @@ void	G_DoWorldDone (data_t* data);
 void	G_DoSaveGame (data_t* data);
  
 // Gamestate the last time G_Ticker was called.
-gamestate_t     oldgamestate;
 
 
 
@@ -933,12 +932,12 @@ void G_Ticker (data_t* data)
 
     // Have we just finished displaying an intermission screen?
 
-    if (oldgamestate == GS_INTERMISSION && data->gamestate != GS_INTERMISSION)
+    if (data->oldgamestate == GS_INTERMISSION && data->gamestate != GS_INTERMISSION)
     {
         WI_End(data);
     }
 
-    oldgamestate = data->gamestate;
+    data->oldgamestate = data->gamestate;
     
     // do main actions
     switch (data->gamestate) 

@@ -93,6 +93,7 @@ struct data_s
 	int             leveltime;
 	int             gametic;
 	gamestate_t     gamestate;
+	gamestate_t     oldgamestate;   // g_game.c - previous tic's gamestate
 	skill_t         gameskill;
 	boolean         respawnmonsters;
 	int             gameepisode;
@@ -636,6 +637,7 @@ struct data_s
 	int             sightcounts[2];
 	fixed_t         t2x;
 	fixed_t         t2y;
+	divline_t       strace;         // p_sight.c - sight trace t1->t2
 
 	// z_zone.c - per-instance zone heap.
 	struct memzone_s*   mainzone;
