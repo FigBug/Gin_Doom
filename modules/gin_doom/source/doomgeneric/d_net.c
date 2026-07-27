@@ -215,7 +215,7 @@ void D_ConnectNetGame(data_t* data)
     net_connect_data_t connect_data;
 
     InitConnectData(data, &connect_data);
-    data->netgame = D_InitNetGame(&connect_data);
+    data->netgame = D_InitNetGame(data, &connect_data);
 
     //!
     // @category net
@@ -247,7 +247,7 @@ void D_CheckNetGame (data_t* data)
     D_RegisterLoopCallbacks(&doom_loop_interface);
 
     SaveGameSettings(data, &settings);
-    D_StartNetGame(&settings, NULL);
+    D_StartNetGame(data, &settings, NULL);
     LoadGameSettings(data, &settings);
 
     DEH_printf("startskill %i  data->deathmatch: %i  startmap: %i  startepisode: %i\n",

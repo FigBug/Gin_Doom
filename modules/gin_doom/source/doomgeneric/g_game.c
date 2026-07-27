@@ -103,10 +103,6 @@ gamestate_t     oldgamestate;
 
  
  
-char           *demoname;
-byte*		demobuffer;
-byte*		demo_p;
-byte*		demoend; 
  
 
  
@@ -297,7 +293,7 @@ void G_BuildTiccmd (data_t* data, ticcmd_t* cmd, int maketic)
 	|| data->joyxmove > 0  
 	|| data->gamekeydown[key_right]
 	|| data->gamekeydown[key_left]) 
-	data->turnheld += ticdup; 
+	data->turnheld += data->ticdup; 
     else 
 	data->turnheld = 0; 
 
@@ -442,7 +438,7 @@ void G_BuildTiccmd (data_t* data, ticcmd_t* cmd, int maketic)
         } 
         else 
         { 
-            data->dclicktime += ticdup; 
+            data->dclicktime += data->ticdup; 
             if (data->dclicktime > 20) 
             { 
                 data->dclicks = 0; 
@@ -469,7 +465,7 @@ void G_BuildTiccmd (data_t* data, ticcmd_t* cmd, int maketic)
         } 
         else 
         { 
-            data->dclicktime2 += ticdup; 
+            data->dclicktime2 += data->ticdup; 
             if (data->dclicktime2 > 20) 
             { 
                 data->dclicks2 = 0; 
@@ -847,7 +843,7 @@ void G_Ticker (data_t* data)
     
     // get commands, check data->consistancy,
     // and build new data->consistancy check
-    buf = (data->gametic/ticdup)%BACKUPTICS; 
+    buf = (data->gametic/data->ticdup)%BACKUPTICS; 
  
     for (i=0 ; i<MAXPLAYERS ; i++)
     {
@@ -887,7 +883,7 @@ void G_Ticker (data_t* data)
                 data->turbodetected[i] = false;
             }
 
-	    if (data->netgame && !data->netdemo && !(data->gametic%ticdup) ) 
+	    if (data->netgame && !data->netdemo && !(data->gametic%data->ticdup) ) 
 	    { 
 		if (data->gametic > BACKUPTICS 
 		    && data->consistancy[i][buf] != cmd->consistancy) 
@@ -1267,12 +1263,11 @@ int cpars[32] =
 //
 // G_DoCompleted 
 //
-boolean		secretexit; 
 extern char*	pagename; 
  
 void G_ExitLevel (data_t* data) 
 { 
-    secretexit = false; 
+    data->secretexit = false; 
     data->gameaction = ga_completed; 
 } 
 
@@ -1282,9 +1277,9 @@ void G_SecretExitLevel (data_t* data)
     // IF NO WOLF3D LEVELS, NO SECRET EXIT!
     if ( (data->gamemode == commercial)
       && (W_CheckNumForName("map31")<0))
-	secretexit = false;
+	data->secretexit = false;
     else
-	secretexit = true; 
+	data->secretexit = true; 
     data->gameaction = ga_completed; 
 } 
  
@@ -1354,7 +1349,7 @@ void G_DoCompleted (data_t* data)
     // data->wminfo.next is 0 biased, unlike data->gamemap
     if ( data->gamemode == commercial)
     {
-	if (secretexit)
+	if (data->secretexit)
 	    switch(data->gamemap)
 	    {
 	      case 15: data->wminfo.next = 30; break;
@@ -1370,7 +1365,7 @@ void G_DoCompleted (data_t* data)
     }
     else
     {
-	if (secretexit) 
+	if (data->secretexit) 
 	    data->wminfo.next = 8; 	// go to secret level 
 	else if (data->gamemap == 9) 
 	{
@@ -1440,7 +1435,7 @@ void G_WorldDone (data_t* data)
 { 
     data->gameaction = ga_worlddone; 
 
-    if (secretexit) 
+    if (data->secretexit) 
 	data->players[data->consoleplayer].didsecret = true; 
 
     if ( data->gamemode == commercial )
@@ -1449,7 +1444,7 @@ void G_WorldDone (data_t* data)
 	{
 	  case 15:
 	  case 31:
-	    if (!secretexit)
+	    if (!data->secretexit)
 		break;
 	  case 6:
 	  case 11:
@@ -1478,11 +1473,10 @@ void G_DoWorldDone (data_t* data)
 //
 void R_ExecuteSetViewSize (data_t* data);
 
-char	savename[256];
 
 void G_LoadGame (data_t* data, char* name) 
 { 
-    M_StringCopy(savename, name, sizeof(savename));
+    M_StringCopy(data->savename, name, sizeof(data->savename));
     data->gameaction = ga_loadgame; 
 } 
  
@@ -1495,7 +1489,7 @@ void G_DoLoadGame (data_t* data)
 	 
     data->gameaction = ga_nothing; 
 	 
-    save_stream = fopen(savename, "rb");
+    save_stream = fopen(data->savename, "rb");
 
     if (save_stream == NULL)
     {
@@ -1636,8 +1630,6 @@ void G_DoSaveGame (data_t* data)
 // data->consoleplayer, data->displayplayer, data->playeringame[] should be set. 
 //
 skill_t	d_skill; 
-int     d_episode; 
-int     d_map; 
  
 void
 G_DeferedInitNew
@@ -1647,8 +1639,8 @@ G_DeferedInitNew
   int		map) 
 { 
     d_skill = skill; 
-    d_episode = episode; 
-    d_map = map; 
+    data->d_episode = episode; 
+    data->d_map = map; 
     data->gameaction = ga_newgame; 
 } 
 
@@ -1664,7 +1656,7 @@ void G_DoNewGame (data_t* data)
     data->fastparm = false;
     data->nomonsters = false;
     data->consoleplayer = 0;
-    G_InitNew (data, d_skill, d_episode, d_map); 
+    G_InitNew (data, d_skill, data->d_episode, data->d_map); 
     data->gameaction = ga_nothing; 
 } 
 
@@ -1845,28 +1837,28 @@ G_InitNew
 
 void G_ReadDemoTiccmd (data_t* data, ticcmd_t* cmd)
 { 
-    if (*demo_p == DEMOMARKER) 
+    if (*data->demo_p == DEMOMARKER) 
     {
 	// end of demo data stream 
 	G_CheckDemoStatus (data);
 	return; 
     } 
-    cmd->forwardmove = ((signed char)*demo_p++); 
-    cmd->sidemove = ((signed char)*demo_p++); 
+    cmd->forwardmove = ((signed char)*data->demo_p++); 
+    cmd->sidemove = ((signed char)*data->demo_p++); 
 
     // If this is a data->longtics demo, read back in higher resolution
 
     if (data->longtics)
     {
-        cmd->angleturn = *demo_p++;
-        cmd->angleturn |= (*demo_p++) << 8;
+        cmd->angleturn = *data->demo_p++;
+        cmd->angleturn |= (*data->demo_p++) << 8;
     }
     else
     {
-        cmd->angleturn = ((unsigned char) *demo_p++)<<8; 
+        cmd->angleturn = ((unsigned char) *data->demo_p++)<<8; 
     }
 
-    cmd->buttons = (unsigned char)*demo_p++; 
+    cmd->buttons = (unsigned char)*data->demo_p++; 
 } 
 
 // Increase the size of the demo buffer to allow unlimited demos
@@ -1880,25 +1872,25 @@ static void IncreaseDemoBuffer(data_t* data)
 
     // Find the current size
 
-    current_length = demoend - demobuffer;
+    current_length = data->demoend - data->demobuffer;
     
     // Generate a new buffer twice the size
     new_length = current_length * 2;
     
     new_demobuffer = Z_Malloc(new_length, PU_STATIC, 0);
-    new_demop = new_demobuffer + (demo_p - demobuffer);
+    new_demop = new_demobuffer + (data->demo_p - data->demobuffer);
 
     // Copy over the old data
 
-    memcpy(new_demobuffer, demobuffer, current_length);
+    memcpy(new_demobuffer, data->demobuffer, current_length);
 
     // Free the old buffer and point the demo pointers at the new buffer.
 
-    Z_Free(demobuffer);
+    Z_Free(data->demobuffer);
 
-    demobuffer = new_demobuffer;
-    demo_p = new_demop;
-    demoend = demobuffer + new_length;
+    data->demobuffer = new_demobuffer;
+    data->demo_p = new_demop;
+    data->demoend = data->demobuffer + new_length;
 }
 
 void G_WriteDemoTiccmd (data_t* data, ticcmd_t* cmd)
@@ -1908,29 +1900,29 @@ void G_WriteDemoTiccmd (data_t* data, ticcmd_t* cmd)
     if (data->gamekeydown[key_demo_quit])           // press q to end demo recording 
 	G_CheckDemoStatus (data);
 
-    demo_start = demo_p;
+    demo_start = data->demo_p;
 
-    *demo_p++ = cmd->forwardmove; 
-    *demo_p++ = cmd->sidemove; 
+    *data->demo_p++ = cmd->forwardmove; 
+    *data->demo_p++ = cmd->sidemove; 
 
     // If this is a data->longtics demo, record in higher resolution
  
     if (data->longtics)
     {
-        *demo_p++ = (cmd->angleturn & 0xff);
-        *demo_p++ = (cmd->angleturn >> 8) & 0xff;
+        *data->demo_p++ = (cmd->angleturn & 0xff);
+        *data->demo_p++ = (cmd->angleturn >> 8) & 0xff;
     }
     else
     {
-        *demo_p++ = cmd->angleturn >> 8; 
+        *data->demo_p++ = cmd->angleturn >> 8; 
     }
 
-    *demo_p++ = cmd->buttons; 
+    *data->demo_p++ = cmd->buttons; 
 
     // reset demo pointer back
-    demo_p = demo_start;
+    data->demo_p = demo_start;
 
-    if (demo_p > demoend - 16)
+    if (data->demo_p > data->demoend - 16)
     {
         if (vanilla_demo_limit)
         {
@@ -1963,8 +1955,8 @@ void G_RecordDemo (data_t* data, char *name)
 
     data->usergame = false;
     demoname_size = strlen(name) + 5;
-    demoname = Z_Malloc(demoname_size, PU_STATIC, NULL);
-    M_snprintf(demoname, demoname_size, "%s.lmp", name);
+    data->demoname = Z_Malloc(demoname_size, PU_STATIC, NULL);
+    M_snprintf(data->demoname, demoname_size, "%s.lmp", name);
     maxsize = 0x20000;
 
     //!
@@ -1978,8 +1970,8 @@ void G_RecordDemo (data_t* data, char *name)
     i = M_CheckParmWithArgs(data, "-maxdemo", 1);
     if (i)
 	maxsize = atoi(data->myargv[i+1])*1024;
-    demobuffer = Z_Malloc (maxsize,PU_STATIC,NULL); 
-    demoend = demobuffer + maxsize;
+    data->demobuffer = Z_Malloc (maxsize,PU_STATIC,NULL); 
+    data->demoend = data->demobuffer + maxsize;
 	
     data->demorecording = true; 
 } 
@@ -2019,30 +2011,30 @@ void G_BeginRecording (data_t* data)
 
     data->lowres_turn = !data->longtics;
     
-    demo_p = demobuffer;
+    data->demo_p = data->demobuffer;
 	
     // Save the right version code for this demo
  
     if (data->longtics)
     {
-        *demo_p++ = DOOM_191_VERSION;
+        *data->demo_p++ = DOOM_191_VERSION;
     }
     else
     {
-        *demo_p++ = G_VanillaVersionCode(data);
+        *data->demo_p++ = G_VanillaVersionCode(data);
     }
 
-    *demo_p++ = data->gameskill; 
-    *demo_p++ = data->gameepisode; 
-    *demo_p++ = data->gamemap; 
-    *demo_p++ = data->deathmatch; 
-    *demo_p++ = data->respawnparm;
-    *demo_p++ = data->fastparm;
-    *demo_p++ = data->nomonsters;
-    *demo_p++ = data->consoleplayer;
+    *data->demo_p++ = data->gameskill; 
+    *data->demo_p++ = data->gameepisode; 
+    *data->demo_p++ = data->gamemap; 
+    *data->demo_p++ = data->deathmatch; 
+    *data->demo_p++ = data->respawnparm;
+    *data->demo_p++ = data->fastparm;
+    *data->demo_p++ = data->nomonsters;
+    *data->demo_p++ = data->consoleplayer;
 	 
     for (i=0 ; i<MAXPLAYERS ; i++) 
-	*demo_p++ = data->playeringame[i]; 		 
+	*data->demo_p++ = data->playeringame[i]; 		 
 } 
  
 
@@ -2104,9 +2096,9 @@ void G_DoPlayDemo (data_t* data)
     int demoversion;
 	 
     data->gameaction = ga_nothing; 
-    demobuffer = demo_p = W_CacheLumpName (defdemoname, PU_STATIC); 
+    data->demobuffer = data->demo_p = W_CacheLumpName (defdemoname, PU_STATIC); 
 
-    demoversion = *demo_p++;
+    demoversion = *data->demo_p++;
 
     if (demoversion == G_VanillaVersionCode(data))
     {
@@ -2133,17 +2125,17 @@ void G_DoPlayDemo (data_t* data)
                          DemoVersionDescription(demoversion));
     }
     
-    skill = *demo_p++; 
-    episode = *demo_p++; 
-    map = *demo_p++; 
-    data->deathmatch = *demo_p++;
-    data->respawnparm = *demo_p++;
-    data->fastparm = *demo_p++;
-    data->nomonsters = *demo_p++;
-    data->consoleplayer = *demo_p++;
+    skill = *data->demo_p++; 
+    episode = *data->demo_p++; 
+    map = *data->demo_p++; 
+    data->deathmatch = *data->demo_p++;
+    data->respawnparm = *data->demo_p++;
+    data->fastparm = *data->demo_p++;
+    data->nomonsters = *data->demo_p++;
+    data->consoleplayer = *data->demo_p++;
 	
     for (i=0 ; i<MAXPLAYERS ; i++) 
-	data->playeringame[i] = *demo_p++; 
+	data->playeringame[i] = *data->demo_p++; 
 
     if (data->playeringame[1] || M_CheckParm(data, "-solo-net") > 0
                         || M_CheckParm(data, "-data->netdemo") > 0)
@@ -2176,7 +2168,7 @@ void G_TimeDemo (data_t* data, char* name)
     data->nodrawers = M_CheckParm (data, "-nodraw");
 
     data->timingdemo = true; 
-    singletics = true; 
+    data->singletics = true; 
 
     defdemoname = name; 
     data->gameaction = ga_playdemo; 
@@ -2237,11 +2229,11 @@ boolean G_CheckDemoStatus (data_t* data)
  
     if (data->demorecording) 
     { 
-	*demo_p++ = DEMOMARKER; 
-	M_WriteFile (demoname, demobuffer, demo_p - demobuffer); 
-	Z_Free (demobuffer); 
+	*data->demo_p++ = DEMOMARKER; 
+	M_WriteFile (data->demoname, data->demobuffer, data->demo_p - data->demobuffer); 
+	Z_Free (data->demobuffer); 
 	data->demorecording = false; 
-	I_Error (NULL, "Demo %s recorded",demoname); 
+	I_Error (NULL, "Demo %s recorded",data->demoname); 
     } 
 	 
     return false; 

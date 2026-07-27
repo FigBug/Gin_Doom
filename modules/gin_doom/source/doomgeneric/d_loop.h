@@ -67,12 +67,12 @@ void D_StartGameLoop (data_t* data);
 
 // Initialize networking code and connect to server.
 
-boolean D_InitNetGame(net_connect_data_t *connect_data);
+boolean D_InitNetGame(data_t* data, net_connect_data_t *connect_data);
 
 // Start game with specified settings. The structure will be updated
 // with the actual settings for the game.
 
-void D_StartNetGame(net_gamesettings_t *settings,
+void D_StartNetGame(data_t* data, net_gamesettings_t *settings,
                     netgame_startup_callback_t callback);
 
 extern boolean singletics;

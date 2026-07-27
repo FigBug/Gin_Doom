@@ -600,6 +600,31 @@ struct data_s
 	fixed_t         t2x;
 	fixed_t         t2y;
 
+	// d_loop.c
+	int             frameon;
+	int             frameskip[4];
+	int             lasttime;
+	boolean         local_playeringame[NET_MAXPLAYERS];
+	int             localplayer;
+	int             maketic;
+	boolean         new_sync;
+	fixed_t         offsetms;
+	int             oldnettics;
+	int             player_class;
+	int             recvtic;
+	boolean         singletics;
+	int             skiptics;
+	int             ticdup;
+	// g_game.c demo/game state
+	char*           demoname;
+	byte*           demobuffer;
+	byte*           demo_p;
+	byte*           demoend;
+	boolean         secretexit;
+	char            savename[256];
+	int             d_episode;
+	int             d_map;
+
 	// level geometry (p_setup.c)
 	int             numvertexes;
 	vertex_t*       vertexes;
