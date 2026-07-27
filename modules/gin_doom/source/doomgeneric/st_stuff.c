@@ -260,7 +260,6 @@
 #define ST_MAPHEIGHT		1
 
 // graphics are drawn to a backing screen and blitted to the real screen
-byte                   *st_backing_screen;
 	    
 // main player in game
 
@@ -387,7 +386,7 @@ void ST_refreshBackground(data_t* data)
 
     if (data->sb_st_statusbaron)
     {
-        V_UseBuffer(data, st_backing_screen);
+        V_UseBuffer(data, data->st_backing_screen);
 
 	V_DrawPatch(data, ST_X, 0, sbar);
 
@@ -396,7 +395,7 @@ void ST_refreshBackground(data_t* data)
 
         V_RestoreBuffer(data);
 
-	V_CopyRect(data, ST_X, 0, st_backing_screen, ST_WIDTH, ST_HEIGHT, ST_X, ST_Y);
+	V_CopyRect(data, ST_X, 0, data->st_backing_screen, ST_WIDTH, ST_HEIGHT, ST_X, ST_Y);
     }
 
 }
@@ -1376,6 +1375,6 @@ void ST_Stop(data_t* data)
 void ST_Init(data_t* data)
 {
     ST_loadData(data);
-    st_backing_screen = (byte *) Z_Malloc(ST_WIDTH * ST_HEIGHT, PU_STATIC, 0);
+    data->st_backing_screen = (byte *) Z_Malloc(ST_WIDTH * ST_HEIGHT, PU_STATIC, 0);
 }
 

@@ -75,16 +75,16 @@ R_RenderMaskedSegRange
     // Use different light tables
     //   for horizontal / vertical / diagonal. Diagonal?
     // OPTIMIZE: get rid of LIGHTSEGSHIFT globally
-    curline = ds->curline;
-    frontsector = curline->frontsector;
-    backsector = curline->backsector;
-    texnum = data->texturetranslation[curline->sidedef->midtexture];
+    data->curline = ds->curline;
+    data->frontsector = data->curline->frontsector;
+    data->backsector = data->curline->backsector;
+    texnum = data->texturetranslation[data->curline->sidedef->midtexture];
 	
-    lightnum = (frontsector->lightlevel >> LIGHTSEGSHIFT)+data->extralight;
+    lightnum = (data->frontsector->lightlevel >> LIGHTSEGSHIFT)+data->extralight;
 
-    if (curline->v1->y == curline->v2->y)
+    if (data->curline->v1->y == data->curline->v2->y)
 	lightnum--;
-    else if (curline->v1->x == curline->v2->x)
+    else if (data->curline->v1->x == data->curline->v2->x)
 	lightnum++;
 
     if (lightnum < 0)		
@@ -102,19 +102,19 @@ R_RenderMaskedSegRange
     data->mceilingclip = ds->sprtopclip;
     
     // find positioning
-    if (curline->linedef->flags & ML_DONTPEGBOTTOM)
+    if (data->curline->linedef->flags & ML_DONTPEGBOTTOM)
     {
-	data->dc_texturemid = frontsector->floorheight > backsector->floorheight
-	    ? frontsector->floorheight : backsector->floorheight;
+	data->dc_texturemid = data->frontsector->floorheight > data->backsector->floorheight
+	    ? data->frontsector->floorheight : data->backsector->floorheight;
 	data->dc_texturemid = data->dc_texturemid + data->textureheight[texnum] - data->viewz;
     }
     else
     {
-	data->dc_texturemid =frontsector->ceilingheight<backsector->ceilingheight
-	    ? frontsector->ceilingheight : backsector->ceilingheight;
+	data->dc_texturemid =data->frontsector->ceilingheight<data->backsector->ceilingheight
+	    ? data->frontsector->ceilingheight : data->backsector->ceilingheight;
 	data->dc_texturemid = data->dc_texturemid - data->viewz;
     }
-    data->dc_texturemid += curline->sidedef->rowoffset;
+    data->dc_texturemid += data->curline->sidedef->rowoffset;
 			
     if (data->fixedcolormap)
 	data->dc_colormap = data->fixedcolormap;
@@ -357,28 +357,28 @@ R_StoreWallRange
 	I_Error (NULL, "Bad R_RenderWallRange: %i to %i", start , stop);
 #endif
     
-    sidedef = curline->sidedef;
-    linedef = curline->linedef;
+    data->sidedef = data->curline->sidedef;
+    data->linedef = data->curline->linedef;
 
     // mark the segment as visible for auto map
-    linedef->flags |= ML_MAPPED;
+    data->linedef->flags |= ML_MAPPED;
     
     // calculate data->rw_distance for scale calculation
-    data->rw_normalangle = curline->angle + ANG90;
+    data->rw_normalangle = data->curline->angle + ANG90;
     offsetangle = abs(data->rw_normalangle-data->rw_angle1);
     
     if (offsetangle > ANG90)
 	offsetangle = ANG90;
 
     distangle = ANG90 - offsetangle;
-    hyp = R_PointToDist(data, curline->v1->x, curline->v1->y);
+    hyp = R_PointToDist(data, data->curline->v1->x, data->curline->v1->y);
     sineval = finesine[distangle>>ANGLETOFINESHIFT];
     data->rw_distance = FixedMul (hyp, sineval);
 		
 	
     data->ds_p->x1 = data->rw_x = start;
     data->ds_p->x2 = stop;
-    data->ds_p->curline = curline;
+    data->ds_p->curline = data->curline;
     data->rw_stopx = stop+1;
     
     // calculate scale at both ends and step
@@ -400,8 +400,8 @@ R_StoreWallRange
 	    fixed_t		trx,try;
 	    fixed_t		gxt,gyt;
 
-	    trx = curline->v1->x - data->viewx;
-	    try = curline->v1->y - data->viewy;
+	    trx = data->curline->v1->x - data->viewx;
+	    try = data->curline->v1->y - data->viewy;
 			
 	    gxt = FixedMul(trx,data->viewcos); 
 	    gyt = -FixedMul(try,data->viewsin); 
@@ -413,22 +413,22 @@ R_StoreWallRange
     
     // calculate texture boundaries
     //  and decide if floor / ceiling marks are needed
-    data->worldtop = frontsector->ceilingheight - data->viewz;
-    data->worldbottom = frontsector->floorheight - data->viewz;
+    data->worldtop = data->frontsector->ceilingheight - data->viewz;
+    data->worldbottom = data->frontsector->floorheight - data->viewz;
 	
     data->midtexture = data->toptexture = data->bottomtexture = data->maskedtexture = 0;
     data->ds_p->maskedtexturecol = NULL;
 	
-    if (!backsector)
+    if (!data->backsector)
     {
 	// single sided line
-	data->midtexture = data->texturetranslation[sidedef->midtexture];
+	data->midtexture = data->texturetranslation[data->sidedef->midtexture];
 	// a single sided line is terminal, so it must mark ends
 	data->markfloor = data->markceiling = true;
-	if (linedef->flags & ML_DONTPEGBOTTOM)
+	if (data->linedef->flags & ML_DONTPEGBOTTOM)
 	{
-	    vtop = frontsector->floorheight +
-		data->textureheight[sidedef->midtexture];
+	    vtop = data->frontsector->floorheight +
+		data->textureheight[data->sidedef->midtexture];
 	    // bottom of texture at bottom
 	    data->rw_midtexturemid = vtop - data->viewz;	
 	}
@@ -437,7 +437,7 @@ R_StoreWallRange
 	    // top of texture at top
 	    data->rw_midtexturemid = data->worldtop;
 	}
-	data->rw_midtexturemid += sidedef->rowoffset;
+	data->rw_midtexturemid += data->sidedef->rowoffset;
 
 	data->ds_p->silhouette = SIL_BOTH;
 	data->ds_p->sprtopclip = data->screenheightarray;
@@ -451,58 +451,58 @@ R_StoreWallRange
 	data->ds_p->sprtopclip = data->ds_p->sprbottomclip = NULL;
 	data->ds_p->silhouette = 0;
 	
-	if (frontsector->floorheight > backsector->floorheight)
+	if (data->frontsector->floorheight > data->backsector->floorheight)
 	{
 	    data->ds_p->silhouette = SIL_BOTTOM;
-	    data->ds_p->bsilheight = frontsector->floorheight;
+	    data->ds_p->bsilheight = data->frontsector->floorheight;
 	}
-	else if (backsector->floorheight > data->viewz)
+	else if (data->backsector->floorheight > data->viewz)
 	{
 	    data->ds_p->silhouette = SIL_BOTTOM;
 	    data->ds_p->bsilheight = INT_MAX;
 	    // data->ds_p->sprbottomclip = data->negonearray;
 	}
 	
-	if (frontsector->ceilingheight < backsector->ceilingheight)
+	if (data->frontsector->ceilingheight < data->backsector->ceilingheight)
 	{
 	    data->ds_p->silhouette |= SIL_TOP;
-	    data->ds_p->tsilheight = frontsector->ceilingheight;
+	    data->ds_p->tsilheight = data->frontsector->ceilingheight;
 	}
-	else if (backsector->ceilingheight < data->viewz)
+	else if (data->backsector->ceilingheight < data->viewz)
 	{
 	    data->ds_p->silhouette |= SIL_TOP;
 	    data->ds_p->tsilheight = INT_MIN;
 	    // data->ds_p->sprtopclip = data->screenheightarray;
 	}
 		
-	if (backsector->ceilingheight <= frontsector->floorheight)
+	if (data->backsector->ceilingheight <= data->frontsector->floorheight)
 	{
 	    data->ds_p->sprbottomclip = data->negonearray;
 	    data->ds_p->bsilheight = INT_MAX;
 	    data->ds_p->silhouette |= SIL_BOTTOM;
 	}
 	
-	if (backsector->floorheight >= frontsector->ceilingheight)
+	if (data->backsector->floorheight >= data->frontsector->ceilingheight)
 	{
 	    data->ds_p->sprtopclip = data->screenheightarray;
 	    data->ds_p->tsilheight = INT_MIN;
 	    data->ds_p->silhouette |= SIL_TOP;
 	}
 	
-	data->worldhigh = backsector->ceilingheight - data->viewz;
-	data->worldlow = backsector->floorheight - data->viewz;
+	data->worldhigh = data->backsector->ceilingheight - data->viewz;
+	data->worldlow = data->backsector->floorheight - data->viewz;
 		
 	// hack to allow height changes in outdoor areas
-	if (frontsector->ceilingpic == data->skyflatnum 
-	    && backsector->ceilingpic == data->skyflatnum)
+	if (data->frontsector->ceilingpic == data->skyflatnum 
+	    && data->backsector->ceilingpic == data->skyflatnum)
 	{
 	    data->worldtop = data->worldhigh;
 	}
 	
 			
 	if (data->worldlow != data->worldbottom 
-	    || backsector->floorpic != frontsector->floorpic
-	    || backsector->lightlevel != frontsector->lightlevel)
+	    || data->backsector->floorpic != data->frontsector->floorpic
+	    || data->backsector->lightlevel != data->frontsector->lightlevel)
 	{
 	    data->markfloor = true;
 	}
@@ -514,8 +514,8 @@ R_StoreWallRange
 	
 			
 	if (data->worldhigh != data->worldtop 
-	    || backsector->ceilingpic != frontsector->ceilingpic
-	    || backsector->lightlevel != frontsector->lightlevel)
+	    || data->backsector->ceilingpic != data->frontsector->ceilingpic
+	    || data->backsector->lightlevel != data->frontsector->lightlevel)
 	{
 	    data->markceiling = true;
 	}
@@ -525,8 +525,8 @@ R_StoreWallRange
 	    data->markceiling = false;
 	}
 	
-	if (backsector->ceilingheight <= frontsector->floorheight
-	    || backsector->floorheight >= frontsector->ceilingheight)
+	if (data->backsector->ceilingheight <= data->frontsector->floorheight
+	    || data->backsector->floorheight >= data->frontsector->ceilingheight)
 	{
 	    // closed door
 	    data->markceiling = data->markfloor = true;
@@ -536,8 +536,8 @@ R_StoreWallRange
 	if (data->worldhigh < data->worldtop)
 	{
 	    // top texture
-	    data->toptexture = data->texturetranslation[sidedef->toptexture];
-	    if (linedef->flags & ML_DONTPEGTOP)
+	    data->toptexture = data->texturetranslation[data->sidedef->toptexture];
+	    if (data->linedef->flags & ML_DONTPEGTOP)
 	    {
 		// top of texture at top
 		data->rw_toptexturemid = data->worldtop;
@@ -545,8 +545,8 @@ R_StoreWallRange
 	    else
 	    {
 		vtop =
-		    backsector->ceilingheight
-		    + data->textureheight[sidedef->toptexture];
+		    data->backsector->ceilingheight
+		    + data->textureheight[data->sidedef->toptexture];
 		
 		// bottom of texture
 		data->rw_toptexturemid = vtop - data->viewz;	
@@ -555,9 +555,9 @@ R_StoreWallRange
 	if (data->worldlow > data->worldbottom)
 	{
 	    // bottom texture
-	    data->bottomtexture = data->texturetranslation[sidedef->bottomtexture];
+	    data->bottomtexture = data->texturetranslation[data->sidedef->bottomtexture];
 
-	    if (linedef->flags & ML_DONTPEGBOTTOM )
+	    if (data->linedef->flags & ML_DONTPEGBOTTOM )
 	    {
 		// bottom of texture at bottom
 		// top of texture at top
@@ -566,11 +566,11 @@ R_StoreWallRange
 	    else	// top of texture at top
 		data->rw_bottomtexturemid = data->worldlow;
 	}
-	data->rw_toptexturemid += sidedef->rowoffset;
-	data->rw_bottomtexturemid += sidedef->rowoffset;
+	data->rw_toptexturemid += data->sidedef->rowoffset;
+	data->rw_bottomtexturemid += data->sidedef->rowoffset;
 	
 	// allocate space for masked texture tables
-	if (sidedef->midtexture)
+	if (data->sidedef->midtexture)
 	{
 	    // masked data->midtexture
 	    data->maskedtexture = true;
@@ -598,7 +598,7 @@ R_StoreWallRange
 	if (data->rw_normalangle-data->rw_angle1 < ANG180)
 	    data->rw_offset = -data->rw_offset;
 
-	data->rw_offset += sidedef->textureoffset + curline->offset;
+	data->rw_offset += data->sidedef->textureoffset + data->curline->offset;
 	data->rw_centerangle = ANG90 + data->viewangle - data->rw_normalangle;
 	
 	// calculate light table
@@ -607,11 +607,11 @@ R_StoreWallRange
 	// OPTIMIZE: get rid of LIGHTSEGSHIFT globally
 	if (!data->fixedcolormap)
 	{
-	    lightnum = (frontsector->lightlevel >> LIGHTSEGSHIFT)+data->extralight;
+	    lightnum = (data->frontsector->lightlevel >> LIGHTSEGSHIFT)+data->extralight;
 
-	    if (curline->v1->y == curline->v2->y)
+	    if (data->curline->v1->y == data->curline->v2->y)
 		lightnum--;
-	    else if (curline->v1->x == curline->v2->x)
+	    else if (data->curline->v1->x == data->curline->v2->x)
 		lightnum++;
 
 	    if (lightnum < 0)		
@@ -628,14 +628,14 @@ R_StoreWallRange
     //  and doesn't need to be marked.
     
   
-    if (frontsector->floorheight >= data->viewz)
+    if (data->frontsector->floorheight >= data->viewz)
     {
 	// above view plane
 	data->markfloor = false;
     }
     
-    if (frontsector->ceilingheight <= data->viewz 
-	&& frontsector->ceilingpic != data->skyflatnum)
+    if (data->frontsector->ceilingheight <= data->viewz 
+	&& data->frontsector->ceilingpic != data->skyflatnum)
     {
 	// below view plane
 	data->markceiling = false;
@@ -652,7 +652,7 @@ R_StoreWallRange
     data->bottomstep = -FixedMul (data->rw_scalestep,data->worldbottom);
     data->bottomfrac = (data->centeryfrac>>4) - FixedMul (data->worldbottom, data->rw_scale);
 	
-    if (backsector)
+    if (data->backsector)
     {	
 	data->worldhigh >>= 4;
 	data->worldlow >>= 4;

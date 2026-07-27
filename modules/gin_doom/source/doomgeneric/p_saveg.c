@@ -27,6 +27,9 @@
 #include "p_local.h"
 #include "p_saveg.h"
 
+int savegamelength;
+boolean savegame_error;
+
 // State.
 #include "doomstat.h"
 #include "g_game.h"
@@ -37,8 +40,6 @@
 #define VERSIONSIZE 16 
 
 FILE *save_stream;
-int savegamelength;
-boolean savegame_error;
 
 // Get the filename of a temporary file to write the savegame to.  After
 // the file has been successfully saved, it will be renamed to the 

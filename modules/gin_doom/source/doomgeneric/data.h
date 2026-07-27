@@ -682,6 +682,15 @@ struct data_s
 	int             ps_tmp_s3_floorheight;
 	int             ps_tmp_s3_floorpic;
 
+	// r_bsp render context
+	seg_t*          curline;
+	side_t*         sidedef;
+	line_t*         linedef;
+	sector_t*       frontsector;
+	sector_t*       backsector;
+	// st_stuff/p_saveg
+	byte*           st_backing_screen;
+
 	// level geometry (p_setup.c)
 	int             numvertexes;
 	vertex_t*       vertexes;

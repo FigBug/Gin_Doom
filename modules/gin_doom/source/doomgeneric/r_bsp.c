@@ -37,11 +37,6 @@
 
 
 
-seg_t*		curline;
-side_t*		sidedef;
-line_t*		linedef;
-sector_t*	frontsector;
-sector_t*	backsector;
 
 
 
@@ -251,7 +246,7 @@ void R_AddLine (data_t* data, seg_t* line)
     angle_t		span;
     angle_t		tspan;
     
-    curline = line;
+    data->curline = line;
 
     // OPTIMIZE: quickly reject orthogonal back data->sides.
     angle1 = R_PointToAngle(data, line->v1->x, line->v1->y);
@@ -303,20 +298,20 @@ void R_AddLine (data_t* data, seg_t* line)
     if (x1 == x2)
 	return;				
 	
-    backsector = line->backsector;
+    data->backsector = line->backsector;
 
     // Single sided line?
-    if (!backsector)
+    if (!data->backsector)
 	goto clipsolid;		
 
     // Closed door.
-    if (backsector->ceilingheight <= frontsector->floorheight
-	|| backsector->floorheight >= frontsector->ceilingheight)
+    if (data->backsector->ceilingheight <= data->frontsector->floorheight
+	|| data->backsector->floorheight >= data->frontsector->ceilingheight)
 	goto clipsolid;		
 
     // Window.
-    if (backsector->ceilingheight != frontsector->ceilingheight
-	|| backsector->floorheight != frontsector->floorheight)
+    if (data->backsector->ceilingheight != data->frontsector->ceilingheight
+	|| data->backsector->floorheight != data->frontsector->floorheight)
 	goto clippass;	
 		
     // Reject empty data->lines used for triggers
@@ -324,10 +319,10 @@ void R_AddLine (data_t* data, seg_t* line)
     // Identical floor and ceiling on both data->sides,
     // identical light levels on both data->sides,
     // and no middle texture.
-    if (backsector->ceilingpic == frontsector->ceilingpic
-	&& backsector->floorpic == frontsector->floorpic
-	&& backsector->lightlevel == frontsector->lightlevel
-	&& curline->sidedef->midtexture == 0)
+    if (data->backsector->ceilingpic == data->frontsector->ceilingpic
+	&& data->backsector->floorpic == data->frontsector->floorpic
+	&& data->backsector->lightlevel == data->frontsector->lightlevel
+	&& data->curline->sidedef->midtexture == 0)
     {
 	return;
     }
@@ -495,30 +490,30 @@ void R_Subsector (data_t* data, int num)
 
     data->sscount++;
     sub = &data->subsectors[num];
-    frontsector = sub->sector;
+    data->frontsector = sub->sector;
     count = sub->numlines;
     line = &data->segs[sub->firstline];
 
-    if (frontsector->floorheight < data->viewz)
+    if (data->frontsector->floorheight < data->viewz)
     {
-	data->floorplane = R_FindPlane (data, frontsector->floorheight,
-				  frontsector->floorpic,
-				  frontsector->lightlevel);
+	data->floorplane = R_FindPlane (data, data->frontsector->floorheight,
+				  data->frontsector->floorpic,
+				  data->frontsector->lightlevel);
     }
     else
 	data->floorplane = NULL;
     
-    if (frontsector->ceilingheight > data->viewz 
-	|| frontsector->ceilingpic == data->skyflatnum)
+    if (data->frontsector->ceilingheight > data->viewz 
+	|| data->frontsector->ceilingpic == data->skyflatnum)
     {
-	data->ceilingplane = R_FindPlane (data, frontsector->ceilingheight,
-				    frontsector->ceilingpic,
-				    frontsector->lightlevel);
+	data->ceilingplane = R_FindPlane (data, data->frontsector->ceilingheight,
+				    data->frontsector->ceilingpic,
+				    data->frontsector->lightlevel);
     }
     else
 	data->ceilingplane = NULL;
 		
-    R_AddSprites (data, frontsector);	
+    R_AddSprites (data, data->frontsector);	
 
     while (count--)
     {
