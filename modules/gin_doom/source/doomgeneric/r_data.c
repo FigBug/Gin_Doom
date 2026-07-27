@@ -132,7 +132,6 @@ struct texture_s
 
 
 // needed for texture pegging
-unsigned short**	texturecolumnofs;
 
 // for global animation
 
@@ -221,7 +220,7 @@ void R_GenerateComposite (data_t* data, int texnum)
 		      &data->texturecomposite[texnum]);	
 
     collump = data->texturecolumnlump[texnum];
-    colofs = texturecolumnofs[texnum];
+    colofs = data->texturecolumnofs[texnum];
     
     // Composite the columns together.
     patch = texture->patches;
@@ -288,7 +287,7 @@ void R_GenerateLookup (data_t* data, int texnum)
     
     data->texturecompositesize[texnum] = 0;
     collump = data->texturecolumnlump[texnum];
-    colofs = texturecolumnofs[texnum];
+    colofs = data->texturecolumnofs[texnum];
     
     // Now count the number of columns
     //  that are covered by more than one patch.
@@ -367,7 +366,7 @@ R_GetColumn
 	
     col &= data->texturewidthmask[tex];
     lump = data->texturecolumnlump[tex][col];
-    ofs = texturecolumnofs[tex][col];
+    ofs = data->texturecolumnofs[tex][col];
     
     if (lump > 0)
 	return (byte *)W_CacheLumpNum(data, lump,PU_CACHE)+ofs;
@@ -499,7 +498,7 @@ void R_InitTextures (data_t* data)
 	
     data->textures = Z_Malloc(data, data->numtextures * sizeof(*data->textures), PU_STATIC, 0);
     data->texturecolumnlump = Z_Malloc(data, data->numtextures * sizeof(*data->texturecolumnlump), PU_STATIC, 0);
-    texturecolumnofs = Z_Malloc(data, data->numtextures * sizeof(*texturecolumnofs), PU_STATIC, 0);
+    data->texturecolumnofs = Z_Malloc(data, data->numtextures * sizeof(*data->texturecolumnofs), PU_STATIC, 0);
     data->texturecomposite = Z_Malloc(data, data->numtextures * sizeof(*data->texturecomposite), PU_STATIC, 0);
     data->texturecompositesize = Z_Malloc(data, data->numtextures * sizeof(*data->texturecompositesize), PU_STATIC, 0);
     data->texturewidthmask = Z_Malloc(data, data->numtextures * sizeof(*data->texturewidthmask), PU_STATIC, 0);
@@ -571,7 +570,7 @@ void R_InitTextures (data_t* data)
 	    }
 	}		
 	data->texturecolumnlump[i] = Z_Malloc(data, texture->width*sizeof(**data->texturecolumnlump), PU_STATIC,0);
-	texturecolumnofs[i] = Z_Malloc(data, texture->width*sizeof(**texturecolumnofs), PU_STATIC,0);
+	data->texturecolumnofs[i] = Z_Malloc(data, texture->width*sizeof(**data->texturecolumnofs), PU_STATIC,0);
 
 	j = 1;
 	while (j*2 <= texture->width)

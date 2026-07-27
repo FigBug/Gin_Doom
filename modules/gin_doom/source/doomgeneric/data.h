@@ -436,6 +436,7 @@ struct data_s
 	fixed_t*        textureheight;
 	int*            texturecompositesize;
 	short**         texturecolumnlump;
+	unsigned short** texturecolumnofs;
 	byte**          texturecomposite;
 	int*            flattranslation;
 	int*            texturetranslation;
