@@ -315,7 +315,7 @@ void D_BindVariables(data_t* data)
     NET_BindVariables();
 #endif
 
-    M_BindVariable("mouse_sensitivity",      &mouseSensitivity);
+    M_BindVariable("mouse_sensitivity",      &data->mouseSensitivity);
     M_BindVariable("sfx_volume",             &data->sfxVolume);
     M_BindVariable("music_volume",           &data->musicVolume);
     M_BindVariable("show_messages",          &showMessages);

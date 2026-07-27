@@ -743,10 +743,10 @@ void P_SpawnMapThing (data_t* data, mapthing_t* mthing)
     // count data->deathmatch start positions
     if (mthing->type == 11)
     {
-	if (deathmatch_p < &deathmatchstarts[10])
+	if (data->deathmatch_p < &data->deathmatchstarts[10])
 	{
-	    memcpy (deathmatch_p, mthing, sizeof(*mthing));
-	    deathmatch_p++;
+	    memcpy (data->deathmatch_p, mthing, sizeof(*mthing));
+	    data->deathmatch_p++;
 	}
 	return;
     }
@@ -763,7 +763,7 @@ void P_SpawnMapThing (data_t* data, mapthing_t* mthing)
     if (mthing->type <= 4)
     {
 	// save spots for respawning in network games
-	playerstarts[mthing->type-1] = *mthing;
+	data->playerstarts[mthing->type-1] = *mthing;
 	if (!data->deathmatch)
 	    P_SpawnPlayer (data, mthing);
 

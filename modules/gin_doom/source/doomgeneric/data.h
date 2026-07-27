@@ -405,6 +405,12 @@ struct data_s
 	int             texturememory;
 	int             spritememory;
 
+	// p_setup.c spawns + m_menu config
+	mapthing_t      deathmatchstarts[10];  // MAX_DEATHMATCH_STARTS
+	mapthing_t*     deathmatch_p;
+	mapthing_t      playerstarts[MAXPLAYERS];
+	int             mouseSensitivity;
+
 	// level geometry (p_setup.c)
 	int             numvertexes;
 	vertex_t*       vertexes;

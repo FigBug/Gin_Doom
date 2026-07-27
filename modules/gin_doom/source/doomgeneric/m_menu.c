@@ -67,7 +67,6 @@ extern boolean		chat_on;		// in heads-up code
 //
 // defaulted values
 //
-int			mouseSensitivity = 5;
 
 // Show messages has default, 0 = off, 1 = on
 int			showMessages = 1;
@@ -996,7 +995,7 @@ void M_DrawOptions(data_t* data)
                                       PU_CACHE));
 
     M_DrawThermo(data, OptionsDef.x, OptionsDef.y + LINEHEIGHT * (mousesens + 1),
-		 10, mouseSensitivity);
+		 10, data->mouseSensitivity);
 
     M_DrawThermo(data, OptionsDef.x,OptionsDef.y+LINEHEIGHT*(scrnsize+1),
 		 9,screenSize);
@@ -1179,12 +1178,12 @@ void M_ChangeSensitivity(data_t* data, int choice)
     switch(choice)
     {
       case 0:
-	if (mouseSensitivity)
-	    mouseSensitivity--;
+	if (data->mouseSensitivity)
+	    data->mouseSensitivity--;
 	break;
       case 1:
-	if (mouseSensitivity < 9)
-	    mouseSensitivity++;
+	if (data->mouseSensitivity < 9)
+	    data->mouseSensitivity++;
 	break;
     }
 }

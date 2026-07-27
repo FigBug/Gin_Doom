@@ -773,8 +773,8 @@ boolean G_Responder (data_t* data, event_t* ev)
 		 
       case ev_mouse: 
         SetMouseButtons(data, ev->data1);
-	data->mousex = ev->data2*(mouseSensitivity+5)/10; 
-	data->mousey = ev->data3*(mouseSensitivity+5)/10; 
+	data->mousex = ev->data2*(data->mouseSensitivity+5)/10; 
+	data->mousey = ev->data3*(data->mouseSensitivity+5)/10; 
 	return true;    // eat events 
  
       case ev_joystick: 
@@ -1172,23 +1172,23 @@ void G_DeathMatchSpawnPlayer (data_t* data, int playernum)
     int             i,j; 
     int				selections; 
 	 
-    selections = deathmatch_p - deathmatchstarts; 
+    selections = data->deathmatch_p - data->deathmatchstarts; 
     if (selections < 4) 
 	I_Error (data, "Only %i data->deathmatch spots, 4 required", selections);
  
     for (j=0 ; j<20 ; j++) 
     { 
 	i = P_Random (data) % selections; 
-	if (G_CheckSpot (data, playernum, &deathmatchstarts[i]) )
+	if (G_CheckSpot (data, playernum, &data->deathmatchstarts[i]) )
 	{ 
-	    deathmatchstarts[i].type = playernum+1; 
-	    P_SpawnPlayer (data, &deathmatchstarts[i]);
+	    data->deathmatchstarts[i].type = playernum+1; 
+	    P_SpawnPlayer (data, &data->deathmatchstarts[i]);
 	    return; 
 	} 
     } 
  
     // no good spot, so the player will probably get stuck 
-    P_SpawnPlayer (data, &playerstarts[playernum]);
+    P_SpawnPlayer (data, &data->playerstarts[playernum]);
 } 
 
 //
@@ -1217,25 +1217,25 @@ void G_DoReborn (data_t* data, int playernum)
 	    return; 
 	} 
 		 
-	if (G_CheckSpot (data, playernum, &playerstarts[playernum]) )
+	if (G_CheckSpot (data, playernum, &data->playerstarts[playernum]) )
 	{ 
-	    P_SpawnPlayer (data, &playerstarts[playernum]);
+	    P_SpawnPlayer (data, &data->playerstarts[playernum]);
 	    return; 
 	}
 	
 	// try to spawn at one of the other data->players spots 
 	for (i=0 ; i<MAXPLAYERS ; i++)
 	{
-	    if (G_CheckSpot (data, playernum, &playerstarts[i]) )
+	    if (G_CheckSpot (data, playernum, &data->playerstarts[i]) )
 	    { 
-		playerstarts[i].type = playernum+1;	// fake as other player 
-		P_SpawnPlayer (data, &playerstarts[i]);
-		playerstarts[i].type = i+1;		// restore 
+		data->playerstarts[i].type = playernum+1;	// fake as other player 
+		P_SpawnPlayer (data, &data->playerstarts[i]);
+		data->playerstarts[i].type = i+1;		// restore 
 		return; 
 	    }	    
 	    // he's going to be inside something.  Too bad.
 	}
-	P_SpawnPlayer (data, &playerstarts[playernum]);
+	P_SpawnPlayer (data, &data->playerstarts[playernum]);
     } 
 } 
  

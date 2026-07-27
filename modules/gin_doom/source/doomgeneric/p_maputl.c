@@ -740,7 +740,7 @@ typedef struct
 // need to write to them.
 //
 // Almost all of the values to overwrite are 32-bit integers, except for
-// playerstarts, which is effectively an array of 16-bit integers and
+// data->playerstarts, which is effectively an array of 16-bit integers and
 // must be treated differently.
 
 static intercepts_overrun_t intercepts_overrun[] =
@@ -759,7 +759,7 @@ static intercepts_overrun_t intercepts_overrun[] =
     {4,   NULL, /* &data->swingx, */           false},
     {4,   NULL, /* &data->swingy, */           false},
     {4,   NULL,                          false},
-    {40,  &playerstarts,                 true},
+    {40,  NULL, /* &data->playerstarts, */ true},
     {4,   NULL, /* &data->blocklinks, */       false},
     {4,   NULL, /* &data->bmapwidth, */                    false},
     {4,   NULL, /* &data->blockmap, */         false},

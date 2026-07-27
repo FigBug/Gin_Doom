@@ -81,9 +81,6 @@ void	P_SpawnMapThing (data_t* data, mapthing_t*	mthing);
 // Maintain single and multi player starting spots.
 #define MAX_DEATHMATCH_STARTS	10
 
-mapthing_t	deathmatchstarts[MAX_DEATHMATCH_STARTS];
-mapthing_t*	deathmatch_p;
-mapthing_t	playerstarts[MAXPLAYERS];
 
 
 
@@ -785,7 +782,7 @@ P_SetupLevel
     P_LoadReject (data, lumpnum+ML_REJECT);
 
     data->bodyqueslot = 0;
-    deathmatch_p = deathmatchstarts;
+    data->deathmatch_p = data->deathmatchstarts;
     P_LoadThings (data, lumpnum+ML_THINGS);
     
     // if data->deathmatch, randomly spawn the active data->players
