@@ -226,21 +226,21 @@ boolean PIT_CheckLine (data_t* data, line_t* ld)
 	    return false;	// block monsters only
     }
 
-    // set openrange, opentop, openbottom
-    P_LineOpening (ld);	
+    // set data->openrange, data->opentop, data->openbottom
+    P_LineOpening (data, ld);	
 	
     // adjust floor / ceiling heights
-    if (opentop < data->tmceilingz)
+    if (data->opentop < data->tmceilingz)
     {
-	data->tmceilingz = opentop;
+	data->tmceilingz = data->opentop;
 	data->ceilingline = ld;
     }
 
-    if (openbottom > data->tmfloorz)
-	data->tmfloorz = openbottom;	
+    if (data->openbottom > data->tmfloorz)
+	data->tmfloorz = data->openbottom;	
 
-    if (lowfloor < data->tmdropoffz)
-	data->tmdropoffz = lowfloor;
+    if (data->lowfloor < data->tmdropoffz)
+	data->tmdropoffz = data->lowfloor;
 		
     // if contacted a special line, add it to the list
     if (ld->special)
@@ -664,16 +664,16 @@ boolean PTR_SlideTraverse (data_t* data, intercept_t* in)
 	goto isblocking;
     }
 
-    // set openrange, opentop, openbottom
-    P_LineOpening (li);
+    // set data->openrange, data->opentop, data->openbottom
+    P_LineOpening (data, li);
     
-    if (openrange < data->slidemo->height)
+    if (data->openrange < data->slidemo->height)
 	goto isblocking;		// doesn't fit
 		
-    if (opentop - data->slidemo->z < data->slidemo->height)
+    if (data->opentop - data->slidemo->z < data->slidemo->height)
 	goto isblocking;		// mobj is too high
 
-    if (openbottom - data->slidemo->z > 24*FRACUNIT )
+    if (data->openbottom - data->slidemo->z > 24*FRACUNIT )
 	goto isblocking;		// too big a step up
 
     // this line doesn't block movement
@@ -722,7 +722,7 @@ void P_SlideMove (data_t* data, mobj_t* mo)
 	goto stairstep;		// don't loop forever
 
     
-    // trace along the three leading corners
+    // data->trace along the three leading corners
     if (mo->momx > 0)
     {
 	leadx = mo->x + mo->radius;
@@ -838,9 +838,9 @@ PTR_AimTraverse (data_t* data, intercept_t* in)
 	// Crosses a two sided line.
 	// A two sided line will restrict
 	// the possible target ranges.
-	P_LineOpening (li);
+	P_LineOpening (data, li);
 	
-	if (openbottom >= opentop)
+	if (data->openbottom >= data->opentop)
 	    return false;		// stop
 	
 	dist = FixedMul (data->attackrange, in->frac);
@@ -848,7 +848,7 @@ PTR_AimTraverse (data_t* data, intercept_t* in)
         if (li->backsector == NULL
          || li->frontsector->floorheight != li->backsector->floorheight)
 	{
-	    slope = FixedDiv (openbottom - data->shootz , dist);
+	    slope = FixedDiv (data->openbottom - data->shootz , dist);
 	    if (slope > bottomslope)
 		bottomslope = slope;
 	}
@@ -856,7 +856,7 @@ PTR_AimTraverse (data_t* data, intercept_t* in)
 	if (li->backsector == NULL
          || li->frontsector->ceilingheight != li->backsector->ceilingheight)
 	{
-	    slope = FixedDiv (opentop - data->shootz , dist);
+	    slope = FixedDiv (data->opentop - data->shootz , dist);
 	    if (slope < topslope)
 		topslope = slope;
 	}
@@ -931,7 +931,7 @@ boolean PTR_ShootTraverse (data_t* data, intercept_t* in)
 	    goto hitline;
 	
 	// crosses a two sided line
-	P_LineOpening (li);
+	P_LineOpening (data, li);
 		
 	dist = FixedMul (data->attackrange, in->frac);
 
@@ -940,11 +940,11 @@ boolean PTR_ShootTraverse (data_t* data, intercept_t* in)
 
         if (li->backsector == NULL)
         {
-            slope = FixedDiv (openbottom - data->shootz , dist);
+            slope = FixedDiv (data->openbottom - data->shootz , dist);
             if (slope > data->aimslope)
                 goto hitline;
 
-            slope = FixedDiv (opentop - data->shootz , dist);
+            slope = FixedDiv (data->opentop - data->shootz , dist);
             if (slope < data->aimslope)
                 goto hitline;
         }
@@ -952,14 +952,14 @@ boolean PTR_ShootTraverse (data_t* data, intercept_t* in)
         {
             if (li->frontsector->floorheight != li->backsector->floorheight)
             {
-                slope = FixedDiv (openbottom - data->shootz , dist);
+                slope = FixedDiv (data->openbottom - data->shootz , dist);
                 if (slope > data->aimslope)
                     goto hitline;
             }
 
             if (li->frontsector->ceilingheight != li->backsector->ceilingheight)
             {
-                slope = FixedDiv (opentop - data->shootz , dist);
+                slope = FixedDiv (data->opentop - data->shootz , dist);
                 if (slope < data->aimslope)
                     goto hitline;
             }
@@ -973,8 +973,8 @@ boolean PTR_ShootTraverse (data_t* data, intercept_t* in)
       hitline:
 	// position a bit closer
 	frac = in->frac - FixedDiv (4*FRACUNIT,data->attackrange);
-	x = trace.x + FixedMul (trace.dx, frac);
-	y = trace.y + FixedMul (trace.dy, frac);
+	x = data->trace.x + FixedMul (data->trace.dx, frac);
+	y = data->trace.y + FixedMul (data->trace.dy, frac);
 	z = data->shootz + FixedMul (data->aimslope, FixedMul(frac, data->attackrange));
 
 	if (li->frontsector->ceilingpic == skyflatnum)
@@ -1020,8 +1020,8 @@ boolean PTR_ShootTraverse (data_t* data, intercept_t* in)
     // position a bit closer
     frac = in->frac - FixedDiv (10*FRACUNIT,data->attackrange);
 
-    x = trace.x + FixedMul (trace.dx, frac);
-    y = trace.y + FixedMul (trace.dy, frac);
+    x = data->trace.x + FixedMul (data->trace.dx, frac);
+    y = data->trace.y + FixedMul (data->trace.dy, frac);
     z = data->shootz + FixedMul (data->aimslope, FixedMul(frac, data->attackrange));
 
     // Spawn bullet puffs or blod spots,
@@ -1083,7 +1083,7 @@ P_AimLineAttack
 
 //
 // P_LineAttack
-// If damage == 0, it is just a test trace
+// If damage == 0, it is just a test data->trace
 // that will leave data->linetarget set.
 //
 void
@@ -1125,8 +1125,8 @@ boolean	PTR_UseTraverse (data_t* data, intercept_t* in)
 	
     if (!in->d.line->special)
     {
-	P_LineOpening (in->d.line);
-	if (openrange <= 0)
+	P_LineOpening (data, in->d.line);
+	if (data->openrange <= 0)
 	{
 	    S_StartSound(data, data->usething, sfx_noway);
 	    

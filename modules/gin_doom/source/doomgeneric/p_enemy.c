@@ -122,9 +122,9 @@ P_RecursiveSound
 	if (! (check->flags & ML_TWOSIDED) )
 	    continue;
 	
-	P_LineOpening (check);
+	P_LineOpening (data, check);
 
-	if (openrange <= 0)
+	if (data->openrange <= 0)
 	    continue;	// closed door
 	
 	if ( data->sides[ check->sidenum[0] ].sector == sec)

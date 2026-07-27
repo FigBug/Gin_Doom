@@ -337,6 +337,17 @@ struct data_s
 	boolean         crushchange;
 	boolean         nofit;
 
+	// p_maputl.c
+	fixed_t         opentop;
+	fixed_t         openbottom;
+	fixed_t         openrange;
+	fixed_t         lowfloor;
+	intercept_t     intercepts[189];  // MAXINTERCEPTS
+	intercept_t*    intercept_p;
+	divline_t       trace;
+	boolean         earlyout;
+	int             ptflags;
+
 	// level geometry (p_setup.c)
 	int             numvertexes;
 	vertex_t*       vertexes;

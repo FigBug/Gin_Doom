@@ -131,24 +131,6 @@ void P_NoiseAlert (data_t* data, mobj_t* target, mobj_t* emmiter);
 //
 // P_MAPUTL
 //
-typedef struct
-{
-    fixed_t	x;
-    fixed_t	y;
-    fixed_t	dx;
-    fixed_t	dy;
-    
-} divline_t;
-
-typedef struct
-{
-    fixed_t	frac;		// along trace line
-    boolean	isaline;
-    union {
-	mobj_t*	thing;
-	line_t*	line;
-    }			d;
-} intercept_t;
 
 // Extended MAXINTERCEPTS, to allow for intercepts overrun emulation.
 
@@ -172,7 +154,7 @@ extern fixed_t 		openbottom;
 extern fixed_t		openrange;
 extern fixed_t		lowfloor;
 
-void 	P_LineOpening (line_t* linedef);
+void 	P_LineOpening (data_t* data, line_t* linedef);
 
 boolean P_BlockLinesIterator (data_t* data, int x, int y, boolean(*func)(data_t*,line_t*) );
 boolean P_BlockThingsIterator (data_t* data, int x, int y, boolean(*func)(data_t*,mobj_t*) );

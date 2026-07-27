@@ -451,4 +451,7 @@ typedef struct
 
 
 
+typedef struct { fixed_t x, y, dx, dy; } divline_t;
+typedef struct { fixed_t frac; boolean isaline; union { mobj_t* thing; line_t* line; } d; } intercept_t;
+
 #endif

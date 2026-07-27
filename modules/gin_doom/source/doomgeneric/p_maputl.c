@@ -282,17 +282,13 @@ P_InterceptVector
 
 //
 // P_LineOpening
-// Sets opentop and openbottom to the window
+// Sets data->opentop and data->openbottom to the window
 // through a two sided line.
 // OPTIMIZE: keep this precalculated
 //
-fixed_t opentop;
-fixed_t openbottom;
-fixed_t openrange;
-fixed_t	lowfloor;
 
 
-void P_LineOpening (line_t* linedef)
+void P_LineOpening (data_t* data, line_t* linedef)
 {
     sector_t*	front;
     sector_t*	back;
@@ -300,7 +296,7 @@ void P_LineOpening (line_t* linedef)
     if (linedef->sidenum[1] == -1)
     {
 	// single sided line
-	openrange = 0;
+	data->openrange = 0;
 	return;
     }
 	 
@@ -308,22 +304,22 @@ void P_LineOpening (line_t* linedef)
     back = linedef->backsector;
 	
     if (front->ceilingheight < back->ceilingheight)
-	opentop = front->ceilingheight;
+	data->opentop = front->ceilingheight;
     else
-	opentop = back->ceilingheight;
+	data->opentop = back->ceilingheight;
 
     if (front->floorheight > back->floorheight)
     {
-	openbottom = front->floorheight;
-	lowfloor = back->floorheight;
+	data->openbottom = front->floorheight;
+	data->lowfloor = back->floorheight;
     }
     else
     {
-	openbottom = back->floorheight;
-	lowfloor = front->floorheight;
+	data->openbottom = back->floorheight;
+	data->lowfloor = front->floorheight;
     }
 	
-    openrange = opentop - openbottom;
+    data->openrange = data->opentop - data->openbottom;
 }
 
 
@@ -538,24 +534,19 @@ P_BlockThingsIterator
 //
 // INTERCEPT ROUTINES
 //
-intercept_t	intercepts[MAXINTERCEPTS];
-intercept_t*	intercept_p;
 
-divline_t 	trace;
-boolean 	earlyout;
-int		ptflags;
 
 static void InterceptsOverrun(int num_intercepts, intercept_t *intercept);
 
 //
 // PIT_AddLineIntercepts.
 // Looks for data->lines in the given block
-// that intercept the given trace
-// to add to the intercepts list.
+// that intercept the given data->trace
+// to add to the data->intercepts list.
 //
 // A line is crossed if its endpoints
-// are on opposite data->sides of the trace.
-// Returns true if earlyout and a solid line hit.
+// are on opposite data->sides of the data->trace.
+// Returns true if data->earlyout and a solid line hit.
 //
 boolean
 PIT_AddLineIntercepts (data_t* data, line_t* ld)
@@ -566,18 +557,18 @@ PIT_AddLineIntercepts (data_t* data, line_t* ld)
     divline_t		dl;
 	
     // avoid precision problems with two routines
-    if ( trace.dx > FRACUNIT*16
-	 || trace.dy > FRACUNIT*16
-	 || trace.dx < -FRACUNIT*16
-	 || trace.dy < -FRACUNIT*16)
+    if ( data->trace.dx > FRACUNIT*16
+	 || data->trace.dy > FRACUNIT*16
+	 || data->trace.dx < -FRACUNIT*16
+	 || data->trace.dy < -FRACUNIT*16)
     {
-	s1 = P_PointOnDivlineSide (ld->v1->x, ld->v1->y, &trace);
-	s2 = P_PointOnDivlineSide (ld->v2->x, ld->v2->y, &trace);
+	s1 = P_PointOnDivlineSide (ld->v1->x, ld->v1->y, &data->trace);
+	s2 = P_PointOnDivlineSide (ld->v2->x, ld->v2->y, &data->trace);
     }
     else
     {
-	s1 = P_PointOnLineSide (trace.x, trace.y, ld);
-	s2 = P_PointOnLineSide (trace.x+trace.dx, trace.y+trace.dy, ld);
+	s1 = P_PointOnLineSide (data->trace.x, data->trace.y, ld);
+	s2 = P_PointOnLineSide (data->trace.x+data->trace.dx, data->trace.y+data->trace.dy, ld);
     }
     
     if (s1 == s2)
@@ -585,13 +576,13 @@ PIT_AddLineIntercepts (data_t* data, line_t* ld)
     
     // hit the line
     P_MakeDivline (ld, &dl);
-    frac = P_InterceptVector (&trace, &dl);
+    frac = P_InterceptVector (&data->trace, &dl);
 
     if (frac < 0)
 	return true;	// behind source
 	
     // try to early out the check
-    if (earlyout
+    if (data->earlyout
 	&& frac < FRACUNIT
 	&& !ld->backsector)
     {
@@ -599,11 +590,11 @@ PIT_AddLineIntercepts (data_t* data, line_t* ld)
     }
     
 	
-    intercept_p->frac = frac;
-    intercept_p->isaline = true;
-    intercept_p->d.line = ld;
-    InterceptsOverrun(intercept_p - intercepts, intercept_p);
-    intercept_p++;
+    data->intercept_p->frac = frac;
+    data->intercept_p->isaline = true;
+    data->intercept_p->d.line = ld;
+    InterceptsOverrun(data->intercept_p - data->intercepts, data->intercept_p);
+    data->intercept_p++;
 
     return true;	// continue
 }
@@ -629,7 +620,7 @@ boolean PIT_AddThingIntercepts (data_t* data, mobj_t* thing)
     
     fixed_t		frac;
 	
-    tracepositive = (trace.dx ^ trace.dy)>0;
+    tracepositive = (data->trace.dx ^ data->trace.dy)>0;
 		
     // check a corner to corner crossection for hit
     if (tracepositive)
@@ -649,8 +640,8 @@ boolean PIT_AddThingIntercepts (data_t* data, mobj_t* thing)
 	y2 = thing->y + thing->radius;			
     }
     
-    s1 = P_PointOnDivlineSide (x1, y1, &trace);
-    s2 = P_PointOnDivlineSide (x2, y2, &trace);
+    s1 = P_PointOnDivlineSide (x1, y1, &data->trace);
+    s2 = P_PointOnDivlineSide (x2, y2, &data->trace);
 
     if (s1 == s2)
 	return true;		// line isn't crossed
@@ -660,16 +651,16 @@ boolean PIT_AddThingIntercepts (data_t* data, mobj_t* thing)
     dl.dx = x2-x1;
     dl.dy = y2-y1;
     
-    frac = P_InterceptVector (&trace, &dl);
+    frac = P_InterceptVector (&data->trace, &dl);
 
     if (frac < 0)
 	return true;		// behind source
 
-    intercept_p->frac = frac;
-    intercept_p->isaline = false;
-    intercept_p->d.thing = thing;
-    InterceptsOverrun(intercept_p - intercepts, intercept_p);
-    intercept_p++;
+    data->intercept_p->frac = frac;
+    data->intercept_p->isaline = false;
+    data->intercept_p->d.thing = thing;
+    InterceptsOverrun(data->intercept_p - data->intercepts, data->intercept_p);
+    data->intercept_p++;
 
     return true;		// keep going
 }
@@ -691,14 +682,14 @@ P_TraverseIntercepts
     intercept_t*	scan;
     intercept_t*	in;
 	
-    count = intercept_p - intercepts;
+    count = data->intercept_p - data->intercepts;
     
     in = 0;			// shut up compiler warning
 	
     while (count--)
     {
 	dist = INT_MAX;
-	for (scan = intercepts ; scan<intercept_p ; scan++)
+	for (scan = data->intercepts ; scan<data->intercept_p ; scan++)
 	{
 	    if (scan->frac < dist)
 	    {
@@ -713,11 +704,11 @@ P_TraverseIntercepts
 #if 0  // UNUSED
     {
 	// don't check these yet, there may be others inserted
-	in = scan = intercepts;
-	for ( scan = intercepts ; scan<intercept_p ; scan++)
+	in = scan = data->intercepts;
+	for ( scan = data->intercepts ; scan<data->intercept_p ; scan++)
 	    if (scan->frac > maxfrac)
 		*in++ = *scan;
-	intercept_p = in;
+	data->intercept_p = in;
 	return false;
     }
 #endif
@@ -746,7 +737,7 @@ typedef struct
 } intercepts_overrun_t;
 
 // Intercepts memory table.  This is where various variables are located
-// in memory in Vanilla Doom.  When the intercepts table overflows, we
+// in memory in Vanilla Doom.  When the data->intercepts table overflows, we
 // need to write to them.
 //
 // Almost all of the values to overwrite are 32-bit integers, except for
@@ -756,12 +747,12 @@ typedef struct
 static intercepts_overrun_t intercepts_overrun[] =
 {
     {4,   NULL,                          false},
-    {4,   NULL, /* &earlyout, */         false},
-    {4,   NULL, /* &intercept_p, */      false},
-    {4,   &lowfloor,                     false},
-    {4,   &openbottom,                   false},
-    {4,   &opentop,                      false},
-    {4,   &openrange,                    false},
+    {4,   NULL, /* &data->earlyout, */         false},
+    {4,   NULL, /* &data->intercept_p, */      false},
+    {4,   NULL, /* &data->lowfloor, */                     false},
+    {4,   NULL, /* &data->openbottom, */                   false},
+    {4,   NULL, /* &data->opentop, */                      false},
+    {4,   NULL, /* &data->openrange, */                    false},
     {4,   NULL,                          false},
     {120, NULL, /* &activeplats, */      false},
     {8,   NULL,                          false},
@@ -825,7 +816,7 @@ static void InterceptsMemoryOverrun(int location, int value)
     }
 }
 
-// Emulate overruns of the intercepts[] array.
+// Emulate overruns of the data->intercepts[] array.
 
 static void InterceptsOverrun(int num_intercepts, intercept_t *intercept)
 {
@@ -891,10 +882,10 @@ P_PathTraverse
 
     int		count;
 		
-    earlyout = flags & PT_EARLYOUT;
+    data->earlyout = flags & PT_EARLYOUT;
 		
     data->validcount++;
-    intercept_p = intercepts;
+    data->intercept_p = data->intercepts;
 	
     if ( ((x1-bmaporgx)&(MAPBLOCKSIZE-1)) == 0)
 	x1 += FRACUNIT;	// don't side exactly on a line
@@ -902,10 +893,10 @@ P_PathTraverse
     if ( ((y1-bmaporgy)&(MAPBLOCKSIZE-1)) == 0)
 	y1 += FRACUNIT;	// don't side exactly on a line
 
-    trace.x = x1;
-    trace.y = y1;
-    trace.dx = x2 - x1;
-    trace.dy = y2 - y1;
+    data->trace.x = x1;
+    data->trace.y = y1;
+    data->trace.dx = x2 - x1;
+    data->trace.dy = y2 - y1;
 
     x1 -= bmaporgx;
     y1 -= bmaporgy;
