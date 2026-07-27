@@ -90,7 +90,6 @@ void D_DoomLoop (data_t* data);
 void D_ConnectNetGame(data_t* data);
 void D_CheckNetGame(data_t* data);
 
-extern boolean			inhelpscreens;
 
 //
 // D_ProcessEvents
@@ -121,7 +120,6 @@ void D_ProcessEvents (data_t* data)
 //
 
 // data->wipegamestate can be set to -1 to force a wipe on the next draw
-extern  int             showMessages;
 void R_ExecuteSetViewSize (data_t* data);
 
 void D_Display (data_t* data)
@@ -169,7 +167,7 @@ void D_Display (data_t* data)
 			AM_Drawer (data);
 		if (wipe || (data->viewheight != 200 && data->dd_fullscreen) )
 			redrawsbar = true;
-		if (data->dd_inhelpscreensstate && !inhelpscreens)
+		if (data->dd_inhelpscreensstate && !data->mn_inhelpscreens)
 			redrawsbar = true;              // just put away the help screen
 		ST_Drawer (data, data->viewheight == 200, redrawsbar );
 		data->dd_fullscreen = data->viewheight == 200;
@@ -230,7 +228,7 @@ void D_Display (data_t* data)
 
     data->dd_menuactivestate = data->menuactive;
     data->dd_viewactivestate = data->viewactive;
-    data->dd_inhelpscreensstate = inhelpscreens;
+    data->dd_inhelpscreensstate = data->mn_inhelpscreens;
     data->dd_oldgamestate = data->wipegamestate = data->gamestate;
     
     // draw pause pic
@@ -312,10 +310,10 @@ void D_BindVariables(data_t* data)
     M_BindVariable("mouse_sensitivity",      &data->mouseSensitivity);
     M_BindVariable("sfx_volume",             &data->sfxVolume);
     M_BindVariable("music_volume",           &data->musicVolume);
-    M_BindVariable("show_messages",          &showMessages);
-    M_BindVariable("screenblocks",           &screenblocks);
-    M_BindVariable("detaillevel",            &detailLevel);
-    M_BindVariable("data->snd_channels",           &data->snd_channels);
+    M_BindVariable("show_messages",          &data->mn_showMessages);
+    M_BindVariable("screenblocks",           &data->mn_screenblocks);
+    M_BindVariable("detaillevel",            &data->mn_detailLevel);
+    M_BindVariable("snd_channels",           &data->snd_channels);
     M_BindVariable("vanilla_savegame_limit", &vanilla_savegame_limit);
     M_BindVariable("vanilla_demo_limit",     &vanilla_demo_limit);
     M_BindVariable("show_endoom",            &data->show_endoom);

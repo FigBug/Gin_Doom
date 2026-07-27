@@ -747,7 +747,7 @@ void R_Init (data_t* data)
     // data->viewwidth / data->viewheight / detailLevel are set by the defaults
     printf (".");
 
-    R_SetViewSize(data, screenblocks, detailLevel);
+    R_SetViewSize(data, data->mn_screenblocks, data->mn_detailLevel);
     R_InitPlanes ();
     printf (".");
     R_InitLightTables (data);

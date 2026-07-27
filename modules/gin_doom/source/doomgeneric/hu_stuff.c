@@ -88,7 +88,6 @@ patch_t*		hu_font[HU_FONTSIZE];
 
 
 
-extern int		showMessages;
 
 
 //
@@ -399,7 +398,7 @@ void HU_Ticker(data_t* data)
 	data->hu_message_nottobefuckedwith = false;
     }
 
-    if (showMessages || data->hu_message_dontfuckwithme)
+    if (data->mn_showMessages || data->hu_message_dontfuckwithme)
     {
 
 	// display message if necessary

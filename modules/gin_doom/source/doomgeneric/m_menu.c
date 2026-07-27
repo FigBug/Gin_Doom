@@ -60,9 +60,7 @@
 
 
 extern patch_t*		hu_font[HU_FONTSIZE];
-extern boolean		message_dontfuckwithme;
 
-extern boolean		chat_on;		// in heads-up code
 
 //
 // defaulted values
@@ -999,7 +997,7 @@ void M_ChangeMessages(data_t* data, int choice)
     else
 	data->players[data->consoleplayer].message = DEH_String(MSGON);
 
-    message_dontfuckwithme = true;
+    data->hu_message_dontfuckwithme = true;
 }
 
 
@@ -1628,7 +1626,7 @@ boolean M_Responder (data_t* data, event_t* ev)
     {
 	if (key == key_menu_decscreen)      // Screen size down
         {
-	    if (data->automapactive || chat_on)
+	    if (data->automapactive || data->hu_chat_on)
 		return false;
 	    M_SizeDisplay(data, 0);
 	    S_StartSound(data, NULL,sfx_stnmov);
@@ -1636,7 +1634,7 @@ boolean M_Responder (data_t* data, event_t* ev)
 	}
         else if (key == key_menu_incscreen) // Screen size up
         {
-	    if (data->automapactive || chat_on)
+	    if (data->automapactive || data->hu_chat_on)
 		return false;
 	    M_SizeDisplay(data, 1);
 	    S_StartSound(data, NULL,sfx_stnmov);

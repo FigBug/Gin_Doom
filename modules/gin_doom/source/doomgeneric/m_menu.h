@@ -53,8 +53,6 @@ void M_StartControlPanel (data_t* data);
 
 
 
-extern int detailLevel;
-extern int screenblocks;
 
 
 

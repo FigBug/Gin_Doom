@@ -809,9 +809,6 @@ void P_SlideMove (data_t* data, mobj_t* mo)
 
 
 
-// slopes to top and bottom of target
-extern fixed_t	topslope;
-extern fixed_t	bottomslope;	
 
 
 //
@@ -849,19 +846,19 @@ PTR_AimTraverse (data_t* data, intercept_t* in)
          || li->frontsector->floorheight != li->backsector->floorheight)
 	{
 	    slope = FixedDiv (data->openbottom - data->shootz , dist);
-	    if (slope > bottomslope)
-		bottomslope = slope;
+	    if (slope > data->si_bottomslope)
+		data->si_bottomslope = slope;
 	}
 		
 	if (li->backsector == NULL
          || li->frontsector->ceilingheight != li->backsector->ceilingheight)
 	{
 	    slope = FixedDiv (data->opentop - data->shootz , dist);
-	    if (slope < topslope)
-		topslope = slope;
+	    if (slope < data->si_topslope)
+		data->si_topslope = slope;
 	}
 		
-	if (topslope <= bottomslope)
+	if (data->si_topslope <= data->si_bottomslope)
 	    return false;		// stop
 			
 	return true;			// shot continues
@@ -879,20 +876,20 @@ PTR_AimTraverse (data_t* data, intercept_t* in)
     dist = FixedMul (data->attackrange, in->frac);
     thingtopslope = FixedDiv (th->z+th->height - data->shootz , dist);
 
-    if (thingtopslope < bottomslope)
+    if (thingtopslope < data->si_bottomslope)
 	return true;			// shot over the thing
 
     thingbottomslope = FixedDiv (th->z - data->shootz, dist);
 
-    if (thingbottomslope > topslope)
+    if (thingbottomslope > data->si_topslope)
 	return true;			// shot under the thing
     
     // this thing can be hit!
-    if (thingtopslope > topslope)
-	thingtopslope = topslope;
+    if (thingtopslope > data->si_topslope)
+	thingtopslope = data->si_topslope;
     
-    if (thingbottomslope < bottomslope)
-	thingbottomslope = bottomslope;
+    if (thingbottomslope < data->si_bottomslope)
+	thingbottomslope = data->si_bottomslope;
 
     data->aimslope = (thingtopslope+thingbottomslope)/2;
     data->linetarget = th;
@@ -1063,8 +1060,8 @@ P_AimLineAttack
     data->shootz = t1->z + (t1->height>>1) + 8*FRACUNIT;
 
     // can't shoot outside view angles
-    topslope = 100*FRACUNIT/160;	
-    bottomslope = -100*FRACUNIT/160;
+    data->si_topslope = 100*FRACUNIT/160;	
+    data->si_bottomslope = -100*FRACUNIT/160;
     
     data->attackrange = distance;
     data->linetarget = NULL;
