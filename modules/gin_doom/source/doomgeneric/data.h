@@ -468,6 +468,30 @@ struct data_s
 	int             am_leveljuststarted;
 	player_t*       am_plr;
 
+	// wi_stuff.c
+	int             wi_acceleratestage;
+	int             wi_me;
+	int             wi_state;
+	wbstartstruct_t* wi_wbs;
+	wbplayerstruct_t* wi_plrs;
+	int             wi_cnt;
+	int             wi_bcnt;
+	int             wi_firstrefresh;
+	int             wi_cnt_kills[MAXPLAYERS];
+	int             wi_cnt_items[MAXPLAYERS];
+	int             wi_cnt_secret[MAXPLAYERS];
+	int             wi_cnt_time;
+	int             wi_cnt_par;
+	int             wi_cnt_pause;
+	int             wi_dm_state;
+	int             wi_dm_frags[MAXPLAYERS][MAXPLAYERS];
+	int             wi_dm_totals[MAXPLAYERS];
+	int             wi_cnt_frags[MAXPLAYERS];
+	int             wi_dofrags;
+	int             wi_ng_state;
+	int             wi_sp_state;
+	boolean         wi_snl_pointeron;
+
 	// level geometry (p_setup.c)
 	int             numvertexes;
 	vertex_t*       vertexes;
