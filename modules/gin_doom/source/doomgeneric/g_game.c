@@ -165,7 +165,6 @@ static const struct
  
 #define	BODYQUESIZE	32
 
-mobj_t*		bodyque[BODYQUESIZE]; 
  
 int             vanilla_savegame_limit = 1;
 int             vanilla_demo_limit = 1;
@@ -1082,8 +1081,8 @@ G_CheckSpot
  
     // flush an old corpse if needed 
     if (data->bodyqueslot >= BODYQUESIZE) 
-	P_RemoveMobj (data, bodyque[data->bodyqueslot%BODYQUESIZE]);
-    bodyque[data->bodyqueslot%BODYQUESIZE] = data->players[playernum].mo; 
+	P_RemoveMobj (data, data->bodyque[data->bodyqueslot%BODYQUESIZE]);
+    data->bodyque[data->bodyqueslot%BODYQUESIZE] = data->players[playernum].mo; 
     data->bodyqueslot++; 
 
     // spawn a teleport fog
@@ -2042,11 +2041,10 @@ void G_BeginRecording (data_t* data)
 // G_PlayDemo 
 //
 
-char*	defdemoname; 
  
 void G_DeferedPlayDemo (data_t* data, char* name) 
 { 
-    defdemoname = name; 
+    data->defdemoname = name; 
     data->gameaction = ga_playdemo; 
 } 
 
@@ -2096,7 +2094,7 @@ void G_DoPlayDemo (data_t* data)
     int demoversion;
 	 
     data->gameaction = ga_nothing; 
-    data->demobuffer = data->demo_p = W_CacheLumpName (defdemoname, PU_STATIC); 
+    data->demobuffer = data->demo_p = W_CacheLumpName (data->defdemoname, PU_STATIC); 
 
     demoversion = *data->demo_p++;
 
@@ -2170,7 +2168,7 @@ void G_TimeDemo (data_t* data, char* name)
     data->timingdemo = true; 
     data->singletics = true; 
 
-    defdemoname = name; 
+    data->defdemoname = name; 
     data->gameaction = ga_playdemo; 
 } 
  
@@ -2208,7 +2206,7 @@ boolean G_CheckDemoStatus (data_t* data)
 	 
     if (data->demoplayback) 
     { 
-        W_ReleaseLumpName(defdemoname);
+        W_ReleaseLumpName(data->defdemoname);
 	data->demoplayback = false; 
 	data->netdemo = false;
 	data->netgame = false;

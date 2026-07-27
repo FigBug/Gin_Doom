@@ -420,9 +420,6 @@ void D_DoomLoop (data_t* data)
 //
 //  DEMO LOOP
 //
-int             demosequence;
-int             pagetic;
-char                    *pagename;
 
 
 //
@@ -431,7 +428,7 @@ char                    *pagename;
 //
 void D_PageTicker (data_t* data)
 {
-    if (--pagetic < 0)
+    if (--data->dm_pagetic < 0)
 	D_AdvanceDemo (data);
 }
 
@@ -442,13 +439,13 @@ void D_PageTicker (data_t* data)
 //
 void D_PageDrawer (data_t* data)
 {
-    V_DrawPatch(data, 0, 0, W_CacheLumpName(pagename, PU_CACHE));
+    V_DrawPatch(data, 0, 0, W_CacheLumpName(data->dm_pagename, PU_CACHE));
 }
 
 
 //
 // D_AdvanceDemo
-// Called after each demo or intro demosequence finishes
+// Called after each demo or intro data->dm_demosequence finishes
 //
 void D_AdvanceDemo (data_t* data)
 {
@@ -478,19 +475,19 @@ void D_DoAdvanceDemo (data_t* data)
     // includes a fixed executable.
 
     if (data->gameversion == exe_ultimate || data->gameversion == exe_final)
-      demosequence = (demosequence+1)%7;
+      data->dm_demosequence = (data->dm_demosequence+1)%7;
     else
-      demosequence = (demosequence+1)%6;
+      data->dm_demosequence = (data->dm_demosequence+1)%6;
     
-    switch (demosequence)
+    switch (data->dm_demosequence)
     {
       case 0:
 	if ( data->gamemode == commercial )
-	    pagetic = TICRATE * 11;
+	    data->dm_pagetic = TICRATE * 11;
 	else
-	    pagetic = 170;
+	    data->dm_pagetic = 170;
 	data->gamestate = GS_DEMOSCREEN;
-	pagename = DEH_String("TITLEPIC");
+	data->dm_pagename = DEH_String("TITLEPIC");
 	if ( data->gamemode == commercial )
 	  S_StartMusic(data, mus_dm2ttl);
 	else
@@ -500,9 +497,9 @@ void D_DoAdvanceDemo (data_t* data)
 	G_DeferedPlayDemo(data, DEH_String("demo1"));
 	break;
       case 2:
-	pagetic = 200;
+	data->dm_pagetic = 200;
 	data->gamestate = GS_DEMOSCREEN;
-	pagename = DEH_String("CREDIT");
+	data->dm_pagename = DEH_String("CREDIT");
 	break;
       case 3:
 	G_DeferedPlayDemo(data, DEH_String("demo2"));
@@ -511,18 +508,18 @@ void D_DoAdvanceDemo (data_t* data)
 	data->gamestate = GS_DEMOSCREEN;
 	if ( data->gamemode == commercial)
 	{
-	    pagetic = TICRATE * 11;
-	    pagename = DEH_String("TITLEPIC");
+	    data->dm_pagetic = TICRATE * 11;
+	    data->dm_pagename = DEH_String("TITLEPIC");
 	    S_StartMusic(data, mus_dm2ttl);
 	}
 	else
 	{
-	    pagetic = 200;
+	    data->dm_pagetic = 200;
 
 	    if ( data->gamemode == retail )
-	      pagename = DEH_String("CREDIT");
+	      data->dm_pagename = DEH_String("CREDIT");
 	    else
-	      pagename = DEH_String("HELP2");
+	      data->dm_pagename = DEH_String("HELP2");
 	}
 	break;
       case 5:
@@ -536,10 +533,10 @@ void D_DoAdvanceDemo (data_t* data)
 
     // The Doom 3: BFG Edition version of doom2.wad does not have a
     // TITLETPIC lump. Use INTERPIC instead as a workaround.
-    if (data->bfgedition && !strcasecmp(pagename, "TITLEPIC")
+    if (data->bfgedition && !strcasecmp(data->dm_pagename, "TITLEPIC")
         && W_CheckNumForName("titlepic") < 0)
     {
-        pagename = DEH_String("INTERPIC");
+        data->dm_pagename = DEH_String("INTERPIC");
     }
 }
 
@@ -551,7 +548,7 @@ void D_DoAdvanceDemo (data_t* data)
 void D_StartTitle (data_t* data)
 {
     data->gameaction = ga_nothing;
-    demosequence = -1;
+    data->dm_demosequence = -1;
     D_AdvanceDemo (data);
 }
 
@@ -819,8 +816,7 @@ void D_SetGameDescription(data_t* data)
     }
 }
 
-//      print title for every printed line
-char            title[128];
+//      print data->dm_title for every printed line
 
 static boolean D_AddFile(data_t* data, char *filename)
 {

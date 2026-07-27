@@ -85,9 +85,7 @@ char*	player_names[] =
 
 char			chat_char; // remove later.
 patch_t*		hu_font[HU_FONTSIZE];
-boolean			chat_on;
 
-boolean			message_dontfuckwithme;
 
 
 extern int		showMessages;
@@ -305,9 +303,9 @@ void HU_Start(data_t* data)
 
     data->hu_plr = &data->players[data->consoleplayer];
     data->hu_message_on = false;
-    message_dontfuckwithme = false;
+    data->hu_message_dontfuckwithme = false;
     data->hu_message_nottobefuckedwith = false;
-    chat_on = false;
+    data->hu_chat_on = false;
 
     // create the message widget
     HUlib_initSText(&data->hu_w_message,
@@ -359,7 +357,7 @@ void HU_Start(data_t* data)
     HUlib_initIText(&data->hu_w_chat,
 		    HU_INPUTX, HU_INPUTY,
 		    hu_font,
-		    HU_FONTSTART, &chat_on);
+		    HU_FONTSTART, &data->hu_chat_on);
 
     // create the inputbuffer widgets
     for (i=0 ; i<MAXPLAYERS ; i++)
@@ -401,19 +399,19 @@ void HU_Ticker(data_t* data)
 	data->hu_message_nottobefuckedwith = false;
     }
 
-    if (showMessages || message_dontfuckwithme)
+    if (showMessages || data->hu_message_dontfuckwithme)
     {
 
 	// display message if necessary
 	if ((data->hu_plr->message && !data->hu_message_nottobefuckedwith)
-	    || (data->hu_plr->message && message_dontfuckwithme))
+	    || (data->hu_plr->message && data->hu_message_dontfuckwithme))
 	{
 	    HUlib_addMessageToSText(&data->hu_w_message, 0, data->hu_plr->message);
 	    data->hu_plr->message = 0;
 	    data->hu_message_on = true;
 	    data->hu_message_counter = HU_MSGTIMEOUT;
-	    data->hu_message_nottobefuckedwith = message_dontfuckwithme;
-	    message_dontfuckwithme = 0;
+	    data->hu_message_nottobefuckedwith = data->hu_message_dontfuckwithme;
+	    data->hu_message_dontfuckwithme = 0;
 	}
 
     } // else data->hu_message_on = false;
@@ -525,7 +523,7 @@ boolean HU_Responder(data_t* data, event_t *ev)
     if (ev->type != ev_keydown)
 	return false;
 
-    if (!chat_on)
+    if (!data->hu_chat_on)
     {
 	if (ev->data1 == key_message_refresh)
 	{
@@ -535,7 +533,7 @@ boolean HU_Responder(data_t* data, event_t *ev)
 	}
 	else if (data->netgame && ev->data2 == key_multi_msg)
 	{
-	    eatkey = chat_on = true;
+	    eatkey = data->hu_chat_on = true;
 	    HUlib_resetIText(&data->hu_w_chat);
 	    HU_queueChatChar(data, HU_BROADCAST);
 	}
@@ -547,7 +545,7 @@ boolean HU_Responder(data_t* data, event_t *ev)
 		{
 		    if (data->playeringame[i] && i!=data->consoleplayer)
 		    {
-			eatkey = chat_on = true;
+			eatkey = data->hu_chat_on = true;
 			HUlib_resetIText(&data->hu_w_chat);
 			HU_queueChatChar(data, i+1);
 			break;
@@ -590,7 +588,7 @@ boolean HU_Responder(data_t* data, event_t *ev)
 	    HU_queueChatChar(data, KEY_ENTER);
 	    
             // leave chat mode and notify that it was sent
-            chat_on = false;
+            data->hu_chat_on = false;
             M_StringCopy(lastmessage, chat_macros[c], sizeof(lastmessage));
             data->hu_plr->message = lastmessage;
             eatkey = true;
@@ -610,7 +608,7 @@ boolean HU_Responder(data_t* data, event_t *ev)
 	    }
 	    if (c == KEY_ENTER)
 	    {
-		chat_on = false;
+		data->hu_chat_on = false;
                 if (data->hu_w_chat.l.len)
                 {
                     M_StringCopy(lastmessage, data->hu_w_chat.l.l, sizeof(lastmessage));
@@ -618,7 +616,7 @@ boolean HU_Responder(data_t* data, event_t *ev)
                 }
 	    }
 	    else if (c == KEY_ESCAPE)
-		chat_on = false;
+		data->hu_chat_on = false;
 	}
     }
 

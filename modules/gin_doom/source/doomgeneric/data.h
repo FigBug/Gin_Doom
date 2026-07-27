@@ -637,6 +637,18 @@ struct data_s
 	boolean         screenvisible;
 	int             shiftdown;
 
+	// d_main title/demo sequence
+	int             dm_demosequence;
+	int             dm_pagetic;
+	char*           dm_pagename;
+	char            dm_title[128];
+	// g_game
+	mobj_t*         bodyque[32];   // BODYQUESIZE
+	char*           defdemoname;
+	// hu_stuff
+	boolean         hu_chat_on;
+	boolean         hu_message_dontfuckwithme;
+
 	// level geometry (p_setup.c)
 	int             numvertexes;
 	vertex_t*       vertexes;
