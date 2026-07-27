@@ -561,7 +561,7 @@ void A_KeenDie (data_t* data, mobj_t* mo)
     
     // scan the remaining thinkers
     // to see if all Keens are dead
-    for (th = thinkercap.next ; th != &thinkercap ; th=th->next)
+    for (th = data->thinkercap.next ; th != &data->thinkercap ; th=th->next)
     {
 	if (th->function.acp1 != (actionf_p1)P_MobjThinker)
 	    continue;
@@ -1174,10 +1174,10 @@ void A_VileChase (data_t* data, mobj_t* actor)
 	viletryy =
 	    actor->y + actor->info->speed*yspeed[actor->movedir];
 
-	xl = (viletryx - bmaporgx - MAXRADIUS*2)>>MAPBLOCKSHIFT;
-	xh = (viletryx - bmaporgx + MAXRADIUS*2)>>MAPBLOCKSHIFT;
-	yl = (viletryy - bmaporgy - MAXRADIUS*2)>>MAPBLOCKSHIFT;
-	yh = (viletryy - bmaporgy + MAXRADIUS*2)>>MAPBLOCKSHIFT;
+	xl = (viletryx - data->bmaporgx - MAXRADIUS*2)>>MAPBLOCKSHIFT;
+	xh = (viletryx - data->bmaporgx + MAXRADIUS*2)>>MAPBLOCKSHIFT;
+	yl = (viletryy - data->bmaporgy - MAXRADIUS*2)>>MAPBLOCKSHIFT;
+	yh = (viletryy - data->bmaporgy + MAXRADIUS*2)>>MAPBLOCKSHIFT;
 	
 	vileobj = actor;
 	for (bx=xl ; bx<=xh ; bx++)
@@ -1261,7 +1261,7 @@ void A_Fire (data_t* data, mobj_t* actor)
 
     an = dest->angle >> ANGLETOFINESHIFT;
 
-    P_UnsetThingPosition (actor);
+    P_UnsetThingPosition (data, actor);
     actor->x = dest->x + FixedMul (24*FRACUNIT, finecosine[an]);
     actor->y = dest->y + FixedMul (24*FRACUNIT, finesine[an]);
     actor->z = dest->z;
@@ -1466,8 +1466,8 @@ A_PainShootSkull
     // count total number of skull currently on the level
     count = 0;
 
-    currentthinker = thinkercap.next;
-    while (currentthinker != &thinkercap)
+    currentthinker = data->thinkercap.next;
+    while (currentthinker != &data->thinkercap)
     {
 	if (   (currentthinker->function.acp1 == (actionf_p1)P_MobjThinker)
 	    && ((mobj_t *)currentthinker)->type == MT_SKULL)
@@ -1693,7 +1693,7 @@ void A_BossDeath (data_t* data, mobj_t* mo)
     
     // scan the remaining thinkers to see
     // if all bosses are dead
-    for (th = thinkercap.next ; th != &thinkercap ; th=th->next)
+    for (th = data->thinkercap.next ; th != &data->thinkercap ; th=th->next)
     {
 	if (th->function.acp1 != (actionf_p1)P_MobjThinker)
 	    continue;
@@ -1827,9 +1827,9 @@ void A_BrainAwake (data_t* data, mobj_t* mo)
     numbraintargets = 0;
     braintargeton = 0;
 	
-    thinker = thinkercap.next;
-    for (thinker = thinkercap.next ;
-	 thinker != &thinkercap ;
+    thinker = data->thinkercap.next;
+    for (thinker = data->thinkercap.next ;
+	 thinker != &data->thinkercap ;
 	 thinker = thinker->next)
     {
 	if (thinker->function.acp1 != (actionf_p1)P_MobjThinker)

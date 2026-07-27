@@ -1333,7 +1333,7 @@ int EV_DoDonut(data_t* data, line_t*	line)
 
 	    //	Spawn rising slime
 	    floor = Z_Malloc (sizeof(*floor), PU_LEVSPEC, 0);
-	    P_AddThinker (&floor->thinker);
+	    P_AddThinker (data, &floor->thinker);
 	    s2->specialdata = floor;
 	    floor->thinker.function.acp1 = (actionf_p1) T_MoveFloor;
 	    floor->type = donutRaise;
@@ -1347,7 +1347,7 @@ int EV_DoDonut(data_t* data, line_t*	line)
 	    
 	    //	Spawn lowering donut-hole
 	    floor = Z_Malloc (sizeof(*floor), PU_LEVSPEC, 0);
-	    P_AddThinker (&floor->thinker);
+	    P_AddThinker (data, &floor->thinker);
 	    s1->specialdata = floor;
 	    floor->thinker.function.acp1 = (actionf_p1) T_MoveFloor;
 	    floor->type = lowerFloor;
@@ -1451,7 +1451,7 @@ void P_SpawnSpecials (data_t* data)
 
 	  case 14:
 	    // DOOR RAISE IN 5 MINUTES
-	    P_SpawnDoorRaiseIn5Mins (sector, i);
+	    P_SpawnDoorRaiseIn5Mins (data, sector, i);
 	    break;
 	    
 	  case 17:

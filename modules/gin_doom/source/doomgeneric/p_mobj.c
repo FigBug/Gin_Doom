@@ -166,7 +166,7 @@ void P_XYMovement (data_t* data, mobj_t* mo)
 		// explode a missile
 		if (data->ceilingline &&
 		    data->ceilingline->backsector &&
-		    data->ceilingline->backsector->ceilingpic == skyflatnum)
+		    data->ceilingline->backsector->ceilingpic == data->skyflatnum)
 		{
 		    // Hack to prevent missiles exploding
 		    // against the sky.
@@ -552,7 +552,7 @@ P_SpawnMobj
 
     mobj->thinker.function.acp1 = (actionf_p1)P_MobjThinker;
 	
-    P_AddThinker (&mobj->thinker);
+    P_AddThinker (data, &mobj->thinker);
 
     return mobj;
 }
@@ -562,9 +562,6 @@ P_SpawnMobj
 // P_RemoveMobj
 //
 mapthing_t	itemrespawnque[ITEMQUESIZE];
-int		itemrespawntime[ITEMQUESIZE];
-int		iquehead;
-int		iquetail;
 
 
 void P_RemoveMobj (data_t* data, mobj_t* mobj)
@@ -574,23 +571,23 @@ void P_RemoveMobj (data_t* data, mobj_t* mobj)
 	&& (mobj->type != MT_INV)
 	&& (mobj->type != MT_INS))
     {
-	itemrespawnque[iquehead] = mobj->spawnpoint;
-	itemrespawntime[iquehead] = data->leveltime;
-	iquehead = (iquehead+1)&(ITEMQUESIZE-1);
+	itemrespawnque[data->iquehead] = mobj->spawnpoint;
+	data->itemrespawntime[data->iquehead] = data->leveltime;
+	data->iquehead = (data->iquehead+1)&(ITEMQUESIZE-1);
 
 	// lose one off the end?
-	if (iquehead == iquetail)
-	    iquetail = (iquetail+1)&(ITEMQUESIZE-1);
+	if (data->iquehead == data->iquetail)
+	    data->iquetail = (data->iquetail+1)&(ITEMQUESIZE-1);
     }
 	
     // unlink from sector and block lists
-    P_UnsetThingPosition (mobj);
+    P_UnsetThingPosition (data, mobj);
     
     // stop any playing sound
     S_StopSound(data, mobj);
     
     // free block
-    P_RemoveThinker ((thinker_t*)mobj);
+    P_RemoveThinker (data, (thinker_t*)mobj);
 }
 
 
@@ -616,14 +613,14 @@ void P_RespawnSpecials (data_t* data)
 	return;	// 
 
     // nothing left to respawn?
-    if (iquehead == iquetail)
+    if (data->iquehead == data->iquetail)
 	return;		
 
     // wait at least 30 seconds
-    if (data->leveltime - itemrespawntime[iquetail] < 30*TICRATE)
+    if (data->leveltime - data->itemrespawntime[data->iquetail] < 30*TICRATE)
 	return;			
 
-    mthing = &itemrespawnque[iquetail];
+    mthing = &itemrespawnque[data->iquetail];
 	
     x = mthing->x << FRACBITS; 
     y = mthing->y << FRACBITS; 
@@ -651,7 +648,7 @@ void P_RespawnSpecials (data_t* data)
     mo->angle = ANG45 * (mthing->angle/45);
 
     // pull it from the que
-    iquetail = (iquetail+1)&(ITEMQUESIZE-1);
+    data->iquetail = (data->iquetail+1)&(ITEMQUESIZE-1);
 }
 
 

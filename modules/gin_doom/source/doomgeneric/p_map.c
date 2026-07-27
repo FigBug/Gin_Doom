@@ -157,10 +157,10 @@ P_TeleportMove
     data->numspechit = 0;
     
     // stomp on any things contacted
-    xl = (data->tmbbox[BOXLEFT] - bmaporgx - MAXRADIUS)>>MAPBLOCKSHIFT;
-    xh = (data->tmbbox[BOXRIGHT] - bmaporgx + MAXRADIUS)>>MAPBLOCKSHIFT;
-    yl = (data->tmbbox[BOXBOTTOM] - bmaporgy - MAXRADIUS)>>MAPBLOCKSHIFT;
-    yh = (data->tmbbox[BOXTOP] - bmaporgy + MAXRADIUS)>>MAPBLOCKSHIFT;
+    xl = (data->tmbbox[BOXLEFT] - data->bmaporgx - MAXRADIUS)>>MAPBLOCKSHIFT;
+    xh = (data->tmbbox[BOXRIGHT] - data->bmaporgx + MAXRADIUS)>>MAPBLOCKSHIFT;
+    yl = (data->tmbbox[BOXBOTTOM] - data->bmaporgy - MAXRADIUS)>>MAPBLOCKSHIFT;
+    yh = (data->tmbbox[BOXTOP] - data->bmaporgy + MAXRADIUS)>>MAPBLOCKSHIFT;
 
     for (bx=xl ; bx<=xh ; bx++)
 	for (by=yl ; by<=yh ; by++)
@@ -169,7 +169,7 @@ P_TeleportMove
     
     // the move is ok,
     // so link the thing into its new position
-    P_UnsetThingPosition (thing);
+    P_UnsetThingPosition (data, thing);
 
     thing->floorz = data->tmfloorz;
     thing->ceilingz = data->tmceilingz;	
@@ -435,10 +435,10 @@ P_CheckPosition
     // because mobj_ts are grouped into mapblocks
     // based on their origin point, and can overlap
     // into adjacent blocks by up to MAXRADIUS units.
-    xl = (data->tmbbox[BOXLEFT] - bmaporgx - MAXRADIUS)>>MAPBLOCKSHIFT;
-    xh = (data->tmbbox[BOXRIGHT] - bmaporgx + MAXRADIUS)>>MAPBLOCKSHIFT;
-    yl = (data->tmbbox[BOXBOTTOM] - bmaporgy - MAXRADIUS)>>MAPBLOCKSHIFT;
-    yh = (data->tmbbox[BOXTOP] - bmaporgy + MAXRADIUS)>>MAPBLOCKSHIFT;
+    xl = (data->tmbbox[BOXLEFT] - data->bmaporgx - MAXRADIUS)>>MAPBLOCKSHIFT;
+    xh = (data->tmbbox[BOXRIGHT] - data->bmaporgx + MAXRADIUS)>>MAPBLOCKSHIFT;
+    yl = (data->tmbbox[BOXBOTTOM] - data->bmaporgy - MAXRADIUS)>>MAPBLOCKSHIFT;
+    yh = (data->tmbbox[BOXTOP] - data->bmaporgy + MAXRADIUS)>>MAPBLOCKSHIFT;
 
     for (bx=xl ; bx<=xh ; bx++)
 	for (by=yl ; by<=yh ; by++)
@@ -446,10 +446,10 @@ P_CheckPosition
 		return false;
     
     // check data->lines
-    xl = (data->tmbbox[BOXLEFT] - bmaporgx)>>MAPBLOCKSHIFT;
-    xh = (data->tmbbox[BOXRIGHT] - bmaporgx)>>MAPBLOCKSHIFT;
-    yl = (data->tmbbox[BOXBOTTOM] - bmaporgy)>>MAPBLOCKSHIFT;
-    yh = (data->tmbbox[BOXTOP] - bmaporgy)>>MAPBLOCKSHIFT;
+    xl = (data->tmbbox[BOXLEFT] - data->bmaporgx)>>MAPBLOCKSHIFT;
+    xh = (data->tmbbox[BOXRIGHT] - data->bmaporgx)>>MAPBLOCKSHIFT;
+    yl = (data->tmbbox[BOXBOTTOM] - data->bmaporgy)>>MAPBLOCKSHIFT;
+    yh = (data->tmbbox[BOXTOP] - data->bmaporgy)>>MAPBLOCKSHIFT;
 
     for (bx=xl ; bx<=xh ; bx++)
 	for (by=yl ; by<=yh ; by++)
@@ -504,7 +504,7 @@ P_TryMove
     
     // the move is ok,
     // so link the thing into its new position
-    P_UnsetThingPosition (thing);
+    P_UnsetThingPosition (data, thing);
 
     oldx = thing->x;
     oldy = thing->y;
@@ -977,14 +977,14 @@ boolean PTR_ShootTraverse (data_t* data, intercept_t* in)
 	y = data->trace.y + FixedMul (data->trace.dy, frac);
 	z = data->shootz + FixedMul (data->aimslope, FixedMul(frac, data->attackrange));
 
-	if (li->frontsector->ceilingpic == skyflatnum)
+	if (li->frontsector->ceilingpic == data->skyflatnum)
 	{
 	    // don't shoot the sky!
 	    if (z > li->frontsector->ceilingheight)
 		return false;
 	    
 	    // it's a sky hack wall
-	    if	(li->backsector && li->backsector->ceilingpic == skyflatnum)
+	    if	(li->backsector && li->backsector->ceilingpic == data->skyflatnum)
 		return false;		
 	}
 
@@ -1244,10 +1244,10 @@ P_RadiusAttack
     fixed_t	dist;
 	
     dist = (damage+MAXRADIUS)<<FRACBITS;
-    yh = (spot->y + dist - bmaporgy)>>MAPBLOCKSHIFT;
-    yl = (spot->y - dist - bmaporgy)>>MAPBLOCKSHIFT;
-    xh = (spot->x + dist - bmaporgx)>>MAPBLOCKSHIFT;
-    xl = (spot->x - dist - bmaporgx)>>MAPBLOCKSHIFT;
+    yh = (spot->y + dist - data->bmaporgy)>>MAPBLOCKSHIFT;
+    yl = (spot->y - dist - data->bmaporgy)>>MAPBLOCKSHIFT;
+    xh = (spot->x + dist - data->bmaporgx)>>MAPBLOCKSHIFT;
+    xl = (spot->x - dist - data->bmaporgx)>>MAPBLOCKSHIFT;
     data->bombspot = spot;
     data->bombsource = source;
     data->bombdamage = damage;

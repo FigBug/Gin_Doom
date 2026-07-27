@@ -118,14 +118,14 @@ void T_VerticalDoor (data_t* data, vldoor_t* door)
 	      case vld_blazeRaise:
 	      case vld_blazeClose:
 		door->sector->specialdata = NULL;
-		P_RemoveThinker (&door->thinker);  // unlink and free
+		P_RemoveThinker (data, &door->thinker);  // unlink and free
 		S_StartSound(data, &door->sector->soundorg, sfx_bdcls);
 		break;
 		
 	      case vld_normal:
 	      case vld_close:
 		door->sector->specialdata = NULL;
-		P_RemoveThinker (&door->thinker);  // unlink and free
+		P_RemoveThinker (data, &door->thinker);  // unlink and free
 		break;
 		
 	      case vld_close30ThenOpen:
@@ -174,7 +174,7 @@ void T_VerticalDoor (data_t* data, vldoor_t* door)
 	      case vld_blazeOpen:
 	      case vld_open:
 		door->sector->specialdata = NULL;
-		P_RemoveThinker (&door->thinker);  // unlink and free
+		P_RemoveThinker (data, &door->thinker);  // unlink and free
 		break;
 		
 	      default:
@@ -272,7 +272,7 @@ EV_DoDoor
 	// new door thinker
 	rtn = 1;
 	door = Z_Malloc (sizeof(*door), PU_LEVSPEC, 0);
-	P_AddThinker (&door->thinker);
+	P_AddThinker (data, &door->thinker);
 	sec->specialdata = door;
 
 	door->thinker.function.acp1 = (actionf_p1) T_VerticalDoor;
@@ -474,7 +474,7 @@ EV_VerticalDoor
     
     // new door thinker
     door = Z_Malloc (sizeof(*door), PU_LEVSPEC, 0);
-    P_AddThinker (&door->thinker);
+    P_AddThinker (data, &door->thinker);
     sec->specialdata = door;
     door->thinker.function.acp1 = (actionf_p1) T_VerticalDoor;
     door->sector = sec;
@@ -525,7 +525,7 @@ void P_SpawnDoorCloseIn30 (data_t* data, sector_t* sec)
 	
     door = Z_Malloc ( sizeof(*door), PU_LEVSPEC, 0);
 
-    P_AddThinker (&door->thinker);
+    P_AddThinker (data, &door->thinker);
 
     sec->specialdata = door;
     sec->special = 0;
@@ -543,14 +543,15 @@ void P_SpawnDoorCloseIn30 (data_t* data, sector_t* sec)
 //
 void
 P_SpawnDoorRaiseIn5Mins
-( sector_t*	sec,
+( data_t* data,
+  sector_t*	sec,
   int		secnum )
 {
     vldoor_t*	door;
 	
     door = Z_Malloc ( sizeof(*door), PU_LEVSPEC, 0);
     
-    P_AddThinker (&door->thinker);
+    P_AddThinker (data, &door->thinker);
 
     sec->specialdata = door;
     sec->special = 0;
@@ -656,7 +657,7 @@ void T_SlidingDoor (data_t* data, slidedoor_t* door)
 		if (door->type == sdt_openOnly)
 		{
 		    door->frontsector->specialdata = NULL;
-		    P_RemoveThinker (&door->thinker);
+		    P_RemoveThinker (data, &door->thinker);
 		    break;
 		}
 					
@@ -704,7 +705,7 @@ void T_SlidingDoor (data_t* data, slidedoor_t* door)
 		// IF DOOR IS DONE CLOSING...
 		door->line->flags |= ML_BLOCKING;
 		door->frontsector->specialdata = NULL;
-		P_RemoveThinker (&door->thinker);
+		P_RemoveThinker (data, &door->thinker);
 		break;
 	    }
 	    else
@@ -761,7 +762,7 @@ EV_SlidingDoor
     if (!door)
     {
 	door = Z_Malloc (sizeof(*door), PU_LEVSPEC, 0);
-	P_AddThinker (&door->thinker);
+	P_AddThinker (data, &door->thinker);
 	sec->specialdata = door;
 		
 	door->type = sdt_openAndClose;

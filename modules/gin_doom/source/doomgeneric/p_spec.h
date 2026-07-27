@@ -397,7 +397,8 @@ void    P_SpawnDoorCloseIn30 (data_t* data, sector_t* sec);
 
 void
 P_SpawnDoorRaiseIn5Mins
-( sector_t*	sec,
+( data_t* data,
+  sector_t*	sec,
   int		secnum );
 
 

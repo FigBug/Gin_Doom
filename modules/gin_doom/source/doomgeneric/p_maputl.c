@@ -335,14 +335,14 @@ void P_LineOpening (data_t* data, line_t* linedef)
 // lookups maintaining lists ot things inside
 // these structures need to be updated.
 //
-void P_UnsetThingPosition (mobj_t* thing)
+void P_UnsetThingPosition (data_t* data, mobj_t* thing)
 {
     int		blockx;
     int		blocky;
 
     if ( ! (thing->flags & MF_NOSECTOR) )
     {
-	// inert things don't need to be in blockmap?
+	// inert things don't need to be in data->blockmap?
 	// unlink from subsector
 	if (thing->snext)
 	    thing->snext->sprev = thing->sprev;
@@ -355,7 +355,7 @@ void P_UnsetThingPosition (mobj_t* thing)
 	
     if ( ! (thing->flags & MF_NOBLOCKMAP) )
     {
-	// inert things don't need to be in blockmap
+	// inert things don't need to be in data->blockmap
 	// unlink from block map
 	if (thing->bnext)
 	    thing->bnext->bprev = thing->bprev;
@@ -364,13 +364,13 @@ void P_UnsetThingPosition (mobj_t* thing)
 	    thing->bprev->bnext = thing->bnext;
 	else
 	{
-	    blockx = (thing->x - bmaporgx)>>MAPBLOCKSHIFT;
-	    blocky = (thing->y - bmaporgy)>>MAPBLOCKSHIFT;
+	    blockx = (thing->x - data->bmaporgx)>>MAPBLOCKSHIFT;
+	    blocky = (thing->y - data->bmaporgy)>>MAPBLOCKSHIFT;
 
-	    if (blockx>=0 && blockx < bmapwidth
-		&& blocky>=0 && blocky <bmapheight)
+	    if (blockx>=0 && blockx < data->bmapwidth
+		&& blocky>=0 && blocky <data->bmapheight)
 	    {
-		blocklinks[blocky*bmapwidth+blockx] = thing->bnext;
+		data->blocklinks[blocky*data->bmapwidth+blockx] = thing->bnext;
 	    }
 	}
     }
@@ -412,19 +412,19 @@ P_SetThingPosition (data_t* data, mobj_t* thing)
     }
 
     
-    // link into blockmap
+    // link into data->blockmap
     if ( ! (thing->flags & MF_NOBLOCKMAP) )
     {
-	// inert things don't need to be in blockmap		
-	blockx = (thing->x - bmaporgx)>>MAPBLOCKSHIFT;
-	blocky = (thing->y - bmaporgy)>>MAPBLOCKSHIFT;
+	// inert things don't need to be in data->blockmap		
+	blockx = (thing->x - data->bmaporgx)>>MAPBLOCKSHIFT;
+	blocky = (thing->y - data->bmaporgy)>>MAPBLOCKSHIFT;
 
 	if (blockx>=0
-	    && blockx < bmapwidth
+	    && blockx < data->bmapwidth
 	    && blocky>=0
-	    && blocky < bmapheight)
+	    && blocky < data->bmapheight)
 	{
-	    link = &blocklinks[blocky*bmapwidth+blockx];
+	    link = &data->blocklinks[blocky*data->bmapwidth+blockx];
 	    thing->bprev = NULL;
 	    thing->bnext = *link;
 	    if (*link)
@@ -472,17 +472,17 @@ P_BlockLinesIterator
 	
     if (x<0
 	|| y<0
-	|| x>=bmapwidth
-	|| y>=bmapheight)
+	|| x>=data->bmapwidth
+	|| y>=data->bmapheight)
     {
 	return true;
     }
     
-    offset = y*bmapwidth+x;
+    offset = y*data->bmapwidth+x;
 	
-    offset = *(blockmap+offset);
+    offset = *(data->blockmap+offset);
 
-    for ( list = blockmaplump+offset ; *list != -1 ; list++)
+    for ( list = data->blockmaplump+offset ; *list != -1 ; list++)
     {
 	ld = &data->lines[*list];
 
@@ -512,14 +512,14 @@ P_BlockThingsIterator
 	
     if ( x<0
 	 || y<0
-	 || x>=bmapwidth
-	 || y>=bmapheight)
+	 || x>=data->bmapwidth
+	 || y>=data->bmapheight)
     {
 	return true;
     }
     
 
-    for (mobj = blocklinks[y*bmapwidth+x] ;
+    for (mobj = data->blocklinks[y*data->bmapwidth+x] ;
 	 mobj ;
 	 mobj = mobj->bnext)
     {
@@ -722,7 +722,6 @@ P_TraverseIntercepts
     return true;		// everything was traversed
 }
 
-extern fixed_t bulletslope;
 
 // Intercepts Overrun emulation, from PrBoom-plus.
 // Thanks to Andrey Budko (entryway) for researching this and his 
@@ -756,18 +755,18 @@ static intercepts_overrun_t intercepts_overrun[] =
     {4,   NULL,                          false},
     {120, NULL, /* &activeplats, */      false},
     {8,   NULL,                          false},
-    {4,   &bulletslope,                  false},
-    {4,   NULL, /* &swingx, */           false},
-    {4,   NULL, /* &swingy, */           false},
+    {4,   NULL, /* &data->bulletslope, */                  false},
+    {4,   NULL, /* &data->swingx, */           false},
+    {4,   NULL, /* &data->swingy, */           false},
     {4,   NULL,                          false},
     {40,  &playerstarts,                 true},
-    {4,   NULL, /* &blocklinks, */       false},
-    {4,   &bmapwidth,                    false},
-    {4,   NULL, /* &blockmap, */         false},
-    {4,   &bmaporgx,                     false},
-    {4,   &bmaporgy,                     false},
-    {4,   NULL, /* &blockmaplump, */     false},
-    {4,   &bmapheight,                   false},
+    {4,   NULL, /* &data->blocklinks, */       false},
+    {4,   NULL, /* &data->bmapwidth, */                    false},
+    {4,   NULL, /* &data->blockmap, */         false},
+    {4,   NULL, /* &data->bmaporgx, */                     false},
+    {4,   NULL, /* &data->bmaporgy, */                     false},
+    {4,   NULL, /* &data->blockmaplump, */     false},
+    {4,   NULL, /* &data->bmapheight, */                   false},
     {0,   NULL,                          false},
 };
 
@@ -887,10 +886,10 @@ P_PathTraverse
     data->validcount++;
     data->intercept_p = data->intercepts;
 	
-    if ( ((x1-bmaporgx)&(MAPBLOCKSIZE-1)) == 0)
+    if ( ((x1-data->bmaporgx)&(MAPBLOCKSIZE-1)) == 0)
 	x1 += FRACUNIT;	// don't side exactly on a line
     
-    if ( ((y1-bmaporgy)&(MAPBLOCKSIZE-1)) == 0)
+    if ( ((y1-data->bmaporgy)&(MAPBLOCKSIZE-1)) == 0)
 	y1 += FRACUNIT;	// don't side exactly on a line
 
     data->trace.x = x1;
@@ -898,13 +897,13 @@ P_PathTraverse
     data->trace.dx = x2 - x1;
     data->trace.dy = y2 - y1;
 
-    x1 -= bmaporgx;
-    y1 -= bmaporgy;
+    x1 -= data->bmaporgx;
+    y1 -= data->bmaporgy;
     xt1 = x1>>MAPBLOCKSHIFT;
     yt1 = y1>>MAPBLOCKSHIFT;
 
-    x2 -= bmaporgx;
-    y2 -= bmaporgy;
+    x2 -= data->bmaporgx;
+    y2 -= data->bmaporgy;
     xt2 = x2>>MAPBLOCKSHIFT;
     yt2 = y2>>MAPBLOCKSHIFT;
 

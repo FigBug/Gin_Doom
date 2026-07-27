@@ -752,7 +752,7 @@ void R_Init (data_t* data)
     printf (".");
     R_InitLightTables (data);
     printf (".");
-    R_InitSkyMap ();
+    R_InitSkyMap (data);
     R_InitTranslationTables (data);
     printf (".");
 	

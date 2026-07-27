@@ -197,7 +197,7 @@ R_FindPlane
 {
     visplane_t*	check;
 	
-    if (picnum == skyflatnum)
+    if (picnum == data->skyflatnum)
     {
 	height = 0;			// all skys map together
 	lightlevel = 0;
@@ -371,7 +371,7 @@ void R_DrawPlanes (data_t* data)
 
 	
 	// sky flat
-	if (pl->picnum == skyflatnum)
+	if (pl->picnum == data->skyflatnum)
 	{
 	    data->dc_iscale = data->pspriteiscale>>data->detailshift;
 	    
@@ -380,7 +380,7 @@ void R_DrawPlanes (data_t* data)
 	    // Because of this hack, sky is not affected
 	    //  by INVUL inverse mapping.
 	    data->dc_colormap = colormaps;
-	    data->dc_texturemid = skytexturemid;
+	    data->dc_texturemid = data->skytexturemid;
 	    for (x=pl->minx ; x <= pl->maxx ; x++)
 	    {
 		data->dc_yl = pl->top[x];
@@ -390,7 +390,7 @@ void R_DrawPlanes (data_t* data)
 		{
 		    angle = (data->viewangle + data->xtoviewangle[x])>>ANGLETOSKYSHIFT;
 		    data->dc_x = x;
-		    data->dc_source = R_GetColumn(skytexture, angle);
+		    data->dc_source = R_GetColumn(data->skytexture, angle);
 		    colfunc (data);
 		}
 	    }

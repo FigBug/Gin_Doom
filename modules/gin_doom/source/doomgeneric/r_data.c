@@ -856,7 +856,7 @@ void R_PrecacheLevel (data_t* data)
     //  while the sky texture is stored like
     //  a wall texture, with an episode dependend
     //  name.
-    texturepresent[skytexture] = 1;
+    texturepresent[data->skytexture] = 1;
 	
     texturememory = 0;
     for (i=0 ; i<numtextures ; i++)
@@ -880,7 +880,7 @@ void R_PrecacheLevel (data_t* data)
     spritepresent = Z_Malloc(data->numsprites, PU_STATIC, NULL);
     memset (spritepresent,0, data->numsprites);
 	
-    for (th = thinkercap.next ; th != &thinkercap ; th=th->next)
+    for (th = data->thinkercap.next ; th != &data->thinkercap ; th=th->next)
     {
 	if (th->function.acp1 == (actionf_p1)P_MobjThinker)
 	    spritepresent[((mobj_t *)th)->sprite] = 1;

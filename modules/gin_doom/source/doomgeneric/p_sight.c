@@ -320,7 +320,7 @@ P_CheckSight
     bitnum = 1 << (pnum&7);
 
     // Check in REJECT table.
-    if (rejectmatrix[bytenum]&bitnum)
+    if (data->rejectmatrix[bytenum]&bitnum)
     {
 	sightcounts[0]++;
 

@@ -55,7 +55,6 @@ void	P_SpawnMapThing (data_t* data, mapthing_t*	mthing);
 
 
 
-static int      totallines;
 
 // BLOCKMAP
 // Created from axis aligned bounding box
@@ -65,16 +64,9 @@ static int      totallines;
 // by spatial subdivision in 2D.
 //
 // Blockmap size.
-int		bmapwidth;
-int		bmapheight;	// size in mapblocks
-short*		blockmap;	// int for larger maps
-// offsets in blockmap are from here
-short*		blockmaplump;		
+// offsets in data->blockmap are from here
 // origin of block map
-fixed_t		bmaporgx;
-fixed_t		bmaporgy;
 // for thing chains
-mobj_t**	blocklinks;		
 
 
 // REJECT
@@ -84,7 +76,6 @@ mobj_t**	blocklinks;
 // Without special effect, this could be
 //  used as a PVS lookup as well.
 //
-byte*		rejectmatrix;
 
 
 // Maintain single and multi player starting spots.
@@ -496,29 +487,29 @@ void P_LoadBlockMap (data_t* data, int lump)
     lumplen = W_LumpLength(lump);
     count = lumplen / 2;
 	
-    blockmaplump = Z_Malloc(lumplen, PU_LEVEL, NULL);
-    W_ReadLump(lump, blockmaplump);
-    blockmap = blockmaplump + 4;
+    data->blockmaplump = Z_Malloc(lumplen, PU_LEVEL, NULL);
+    W_ReadLump(lump, data->blockmaplump);
+    data->blockmap = data->blockmaplump + 4;
 
     // Swap all short integers to native byte ordering.
   
     for (i=0; i<count; i++)
     {
-	blockmaplump[i] = SHORT(blockmaplump[i]);
+	data->blockmaplump[i] = SHORT(data->blockmaplump[i]);
     }
 		
     // Read the header
 
-    bmaporgx = blockmaplump[0]<<FRACBITS;
-    bmaporgy = blockmaplump[1]<<FRACBITS;
-    bmapwidth = blockmaplump[2];
-    bmapheight = blockmaplump[3];
+    data->bmaporgx = data->blockmaplump[0]<<FRACBITS;
+    data->bmaporgy = data->blockmaplump[1]<<FRACBITS;
+    data->bmapwidth = data->blockmaplump[2];
+    data->bmapheight = data->blockmaplump[3];
 	
     // Clear out mobj chains
 
-    count = sizeof(*blocklinks) * bmapwidth * bmapheight;
-    blocklinks = Z_Malloc(count, PU_LEVEL, 0);
-    memset(blocklinks, 0, count);
+    count = sizeof(*data->blocklinks) * data->bmapwidth * data->bmapheight;
+    data->blocklinks = Z_Malloc(count, PU_LEVEL, 0);
+    memset(data->blocklinks, 0, count);
 }
 
 
@@ -550,21 +541,21 @@ void P_GroupLines (data_t* data)
 
     // count number of data->lines in each sector
     li = data->lines;
-    totallines = 0;
+    data->totallines = 0;
     for (i=0 ; i<data->numlines ; i++, li++)
     {
-	totallines++;
+	data->totallines++;
 	li->frontsector->linecount++;
 
 	if (li->backsector && li->backsector != li->frontsector)
 	{
 	    li->backsector->linecount++;
-	    totallines++;
+	    data->totallines++;
 	}
     }
 
     // build line tables for each sector	
-    linebuffer = Z_Malloc (totallines*sizeof(line_t *), PU_LEVEL, 0);
+    linebuffer = Z_Malloc (data->totallines*sizeof(line_t *), PU_LEVEL, 0);
 
     for (i=0; i<data->numsectors; ++i)
     {
@@ -622,19 +613,19 @@ void P_GroupLines (data_t* data)
 	sector->soundorg.y = (bbox[BOXTOP]+bbox[BOXBOTTOM])/2;
 		
 	// adjust bounding box to map blocks
-	block = (bbox[BOXTOP]-bmaporgy+MAXRADIUS)>>MAPBLOCKSHIFT;
-	block = block >= bmapheight ? bmapheight-1 : block;
+	block = (bbox[BOXTOP]-data->bmaporgy+MAXRADIUS)>>MAPBLOCKSHIFT;
+	block = block >= data->bmapheight ? data->bmapheight-1 : block;
 	sector->blockbox[BOXTOP]=block;
 
-	block = (bbox[BOXBOTTOM]-bmaporgy-MAXRADIUS)>>MAPBLOCKSHIFT;
+	block = (bbox[BOXBOTTOM]-data->bmaporgy-MAXRADIUS)>>MAPBLOCKSHIFT;
 	block = block < 0 ? 0 : block;
 	sector->blockbox[BOXBOTTOM]=block;
 
-	block = (bbox[BOXRIGHT]-bmaporgx+MAXRADIUS)>>MAPBLOCKSHIFT;
-	block = block >= bmapwidth ? bmapwidth-1 : block;
+	block = (bbox[BOXRIGHT]-data->bmaporgx+MAXRADIUS)>>MAPBLOCKSHIFT;
+	block = block >= data->bmapwidth ? data->bmapwidth-1 : block;
 	sector->blockbox[BOXRIGHT]=block;
 
-	block = (bbox[BOXLEFT]-bmaporgx-MAXRADIUS)>>MAPBLOCKSHIFT;
+	block = (bbox[BOXLEFT]-data->bmaporgx-MAXRADIUS)>>MAPBLOCKSHIFT;
 	block = block < 0 ? 0 : block;
 	sector->blockbox[BOXLEFT]=block;
     }
@@ -655,7 +646,7 @@ static void PadRejectArray(data_t* data, byte *array, unsigned int len)
 
     unsigned int rejectpad[4] =
     {
-        ((totallines * 4 + 3) & ~3) + 24,     // Size
+        ((data->totallines * 4 + 3) & ~3) + 24,     // Size
         0,                                    // Part of z_zone block header
         50,                                   // PU_LEVEL
         0x1d4a11                              // DOOM_CONST_ZONEID
@@ -712,14 +703,14 @@ static void P_LoadReject(data_t* data, int lumpnum)
 
     if (lumplen >= minlength)
     {
-        rejectmatrix = W_CacheLumpNum(lumpnum, PU_LEVEL);
+        data->rejectmatrix = W_CacheLumpNum(lumpnum, PU_LEVEL);
     }
     else
     {
-        rejectmatrix = Z_Malloc(minlength, PU_LEVEL, &rejectmatrix);
-        W_ReadLump(lumpnum, rejectmatrix);
+        data->rejectmatrix = Z_Malloc(minlength, PU_LEVEL, &data->rejectmatrix);
+        W_ReadLump(lumpnum, data->rejectmatrix);
 
-        PadRejectArray(data, rejectmatrix + lumplen, minlength - lumplen);
+        PadRejectArray(data, data->rejectmatrix + lumplen, minlength - lumplen);
     }
 }
 
@@ -756,7 +747,7 @@ P_SetupLevel
     Z_FreeTags (PU_LEVEL, PU_PURGELEVEL-1);
 
     // UNUSED W_Profile ();
-    P_InitThinkers ();
+    P_InitThinkers (data);
 	   
     // find map name
     if ( gamemode == commercial)
@@ -810,7 +801,7 @@ P_SetupLevel
     }
 
     // clear special respawning que
-    iquehead = iquetail = 0;		
+    data->iquehead = data->iquetail = 0;		
 	
     // set up world state
     P_SpawnSpecials (data);

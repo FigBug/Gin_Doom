@@ -509,7 +509,7 @@ void R_Subsector (data_t* data, int num)
 	data->floorplane = NULL;
     
     if (frontsector->ceilingheight > data->viewz 
-	|| frontsector->ceilingpic == skyflatnum)
+	|| frontsector->ceilingpic == data->skyflatnum)
     {
 	data->ceilingplane = R_FindPlane (data, frontsector->ceilingheight,
 				    frontsector->ceilingpic,

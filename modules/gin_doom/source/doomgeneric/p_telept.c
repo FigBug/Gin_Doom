@@ -71,9 +71,9 @@ EV_Teleport
     {
 	if (data->sectors[ i ].tag == tag )
 	{
-	    thinker = thinkercap.next;
-	    for (thinker = thinkercap.next;
-		 thinker != &thinkercap;
+	    thinker = data->thinkercap.next;
+	    for (thinker = data->thinkercap.next;
+		 thinker != &data->thinkercap;
 		 thinker = thinker->next)
 	    {
 		// not a mobj

@@ -67,9 +67,9 @@
 extern	thinker_t	thinkercap;	
 
 
-void P_InitThinkers (void);
-void P_AddThinker (thinker_t* thinker);
-void P_RemoveThinker (thinker_t* thinker);
+void P_InitThinkers (data_t* data);
+void P_AddThinker (data_t* data, thinker_t* thinker);
+void P_RemoveThinker (data_t* data, thinker_t* thinker);
 
 
 //
@@ -175,7 +175,7 @@ P_PathTraverse
   int		flags,
   boolean	(*trav) (data_t*,intercept_t *));
 
-void P_UnsetThingPosition (mobj_t* thing);
+void P_UnsetThingPosition (data_t* data, mobj_t* thing);
 void P_SetThingPosition (data_t* data, mobj_t* thing);
 
 

@@ -36,15 +36,14 @@
 
 
 // Both the head and tail of the thinker list.
-thinker_t	thinkercap;
 
 
 //
 // P_InitThinkers
 //
-void P_InitThinkers (void)
+void P_InitThinkers (data_t* data)
 {
-    thinkercap.prev = thinkercap.next  = &thinkercap;
+    data->thinkercap.prev = data->thinkercap.next  = &data->thinkercap;
 }
 
 
@@ -54,12 +53,12 @@ void P_InitThinkers (void)
 // P_AddThinker
 // Adds a new thinker at the end of the list.
 //
-void P_AddThinker (thinker_t* thinker)
+void P_AddThinker (data_t* data, thinker_t* thinker)
 {
-    thinkercap.prev->next = thinker;
-    thinker->next = &thinkercap;
-    thinker->prev = thinkercap.prev;
-    thinkercap.prev = thinker;
+    data->thinkercap.prev->next = thinker;
+    thinker->next = &data->thinkercap;
+    thinker->prev = data->thinkercap.prev;
+    data->thinkercap.prev = thinker;
 }
 
 
@@ -69,7 +68,7 @@ void P_AddThinker (thinker_t* thinker)
 // Deallocation is lazy -- it will not actually be freed
 // until its thinking turn comes up.
 //
-void P_RemoveThinker (thinker_t* thinker)
+void P_RemoveThinker (data_t* data, thinker_t* thinker)
 {
   // FIXME: NOP.
   thinker->function.acv = (actionf_v)(-1);
@@ -81,7 +80,7 @@ void P_RemoveThinker (thinker_t* thinker)
 // P_AllocateThinker
 // Allocates memory and adds a new thinker at the end of the list.
 //
-void P_AllocateThinker (thinker_t*	thinker)
+void P_AllocateThinker (data_t* data, thinker_t* thinker)
 {
 }
 
@@ -94,8 +93,8 @@ void P_RunThinkers (data_t* data)
 {
     thinker_t*	currentthinker;
 
-    currentthinker = thinkercap.next;
-    while (currentthinker != &thinkercap)
+    currentthinker = data->thinkercap.next;
+    while (currentthinker != &data->thinkercap)
     {
 	if ( currentthinker->function.acv == (actionf_v)(-1) )
 	{

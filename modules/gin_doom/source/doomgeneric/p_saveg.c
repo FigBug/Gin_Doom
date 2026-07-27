@@ -1594,7 +1594,7 @@ void P_ArchiveThinkers (data_t* data)
     thinker_t*		th;
 
     // save off the current thinkers
-    for (th = thinkercap.next ; th != &thinkercap ; th=th->next)
+    for (th = data->thinkercap.next ; th != &data->thinkercap ; th=th->next)
     {
 	if (th->function.acp1 == (actionf_p1)P_MobjThinker)
 	{
@@ -1625,8 +1625,8 @@ void P_UnArchiveThinkers (data_t* data)
     mobj_t*		mobj;
     
     // remove all the current thinkers
-    currentthinker = thinkercap.next;
-    while (currentthinker != &thinkercap)
+    currentthinker = data->thinkercap.next;
+    while (currentthinker != &data->thinkercap)
     {
 	next = currentthinker->next;
 	
@@ -1637,7 +1637,7 @@ void P_UnArchiveThinkers (data_t* data)
 
 	currentthinker = next;
     }
-    P_InitThinkers ();
+    P_InitThinkers (data);
     
     // read in saved thinkers
     while (1)
@@ -1660,7 +1660,7 @@ void P_UnArchiveThinkers (data_t* data)
 	    mobj->floorz = mobj->subsector->sector->floorheight;
 	    mobj->ceilingz = mobj->subsector->sector->ceilingheight;
 	    mobj->thinker.function.acp1 = (actionf_p1)P_MobjThinker;
-	    P_AddThinker (&mobj->thinker);
+	    P_AddThinker (data, &mobj->thinker);
 	    break;
 
 	  default:
@@ -1707,7 +1707,7 @@ void P_ArchiveSpecials (data_t* data)
     int			i;
 	
     // save off the current thinkers
-    for (th = thinkercap.next ; th != &thinkercap ; th=th->next)
+    for (th = data->thinkercap.next ; th != &data->thinkercap ; th=th->next)
     {
 	if (th->function.acv == (actionf_v)NULL)
 	{
@@ -1821,7 +1821,7 @@ void P_UnArchiveSpecials (data_t* data)
 	    if (ceiling->thinker.function.acp1)
 		ceiling->thinker.function.acp1 = (actionf_p1)T_MoveCeiling;
 
-	    P_AddThinker (&ceiling->thinker);
+	    P_AddThinker (data, &ceiling->thinker);
 	    P_AddActiveCeiling(data, ceiling);
 	    break;
 				
@@ -1831,7 +1831,7 @@ void P_UnArchiveSpecials (data_t* data)
             saveg_read_vldoor_t(data, door);
 	    door->sector->specialdata = door;
 	    door->thinker.function.acp1 = (actionf_p1)T_VerticalDoor;
-	    P_AddThinker (&door->thinker);
+	    P_AddThinker (data, &door->thinker);
 	    break;
 				
 	  case tc_floor:
@@ -1840,7 +1840,7 @@ void P_UnArchiveSpecials (data_t* data)
             saveg_read_floormove_t(data, floor);
 	    floor->sector->specialdata = floor;
 	    floor->thinker.function.acp1 = (actionf_p1)T_MoveFloor;
-	    P_AddThinker (&floor->thinker);
+	    P_AddThinker (data, &floor->thinker);
 	    break;
 				
 	  case tc_plat:
@@ -1852,7 +1852,7 @@ void P_UnArchiveSpecials (data_t* data)
 	    if (plat->thinker.function.acp1)
 		plat->thinker.function.acp1 = (actionf_p1)T_PlatRaise;
 
-	    P_AddThinker (&plat->thinker);
+	    P_AddThinker (data, &plat->thinker);
 	    P_AddActivePlat(data, plat);
 	    break;
 				
@@ -1861,7 +1861,7 @@ void P_UnArchiveSpecials (data_t* data)
 	    flash = Z_Malloc (sizeof(*flash), PU_LEVEL, NULL);
             saveg_read_lightflash_t(data, flash);
 	    flash->thinker.function.acp1 = (actionf_p1)T_LightFlash;
-	    P_AddThinker (&flash->thinker);
+	    P_AddThinker (data, &flash->thinker);
 	    break;
 				
 	  case tc_strobe:
@@ -1869,7 +1869,7 @@ void P_UnArchiveSpecials (data_t* data)
 	    strobe = Z_Malloc (sizeof(*strobe), PU_LEVEL, NULL);
             saveg_read_strobe_t(data, strobe);
 	    strobe->thinker.function.acp1 = (actionf_p1)T_StrobeFlash;
-	    P_AddThinker (&strobe->thinker);
+	    P_AddThinker (data, &strobe->thinker);
 	    break;
 				
 	  case tc_glow:
@@ -1877,7 +1877,7 @@ void P_UnArchiveSpecials (data_t* data)
 	    glow = Z_Malloc (sizeof(*glow), PU_LEVEL, NULL);
             saveg_read_glow_t(data, glow);
 	    glow->thinker.function.acp1 = (actionf_p1)T_Glow;
-	    P_AddThinker (&glow->thinker);
+	    P_AddThinker (data, &glow->thinker);
 	    break;
 				
 	  default:

@@ -41,7 +41,6 @@
 // 16 pixels of bob
 #define MAXBOB	0x100000	
 
-boolean		onground;
 
 
 //
@@ -87,7 +86,7 @@ void P_CalcHeight (data_t* data, player_t* player)
     if (player->bob>MAXBOB)
 	player->bob = MAXBOB;
 
-    if ((player->cheats & CF_NOMOMENTUM) || !onground)
+    if ((player->cheats & CF_NOMOMENTUM) || !data->onground)
     {
 	player->viewz = player->mo->z + VIEWHEIGHT;
 
@@ -147,13 +146,13 @@ void P_MovePlayer (data_t* data, player_t* player)
     player->mo->angle += (cmd->angleturn<<16);
 
     // Do not let the player control movement
-    //  if not onground.
-    onground = (player->mo->z <= player->mo->floorz);
+    //  if not data->onground.
+    data->onground = (player->mo->z <= player->mo->floorz);
 	
-    if (cmd->forwardmove && onground)
+    if (cmd->forwardmove && data->onground)
 	P_Thrust (player, player->mo->angle, cmd->forwardmove*2048);
     
-    if (cmd->sidemove && onground)
+    if (cmd->sidemove && data->onground)
 	P_Thrust (player, player->mo->angle-ANG90, cmd->sidemove*2048);
 
     if ( (cmd->forwardmove || cmd->sidemove) 
@@ -187,7 +186,7 @@ void P_DeathThink (data_t* data, player_t* player)
 	player->viewheight = 6*FRACUNIT;
 
     player->deltaviewheight = 0;
-    onground = (player->mo->z <= player->mo->floorz);
+    data->onground = (player->mo->z <= player->mo->floorz);
     P_CalcHeight (data, player);
 	
     if (player->attacker && player->attacker != player->mo)

@@ -98,8 +98,6 @@ P_SetPsprite
 //
 // P_CalcSwing
 //	
-fixed_t		swingx;
-fixed_t		swingy;
 
 void P_CalcSwing (data_t* data, player_t* player)
 {
@@ -113,10 +111,10 @@ void P_CalcSwing (data_t* data, player_t* player)
     swing = player->bob;
 
     angle = (FINEANGLES/70*data->leveltime)&FINEMASK;
-    swingx = FixedMul ( swing, finesine[angle]);
+    data->swingx = FixedMul ( swing, finesine[angle]);
 
     angle = (FINEANGLES/70*data->leveltime+FINEANGLES/2)&FINEMASK;
-    swingy = -FixedMul ( swingx, finesine[angle]);
+    data->swingy = -FixedMul ( data->swingx, finesine[angle]);
 }
 
 
@@ -613,7 +611,6 @@ A_FirePlasma
 // Sets a slope so a near miss is at aproximately
 // the height of the intended target
 //
-fixed_t		bulletslope;
 
 
 void P_BulletSlope (data_t* data, mobj_t*	mo)
@@ -622,16 +619,16 @@ void P_BulletSlope (data_t* data, mobj_t*	mo)
     
     // see which target is to be aimed at
     an = mo->angle;
-    bulletslope = P_AimLineAttack (data, mo, an, 16*64*FRACUNIT);
+    data->bulletslope = P_AimLineAttack (data, mo, an, 16*64*FRACUNIT);
 
     if (!data->linetarget)
     {
 	an += 1<<26;
-	bulletslope = P_AimLineAttack (data, mo, an, 16*64*FRACUNIT);
+	data->bulletslope = P_AimLineAttack (data, mo, an, 16*64*FRACUNIT);
 	if (!data->linetarget)
 	{
 	    an -= 2<<26;
-	    bulletslope = P_AimLineAttack (data, mo, an, 16*64*FRACUNIT);
+	    data->bulletslope = P_AimLineAttack (data, mo, an, 16*64*FRACUNIT);
 	}
     }
 }
@@ -655,7 +652,7 @@ P_GunShot
     if (!accurate)
 	angle += (P_Random (data)-P_Random (data))<<18;
 
-    P_LineAttack (data, mo, angle, MISSILERANGE, bulletslope, damage);
+    P_LineAttack (data, mo, angle, MISSILERANGE, data->bulletslope, damage);
 }
 
 
@@ -743,7 +740,7 @@ A_FireShotgun2
 	P_LineAttack (data, player->mo,
 		      angle,
 		      MISSILERANGE,
-		      bulletslope + ((P_Random (data)-P_Random (data))<<5), damage);
+		      data->bulletslope + ((P_Random (data)-P_Random (data))<<5), damage);
     }
 }
 

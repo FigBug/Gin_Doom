@@ -348,6 +348,33 @@ struct data_s
 	boolean         earlyout;
 	int             ptflags;
 
+	// p_tick.c
+	thinker_t       thinkercap;
+	// p_setup.c
+	int             totallines;
+	int             bmapwidth;
+	int             bmapheight;
+	short*          blockmap;
+	short*          blockmaplump;
+	fixed_t         bmaporgx;
+	fixed_t         bmaporgy;
+	mobj_t**        blocklinks;
+	byte*           rejectmatrix;
+	// r_sky.c
+	int             skyflatnum;
+	int             skytexture;
+	int             skytexturemid;
+	// p_user.c
+	boolean         onground;
+	// p_mobj.c
+	int             itemrespawntime[128];  // ITEMQUESIZE
+	int             iquehead;
+	int             iquetail;
+	// p_pspr.c
+	fixed_t         swingx;
+	fixed_t         swingy;
+	fixed_t         bulletslope;
+
 	// level geometry (p_setup.c)
 	int             numvertexes;
 	vertex_t*       vertexes;
