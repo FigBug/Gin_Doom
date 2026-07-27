@@ -34,6 +34,10 @@ void Couch_Barrier(data_t* data);
 // instance doesn't deadlock the others).
 void Couch_Shutdown(void);
 
+// True once Couch_Shutdown has been called; the game loop stops cleanly rather
+// than running a tic with undistributed ticcmds.
+boolean Couch_Aborting(void);
+
 // Clear all arbiter state for a fresh session (host calls before a new match).
 void Couch_Reset(void);
 

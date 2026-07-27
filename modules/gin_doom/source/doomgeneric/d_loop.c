@@ -715,6 +715,15 @@ void TryRunTics (data_t* data)
 
         Couch_Barrier (data);
 
+        // Shutting down: the barrier aborted without distributing this tic's
+        // commands, so don't run it (a tic with stale ticcmds trips the
+        // consistency check -> I_Error, which hangs the thread). Stop cleanly.
+        if (Couch_Aborting())
+        {
+            data->runloop = 0;
+            return;
+        }
+
         set = &data->ticdata[data->gametic % BACKUPTICS];
         memcpy (data->local_playeringame, set->ingame, sizeof(data->local_playeringame));
         loop_interface->RunTic (data, set->cmds, set->ingame);

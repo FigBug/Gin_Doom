@@ -121,6 +121,14 @@ void Couch_Shutdown(void)
     C_UNLOCK();
 }
 
+// True once shutdown has been requested. The game loop uses this to stop
+// cleanly instead of running a tic with undistributed ticcmds (which would
+// trip the consistency check -> I_Error).
+boolean Couch_Aborting(void)
+{
+    return couch_abort ? true : false;
+}
+
 void Couch_Barrier(data_t* data)
 {
     unsigned int gen;

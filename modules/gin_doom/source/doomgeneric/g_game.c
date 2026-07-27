@@ -789,10 +789,10 @@ boolean G_Responder (data_t* data, event_t* ev)
 // G_Ticker
 // Make ticcmd_ts for the data->players.
 //
-void G_Ticker (data_t* data) 
-{ 
+void G_Ticker (data_t* data)
+{
     int		i;
-    int		buf; 
+    int		buf;
     ticcmd_t*	cmd;
     
     // do player reborns if needed
@@ -955,12 +955,16 @@ void G_Ticker (data_t* data)
 	    int i, j;
 	    for (i = 0; i < MAXPLAYERS; ++i)
 	    {
-	        int total = 0;
+	        int score = 0;
 	        if (!data->playeringame[i])
 	            continue;
+	        // Same score the status bar shows: frags on others minus your own
+	        // environment/suicide deaths (the diagonal frags[i][i]).
 	        for (j = 0; j < MAXPLAYERS; ++j)
-	            total += data->players[i].frags[j];
-	        if (total >= data->couch_fraglimit)
+	            score += (j == i) ? -data->players[i].frags[j]
+	                              :  data->players[i].frags[j];
+
+	        if (score >= data->couch_fraglimit)
 	        {
 	            data->couch_fragged = 1;
 	            G_ExitLevel (data);
