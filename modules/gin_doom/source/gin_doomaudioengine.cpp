@@ -19,7 +19,13 @@ void DoomAudioEngine::Channel::processBlock (juce::AudioBuffer<float>& bufferOut
 {
     fifo.setResamplingRatio (samplerate, sampleRateOut);
 
-    while (fifo.samplesReady() < buffer.getNumSamples())
+    const int needed = bufferOut.getNumSamples();
+
+    // Push input until the FIFO can supply this output block. Bound by the
+    // output block size (not the whole sound) - otherwise the FIFO over-buffers,
+    // truncates the tail, and can overflow on longer sounds, audible as
+    // clicks/dropouts.
+    while (fifo.samplesReady() < needed)
     {
         int todo = std::min (16, buffer.getNumSamples() - pos);
         if (todo == 0)
@@ -37,7 +43,16 @@ void DoomAudioEngine::Channel::processBlock (juce::AudioBuffer<float>& bufferOut
         }
     }
 
-    fifo.popAudioBufferAdding (bufferOut);
+    // Pop the resampled block and mix it in with Doom's per-sound volume and
+    // stereo separation (gainL/gainR). Applying them here honours distance/pan
+    // instead of every sound playing at full scale (which summed across channels
+    // and instances into constant clipping).
+    gin::ScratchBuffer scratch (2, needed);
+    fifo.popAudioBuffer (scratch);
+
+    bufferOut.addFrom (0, 0, scratch, 0, 0, needed, gainL);
+    if (bufferOut.getNumChannels() > 1)
+        bufferOut.addFrom (1, 0, scratch, 1, 0, needed, gainR);
 }
 
 DoomAudioEngine::DoomAudioEngine()
