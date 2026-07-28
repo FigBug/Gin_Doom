@@ -96,6 +96,11 @@ void Bot_BuildTiccmd (data_t* data, ticcmd_t* cmd)
         return;
     }
 
+    // Periodically tap Use (a rising edge every 16 tics) so bots can open doors
+    // and hit switches they walk into. Harmless where there's nothing to use.
+    if ((data->leveltime & 15) < 2)
+        cmd->buttons |= BT_USE;
+
     // How far did we actually move since last tic? (We always command forward
     // motion, so little movement means we're jammed on geometry.)
     moved = P_AproxDistance (mo->x - data->bot_lastx, mo->y - data->bot_lasty);
