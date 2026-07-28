@@ -691,6 +691,7 @@ struct data_s
 	int             bot_stuck;          // consecutive tics of ~no movement
 	int             bot_escape;         // tics left in an unstick manoeuvre
 	int             bot_escape_turn;    // angleturn/tic while escaping
+	int             bot_strafe;         // current juke/strafe direction (+1/-1)
 
 	// g_game.c demo/game state
 	char*           demoname;
