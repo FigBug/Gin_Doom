@@ -683,6 +683,7 @@ struct data_s
 	int             couch_nomonsters;   // 1 = no monsters
 	int             couch_fraglimit;    // 0 = unlimited; end level at N frags
 	int             couch_fragged;      // internal: set once frag limit reached
+	int             couch_end_count;    // internal: tics on the frag-limit frag table
 	int             couch_bot;          // 1 = this player is an AI bot
 	unsigned int    bot_seed;           // bot's private RNG (never touches rndindex)
 	fixed_t         bot_lastx;          // last-tic position, for stuck detection

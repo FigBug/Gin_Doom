@@ -67,6 +67,11 @@ void Bot_BuildTiccmd (data_t* data, ticcmd_t* cmd)
     mobj_t*   target;
     fixed_t   moved;
 
+    // Only act during play - don't press buttons on the intermission (frag
+    // table), which would accelerate past it.
+    if (data->gamestate != GS_LEVEL)
+        return;
+
     if (mo == NULL || pl->playerstate == PST_DEAD)
     {
         // Dead: P_DeathThink respawns on BT_USE (not BT_ATTACK).

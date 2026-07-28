@@ -71,6 +71,7 @@
 
 
 #include "g_game.h"
+#include "couch.h"
 
 
 #define SAVEGAMESIZE	0x2c000
@@ -974,9 +975,14 @@ void G_Ticker (data_t* data)
 	}
 	break;
 	 
-      case GS_INTERMISSION: 
-	WI_Ticker (data); 
-	break; 
+      case GS_INTERMISSION:
+	WI_Ticker (data);
+	// CouchDoom: the deathmatch frag table waits for a keypress to advance,
+	// so on a frag-limit end auto-return to the lobby after a few seconds of
+	// showing the scores. Deterministic across instances (synced gamestate).
+	if (data->couch_fragged && ++data->couch_end_count > 5 * TICRATE)
+	    Couch_RequestQuit();
+	break;
 			 
       case GS_FINALE: 
 	F_Ticker (data); 
@@ -1481,12 +1487,22 @@ void G_WorldDone (data_t* data)
  
 void G_DoWorldDone (data_t* data)
 {        
-    data->gamestate = GS_LEVEL; 
-    data->gamemap = data->wminfo.next+1; 
+    // CouchDoom: if the level ended on the frag limit, the frag-table
+    // intermission has now been shown - return to the lobby instead of rolling
+    // on to the next map. Deterministic: every instance set couch_fragged on
+    // the same tic, so they all request it together.
+    if (data->couch_fragged)
+    {
+        Couch_RequestQuit();
+        return;
+    }
+
+    data->gamestate = GS_LEVEL;
+    data->gamemap = data->wminfo.next+1;
     G_DoLoadLevel (data);
-    data->gameaction = ga_nothing; 
-    data->viewactive = true; 
-} 
+    data->gameaction = ga_nothing;
+    data->viewactive = true;
+}
  
 
 
