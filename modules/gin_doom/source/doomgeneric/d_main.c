@@ -1557,7 +1557,13 @@ void D_DoomMain (data_t* data)
     I_InitTimer();
     I_InitJoystick();
     I_InitSound(data, true);
-    I_InitMusic(data);
+    // Only init music when this instance is allowed it. I_InitSound already
+    // gates the (shared) music module on -nomusic, but I_InitMusic->OPL init
+    // (which sets the per-instance data->opl_music the audio thread renders) is
+    // otherwise ungated - so every couch instance would play its own copy of
+    // the track, out of phase. In CouchDoom only player 0 omits -nomusic.
+    if (M_CheckParm(data, "-nomusic") == 0)
+        I_InitMusic(data);
 
 #ifdef FEATURE_MULTIPLAYER
     printf ("NET_Init: Init network subsystem.\n");
