@@ -35,6 +35,10 @@ public:
 	juce::Image getScreen();
 	int mapKey (int key);
 
+	// Number key ('1'..'7') to select the next/previous weapon this instance's
+	// player actually owns, relative to the one they're holding (0 if none).
+	int cycleWeaponKey (bool forward);
+
     DoomAudioEngine& getAudioEngine()   { return audio; }
 
 private:

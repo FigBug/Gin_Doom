@@ -228,6 +228,45 @@ juce::Image Doom::getScreen()
 	return screen;
 }
 
+int Doom::cycleWeaponKey (bool forward)
+{
+    auto data = (data_t*) user_data;
+    if (data == nullptr)
+        return 0;
+
+    player_t* pl = &data->players[couchIndex];
+
+    // Weapon slot order (Doom 1). Fist/chainsaw share '1', so both appear.
+    static const int order[] = { wp_fist, wp_chainsaw, wp_pistol, wp_shotgun,
+                                 wp_chaingun, wp_missile, wp_plasma, wp_bfg };
+    const int n = (int) (sizeof (order) / sizeof (order[0]));
+
+    int idx = 0;
+    for (int i = 0; i < n; ++i)
+        if (order[i] == pl->readyweapon) { idx = i; break; }
+
+    // Walk from the current weapon to the next/previous one we actually own.
+    for (int s = 1; s <= n; ++s)
+    {
+        int wt = order[forward ? (idx + s) % n : (idx - s + n) % n];
+        if (! pl->weaponowned[wt])
+            continue;
+
+        switch (wt)
+        {
+            case wp_fist:  case wp_chainsaw: return '1';
+            case wp_pistol:                  return '2';
+            case wp_shotgun:                 return '3';
+            case wp_chaingun:                return '4';
+            case wp_missile:                 return '5';
+            case wp_plasma:                  return '6';
+            case wp_bfg:                     return '7';
+        }
+    }
+
+    return 0;
+}
+
 void Doom::run()
 {
 	auto self = juce::WeakReference<Doom> (this);
