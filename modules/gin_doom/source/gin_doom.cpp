@@ -108,18 +108,18 @@ void updateFrame (Doom* doom, const uint32_t* srcBuffer)
     {
         juce::Image::BitmapData imgData (img, juce::Image::BitmapData::writeOnly);
 
-        // DG_ScreenBuffer packs each pixel as 0xBBRRGGAA; JUCE's little-endian
-        // PixelARGB wants 0xAARRGGBB. Swap the outer bytes (B<->A), keep R,G.
+        // DG_ScreenBuffer packs each pixel as 0x00RRGGBB (i_video.c s_Fb:
+        // red @16, green @8, blue @0). That already matches JUCE's little-endian
+        // PixelARGB byte order (b,g,r,a) - just force alpha opaque. (The old
+        // code read blue from the top byte, which is always 0, so it dropped
+        // blue from every pixel and tinted the whole game yellow.)
         for (int y = 0; y < 400; ++y)
         {
             auto*       dst = (uint32_t*) imgData.getLinePointer (y);
             const auto* src = srcBuffer + y * 640;
 
             for (int x = 0; x < 640; ++x)
-            {
-                const uint32_t px = src[x];
-                dst[x] = (px & 0x00ffff00u) | (px >> 24) | ((px & 0xffu) << 24);
-            }
+                dst[x] = src[x] | 0xff000000u;
         }
     }
 
