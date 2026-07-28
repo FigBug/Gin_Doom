@@ -8,6 +8,12 @@ public:
 
     void processBlock (juce::AudioBuffer<float>& buffer, int sampleRate);
 
+    // SFX and music separately, so the CouchDoom mixer can spatialise this
+    // player's SFX by screen position while keeping music centred. processBlock
+    // renders both together (for standalone single-instance use).
+    void processSfx   (juce::AudioBuffer<float>& buffer, int sampleRate);
+    void processMusic (juce::AudioBuffer<float>& buffer, int sampleRate);
+
     void precacheSounds (void* sounds, int num_sounds);
     int getSfxLumpNum (void* sfx);
     void updateSoundParams (int handle, int vol, int sep);
@@ -24,9 +30,6 @@ public:
 
 private:
     juce::CriticalSection lock;
-
-    // Pull this instance's OPL FM-synth music into the output buffer.
-    void renderMusic (juce::AudioBuffer<float>& buffer, int sampleRate);
 
     // The owning instance's data_t (opaque here; cast in the .cpp). Used to
     // reach the per-instance music state on the audio thread.

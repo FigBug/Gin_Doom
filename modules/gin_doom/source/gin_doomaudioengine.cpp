@@ -65,17 +65,19 @@ DoomAudioEngine::~DoomAudioEngine()
 {
 }
 
+void DoomAudioEngine::processSfx (juce::AudioBuffer<float>& buffer, int sampleRate)
+{
+    juce::ScopedLock sl (lock);
+
+    for (auto& ch : channels)
+        if (ch.playing)
+            ch.processBlock (buffer, sampleRate);
+}
+
 void DoomAudioEngine::processBlock (juce::AudioBuffer<float>& buffer, int sampleRate)
 {
-    {
-        juce::ScopedLock sl (lock);
-
-        for (auto& ch : channels)
-            if (ch.playing)
-                ch.processBlock (buffer, sampleRate);
-    }
-
-    renderMusic (buffer, sampleRate);
+    processSfx   (buffer, sampleRate);
+    processMusic (buffer, sampleRate);
 }
 
 void DoomAudioEngine::attach (void* data)
@@ -84,7 +86,7 @@ void DoomAudioEngine::attach (void* data)
     doomData = data;
 }
 
-void DoomAudioEngine::renderMusic (juce::AudioBuffer<float>& buffer, int sampleRate)
+void DoomAudioEngine::processMusic (juce::AudioBuffer<float>& buffer, int sampleRate)
 {
     if (buffer.getNumChannels() < 1)
         return;
