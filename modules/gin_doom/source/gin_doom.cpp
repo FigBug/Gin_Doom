@@ -95,10 +95,46 @@ constexpr auto shift = 0x100001;
 constexpr auto alt   = 0x100002;
 constexpr auto ctrl  = 0x100003;
 
-void updateFrame (Doom* doom, juce::Image img)
+// Convert the freshly-rendered framebuffer into one of the instance's two
+// persistent images and publish it. Double-buffering lets paint() keep reading
+// last frame's image while we fill this one, and reusing the images avoids
+// allocating (and zero-filling) a fresh 640x400 image every frame, per instance.
+void updateFrame (Doom* doom, const uint32_t* srcBuffer)
 {
+    juce::Image& img = doom->frameBuffers[doom->frameIndex];
+    if (img.isNull())
+        img = juce::Image (juce::Image::ARGB, 640, 400, false);
+
+    {
+        juce::Image::BitmapData imgData (img, juce::Image::BitmapData::writeOnly);
+
+        // DG_ScreenBuffer packs each pixel as 0xBBRRGGAA; JUCE's little-endian
+        // PixelARGB wants 0xAARRGGBB. Swap the outer bytes (B<->A), keep R,G.
+        for (int y = 0; y < 400; ++y)
+        {
+            auto*       dst = (uint32_t*) imgData.getLinePointer (y);
+            const auto* src = srcBuffer + y * 640;
+
+            for (int x = 0; x < 640; ++x)
+            {
+                const uint32_t px = src[x];
+                dst[x] = (px & 0x00ffff00u) | (px >> 24) | ((px & 0xffu) << 24);
+            }
+        }
+    }
+
+    doom->frameIndex ^= 1;   // next frame fills the other buffer
+
     juce::ScopedLock sl (doom->lock);
-	doom->screen = img;
+    doom->screen = img;
+
+    // Only self-drive a repaint when this instance owns a component (the
+    // single-instance plugin). Multi-instance hosts (CouchDoom) render every
+    // framebuffer themselves on their own clock, so posting here would just be
+    // redundant message-thread churn.
+    if (doom->component == nullptr)
+        return;
+
     juce::MessageManager::callAsync ([doom, safe = juce::Component::SafePointer<juce::Component> (doom->component)]
     {
         if (safe && doom)
@@ -129,31 +165,7 @@ extern "C" void DG_DrawFrame (data_t* data)
     if (doom == nullptr)
         return;
 
-    juce::Image img (juce::Image::ARGB, 640, 400, true);
-
-    juce::Image::BitmapData imgData (img, juce::Image::BitmapData::readOnly);
-
-    for (int y = 0; y < 400; y++)
-    {
-        uint8_t* p = imgData.getLinePointer (y);
-
-        for (int x = 0; x < 640; x++)
-        {
-            uint32_t px = data->DG_ScreenBuffer[y * 640 + x];
-
-            uint8_t b = uint8_t ((px & 0xff000000) >> 24);
-            uint8_t r = uint8_t ((px & 0x00ff0000) >> 16);
-            uint8_t g = uint8_t ((px & 0x0000ff00) >> 8);
-            uint8_t a = uint8_t ((px & 0x000000ff) >> 0);
-
-            juce::PixelARGB* s = (juce::PixelARGB*)p;
-            s->setARGB (a, r, g, b);
-
-            p += imgData.pixelStride;
-        }
-    }
-
-    updateFrame (doom, img);
+    updateFrame (doom, data->DG_ScreenBuffer);
 }
 
 extern "C" void DG_SleepMs (data_t* /*data*/, uint32_t ms)

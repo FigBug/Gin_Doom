@@ -42,7 +42,7 @@ public:
     DoomAudioEngine& getAudioEngine()   { return audio; }
 
 private:
-    friend void updateFrame (Doom*, juce::Image img);
+    friend void updateFrame (Doom*, const uint32_t* srcBuffer);
     friend std::optional<std::pair<int, bool>> getKeyEvent (Doom*);
 
     void run() override;
@@ -51,7 +51,9 @@ private:
 
 	void*			user_data;
 
-	juce::Image 	screen;
+	juce::Image 	screen;                 // published front buffer (read by getScreen)
+	juce::Image 	frameBuffers[2];        // double buffer written by updateFrame
+	int         	frameIndex = 0;         // which of frameBuffers is the back buffer
 	DoomComponent*	component = nullptr;
     juce::File 		wadFile;
     bool            playMusic = true;
